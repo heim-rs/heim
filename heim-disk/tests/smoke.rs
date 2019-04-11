@@ -1,5 +1,5 @@
-use heim_runtime::{self as runtime, SyncRuntime};
 use heim_disk as disk;
+use heim_runtime::{self as runtime, SyncRuntime};
 
 #[test]
 fn smoke_partitions() {
@@ -39,7 +39,7 @@ fn smoke_usage() {
     let _ = usage.total();
     let _ = usage.used();
     let _ = usage.free();
-    let _ = usage.percentage();
+    let _ = usage.ratio();
 }
 
 #[test]

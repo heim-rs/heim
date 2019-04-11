@@ -18,6 +18,6 @@ pub use self::swap::*;
 
 /// Re-exported measurement units used in this crate.
 pub mod units {
-    pub use heim_common::units::iec::usize::Information;
     pub use heim_common::units::iec::information::*;
+    pub use heim_common::units::iec::usize::Information;
 }

@@ -4,13 +4,12 @@ use std::path::Path;
 use heim_common::prelude::*;
 
 use crate::{sys, Pid, ProcessState};
-use crate::types::EnvOs;
 
 #[derive(heim_derive::ImplWrap)]
 pub struct Process(sys::Process);
 
 impl Process {
-    pub fn from_pid(pid: Pid) -> impl Future<Item=Process, Error=Error> {
+    pub fn from_pid(pid: Pid) -> impl Future<Item = Process, Error = Error> {
         sys::Process::from_pid(pid).map(Into::into)
     }
 
@@ -38,12 +37,12 @@ impl Process {
         self.as_ref().state()
     }
 
-//    /// Returns process environment
-//    // TODO: Move to `ProcessExt`
-//    #[doc(hidden)]
-//    pub fn environ(&self) -> &EnvOs {
-//        self.as_ref().environ()
-//    }
+    //    /// Returns process environment
+    //    // TODO: Move to `ProcessExt`
+    //    #[doc(hidden)]
+    //    pub fn environ(&self) -> &EnvOs {
+    //        self.as_ref().environ()
+    //    }
 }
 
 impl fmt::Debug for Process {
@@ -58,6 +57,6 @@ impl fmt::Debug for Process {
     }
 }
 
-pub fn processes() -> impl Stream<Item=Process, Error=Error> {
+pub fn processes() -> impl Stream<Item = Process, Error = Error> {
     sys::processes().map(Into::into)
 }

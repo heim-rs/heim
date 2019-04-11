@@ -70,6 +70,7 @@ impl FromStr for IoCounters {
     // Example:
     // wlp3s0: 550608563  390526    0    0    0 61962          0         0 14822919  103337    0    0    0     0       0
     // 0
+    #[allow(clippy::redundant_closure)]
     fn from_str(s: &str) -> Result<IoCounters> {
         let mut parts = s.split_whitespace();
         let interface = match parts.next() {

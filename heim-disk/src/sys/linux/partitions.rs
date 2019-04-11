@@ -92,7 +92,7 @@ pub fn partitions() -> impl Stream<Item = Partition, Error = Error> {
     utils::fs::read_lines("/proc/mounts").filter_map(|line| match Partition::from_str(&line) {
         Ok(partition) => Some(partition),
         Err(e) => {
-            dbg!(e);
+            println!("{:?}", e);
             None
         }, // TODO: trace!
     })

@@ -1,4 +1,4 @@
-use crate::{EnvOs};
+use crate::EnvOs;
 
 #[test]
 fn parse_empty() {

@@ -23,10 +23,14 @@ impl FromStr for Stat {
     fn from_str(s: &str) -> Result<Stat> {
         let mut parts = s.splitn(2, ' ');
         let pid: Pid = parts.try_from_next()?;
-        let rest = parts.next().ok_or(Error::new(ErrorKind::Parse))?;
-        let name_end = rest.chars().enumerate().skip(1).position(|(_, c)| c == ')')
+        let rest = parts.next().ok_or_else(|| Error::new(ErrorKind::Parse))?;
+        let name_end = rest
+            .chars()
+            .enumerate()
+            .skip(1)
+            .position(|(_, c)| c == ')')
             .ok_or_else(|| Error::new(ErrorKind::Parse))?;
-        let name = rest[1..name_end + 1].to_string();
+        let name = rest[1..=name_end].to_string();
         // Skipping the ") " part.
         let mut parts = rest[name_end + 3..].split_whitespace();
         let state: ProcessState = parts.try_from_next()?;
@@ -42,8 +46,10 @@ impl FromStr for Stat {
 }
 
 impl Stat {
-    pub fn from_path<T>(path: T) -> impl Future<Item=Stat, Error=Error>
-            where T: AsRef<Path> + Send + 'static {
+    pub fn from_path<T>(path: T) -> impl Future<Item = Stat, Error = Error>
+    where
+        T: AsRef<Path> + Send + 'static,
+    {
         utils::fs::read_into(path)
     }
 
@@ -81,7 +87,7 @@ impl FromStr for ProcessState {
             "W" => ProcessState::Waking,
             "P" => ProcessState::Parked,
             "I" => ProcessState::Idle,
-            other => unreachable!("Unknown process state {}", other)
+            other => unreachable!("Unknown process state {}", other),
         };
 
         Ok(res)

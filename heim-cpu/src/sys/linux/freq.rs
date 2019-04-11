@@ -43,15 +43,26 @@ pub fn frequency() -> impl Future<Item=CpuFrequency, Error=Error> {
     let init = CpuFrequency::default();
     frequencies().fold((init, 0u64), |(acc, amount), freq| {
         Ok::<_, Error>((acc + freq, amount + 1))
-    }).map(|(mut freq, amount)| {
-        freq.current /= amount;
-        if let Some(min) = freq.min.as_mut() {
-            *min /= amount;
+    })
+    .and_then(|(mut freq, amount)| {
+        if amount > 0 {
+            // Will panic here if `frequencies()` stream returns nothing,
+            // which is either a bug in implementation or we are in container
+            // and should fetch information from the another place.
+            freq.current /= amount;
+            if let Some(min) = freq.min.as_mut() {
+                *min /= amount;
+            }
+            if let Some(max) = freq.max.as_mut() {
+                *max /= amount;
+            }
+            Ok(freq)
+        } else {
+            // Unable to determine CPU frequencies for some reasons.
+            // Might happen for containerized environments, such as Microsoft Azure, for example.
+            // TODO: Better error
+            Err(Error::new(ErrorKind::Parse))
         }
-        if let Some(max) = freq.max.as_mut() {
-            *max /= amount;
-        }
-        freq
     })
 }
 

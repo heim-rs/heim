@@ -1,6 +1,6 @@
 use heim_common::units::si::time::second;
-use heim_runtime::{self as runtime, SyncRuntime};
 use heim_host as host;
+use heim_runtime::{self as runtime, SyncRuntime};
 
 #[test]
 fn smoke_platform() {

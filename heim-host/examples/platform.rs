@@ -6,7 +6,7 @@ fn main() -> Result<()> {
     let mut runtime = runtime::new()?;
     let platform = runtime.block_run(host::platform())?;
 
-    dbg!(platform);
+    println!("{:?}", platform);
 
     Ok(())
 }

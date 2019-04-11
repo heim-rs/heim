@@ -1,45 +1,44 @@
 use tokio::prelude::*;
-use tokio::sync::mpsc;
 use tokio::runtime::{self, current_thread};
+use tokio::sync::mpsc;
 
 /// Extension for `tokio` runtime, which runs `Future`s and `Stream`s in a blocking manner.
 pub trait SyncRuntime {
     /// Blocks current thread and drives passed future to the completion.
     fn block_run<F>(&mut self, f: F) -> Result<F::Item, F::Error>
-        where
-            F: Future + Send + 'static,
-            F::Item: Send + 'static,
-            F::Error: Send + 'static;
+    where
+        F: Future + Send + 'static,
+        F::Item: Send + 'static,
+        F::Error: Send + 'static;
 
     /// Returns iterator which will yield values from the passed stream.
     fn block_collect<S>(&mut self, stream: S) -> Collect<Result<S::Item, S::Error>>
-        where
-            S: Stream + Send + 'static,
-            S::Item: Send + 'static,
-            S::Error: Send + 'static;
-
+    where
+        S: Stream + Send + 'static,
+        S::Item: Send + 'static,
+        S::Error: Send + 'static;
 }
 
 impl SyncRuntime for current_thread::Runtime {
     fn block_run<F>(&mut self, f: F) -> Result<<F as Future>::Item, <F as Future>::Error>
-        where
-            F: Future + Send + 'static,
-            F::Item: Send + 'static,
-            F::Error: Send + 'static {
+    where
+        F: Future + Send + 'static,
+        F::Item: Send + 'static,
+        F::Error: Send + 'static,
+    {
         self.block_on(f)
     }
 
     fn block_collect<S>(&mut self, stream: S) -> Collect<Result<<S as Stream>::Item, <S as Stream>::Error>>
-        where
-            S: Stream + Send + 'static,
-            S::Item: Send + 'static,
-            S::Error: Send + 'static {
+    where
+        S: Stream + Send + 'static,
+        S::Item: Send + 'static,
+        S::Error: Send + 'static,
+    {
         let (tx, rx) = mpsc::unbounded_channel::<Result<S::Item, S::Error>>();
         let runner = future::lazy(move || {
             stream
-                .then(move |res| {
-                    tx.clone().send(res)
-                })
+                .then(move |res| tx.clone().send(res))
                 .for_each(|_| Ok(()))
                 .map_err(|_| ())
         });
@@ -54,24 +53,24 @@ impl SyncRuntime for current_thread::Runtime {
 
 impl SyncRuntime for runtime::Runtime {
     fn block_run<F>(&mut self, f: F) -> Result<<F as Future>::Item, <F as Future>::Error>
-        where
-            F: Future + Send + 'static,
-            F::Item: Send + 'static,
-            F::Error: Send + 'static {
+    where
+        F: Future + Send + 'static,
+        F::Item: Send + 'static,
+        F::Error: Send + 'static,
+    {
         self.block_on(f)
     }
 
     fn block_collect<S>(&mut self, stream: S) -> Collect<Result<<S as Stream>::Item, <S as Stream>::Error>>
-        where
-            S: Stream + Send + 'static,
-            S::Item: Send + 'static,
-            S::Error: Send + 'static {
+    where
+        S: Stream + Send + 'static,
+        S::Item: Send + 'static,
+        S::Error: Send + 'static,
+    {
         let (tx, rx) = mpsc::unbounded_channel::<Result<S::Item, S::Error>>();
         let runner = future::lazy(move || {
             stream
-                .then(move |res| {
-                    tx.clone().send(res)
-                })
+                .then(move |res| tx.clone().send(res))
                 .for_each(|_| Ok(()))
                 .map_err(|_| ())
         });

@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
-use heim_runtime::{self as runtime, SyncRuntime};
 use heim_process as process;
+use heim_runtime::{self as runtime, SyncRuntime};
 
 fn main() -> Result<()> {
     let mut rt = runtime::new()?;
@@ -9,9 +9,7 @@ fn main() -> Result<()> {
     for process in rt.block_collect(process::processes()) {
         let process = process?;
 
-        println!(" \t{}",
-            process.pid(),
-        );
+        println!(" \t{}", process.pid(),);
     }
 
     Ok(())

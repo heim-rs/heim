@@ -1,7 +1,7 @@
 use std::fmt;
 
-use heim_common::prelude::*;
 use crate::{sys, units};
+use heim_common::prelude::*;
 
 /// System CPU time.
 #[derive(heim_derive::ImplWrap)]

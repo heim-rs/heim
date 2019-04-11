@@ -1,12 +1,12 @@
 mod sys;
 
 mod pids;
-mod types;
 mod process;
+mod types;
 
 pub use self::pids::*;
-pub use self::types::*;
 pub use self::process::*;
+pub use self::types::*;
 
 #[cfg(test)]
 mod tests;

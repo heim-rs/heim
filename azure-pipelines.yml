@@ -1,0 +1,36 @@
+variables:
+  RUST_BACKTRACE: 1
+
+jobs:
+- job: lints
+  displayName: Lints
+  pool:
+    vmImage: ubuntu-16.04
+  steps:
+    - script: |
+        curl https://sh.rustup.rs -sSf | sh -s -- -y
+        $HOME/.cargo/bin/rustup component add rustfmt
+        $HOME/.cargo/bin/rustup component add clippy
+      displayName: Install stable Rust and components
+    #- script: |
+    #    $HOME/.cargo/bin/cargo fmt -- --check
+    #  displayName: Run rustfmt
+    - script: |
+        $HOME/.cargo/bin/cargo clippy --all-targets --all-features
+      # -- -D warnings
+      displayName: Run clippy
+
+- template: .ci/azure-pipelines-template.yml
+  parameters:
+    name: Linux
+    vmImage: ubuntu-16.04
+
+- template: .ci/azure-pipelines-template.yml
+  parameters:
+    name: macOS
+    vmImage: macOS-10.13
+
+- template: .ci/azure-pipelines-template.yml
+  parameters:
+    name: Windows
+    vmImage: vs2017-win2016

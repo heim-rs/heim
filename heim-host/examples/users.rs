@@ -7,7 +7,7 @@ fn main() -> Result<()> {
     let users = runtime.block_collect(host::users());
 
     for user in users {
-        dbg!(user);
+        println!("{:?}", user);
     }
 
     Ok(())

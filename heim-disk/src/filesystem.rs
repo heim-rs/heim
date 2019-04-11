@@ -44,7 +44,7 @@ impl FileSystem {
             FileSystem::Zfs => "zfs",
             FileSystem::FuseBlk => "fuseblk",
             FileSystem::Other(string) => string.as_str(),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

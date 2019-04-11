@@ -235,3 +235,48 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
 
     expanded.into()
 }
+
+/// Used for `#[test]`-annotated functions
+///
+/// Will not run the annotated function if it is called in the CI environment.
+///
+/// Supported CI:
+///  * Azure Pipelines
+///  * Cirrus CI
+#[proc_macro_attribute]
+pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let func: syn::ItemFn = syn::parse(item).unwrap();
+    let vis = &func.vis;
+    let constness = &func.constness;
+    let unsafety = &func.unsafety;
+    let asyncness = &func.asyncness;
+    let abi = &func.abi;
+    let ident = &func.ident;
+    let body = &func.block;
+
+    let ident_repr = format!("{}", &func.ident);
+
+    let expanded = quote::quote! {
+        #vis #constness #unsafety #asyncness #abi fn #ident() {
+            fn inner() {
+                #body
+            }
+            let in_ci = ::std::env::vars()
+                .any(|(key, _)| {
+                    match key.as_str() {
+                        "CIRRUS_CI" => true,
+                        "TF_BUILD" => true,
+                        _ => false
+                    }
+                });
+
+            if in_ci {
+                eprintln!("test {} ... ignored because of CI environment", #ident_repr);
+            } else {
+                inner();
+            }
+        }
+    };
+
+    expanded.into()
+}

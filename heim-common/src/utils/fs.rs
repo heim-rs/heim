@@ -6,13 +6,11 @@ use tokio::prelude::*;
 
 use crate::Error;
 
-pub fn path_exists<T>(path: T) -> impl Future<Item=bool, Error=Error>
+pub fn path_exists<T>(path: T) -> impl Future<Item = bool, Error = Error>
 where
-    T: AsRef<Path> + Send + 'static
+    T: AsRef<Path> + Send + 'static,
 {
-    tokio::fs::metadata(path)
-        .map(|_| true)
-        .map_err(Error::from)
+    tokio::fs::metadata(path).map(|_| true).map_err(Error::from)
 }
 
 /// Read `path` file asynchronously and convert it contents into a string.

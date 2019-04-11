@@ -18,8 +18,8 @@ pub use self::usage::*;
 
 /// Re-exported measurement units used in this crate.
 pub mod units {
-    pub use heim_common::units::iec::u64::Information;
     pub use heim_common::units::iec::information::*;
+    pub use heim_common::units::iec::u64::Information;
     pub use heim_common::units::si::f64::Ratio;
     pub use heim_common::units::si::ratio::*;
 

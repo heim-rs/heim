@@ -5,7 +5,7 @@ use heim_runtime::{self as runtime, SyncRuntime};
 fn main() -> Result<()> {
     let mut rt = runtime::new().unwrap();
     for io_cnt in rt.block_collect(net::io_counters()) {
-        dbg!(io_cnt);
+        println!("{:?}", io_cnt);
     }
 
     Ok(())

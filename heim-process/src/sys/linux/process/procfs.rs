@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use heim_common::prelude::*;
 use crate::EnvOs;
+use heim_common::prelude::*;
 
-pub fn read_exe<T: AsRef<Path>>(path: T) -> impl Future<Item=Option<PathBuf>, Error=Error> {
+pub fn read_exe<T: AsRef<Path>>(path: T) -> impl Future<Item = Option<PathBuf>, Error = Error> {
     let path = path.as_ref().join("exe");
     tokio::fs::read_link(path)
         .map(Some)
@@ -13,11 +13,10 @@ pub fn read_exe<T: AsRef<Path>>(path: T) -> impl Future<Item=Option<PathBuf>, Er
         .or_else(|_| Ok(None))
 }
 
-pub fn read_environ<T: AsRef<Path>>(path: T) -> impl Future<Item=EnvOs, Error=Error> {
+#[allow(dead_code)]
+pub fn read_environ<T: AsRef<Path>>(path: T) -> impl Future<Item = EnvOs, Error = Error> {
     let path = path.as_ref().join("environ");
     tokio::fs::read(path)
-        .map(|contents| {
-            EnvOs::from_bytes(&contents)
-        })
+        .map(|contents| EnvOs::from_bytes(&contents))
         .map_err(Error::from)
 }

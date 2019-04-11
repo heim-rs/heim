@@ -2,8 +2,8 @@ use std::error;
 use std::ffi;
 use std::fmt;
 use std::io;
-use std::num;
 use std::net;
+use std::num;
 use std::result;
 use std::string;
 use tokio::sync::mpsc;
@@ -131,7 +131,10 @@ impl From<net::AddrParseError> for Error {
     }
 }
 
-impl<T> From<Box<T>> for Error where T: error::Error + Send + 'static {
+impl<T> From<Box<T>> for Error
+where
+    T: error::Error + Send + 'static,
+{
     fn from(e: Box<T>) -> Self {
         Error {
             kind: ErrorKind::Other(e),

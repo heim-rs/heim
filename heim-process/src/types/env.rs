@@ -1,7 +1,7 @@
-use std::fmt;
-use std::vec;
 use std::ffi::{OsStr, OsString};
+use std::fmt;
 use std::os::unix::ffi::OsStrExt;
+use std::vec;
 
 pub struct EnvOs {
     inner: vec::IntoIter<(OsString, OsString)>,
@@ -9,7 +9,8 @@ pub struct EnvOs {
 
 impl EnvOs {
     pub fn from_bytes(bytes: &[u8]) -> EnvOs {
-        let inner = bytes.split(|byte| *byte == b'\0')
+        let inner = bytes
+            .split(|byte| *byte == b'\0')
             .filter_map(|kv| {
                 let mut parts = kv.splitn(2, |byte| *byte == b'=');
 

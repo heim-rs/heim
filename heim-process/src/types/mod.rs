@@ -19,7 +19,13 @@ pub enum ProcessState {
     Waking,
     #[cfg(any(doc, target_os = "linux"))]
     Parked,
-    #[cfg(any(doc, target_os = "linux", target_os = "freebsd", target_os = "dragonfly", target_os = "macos"))]
+    #[cfg(any(
+        doc,
+        target_os = "linux",
+        target_os = "freebsd",
+        target_os = "dragonfly",
+        target_os = "macos"
+    ))]
     Idle,
     #[cfg(any(doc, target_os = "freebsd", target_os = "dragonfly"))]
     Locked,
@@ -30,4 +36,3 @@ pub enum ProcessState {
     #[doc(hidden)]
     __Nonexhaustive,
 }
-

@@ -40,7 +40,7 @@ pub enum Connection {
 ///     .flatten_stream()
 ///     .map_err(|_| ())
 ///     .for_each(|conn| {
-///         dbg!(conn);
+///         println!("{:?}", conn);
 ///         Ok(())
 ///     });
 /// tokio::run(f);

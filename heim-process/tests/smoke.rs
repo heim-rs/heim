@@ -1,5 +1,5 @@
-use heim_runtime::{self as runtime, SyncRuntime};
 use heim_process as process;
+use heim_runtime::{self as runtime, SyncRuntime};
 
 #[test]
 fn smoke_pids() {
@@ -16,4 +16,3 @@ fn smoke_processes() {
 
     assert_ne!(0, processes.count());
 }
-

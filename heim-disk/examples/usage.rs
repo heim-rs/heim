@@ -1,6 +1,6 @@
-use heim_runtime::{self as runtime, SyncRuntime};
 use heim_common::prelude::*;
 use heim_disk as disk;
+use heim_runtime::{self as runtime, SyncRuntime};
 
 cfg_if::cfg_if! {
     if #[cfg(unix)] {
@@ -17,7 +17,7 @@ cfg_if::cfg_if! {
 fn main() -> Result<()> {
     let mut rt = runtime::new().unwrap();
     let usage = rt.block_run(disk::usage(USAGE_PATH))?;
-    dbg!(usage);
+    println!("{:?}", usage);
 
     Ok(())
 }
