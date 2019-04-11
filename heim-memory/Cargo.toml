@@ -1,0 +1,37 @@
+[package]
+name = "heim-memory"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Cross-platform memory information"
+keywords = ["heim", "system", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+heim-derive = { version = "0.0.1", path = "../heim-derive" }
+heim-common = { version = "0.0.1", path = "../heim-common" }
+cfg-if = "0.1.7"
+
+[target.'cfg(windows)'.dependencies]
+libc = "0.2.51"
+winapi = { version = "0.3.6", default-features = false, features = ["minwindef", "sysinfoapi"] }
+
+[dev-dependencies]
+heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
+criterion = "0.2.10"
+
+[features]
+doc = []
+
+[[bench]]
+name = "memory"
+harness = false
+
+[package.metadata.docs.rs]
+features = ["doc"]

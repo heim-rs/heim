@@ -1,0 +1,19 @@
+[package]
+name = "heim-virt"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Placeholder crate"
+keywords = ["heim", "system", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+
+[package.metadata.docs.rs]
+features = ["doc"]

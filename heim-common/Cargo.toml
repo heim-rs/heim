@@ -1,0 +1,41 @@
+[package]
+name = "heim-common"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Common stuff shared across heim project crates"
+keywords = ["heim", "system", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+cfg-if = "0.1.7"
+try_from = "0.3.2"
+errno = "0.2.4"
+
+[dependencies.tokio]
+version = "0.1.18"
+default-features = false
+features = ["fs", "io", "sync"]
+
+[dependencies.uom]
+version = "0.22.1"
+default-features = false
+features = ["autoconvert", "usize", "u64", "f64", "si", "std"]
+
+[dev-dependencies]
+criterion = "0.2.10"
+
+[target.'cfg(unix)'.dependencies]
+nix = "0.13.0"
+
+[features]
+doc = []
+
+[package.metadata.docs.rs]
+features = ["doc"]

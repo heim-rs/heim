@@ -1,0 +1,25 @@
+[package]
+name = "heim-derive"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Derive macros for heim crates"
+keywords = ["heim", "system", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "0.6.11"
+
+[dependencies.syn]
+version = "0.15.29"
+# TODO: Remove unused traits when crate will be stable enough to use
+features = ["derive", "full", "parsing", "printing", "clone-impls", "extra-traits", "proc-macro"]

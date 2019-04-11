@@ -1,0 +1,37 @@
+[package]
+name = "heim-host"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Cross-platform host information"
+keywords = ["heim", "system", "host", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+heim-derive = { version = "0.0.1", path = "../heim-derive" }
+heim-common = { version = "0.0.1", path = "../heim-common" }
+cfg-if = "0.1.7"
+platforms = "0.2.0"
+
+[dev-dependencies]
+heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
+criterion = "0.2.10"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.50"
+
+[features]
+doc = []
+
+[[bench]]
+name = "host"
+harness = false
+
+[package.metadata.docs.rs]
+features = ["doc"]

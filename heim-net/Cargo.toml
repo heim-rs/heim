@@ -1,0 +1,46 @@
+[package]
+name = "heim-net"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Cross-platform network information"
+keywords = ["heim", "system", "network", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+heim-derive = { version = "0.0.1", path = "../heim-derive" }
+heim-common = { version = "0.0.1", path = "../heim-common" }
+cfg-if = "0.1.7"
+try_from = "0.3.2"
+bitflags = "1.0.4"
+log = "0.4.6"
+
+[dev-dependencies]
+heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
+criterion = "0.2.10"
+env_logger = "0.6.1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.50"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nix = "0.13.0"
+#tokio = { version = "0.1.18", default-features = false, features = ["rt-full"] }
+#sock_diag = { git = "https://github.com/flier/netlink.git", branch = "sock_diag" }
+#failure = "0.1.5"  # TODO: Bound to the same version as `sock_diag` uses
+
+[features]
+doc = []
+
+[[bench]]
+name = "net"
+harness = false
+
+[package.metadata.docs.rs]
+features = ["doc"]

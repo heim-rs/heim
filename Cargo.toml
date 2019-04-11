@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "heim",
+    "heim-common",
+    "heim-host",
+    "heim-cpu",
+    "heim-derive",
+    "heim-memory",
+    "heim-disk",
+    "heim-runtime",
+    "heim-net",
+    "heim-process",
+    "heim-virt",
+    "heim-winservice",
+]

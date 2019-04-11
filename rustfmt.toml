@@ -1,0 +1,8 @@
+edition = "2018"
+version = "Two"
+wrap_comments = true
+comment_width = 120
+max_width = 120
+merge_imports = false
+newline_style = "Unix"
+struct_lit_single_line = false

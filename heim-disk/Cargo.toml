@@ -1,0 +1,41 @@
+[package]
+name = "heim-disk"
+version = "0.0.1"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Cross-platform disk information"
+keywords = ["heim", "system", "disk", "information"]
+categories = ["asynchronous", "os"]
+repository = "https://github.com/heim-rs/heim"
+readme = "README.md"
+license = "Apache-2.0 OR MIT"
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+heim-derive = { version = "0.0.1", path = "../heim-derive" }
+heim-common = { version = "0.0.1", path = "../heim-common" }
+cfg-if = "0.1.7"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+tokio-threadpool = "0.1.13"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.50"
+bitflags = "1.0.4"
+
+[dev-dependencies]
+heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
+criterion = "0.2.10"
+env_logger = "0.6.1"
+
+[features]
+doc = []
+
+[[bench]]
+name = "disk"
+harness = false
+
+[package.metadata.docs.rs]
+features = ["doc"]
