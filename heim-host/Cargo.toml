@@ -24,7 +24,11 @@ heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
 criterion = "0.2.10"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.50"
+libc = "0.2.51"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2.51"
+lazy_static = "1.3.0"
 
 [features]
 doc = []

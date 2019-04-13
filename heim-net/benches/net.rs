@@ -7,14 +7,14 @@ use heim_net as net;
 use heim_runtime::{self as runtime, SyncRuntime};
 
 fn criterion_benchmark(c: &mut Criterion) {
-//    c.bench_function("connections", |b| {
-//        let mut runtime = runtime::new().unwrap();
-//        b.iter(|| {
-//            runtime
-//                .block_collect(net::connections(net::ConnectionKind::all()))
-//                .count()
-//        })
-//    });
+    //    c.bench_function("connections", |b| {
+    //        let mut runtime = runtime::new().unwrap();
+    //        b.iter(|| {
+    //            runtime
+    //                .block_collect(net::connections(net::ConnectionKind::all()))
+    //                .count()
+    //        })
+    //    });
     c.bench_function("io_counters", |b| {
         let mut runtime = runtime::new().unwrap();
         b.iter(|| runtime.block_collect(net::io_counters()).count())

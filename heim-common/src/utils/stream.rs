@@ -34,7 +34,10 @@ where
     }
 }
 
-impl<S> Default for SelectAll<S> where S: Stream {
+impl<S> Default for SelectAll<S>
+where
+    S: Stream,
+{
     fn default() -> Self {
         Self::new()
     }
