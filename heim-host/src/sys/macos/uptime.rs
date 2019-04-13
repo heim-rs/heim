@@ -5,6 +5,7 @@ use heim_common::units::si::time::nanosecond;
 use super::TIME_BASE;
 
 pub fn uptime() -> impl Future<Item=Time, Error=Error> {
+    // TODO: Possible value truncation
     let abs_time = unsafe { libc::mach_absolute_time() } as f64;
 
     let nano_secs = abs_time * *TIME_BASE;

@@ -16,7 +16,11 @@ pub use self::platform::*;
 pub use self::uptime::*;
 pub use self::users::*;
 
+#[cfg(not(target_os = "windows"))]
 type Pid = libc::pid_t;
+
+#[cfg(target_os = "windows")]
+type Pid = libc::c_int;
 
 /// Re-exported measurement units used in this crate.
 pub mod units {

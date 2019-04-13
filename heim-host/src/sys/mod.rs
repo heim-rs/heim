@@ -17,5 +17,9 @@ cfg_if::cfg_if! {
         mod macos;
 
         pub use self::macos::*;
+    } else if #[cfg(target_os = "windows")] {
+        mod windows;
+
+        pub use self::windows::*;
     }
 }
