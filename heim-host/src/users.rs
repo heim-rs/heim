@@ -14,19 +14,11 @@ impl User {
     pub fn username(&self) -> &str {
         self.as_ref().username()
     }
-
-    /// Returns the tty or pseudo-tty name associated with user.
-    pub fn terminal(&self) -> Option<&str> {
-        self.as_ref().terminal()
-    }
 }
 
 impl fmt::Debug for User {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("User")
-            .field("username", &self.username())
-            .field("terminal", &self.terminal())
-            .finish()
+        f.debug_struct("User").field("username", &self.username()).finish()
     }
 }
 
