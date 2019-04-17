@@ -44,17 +44,6 @@ impl From<libc::utmpx> for User {
     }
 }
 
-//ut_type: c_short
-//ut_pid: pid_t
-//ut_line: [c_char; 32]
-//ut_id: [c_char; 4]
-//ut_user: [c_char; 32]
-//ut_host: [c_char; 256]
-//ut_exit: __exit_status
-//ut_session: int32_t
-//ut_tv: __timeval
-//ut_addr_v6: [int32_t; 4]
-
 pub fn users() -> impl Stream<Item=User, Error=Error> {
     // TODO: Should we try to guess the capacity?
     let mut users = vec![];

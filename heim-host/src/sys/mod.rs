@@ -21,5 +21,7 @@ cfg_if::cfg_if! {
         mod windows;
 
         pub use self::windows::*;
+    } else {
+        compile_error!("Unsupported OS");
     }
 }
