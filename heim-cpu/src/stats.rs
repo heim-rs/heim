@@ -8,8 +8,6 @@ use heim_common::prelude::*;
 #[derive(heim_derive::ImplWrap)]
 pub struct CpuStats(sys::CpuStats);
 
-// TODO: Custom Debug implementation
-
 impl CpuStats {
     /// Returns number of context switches (voluntary + involuntary) since system boot.
     pub fn ctx_switches(&self) -> u64 {

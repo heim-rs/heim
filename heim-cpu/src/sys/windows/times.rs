@@ -1,13 +1,10 @@
-use std::ptr;
-use std::mem;
-
 use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
 use heim_common::prelude::*;
 
 use crate::units;
-use super::bindings::{get_system_info, winternl, IntoTime};
+use super::bindings::{winternl, IntoTime};
 
 pub struct CpuTime {
     user: units::Time,
@@ -48,7 +45,7 @@ pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
     } else {
         let user = user.into_time();
         let idle = idle.into_time();
-        // Same as `psutil` subtracting idle tim
+        // Same as `psutil` subtracting idle time
         // and leaving only busy kernel time
         let system = kernel.into_time() - idle;
 
@@ -62,21 +59,8 @@ pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
 
 pub fn times() -> impl Stream<Item = CpuTime, Error = Error> {
     future::lazy(|| {
-        let info = unsafe { get_system_info() };
-        let proc_amount = info.dwNumberOfProcessors as usize;
-        let mut processors = Vec::<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>::with_capacity(proc_amount);
-        let buffer_length = proc_amount * mem::size_of::<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>();
-
-        unsafe {
-            winternl::NtQuerySystemInformation(
-                winternl::SystemProcessorPerformanceInformation,
-                processors.as_mut_ptr() as *mut _,
-                buffer_length as u32,
-                ptr::null_mut(),
-            )?;
-            processors.set_len(proc_amount);
-        };
-
+        let processors: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
+            winternl::query_system_information()?;
         Ok(stream::iter_ok(processors))
     })
     .flatten_stream()
