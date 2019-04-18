@@ -8,6 +8,7 @@ use winapi::um::{sysinfoapi, winnt, libloaderapi};
 use winapi::shared::{ntdef, ntstatus, minwindef};
 
 use heim_common::prelude::*;
+use heim_common::sys::windows::get_ntdll;
 
 use crate::Arch;
 
@@ -101,14 +102,7 @@ unsafe fn get_native_system_info() -> impl Future<Item=SystemInfo, Error=Error> 
 unsafe fn rtl_get_version() -> impl Future<Item=winnt::OSVERSIONINFOEXW, Error=Error> {
     // Based on the `platform-info` crate source:
     // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
-    let dll_wide: Vec<winnt::WCHAR> = OsStr::new("ntdll.dll")
-        .encode_wide()
-        .chain(iter::once(0))
-        .collect();
-    let module = libloaderapi::GetModuleHandleW(dll_wide.as_ptr());
-    if module.is_null() {
-        return future::err(io::Error::last_os_error().into())
-    }
+    let module = get_ntdll()?;
 
     let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
     let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());

@@ -12,6 +12,8 @@ pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum ErrorKind {
+    /// Unable to call system function because program is incompatible with OS used
+    Incompatible,
     /// Unable to determine the requested value
     UnknownValue,
     FromNul(ffi::NulError),
@@ -46,6 +48,7 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.kind {
+            ErrorKind::Incompatible => f.write_str("Incompatible with current OS"),
             ErrorKind::UnknownValue => f.write_str("Unable to determine the value"),
             ErrorKind::FromNul(e) => fmt::Display::fmt(e, f),
             ErrorKind::FromFfiString(e) => fmt::Display::fmt(e, f),

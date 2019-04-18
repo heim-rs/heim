@@ -1,24 +1,14 @@
 use std::ptr;
 use std::mem;
 
-use winapi::um::{powerbase, sysinfoapi, winnt};
+use winapi::um::{powerbase, winnt};
 use winapi::shared::{ntstatus, minwindef};
 
 use heim_common::prelude::*;
 
 use crate::units;
-
-#[repr(C)]
-#[derive(Debug)]
-#[allow(non_snake_case)]
-struct PROCESSOR_POWER_INFORMATION {
-    Number: minwindef::ULONG,
-    MaxMhz: minwindef::ULONG,
-    CurrentMhz: minwindef::ULONG,
-    MhzLimit: minwindef::ULONG,
-    MaxIdleState: minwindef::ULONG,
-    CurrentIdleState: minwindef::ULONG,
-}
+use super::bindings::get_system_info;
+use super::bindings::power::PROCESSOR_POWER_INFORMATION;
 
 #[derive(Debug)]
 pub struct CpuFrequency(PROCESSOR_POWER_INFORMATION);
@@ -35,13 +25,6 @@ impl CpuFrequency {
     pub fn min(&self) -> Option<units::Frequency> {
         None
     }
-}
-
-unsafe fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
-    let mut info: sysinfoapi::SYSTEM_INFO = mem::uninitialized();
-    sysinfoapi::GetSystemInfo(&mut info);
-
-    info
 }
 
 unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
