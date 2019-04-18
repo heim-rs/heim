@@ -4,6 +4,10 @@ cfg_if::cfg_if! {
         mod linux;
 
         pub use self::linux::*;
+    } else if #[cfg(target_os = "windows")] {
+        mod windows;
+
+        pub use self::windows::*;
     } else {
         compile_error!("Unsupported target OS");
     }
