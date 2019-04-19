@@ -1,5 +1,7 @@
-cfg_if::cfg_if! {
+#[cfg(unix)]
+mod unix;
 
+cfg_if::cfg_if! {
     if #[cfg(target_os = "linux")] {
         mod linux;
 
@@ -8,6 +10,10 @@ cfg_if::cfg_if! {
         mod windows;
 
         pub use self::windows::*;
+    }else if #[cfg(target_os = "macos")] {
+        mod macos;
+
+        pub use self::macos::*;
     } else {
         compile_error!("Unsupported target OS");
     }

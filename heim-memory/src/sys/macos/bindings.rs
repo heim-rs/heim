@@ -6,14 +6,13 @@
 use std::mem;
 use std::ptr;
 
-use mach::mach_types::{host_t, host_name_port_t};
-use mach::vm_types::{natural_t, integer_t};
-use mach::kern_return::{self, kern_return_t};
-use mach::message::mach_msg_type_number_t;
+use mach::vm_types::natural_t;
+use mach::kern_return;
 use mach::traps::mach_task_self;
 use mach::mach_port;
 
 use heim_common::prelude::*;
+use heim_common::sys::macos;
 
 pub const HOST_VM_INFO64: libc::c_int = 4;
 pub const HOST_VM_INFO64_COUNT: libc::c_uint = 38;
@@ -22,12 +21,6 @@ const CTL_HW: libc::c_int = 6;
 const CTL_VM: libc::c_int = 2;
 const HW_MEMSIZE: libc::c_int = 24;
 const VM_SWAPUSAGE: libc::c_int = 5;
-
-/// https://developer.apple.com/documentation/kernel/host_flavor_t?language=objc
-type host_flavor_t = integer_t;
-
-/// https://developer.apple.com/documentation/kernel/host_info64_t?language=objc
-type host_info64_t = *mut integer_t;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Hash, PartialOrd, PartialEq, Eq, Ord)]
@@ -58,28 +51,15 @@ pub struct vm_statistics64 {
     pub total_uncompressed_pages_in_compressor: libc::uint64_t,
 }
 
-
-extern "C" {
-    fn mach_host_self() -> host_name_port_t;
-
-    /// https://developer.apple.com/documentation/kernel/1502863-host_statistics64?language=objc
-    fn host_statistics64(
-        host_priv: host_t,
-        flavor: host_flavor_t,
-        host_info_out: host_info64_t,
-        host_info_outCnt: *const mach_msg_type_number_t,
-    ) -> kern_return_t;
-}
-
 pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
-    let port = mach_host_self();
+    let port = macos::mach_host_self();
     let mut stats = vm_statistics64::default();
     let count = HOST_VM_INFO64_COUNT;
 
-    let result = host_statistics64(
+    let result = macos::host_statistics64(
         port,
         HOST_VM_INFO64,
-        &mut stats as *mut _ as host_info64_t,
+        &mut stats as *mut _ as macos::host_info64_t,
         // We can't pass the reference to const here,
         // it leads to `EXC_BAD_ACCESS` for some reasons,
         // so we are copying it to a stack and passing a reference to a local copy

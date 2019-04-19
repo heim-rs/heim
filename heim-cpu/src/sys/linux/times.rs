@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::si::f64::Time;
 use heim_common::units::si::time::second;
 
-use super::CLOCK_TICKS;
+use crate::sys::unix::CLOCK_TICKS;
 
 #[derive(Debug, Default, heim_derive::Getter)]
 pub struct CpuTime {

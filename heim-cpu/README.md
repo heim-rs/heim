@@ -11,8 +11,8 @@ but via [heim](https://crates.io/crates/heim) crate.
 
 |             | Linux | MacOS | Windows | FreeBSD | OpenBSD | Solaris | Redox |
 | ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
-| time        | ✓     |       |         |         |         |         |       |
-| times       | ✓     |       |         |         |         |         |       |
+| time        | ✓     | ✓     | ✓       |         |         |         |       |
+| times       | ✓     | ✓     | ✓       |         |         |         |       |
 | stats       | ✓     |       |         |         |         |         |       |
 | frequency   | ≈     |       |         |         |         |         |       |
 | frequencies | ≈     | X     | X       | X       | X       | X       | ?     |
