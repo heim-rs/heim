@@ -55,6 +55,10 @@ pub fn users() -> impl Stream<Item=User, Error=Error> {
                 break
             }
 
+            if (*entry).ut_type != libc::USER_PROCESS {
+                continue;
+            }
+
             users.push(User::from(*entry))
         }
         libc::endutxent();

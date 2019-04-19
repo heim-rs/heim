@@ -3,7 +3,7 @@ use heim_host as host;
 use heim_runtime::{self as runtime, SyncRuntime};
 
 cfg_if::cfg_if! {
-    if #[cfg(all(target_os = "unix", not(target_os = "openbsd")))] {
+    if #[cfg(all(unix, not(target_os = "openbsd")))] {
         use heim_host::os::unix::UserExt;
     } else if #[cfg(target_os = "windows")] {
         use heim_host::os::windows::UserExt;
@@ -20,7 +20,9 @@ fn main() -> Result<()> {
 
         println!("Extra:");
 
-        #[cfg(all(target_os = "unix", not(target_os = "openbsd")))]
+        #[cfg(all(unix, not(target_os = "openbsd")))]
+        println!("Pid: {:?}", user.pid());
+        #[cfg(all(unix, not(target_os = "openbsd")))]
         println!("Terminal: {:?}", user.terminal());
 
         #[cfg(target_os = "windows")]
