@@ -13,21 +13,24 @@ use crate::os::unix::Flags;
 
 pub struct Usage(libc::statvfs);
 
+// Why there are `u64::from()` everywhere -- to mitigate the differences
+// between `libc::statvfs` for x86 and `libc::statvfs` for x86_64,
+// fields can be either `u32` or `u64`.
 impl Usage {
     pub fn total(&self) -> Information {
-        let value = self.0.f_blocks * self.0.f_frsize;
+        let value = u64::from(self.0.f_blocks) * u64::from(self.0.f_frsize);
 
         Information::new::<byte>(value)
     }
 
     pub fn used(&self) -> Information {
-        let avail_to_root = self.0.f_bfree * self.0.f_frsize;
+        let avail_to_root = u64::from(self.0.f_bfree) * u64::from(self.0.f_frsize);
 
         self.total() - Information::new::<byte>(avail_to_root)
     }
 
     pub fn free(&self) -> Information {
-        let value = self.0.f_bavail * self.0.f_frsize;
+        let value = u64::from(self.0.f_bavail) * u64::from(self.0.f_frsize);
 
         Information::new::<byte>(value)
     }
@@ -36,7 +39,7 @@ impl Usage {
         // FIXME: Possible value truncation while casting into f64.
         // Lucky us, it is a 2019 and we are good for the next couple of decades
         let used = self.used().value as f64;
-        let avail_to_user = self.0.f_bavail * self.0.f_frsize;
+        let avail_to_user = u64::from(self.0.f_bavail) * u64::from(self.0.f_frsize);
         let total_user = used + avail_to_user as f64;
 
         Ratio::new::<ratio>(used / total_user)
