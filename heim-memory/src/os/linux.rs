@@ -1,3 +1,5 @@
+//! Linux-specific extensions
+
 /// Reference: https://gitlab.com/procps-ng/procps/blob/master/proc/sysinfo.c
 
 use heim_common::units::iec::information::byte;

@@ -11,7 +11,7 @@ use crate::sys;
 /// for other metrics see `MemoryExt` traits in the [os] submodules.
 ///
 /// [os]: `crate::os`
-#[derive(Clone, heim_derive::ImplWrap)]
+#[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
 
 impl Memory {

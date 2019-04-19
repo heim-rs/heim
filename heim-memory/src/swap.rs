@@ -11,7 +11,7 @@ use crate::sys;
 /// for other metrics see [SwapExt] trait.
 ///
 /// [SwapExt]: crate::os::SwapExt
-#[derive(Clone, heim_derive::ImplWrap)]
+#[derive(heim_derive::ImplWrap)]
 pub struct Swap(sys::Swap);
 
 impl Swap {

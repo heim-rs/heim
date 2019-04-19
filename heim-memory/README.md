@@ -11,8 +11,8 @@ but via [heim](https://crates.io/crates/heim) crate.
 
 |             | Linux | MacOS | Windows | FreeBSD | OpenBSD | Solaris | Redox |
 | ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
-| memory      | ✓     |       | ✓       |         |         |         |       |
-| swap        | ✓     |       | ✓       |         |         |         |       |
+| memory      | ✓     | ✓     | ✓       |         |         |         |       |
+| swap        | ✓     | ✓     | ✓       |         |         |         |       |
 
 Legend:
 

@@ -1,8 +1,6 @@
 use std::io;
 use std::mem;
-use std::iter;
-use std::ffi::{CStr, OsStr};
-use std::os::windows::ffi::OsStrExt;
+use std::ffi::CStr;
 
 use winapi::um::{sysinfoapi, winnt, libloaderapi};
 use winapi::shared::{ntdef, ntstatus, minwindef};
@@ -102,7 +100,10 @@ unsafe fn get_native_system_info() -> impl Future<Item=SystemInfo, Error=Error> 
 unsafe fn rtl_get_version() -> impl Future<Item=winnt::OSVERSIONINFOEXW, Error=Error> {
     // Based on the `platform-info` crate source:
     // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
-    let module = get_ntdll()?;
+    let module = match get_ntdll() {
+        Ok(module) => module,
+        Err(e) => return future::err(e),
+    };
 
     let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
     let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());
@@ -131,7 +132,7 @@ pub fn platform() -> impl Future<Item=Platform, Error=Error> {
         .join(version)
         .map(|(sysinfo, version)| {
         Platform {
-            sysinfo: sysinfo,
+            sysinfo,
             version,
             build: format!("{}", version.dwBuildNumber),
         }
