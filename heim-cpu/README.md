@@ -13,8 +13,8 @@ but via [heim](https://crates.io/crates/heim) crate.
 | ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
 | time        | ✓     | ✓     | ✓       |         |         |         |       |
 | times       | ✓     | ✓     | ✓       |         |         |         |       |
-| stats       | ✓     |       |         |         |         |         |       |
-| frequency   | ≈     |       |         |         |         |         |       |
+| stats       | ✓     |       | ✓       |         |         |         |       |
+| frequency   | ≈     | ✓     | ✓       |         |         |         |       |
 | frequencies | ≈     | X     | X       | X       | X       | X       | ?     |
 
 Legend:

@@ -1,6 +1,8 @@
 #![allow(non_camel_case_types)]
 
 use std::mem;
+use std::ptr;
+use std::ffi::CStr;
 
 use mach::kern_return::{self, kern_return_t};
 use mach::traps::mach_task_self;
@@ -100,5 +102,46 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     } else {
         stats.set_len(result_count as usize);
         Ok(stats)
+    }
+}
+
+unsafe fn frequency(key: &[u8]) -> Result<u64> {
+    let str = CStr::from_bytes_with_nul_unchecked(key);
+    let mut value = 0u64;
+    let mut length = mem::size_of::<u64>();
+
+    let result = libc::sysctlbyname(
+        str.as_ptr(),
+        &mut value as *mut u64 as *mut libc::c_void,
+        &mut length as *mut libc::size_t,
+        ptr::null_mut(),
+        0,
+    );
+
+    if result == 0 {
+        Ok(value)
+    } else {
+        Err(Error::last_os_error())
+    }
+}
+
+// Returns hertz
+pub fn cpu_frequency() -> Result<u64> {
+    unsafe {
+        frequency(b"hw.cpufrequency\0")
+    }
+}
+
+// Returns hertz
+pub fn cpu_frequency_max() -> Result<u64> {
+    unsafe {
+        frequency(b"hw.cpufrequency_max\0")
+    }
+}
+
+// Returns hertz
+pub fn cpu_frequency_min() -> Result<u64> {
+    unsafe {
+        frequency(b"hw.cpufrequency_min\0")
     }
 }
