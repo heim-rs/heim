@@ -2,9 +2,7 @@
 
 /// Reference: https://gitlab.com/procps-ng/procps/blob/master/proc/sysinfo.c
 
-use heim_common::units::iec::information::byte;
-use heim_common::units::iec::usize::Information;
-
+use crate::units::{Information, byte};
 use crate::Memory;
 
 /// Linux-specific extension to [`Memory`]

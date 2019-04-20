@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_common::units::iec::information::{kilobyte};
-use heim_common::units::iec::usize::Information;
+
+use crate::units::{Information, kilobyte};
 
 static PROC_VMSTAT: &'static str = "/proc/vmstat";
 static PROC_MEMINFO: &'static str = "/proc/meminfo";
@@ -38,7 +38,7 @@ impl FromStr for VmStat {
                         Some(kbytes) => {
                             // Values are expressed in 4 kilo bytes, we want bytes instead.
                             // Source: psutil
-                            let value = kbytes.parse::<usize>()?;
+                            let value = kbytes.parse::<u64>()?;
                             Information::new::<kilobyte>(4 * value)
                         },
                         None => continue,
@@ -91,8 +91,7 @@ impl Swap {
         let mut matched_lines = 0u8;
 
         for line in meminfo.lines() {
-            // If line does not starts with "Me", "Ac" or other options at all,
-            // we do not need that key at all
+            // If line does not starts with "Sw" we do not need that key at all
             let first_bytes = &line.as_bytes()[..2];
             if first_bytes != b"Sw" {
                 continue
@@ -109,7 +108,7 @@ impl Swap {
                 Some(value) => *field = {
                     let bytes = match value.trim_start().splitn(2, ' ').next() {
                         Some(kbytes) => {
-                            let value = kbytes.parse::<usize>()?;
+                            let value = kbytes.parse::<u64>()?;
                             Information::new::<kilobyte>(value)
                         },
                         None => continue,

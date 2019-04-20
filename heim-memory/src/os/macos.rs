@@ -1,6 +1,6 @@
 //! MacOS specific extensions for crate types.
 
-use heim_common::units::iec::usize::Information;
+use crate::units::Information;
 
 /// MacOS-specific extension to [`Memory`]
 #[heim_derive::os_ext_for(crate::Memory, cfg(target_os = "macos"))]

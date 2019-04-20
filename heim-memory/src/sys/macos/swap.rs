@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
-use heim_common::units::iec::information::byte;
-use heim_common::units::iec::usize::Information;
+
+use crate::units::{Information, byte};
 
 use super::{bindings, PAGE_SIZE};
 
@@ -40,14 +40,14 @@ pub fn swap() -> impl Future<Item = Swap, Error = Error> {
         let vm_stats = unsafe { bindings::host_vm_info()? };
         let page_size = *PAGE_SIZE;
 
-        let total = Information::new::<byte>(xsw_usage.xsu_total as usize);
-        let used = Information::new::<byte>(xsw_usage.xsu_used as usize);
-        let free = Information::new::<byte>(xsw_usage.xsu_avail as usize);
+        let total = Information::new::<byte>(u64::from(xsw_usage.xsu_total));
+        let used = Information::new::<byte>(u64::from(xsw_usage.xsu_used));
+        let free = Information::new::<byte>(u64::from(xsw_usage.xsu_avail));
         let sin = Information::new::<byte>(
-            vm_stats.pageins as usize * page_size,
+            u64::from(vm_stats.pageins) * page_size,
         );
         let sout = Information::new::<byte>(
-            vm_stats.pageouts as usize * page_size,
+            u64::from(vm_stats.pageouts) * page_size,
         );
 
         Ok(Swap {

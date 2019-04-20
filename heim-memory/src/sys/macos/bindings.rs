@@ -80,7 +80,7 @@ pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
     }
 }
 
-pub unsafe fn hw_memsize() -> Result<usize> {
+pub unsafe fn hw_memsize() -> Result<u64> {
     let mut name: [i32; 2] = [CTL_HW, HW_MEMSIZE];
     let mut value = 0u64;
     let mut length = mem::size_of::<u64>();
@@ -95,7 +95,7 @@ pub unsafe fn hw_memsize() -> Result<usize> {
     );
 
     if result == 0 {
-        Ok(value as usize)
+        Ok(value)
     } else {
         Err(Error::last_os_error())
     }
