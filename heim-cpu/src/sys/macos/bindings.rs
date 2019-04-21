@@ -16,6 +16,7 @@ use heim_common::prelude::*;
 
 const PROCESSOR_CPU_LOAD_INFO: libc::c_int = 2;
 const HOST_CPU_LOAD_INFO: libc::c_int = 3;
+const HOST_VM_INFO: libc::c_int = 2;
 
 type processor_flavor_t = libc::c_int;
 type processor_info_array_t = *mut integer_t;
@@ -36,6 +37,48 @@ pub struct processor_cpu_load_info {
     pub system: natural_t,
     pub idle: natural_t,
     pub nice: natural_t,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Default, Hash, PartialOrd, PartialEq, Eq, Ord)]
+pub struct vmmeter {
+    pub v_swtch: libc::c_uint,
+    pub v_trap: libc::c_uint,
+    pub v_syscall: libc::c_uint,
+    pub v_intr: libc::c_uint,
+    pub v_soft: libc::c_uint,
+    pub v_faults: libc::c_uint,
+
+    pub v_lookups: libc::c_uint,
+    pub v_hits: libc::c_uint,
+    pub v_vm_faults: libc::c_uint,
+    pub v_cow_faults: libc::c_uint,
+    pub v_swpin: libc::c_uint,
+    pub v_swpout: libc::c_uint,
+    pub v_pswpin: libc::c_uint,
+    pub v_pswpout: libc::c_uint,
+    pub v_pageins: libc::c_uint,
+    pub v_pageouts: libc::c_uint,
+    pub v_pgpgin: libc::c_uint,
+    pub v_pgpgout: libc::c_uint,
+    pub v_intrans: libc::c_uint,
+    pub v_reactivated: libc::c_uint,
+    pub v_rev: libc::c_uint,
+    pub v_scan: libc::c_uint,
+    pub v_dfree: libc::c_uint,
+    pub v_pfree: libc::c_uint,
+    pub v_zfod: libc::c_uint,
+    pub v_nzfod: libc::c_uint,
+
+    pub v_page_size: libc::c_uint,
+    pub v_kernel_pages: libc::c_uint,
+    pub v_free_target: libc::c_uint,
+    pub v_free_min: libc::c_uint,
+    pub v_free_count: libc::c_uint,
+    pub v_wire_count: libc::c_uint,
+    pub v_active_count: libc::c_uint,
+    pub v_inactive_target: libc::c_uint,
+    pub v_inactive_count: libc::c_uint,
 }
 
 extern "C" {
@@ -101,6 +144,33 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
         Err(Error::last_os_error())
     } else {
         stats.set_len(result_count as usize);
+        Ok(stats)
+    }
+}
+
+pub unsafe fn vm_meter() -> Result<vmmeter> {
+    let port = macos::mach_host_self();
+    let mut stats = vmmeter::default();
+    // TODO: Move to const
+    let count = mem::size_of::<vmmeter>() / mem::size_of::<integer_t>();
+
+    let result = macos::host_statistics(
+        port,
+        HOST_VM_INFO,
+        &mut stats as *mut _ as macos::host_info_t,
+        &count as *const _ as *const mach_msg_type_number_t,
+    );
+
+    let port_result = mach_port::mach_port_deallocate(mach_task_self(), port);
+    // Technically it is a programming bug and we are should panic probably,
+    // but it is okay as is
+    if port_result != kern_return::KERN_SUCCESS {
+        return Err(Error::last_os_error());
+    }
+
+    if result != kern_return::KERN_SUCCESS {
+        Err(Error::last_os_error())
+    } else {
         Ok(stats)
     }
 }
