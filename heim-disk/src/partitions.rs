@@ -10,6 +10,7 @@ use crate::{sys, FileSystem};
 pub struct Partition(sys::Partition);
 
 impl Partition {
+    // TODO: Should return `Option<OsStr>`, since device name might vary differently
     pub fn device(&self) -> Option<&str> {
         self.as_ref().device()
     }

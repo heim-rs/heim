@@ -10,5 +10,11 @@ fn main() -> Result<()> {
         println!("{:?}", part);
     }
 
+    println!("---- Physical partitions ----");
+
+    for part in runtime.block_collect(disk::partitions_physical()) {
+        println!("{:?}", part);
+    }
+
     Ok(())
 }

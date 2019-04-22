@@ -12,8 +12,12 @@ pub enum FileSystem {
     Ext3,
     Ext4,
     VFat,
+    Ntfs,
     Zfs,
+    Hfs,
+    Reiserfs,
     FuseBlk,
+
     // TODO: Extend list
     // References:
     //  * https://linux.die.net/man/2/fstatfs
@@ -41,7 +45,10 @@ impl FileSystem {
             FileSystem::Ext3 => "ext3",
             FileSystem::Ext4 => "ext4",
             FileSystem::VFat => "vfat",
+            FileSystem::Ntfs => "ntfs",
             FileSystem::Zfs => "zfs",
+            FileSystem::Hfs => "hfs",
+            FileSystem::Reiserfs => "reiserfs",
             FileSystem::FuseBlk => "fuseblk",
             FileSystem::Other(string) => string.as_str(),
             _ => unreachable!(),
@@ -58,7 +65,10 @@ impl FromStr for FileSystem {
             "ext3" => Ok(FileSystem::Ext3),
             "ext4" => Ok(FileSystem::Ext4),
             "vfat" => Ok(FileSystem::VFat),
+            "ntfs" => Ok(FileSystem::Ntfs),
             "zfs" => Ok(FileSystem::Zfs),
+            "hfs" => Ok(FileSystem::Hfs),
+            "reiserfs" => Ok(FileSystem::Reiserfs),
             "fuseblk" => Ok(FileSystem::FuseBlk),
             other => Ok(FileSystem::Other(other.to_string())),
         }

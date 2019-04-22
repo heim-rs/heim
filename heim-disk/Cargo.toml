@@ -22,7 +22,7 @@ cfg-if = "0.1.7"
 tokio-threadpool = "0.1.13"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.50"
+libc = "0.2.51"
 bitflags = "1.0.4"
 
 [target.'cfg(target_os = "windows")'.dependencies]
