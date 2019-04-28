@@ -1,7 +1,8 @@
 use std::fmt;
 
-use crate::{sys, units};
 use heim_common::prelude::*;
+
+use crate::{sys, units};
 
 /// System CPU time.
 #[derive(heim_derive::ImplWrap)]
@@ -41,13 +42,13 @@ impl fmt::Debug for CpuTime {
 /// Returns future which will resolve into cumulative value of all [CPU times].
 ///
 /// [CPU times]: struct.CpuTime.html
-pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
-    sys::time().map(Into::into)
+pub fn time() -> impl Future<Output = Result<CpuTime>> {
+    sys::time().map_ok(Into::into)
 }
 
 /// Returns stream which will yield [CPU time] for each CPU.
 ///
 /// [CPU time]: struct.CpuTime.html
-pub fn times() -> impl Stream<Item = CpuTime, Error = Error> {
-    sys::times().map(Into::into)
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
+    sys::times().map_ok(Into::into)
 }

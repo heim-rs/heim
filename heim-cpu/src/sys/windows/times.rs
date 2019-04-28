@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
@@ -27,7 +29,7 @@ impl CpuTime {
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
-pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
+pub fn time() -> impl Future<Output = Result<CpuTime>> {
     let mut user = minwindef::FILETIME::default();
     let mut kernel = minwindef::FILETIME::default();
     let mut idle = minwindef::FILETIME::default();
@@ -57,14 +59,21 @@ pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
     }
 }
 
-pub fn times() -> impl Stream<Item = CpuTime, Error = Error> {
-    future::lazy(|| {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
+    future::lazy(|_| {
         let processors: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
             winternl::query_system_information()?;
-        Ok(stream::iter_ok(processors))
+
+        let stream = stream::iter(processors).map(Ok);
+
+        // https://github.com/rust-lang-nursery/futures-rs/issues/1444
+        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+    })
+    .unwrap_or_else(|e| {
+        Box::pin(stream::once(future::err(e)))
     })
     .flatten_stream()
-    .map(|proc_info| {
+    .map_ok(|proc_info: winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION| {
         let user = proc_info.UserTime.into_time();
         let idle = proc_info.IdleTime.into_time();
         let system = proc_info.KernelTime.into_time() - idle;

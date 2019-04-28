@@ -1,25 +1,23 @@
-#[macro_use]
-extern crate criterion;
+#![feature(await_macro, async_await, test)]
 
-use criterion::Criterion;
+extern crate test;
 
+use heim_common::prelude::*;
 use heim_host as host;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("platform", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(host::platform()))
-    });
-    c.bench_function("uptime", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(host::uptime()))
-    });
-    c.bench_function("users", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(host::users()).count())
-    });
+#[runtime::bench]
+async fn bench_platform() {
+    await!(host::platform())
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+#[runtime::bench]
+async fn bench_uptime() {
+    await!(host::uptime())
+}
+
+#[runtime::bench]
+async fn bench_users() {
+    let stream = host::users().for_each(|_| future::ready(()));
+
+    await!(stream)
+}

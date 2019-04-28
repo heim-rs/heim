@@ -21,7 +21,6 @@
 
 #![deny(unused)]
 #![warn(missing_docs)]
-#![deny(unstable_features)]
 #![deny(bare_trait_objects)]
 
 /// CPU information
@@ -44,14 +43,9 @@ pub mod memory {
     pub use heim_memory::*;
 }
 
-/// Network information
-pub mod net {
-    pub use heim_net::*;
-}
-
-#[cfg(feature = "runtime")]
-pub mod runtime {
-    pub use heim_runtime::*;
-}
+///// Network information
+//pub mod net {
+//    pub use heim_net::*;
+//}
 
 pub use heim_common::{Error, ErrorKind, Result};

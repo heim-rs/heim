@@ -1,6 +1,6 @@
 [package]
 name = "heim-cpu"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform CPU information"
@@ -14,14 +14,13 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.1", path = "../heim-derive" }
-heim-common = { version = "0.0.1", path = "../heim-common" }
+heim-derive = { version = "0.0.2", path = "../heim-derive" }
+heim-common = { version = "0.0.2", path = "../heim-common" }
 lazy_static = "1.3.0"
 cfg-if = "0.1.7"
 
 [dev-dependencies]
-heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
-criterion = "0.2.10"
+runtime = "0.3.0-alpha.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2.51"
@@ -36,10 +35,6 @@ mach = "0.2.3"
 
 [features]
 doc = []
-
-[[bench]]
-name = "cpu"
-harness = false
 
 [package.metadata.docs.rs]
 features = ["doc"]

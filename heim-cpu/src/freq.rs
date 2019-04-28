@@ -56,6 +56,6 @@ impl fmt::Debug for CpuFrequency {
 }
 
 /// Returns future which will resolve into [CpuFrequency].
-pub fn frequency() -> impl Future<Item = CpuFrequency, Error = Error> {
-    sys::frequency().map(Into::into)
+pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
+    sys::frequency().map_ok(Into::into)
 }

@@ -1,6 +1,7 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_host as host;
-use heim_runtime::{self as runtime, SyncRuntime};
 
 cfg_if::cfg_if! {
     if #[cfg(all(unix, not(target_os = "openbsd")))] {
@@ -10,12 +11,12 @@ cfg_if::cfg_if! {
     }
 }
 
-fn main() -> Result<()> {
-    let mut runtime = runtime::new()?;
-    let users = runtime.block_collect(host::users());
-
-    for user in users {
+#[runtime::main]
+async fn main() -> Result<()> {
+    let mut users = host::users();
+    while let Some(user) = await!(users.next()) {
         let user = user?;
+
         println!("{:?}", user);
 
         println!("Extra:");

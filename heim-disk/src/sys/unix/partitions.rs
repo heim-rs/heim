@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use std::path::{Path, PathBuf};
 use std::ffi::CStr;
+use std::pin::Pin;
 
 use heim_common::prelude::*;
 
@@ -76,17 +77,29 @@ impl From<libc::statfs> for Partition {
 }
 
 
-pub fn partitions() -> impl Stream<Item = Partition, Error = Error> {
-    future::lazy(|| {
-        let mounts = bindings::mounts()?;
-
-        Ok(stream::iter_ok(mounts))
+pub fn partitions() -> impl Stream<Item = Result<Partition>> {
+    future::lazy(|_| {
+        match bindings::mounts() {
+            Ok(mounts) => {
+                let stream = stream::iter(mounts).map(|mount| {
+                    Ok(Partition::from(mount))
+                });
+                Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>
+            },
+            Err(e) => {
+                Box::pin(stream::once(future::err(e)))
+            }
+        }
     })
     .flatten_stream()
-    .map(From::from)
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Partition, Error = Error> {
+pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
     partitions()
-        .filter(|partition| partition.file_system().is_physical())
+        .try_filter_map(|partition| {
+            match partition.file_system().is_physical() {
+                true => future::ok(Some(partition)),
+                false => future::ok(None),
+            }
+        })
 }

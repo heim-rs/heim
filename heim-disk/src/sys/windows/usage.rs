@@ -40,10 +40,12 @@ impl Usage {
     }
 }
 
-pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Item=Usage, Error=Error> {
-    future::lazy(move || {
-        let path = widestring::U16CString::from_os_str(path.as_ref())
-            .map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))?;
+pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
+    future::lazy(move |_| {
+        let path = match widestring::U16CString::from_os_str(path.as_ref()) {
+            Ok(path) => path,
+            Err(_) => return Err(io::Error::from(io::ErrorKind::InvalidInput).into())
+        };
 
         let mut usage = Usage::default();
         let result = unsafe {
@@ -58,7 +60,7 @@ pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Item=Usage, Error=Error> {
         if result != 0 {
             Ok(usage)
         } else {
-            Err(io::Error::last_os_error().into())
+            Err(Error::last_os_error())
         }
     })
 }

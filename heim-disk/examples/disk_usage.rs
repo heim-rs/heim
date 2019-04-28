@@ -1,20 +1,21 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_common::units::iec::information::megabyte;
 use heim_disk as disk;
 /// Command similar to `df -BM`
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut runtime = runtime::new()?;
-
+#[runtime::main]
+async fn main() -> Result<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} {}",
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type", "Mount",
     );
 
-    for part in runtime.block_collect(disk::partitions_physical()) {
+    let mut partitions = disk::partitions_physical();
+    while let Some(part) = await!(partitions.next()) {
         let part = part?;
-        let usage = runtime.block_run(disk::usage(part.mount_point().to_path_buf()))?;
+        let usage = await!(disk::usage(part.mount_point().to_path_buf()))?;
 
         println!(
             "{:<17} {:<10} {:<10} {:<10} {:<10?} {}",

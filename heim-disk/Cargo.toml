@@ -1,6 +1,6 @@
 [package]
 name = "heim-disk"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform disk information"
@@ -14,33 +14,28 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.1", path = "../heim-derive" }
-heim-common = { version = "0.0.1", path = "../heim-common" }
+heim-derive = { version = "0.0.2", path = "../heim-derive" }
+heim-common = { version = "0.0.2", path = "../heim-common" }
 cfg-if = "0.1.7"
-
-[target.'cfg(target_os = "linux")'.dependencies]
-tokio-threadpool = "0.1.13"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
 bitflags = "1.0.4"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "0.3.7", features = ["winnt", "ntdef", "fileapi", "handleapi", "ioapiset", "winioctl", "impl-default"] }
+winapi = { version = "0.3.7", features = ["std", "winnt", "ntdef", "fileapi", "handleapi", "ioapiset", "winioctl", "impl-default"] }
 widestring = "0.4.0"
 tokio = { version = "0.1.18", features = ["fs"] }
 
 [dev-dependencies]
-heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
-criterion = "0.2.10"
-env_logger = "0.6.1"
+runtime = "0.3.0-alpha.2"
 
 [features]
 doc = []
 
-[[bench]]
-name = "disk"
-harness = false
+#[[bench]]
+#name = "disk"
+#harness = false
 
 [package.metadata.docs.rs]
 features = ["doc"]

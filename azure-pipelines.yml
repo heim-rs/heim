@@ -4,14 +4,15 @@ variables:
 jobs:
 - job: lints
   displayName: Lints
+  continueOnError: true
   pool:
     vmImage: ubuntu-16.04
   steps:
     - script: |
-        curl https://sh.rustup.rs -sSf | sh -s -- -y
+        curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
         $HOME/.cargo/bin/rustup component add rustfmt
         $HOME/.cargo/bin/rustup component add clippy
-      displayName: Install stable Rust and components
+      displayName: Install nightly Rust and components
     #- script: |
     #    $HOME/.cargo/bin/cargo fmt -- --check
     #  displayName: Run rustfmt

@@ -130,12 +130,18 @@ impl Swap {
     }
 }
 
-fn vm_stat() -> impl Future<Item=VmStat, Error=Error> {
+fn vm_stat() -> impl Future<Output=Result<VmStat>> {
     utils::fs::read_into(PROC_VMSTAT)
 }
 
-pub fn swap() -> impl Future<Item=Swap, Error=Error> {
-    utils::fs::read_to_string(PROC_MEMINFO)
-        .join(vm_stat())
-        .and_then(|(string, vm_stat)| Swap::parse_str(&string, vm_stat))
+pub fn swap() -> impl Future<Output=Result<Swap>> {
+    let meminfo = utils::fs::read_to_string(PROC_MEMINFO);
+    future::join(meminfo, vm_stat())
+        .then(|result| {
+            match result {
+                (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
+                (Err(e), _) => future::err(e),
+                (_, Err(e)) => future::err(e),
+            }
+        })
 }

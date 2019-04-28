@@ -34,8 +34,8 @@ impl Swap {
     }
 }
 
-pub fn swap() -> impl Future<Item = Swap, Error = Error> {
-    future::lazy(|| {
+pub fn swap() -> impl Future<Output = Result<Swap>> {
+    future::lazy(|_| {
         let xsw_usage = unsafe { bindings::vm_swapusage()? };
         let vm_stats = unsafe { bindings::host_vm_info()? };
         let page_size = *PAGE_SIZE;

@@ -28,10 +28,10 @@ impl IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = IoCounters, Error = Error> {
-    stream::iter_ok(vec![])
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+    stream::iter(vec![])
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = IoCounters, Error = Error> {
-    stream::iter_ok(vec![])
+pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
+    stream::iter(vec![])
 }

@@ -55,14 +55,14 @@ impl fmt::Debug for IoCounters {
 /// from `cmd.exe` first in order to enable IO counters.
 ///
 /// [IO counters]: struct.IoCounters.html
-pub fn io_counters() -> impl Stream<Item = IoCounters, Error = Error> {
-    sys::io_counters().map(Into::into)
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+    sys::io_counters().map_ok(Into::into)
 }
 
 /// Returns future which will resolve into [IO counters]
 /// for each physical disk installed on the system.
 ///
 /// [IO counters]: struct.IoCounters.html
-pub fn io_counters_physical() -> impl Stream<Item = IoCounters, Error = Error> {
-    sys::io_counters_physical().map(Into::into)
+pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
+    sys::io_counters_physical().map_ok(Into::into)
 }

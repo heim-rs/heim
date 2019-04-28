@@ -44,7 +44,7 @@ impl From<libc::utmpx> for User {
     }
 }
 
-pub fn users() -> impl Stream<Item=User, Error=Error> {
+pub fn users() -> impl Stream<Item=Result<User>> {
     // TODO: Should we try to guess the capacity?
     let mut users = vec![];
     unsafe {
@@ -59,10 +59,10 @@ pub fn users() -> impl Stream<Item=User, Error=Error> {
                 continue;
             }
 
-            users.push(User::from(*entry))
+            users.push(Ok(User::from(*entry)))
         }
         libc::endutxent();
     }
 
-    stream::iter_ok(users)
+    stream::iter(users)
 }

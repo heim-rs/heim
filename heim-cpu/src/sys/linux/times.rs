@@ -55,22 +55,29 @@ impl FromStr for CpuTime {
     }
 }
 
-pub fn time() -> impl Future<Item=CpuTime, Error=Error> {
+pub fn time() -> impl Future<Output=Result<CpuTime>> {
     // cumulative time is always the first line
     utils::fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
+        .into_stream()
         .take(1)
         .into_future()
-        .map_err(|(e, _)| e)
-        .and_then(|(time, _)| match time {
-            Some(time) => Ok(time),
-            None => Err(Error::new(ErrorKind::Parse))
+        .then(|res| {
+            match res {
+                (Some(Ok(time)), _) => future::ok(time),
+                (Some(Err(e)), _) => future::err(e),
+                (None, _) => future::err(Error::new(ErrorKind::UnknownValue))
+            }
         })
 }
 
-#[allow(clippy::redundant_closure)]
-pub fn times() -> impl Stream<Item=CpuTime, Error=Error> {
+pub fn times() -> impl Stream<Item=Result<CpuTime>> {
     utils::fs::read_lines("/proc/stat")
+        .into_stream()
         .skip(1)
-        .filter(|line| line.starts_with("cpu"))  // TODO: Check if bytes comparision would be faster
-        .and_then(|line| CpuTime::from_str(&line))
+        .try_filter(|line| {
+            future::ready(line.starts_with("cpu"))
+        })
+        .and_then(|line| {
+            future::ready(CpuTime::from_str(&line))
+        })
 }

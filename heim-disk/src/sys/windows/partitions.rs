@@ -27,10 +27,10 @@ impl Partition {
     }
 }
 
-pub fn partitions() -> impl Stream<Item = Partition, Error = Error> {
-    stream::iter_ok(vec![])
+pub fn partitions() -> impl Stream<Item = Result<Partition>> {
+    stream::iter(vec![])
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Partition, Error = Error> {
+pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
     partitions()
 }

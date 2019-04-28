@@ -1,8 +1,6 @@
 use std::str::FromStr;
 use std::ffi::CString;
 
-use tokio_threadpool::blocking;
-
 use heim_common::prelude::*;
 use heim_common::utils::parse::ParseIterator;
 use heim_common::units::iec::u64::Information;
@@ -45,19 +43,17 @@ impl IoCounters {
 
     // Based on the sysstat code:
     // https://github.com/sysstat/sysstat/blob/1c711c1fd03ac638cfc1b25cdf700625c173fd2c/common.c#L200
-    fn is_storage_device(&self) -> impl Future<Item=bool, Error=Error> {
+    fn is_storage_device(&self) -> impl Future<Output=bool> {
         let path = CString::new(format!("/sys/block/{}", self.name.replace("/", "!")))
             // FIXME: propagate error
             .expect("Malformed device path");
 
-        future::poll_fn(move || {
-            blocking(|| {
-                let result = unsafe {
-                    libc::access(path.as_ptr(), libc::F_OK)
-                };
+        future::lazy(move |_| {
+            let result = unsafe {
+                libc::access(path.as_ptr(), libc::F_OK)
+            };
 
-                result == 0
-            }).map_err(|_| panic!("The tokio threadpool shut down"))
+            result == 0
         })
     }
 
@@ -101,20 +97,19 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item=IoCounters, Error=Error> {
+pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {
     utils::fs::read_lines_into("/proc/diskstats")
+        .into_stream()
 }
 
-pub fn io_counters_physical() -> impl Stream<Item=IoCounters, Error=Error> {
+pub fn io_counters_physical() -> impl Stream<Item=Result<IoCounters>> {
     io_counters()
         .and_then(|device| {
-            device.is_storage_device().map(|value| (value, device))
+            device.is_storage_device()
+                .map(|flag| {
+                    Ok((flag, device))
+                })
         })
-        .filter_map(|(is_storage, device)| {
-            if is_storage {
-                Some(device)
-            } else {
-                None
-            }
-        })
+        .try_filter(|(is_storage_device, _)| future::ready(*is_storage_device))
+        .map_ok(|(_, device)| device)
 }

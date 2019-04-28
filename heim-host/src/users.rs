@@ -23,6 +23,6 @@ impl fmt::Debug for User {
 }
 
 /// Returns stream which yields [User]
-pub fn users() -> impl Stream<Item = User, Error = Error> {
-    sys::users().map(Into::into)
+pub fn users() -> impl Stream<Item = Result<User>> {
+    sys::users().map_ok(Into::into)
 }

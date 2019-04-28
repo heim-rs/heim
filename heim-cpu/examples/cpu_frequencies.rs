@@ -1,16 +1,25 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_cpu as cpu;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut rt = runtime::new()?;
-    println!("{:#?}", rt.block_run(cpu::frequency()));
+#[cfg(target_os = "linux")]
+async fn linux_frequencies() -> Result<()> {
+    let mut frequencies = cpu::os::linux::frequencies();
+    while let Some(freq) = await!(frequencies.next()) {
+        dbg!(freq?);
+    }
+
+    Ok(())
+}
+
+#[runtime::main]
+async fn main() -> Result<()> {
+    let freq = await!(cpu::frequency());
+    dbg!(freq?);
 
     #[cfg(target_os = "linux")]
-    println!(
-        "{:?}",
-        rt.block_collect(cpu::os::linux::frequencies()).collect::<Vec<_>>()
-    );
+    await!(linux_frequencies())?;
 
     Ok(())
 }

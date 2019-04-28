@@ -1,5 +1,7 @@
 use std::mem;
 use std::ptr;
+use std::pin::Pin;
+use std::task::{Poll, Context};
 use std::net::{IpAddr, Ipv4Addr};
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
@@ -150,13 +152,12 @@ impl Drop for Sessions {
 }
 
 impl Stream for Sessions {
-    type Item = User;
-    type Error = Error;
+    type Item = Result<User>;
 
-    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
+    fn poll_next(mut self: Pin<&mut Self>, _: &mut Context) -> Poll<Option<Self::Item>> {
         loop {
             if self.current >= self.count {
-                return Ok(Async::Ready(None))
+                return Poll::Ready(None);
             }
 
             let session: wtsapi32::WTS_SESSION_INFOW = unsafe {
@@ -182,7 +183,7 @@ impl Stream for Sessions {
                 wtsapi32::WTSFreeMemory(&mut session_info as *mut _ as PVOID);
             }
 
-            return Ok(Async::Ready(Some(User {
+            return Poll::Ready(Some(Ok(User {
                 domain,
                 username,
                 address,
@@ -191,6 +192,15 @@ impl Stream for Sessions {
     }
 }
 
-pub fn users() -> impl Stream<Item=User, Error=Error> {
-    future::lazy(Sessions::new).flatten_stream()
+pub fn users() -> impl Stream<Item=Result<User>> {
+    future::lazy(|_| {
+        Sessions::new()
+    })
+    .map_ok(|sessions| {
+        Box::pin(sessions) as Pin<Box<dyn Stream<Item = _> + Send>>
+    })
+    .unwrap_or_else(|e| {
+        Box::pin(stream::once(future::err(e)))
+    })
+    .flatten_stream()
 }

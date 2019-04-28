@@ -44,8 +44,8 @@ impl Swap {
 
 }
 
-fn memory_status() -> impl Future<Item=sysinfoapi::MEMORYSTATUSEX, Error=Error> {
-    future::lazy(|| {
+fn memory_status() -> impl Future<Output=Result<sysinfoapi::MEMORYSTATUSEX>> {
+    future::lazy(|_| {
         unsafe {
             let mut mem_status = mem::uninitialized::<sysinfoapi::MEMORYSTATUSEX>();
             mem_status.dwLength = mem::size_of::<sysinfoapi::MEMORYSTATUSEX>() as minwindef::DWORD;
@@ -60,13 +60,13 @@ fn memory_status() -> impl Future<Item=sysinfoapi::MEMORYSTATUSEX, Error=Error> 
     })
 }
 
-pub fn swap() -> impl Future<Item=Swap, Error=Error> {
+pub fn swap() -> impl Future<Output=Result<Swap>> {
     memory_status()
-        .map(Swap)
+        .map_ok(Swap)
 }
 
 
-pub fn memory() -> impl Future<Item=Memory, Error=Error> {
+pub fn memory() -> impl Future<Output=Result<Memory>> {
     memory_status()
-        .map(Memory)
+        .map_ok(Memory)
 }

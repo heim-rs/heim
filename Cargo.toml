@@ -7,9 +7,8 @@ members = [
     "heim-derive",
     "heim-memory",
     "heim-disk",
-    "heim-runtime",
-    "heim-net",
-    "heim-process",
-    "heim-virt",
-    "heim-winservice",
+#    "heim-net",
+#    "heim-process",
+#    "heim-virt",
+#    "heim-winservice",
 ]

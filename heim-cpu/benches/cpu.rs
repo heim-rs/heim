@@ -1,29 +1,30 @@
-#[macro_use]
-extern crate criterion;
+#![feature(await_macro, async_await, futures_api, test)]
 
-use criterion::Criterion;
+extern crate test;
 
+use heim_common::prelude::*;
 use heim_cpu as cpu;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("time", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(cpu::time()))
-    });
-    c.bench_function("times", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(cpu::times()))
-    });
-    c.bench_function("stats", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(cpu::stats()))
-    });
-    c.bench_function("frequency", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(cpu::frequency()))
-    });
+#[runtime::bench]
+async fn bench_time() {
+    await!(cpu::time());
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+#[runtime::bench]
+async fn bench_times() {
+    let stream = cpu::times().for_each(|_| future::ready(()));
+
+    await!(stream);
+}
+
+#[runtime::bench]
+async fn bench_stats() {
+    let stats = cpu::stats();
+
+    await!(stats);
+}
+
+#[runtime::bench]
+async fn bench_frequency() {
+    await!(cpu::frequency());
+}

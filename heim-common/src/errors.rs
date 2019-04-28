@@ -6,7 +6,6 @@ use std::net;
 use std::num;
 use std::result;
 use std::string;
-use tokio::sync::mpsc;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -117,14 +116,6 @@ impl From<string::FromUtf8Error> for Error {
     fn from(e: string::FromUtf8Error) -> Self {
         Error {
             kind: ErrorKind::FromUtf8(e),
-        }
-    }
-}
-
-impl From<mpsc::error::UnboundedSendError> for Error {
-    fn from(e: mpsc::error::UnboundedSendError) -> Self {
-        Error {
-            kind: ErrorKind::Io(io::Error::new(io::ErrorKind::Other, e)),
         }
     }
 }

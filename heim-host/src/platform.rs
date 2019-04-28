@@ -42,6 +42,6 @@ impl fmt::Debug for Platform {
 }
 
 /// Returns `Future` which resolves into [Platform] struct.
-pub fn platform() -> impl Future<Item = Platform, Error = Error> {
-    sys::platform().map(Into::into)
+pub fn platform() -> impl Future<Output = Result<Platform>> {
+    sys::platform().map_ok(Into::into)
 }

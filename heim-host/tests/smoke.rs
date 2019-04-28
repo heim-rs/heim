@@ -1,6 +1,10 @@
+#![feature(await_macro, async_await, futures_api, test)]
+
+extern crate test;
+
+use heim_common::prelude::*;
 use heim_common::units::si::time::second;
 use heim_host as host;
-use heim_runtime::{self as runtime, SyncRuntime};
 
 cfg_if::cfg_if! {
     if #[cfg(all(unix, not(target_os = "openbsd")))] {
@@ -10,10 +14,9 @@ cfg_if::cfg_if! {
     }
 }
 
-#[test]
-fn smoke_platform() {
-    let mut rt = runtime::new().unwrap();
-    let platform = rt.block_run(host::platform());
+#[runtime::test]
+async fn smoke_platform() {
+    let platform = await!(host::platform());
     assert!(platform.is_ok());
 
     let platform = platform.unwrap();
@@ -23,21 +26,20 @@ fn smoke_platform() {
     let _ = platform.architecture();
 }
 
-#[test]
-fn smoke_uptime() {
-    let mut rt = runtime::new().unwrap();
-    let uptime = rt.block_run(host::uptime());
+#[runtime::test]
+async fn smoke_uptime() {
+    let uptime = await!(host::uptime());
 
     assert!(uptime.is_ok());
     assert!(uptime.unwrap().get::<second>() > 0.0);
 }
 
-#[test]
-fn smoke_users() {
-    let mut rt = runtime::new().unwrap();
-    let users = rt.block_collect(host::users());
+#[runtime::test]
+async fn smoke_users() {
+    let mut users = host::users();
+    while let Some(user) = await!(users.next()) {
+        let user = user.unwrap();
 
-    for user in users.flatten() {
         let _ = user.username();
 
         #[cfg(all(unix, not(target_os = "openbsd")))]

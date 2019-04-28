@@ -1,10 +1,9 @@
-#[macro_use]
-extern crate criterion;
+#![feature(await_macro, async_await, futures_api, test)]
 
-use criterion::Criterion;
+extern crate test;
 
+use heim_common::prelude::*;
 use heim_disk as disk;
-use heim_runtime::{self as runtime, SyncRuntime};
 
 #[cfg(unix)]
 static USAGE_PATH: &'static str = "/";
@@ -12,28 +11,35 @@ static USAGE_PATH: &'static str = "/";
 #[cfg(windows)]
 static USAGE_PATH: &'static str = "C:\\";
 
-fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("partitions", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(disk::partitions()).count())
-    });
-    c.bench_function("partitions_physical", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(disk::partitions_physical()).count())
-    });
-    c.bench_function("usage", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(disk::usage(USAGE_PATH)))
-    });
-    c.bench_function("io_counters", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(disk::io_counters()).count())
-    });
-    c.bench_function("io_counters_physical", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(disk::io_counters_physical()).count())
-    });
+#[runtime::bench]
+async fn bench_partitions() {
+    let stream = disk::partitions().for_each(|_| future::ready(()));
+
+    await!(stream)
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+#[runtime::bench]
+async fn bench_partitions_physical() {
+    let stream = disk::partitions_physical().for_each(|_| future::ready(()));
+
+    await!(stream)
+}
+
+#[runtime::bench]
+async fn bench_io_counters() {
+    let stream = disk::io_counters().for_each(|_| future::ready(()));
+
+    await!(stream)
+}
+
+#[runtime::bench]
+async fn bench_io_counters_physical() {
+    let stream = disk::io_counters_physical().for_each(|_| future::ready(()));
+
+    await!(stream)
+}
+
+#[runtime::bench]
+async fn bench_usage() {
+    await!(disk::usage(USAGE_PATH))
+}

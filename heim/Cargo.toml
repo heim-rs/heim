@@ -1,6 +1,6 @@
 [package]
 name = "heim"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform framework for system information"
@@ -14,25 +14,22 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-runtime = { version = "0.0.1", path = "../heim-runtime", optional = true }
-heim-common = { version = "0.0.1", path = "../heim-common" }
-heim-derive = { version = "0.0.1", path = "../heim-derive" }
-heim-host = { version = "0.0.1", path = "../heim-host" }
-heim-cpu = {version = "0.0.1", path = "../heim-cpu" }
-heim-memory = {version = "0.0.1", path = "../heim-memory" }
-heim-disk = {version = "0.0.1", path = "../heim-disk" }
- heim-net = {version = "0.0.1", path = "../heim-net" }
+heim-common = { version = "0.0.2", path = "../heim-common" }
+heim-derive = { version = "0.0.2", path = "../heim-derive" }
+heim-host = { version = "0.0.2", path = "../heim-host" }
+heim-cpu = {version = "0.0.2", path = "../heim-cpu" }
+heim-memory = {version = "0.0.2", path = "../heim-memory" }
+heim-disk = {version = "0.0.2", path = "../heim-disk" }
+# heim-net = {version = "0.0.1", path = "../heim-net" }
 
 [features]
-runtime = ["heim-runtime"]
 doc = [
-    "runtime",
     "heim-common/doc",
     "heim-host/doc",
     "heim-cpu/doc",
     "heim-memory/doc",
     "heim-disk/doc",
-    "heim-net/doc",
+#    "heim-net/doc",
 ]
 
 [package.metadata.docs.rs]

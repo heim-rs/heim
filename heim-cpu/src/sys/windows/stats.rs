@@ -67,8 +67,8 @@ fn interrupts() -> Result<u64> {
     Ok(count.into())
 }
 
-pub fn stats() -> impl Future<Item = CpuStats, Error = Error> {
-    future::lazy(|| {
+pub fn stats() -> impl Future<Output = Result<CpuStats>> {
+    future::lazy(|_| {
         let (ctx_switches, system_calls) = system_performance_info()?;
         let dpc = dpc_count()?;
         let interrupts = interrupts()?;

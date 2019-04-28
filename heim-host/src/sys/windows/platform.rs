@@ -90,14 +90,14 @@ impl Platform {
     }
 }
 
-unsafe fn get_native_system_info() -> impl Future<Item=SystemInfo, Error=Error> {
+unsafe fn get_native_system_info() -> impl Future<Output=Result<SystemInfo>> {
     let mut info: sysinfoapi::SYSTEM_INFO = mem::zeroed();
     sysinfoapi::GetNativeSystemInfo(&mut info);
 
     future::ok(info.into())
 }
 
-unsafe fn rtl_get_version() -> impl Future<Item=winnt::OSVERSIONINFOEXW, Error=Error> {
+unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW>> {
     // Based on the `platform-info` crate source:
     // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
     let module = match get_ntdll() {
@@ -124,17 +124,22 @@ unsafe fn rtl_get_version() -> impl Future<Item=winnt::OSVERSIONINFOEXW, Error=E
     }
 }
 
-pub fn platform() -> impl Future<Item=Platform, Error=Error> {
+pub fn platform() -> impl Future<Output=Result<Platform>> {
     let sysinfo = unsafe { get_native_system_info() };
     let version = unsafe { rtl_get_version() };
 
-    sysinfo
-        .join(version)
-        .map(|(sysinfo, version)| {
-        Platform {
-            sysinfo,
-            version,
-            build: format!("{}", version.dwBuildNumber),
-        }
-    })
+    future::join(sysinfo, version)
+        .then(|result| {
+            match result {
+                (Ok(sysinfo), Ok(version)) => {
+                    future::ok(Platform {
+                        sysinfo,
+                        version,
+                        build: format!("{}", version.dwBuildNumber),
+                    })
+                },
+                (Err(e), _) => future::err(e),
+                (_, Err(e)) => future::err(e),
+            }
+        })
 }

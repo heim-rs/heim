@@ -1,12 +1,13 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_host as host;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut runtime = runtime::new()?;
-    let uptime = runtime.block_run(host::uptime())?;
+#[runtime::main]
+async fn main() -> Result<()> {
+    let uptime = await!(host::uptime())?;
 
-    println!("Uptime: {:?}", uptime);
+    dbg!(uptime);
 
     Ok(())
 }

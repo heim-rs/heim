@@ -3,6 +3,8 @@
 //! This crate is a part of [heim](https://crates.io/crates/heim) project,
 //! consider using it instead.
 
+#![feature(await_macro, async_await, futures_api)]
+
 pub mod os;
 mod sys;
 

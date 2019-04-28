@@ -71,6 +71,6 @@ impl FromStr for Memory {
     }
 }
 
-pub fn memory() -> impl Future<Item=Memory, Error=Error> {
+pub fn memory() -> impl Future<Output=Result<Memory>> {
     utils::fs::read_into("/proc/meminfo")
 }

@@ -45,8 +45,8 @@ impl Memory {
     }
 }
 
-pub fn memory() -> impl Future<Item = Memory, Error = Error> {
-    future::lazy(|| {
+pub fn memory() -> impl Future<Output = Result<Memory>> {
+    future::lazy(|_| {
         let total = unsafe { bindings::hw_memsize()? };
         let vm_stats = unsafe { bindings::host_vm_info()? };
         let page_size = *PAGE_SIZE;

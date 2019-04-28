@@ -19,7 +19,7 @@ pub use self::swap::*;
 /// Re-exported measurement units used in this crate.
 pub mod units {
     pub use heim_common::units::iec::information::*;
-    // The obvious choice is too use `usize` type as a memory size representation.
+    // The obvious choice is to use `usize` type as a memory size representation.
     // Yet, the problem is `Information` base unit is "bit", not a "byte",
     // therefore all the time we are having the multiplication by 8,
     // and this breaks `x86` systems, because even small x86 VMs

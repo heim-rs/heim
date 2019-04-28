@@ -1,8 +1,8 @@
 use std::fmt;
 
-use crate::sys;
-
 use heim_common::prelude::*;
+
+use crate::sys;
 
 /// CPU statistics.
 #[derive(heim_derive::ImplWrap)]
@@ -36,6 +36,6 @@ impl fmt::Debug for CpuStats {
 }
 
 /// Returns future which will resolve into [CpuStats].
-pub fn stats() -> impl Future<Item = CpuStats, Error = Error> {
-    sys::stats().map(Into::into)
+pub fn stats() -> impl Future<Output = Result<CpuStats>> {
+    sys::stats().map_ok(Into::into)
 }

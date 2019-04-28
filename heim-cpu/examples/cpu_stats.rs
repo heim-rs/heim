@@ -1,12 +1,11 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_cpu as cpu;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut rt = runtime::new().unwrap();
-    let stats = rt.block_run(cpu::stats());
-
-    println!("{:?}", stats);
+#[runtime::main]
+async fn main() -> Result<()> {
+    dbg!(await!(cpu::stats())?);
 
     Ok(())
 }

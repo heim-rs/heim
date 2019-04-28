@@ -1,17 +1,20 @@
+#![feature(await_macro, async_await, futures_api)]
+
 use heim_common::prelude::*;
 use heim_disk as disk;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut rt = runtime::new().unwrap();
-    for io_cnt in rt.block_collect(disk::io_counters()) {
-        println!("{:?}", io_cnt);
+#[runtime::main]
+async fn main() -> Result<()> {
+    let mut counters = disk::io_counters();
+    while let Some(counter) = await!(counters.next()) {
+        dbg!(counter?);
     }
 
     println!("\n\n--- Per physical disk ---\n");
 
-    for io_cnt in rt.block_collect(disk::io_counters_physical()) {
-        println!("{:?}", io_cnt);
+    let mut counters = disk::io_counters_physical();
+    while let Some(counter) = await!(counters.next()) {
+        dbg!(counter?);
     }
 
     Ok(())

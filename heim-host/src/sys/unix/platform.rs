@@ -1,4 +1,3 @@
-use std::io;
 use std::mem;
 use std::str::FromStr;
 
@@ -34,8 +33,8 @@ impl Platform {
 }
 
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
-pub fn platform() -> impl Future<Item = Platform, Error = Error> {
-    future::lazy(|| unsafe {
+pub fn platform() -> impl Future<Output = Result<Platform>> {
+    future::lazy(|_| unsafe {
         let mut uts: libc::utsname = mem::uninitialized();
         if libc::uname(&mut uts) == 0 {
             let raw_arch = into_cow(&uts.machine);
@@ -47,7 +46,7 @@ pub fn platform() -> impl Future<Item = Platform, Error = Error> {
                 arch,
             })
         } else {
-            Err(io::Error::last_os_error().into())
+            Err(Error::last_os_error())
         }
     })
 }

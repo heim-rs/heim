@@ -51,8 +51,8 @@ impl Usage {
     }
 }
 
-pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Item=Usage, Error=Error> {
-    future::lazy(move || {
+pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
+    future::lazy(move |_| {
         unsafe {
             let path = path.as_ref().to_str()
                 .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidInput))
@@ -66,7 +66,7 @@ pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Item=Usage, Error=Error> {
             if result == 0 {
                 Ok(Usage(vfs))
             } else {
-                Err(io::Error::last_os_error().into())
+                Err(Error::last_os_error())
             }
         }
     })

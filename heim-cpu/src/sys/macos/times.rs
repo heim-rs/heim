@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use heim_common::prelude::*;
 
 use crate::units;
@@ -55,21 +57,27 @@ impl From<bindings::processor_cpu_load_info> for CpuTime {
     }
 }
 
-pub fn time() -> impl Future<Item = CpuTime, Error = Error> {
-    future::lazy(|| {
+pub fn time() -> impl Future<Output = Result<CpuTime>> {
+    future::lazy(|_| {
         let info = unsafe { bindings::cpu_load_info()? };
         Ok(info.into())
     })
 }
 
-pub fn times() -> impl Stream<Item = CpuTime, Error = Error> {
-    future::lazy(|| {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
+    future::lazy(|_| {
         let processors = unsafe {
             bindings::processor_load_info()?
         };
 
-        Ok(stream::iter_ok(processors))
+        let stream = stream::iter(processors).map(Ok);
+
+        // https://github.com/rust-lang-nursery/futures-rs/issues/1444
+        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+    })
+    .unwrap_or_else(|e| {
+        Box::pin(stream::once(future::err(e)))
     })
     .flatten_stream()
-    .map(Into::into)
+    .map_ok(Into::into)
 }

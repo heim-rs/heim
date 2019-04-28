@@ -44,9 +44,9 @@ impl fmt::Debug for Usage {
 }
 
 /// Returns disk [Usage] statistics about the partition which contains the given `path`.
-pub fn usage<T>(path: T) -> impl Future<Item = Usage, Error = Error>
+pub fn usage<T>(path: T) -> impl Future<Output = Result<Usage>>
 where
-    T: AsRef<Path> + Send + 'static,
+    T: AsRef<Path>
 {
-    sys::usage(path).map(Into::into)
+    sys::usage(path).map(|res| res.map(Into::into))
 }

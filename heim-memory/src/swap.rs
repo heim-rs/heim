@@ -42,6 +42,6 @@ impl fmt::Debug for Swap {
 }
 
 /// Returns future which will resolve into [Swap] struct.
-pub fn swap() -> impl Future<Item = Swap, Error = Error> {
-    sys::swap().map(Into::into)
+pub fn swap() -> impl Future<Output = Result<Swap>> {
+    sys::swap().map(|res| res.map(Into::into))
 }

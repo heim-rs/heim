@@ -44,6 +44,6 @@ impl FromStr for CpuStats {
     }
 }
 
-pub fn stats() -> impl Future<Item=CpuStats, Error=Error> {
+pub fn stats() -> impl Future<Output=Result<CpuStats>> {
     utils::fs::read_into("/proc/stat")
 }

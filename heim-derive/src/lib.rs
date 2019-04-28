@@ -1,3 +1,5 @@
+#![feature(await_macro, async_await, futures_api)]
+
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
@@ -236,9 +238,17 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
-/// Used for `#[test]`-annotated functions
+/// Used for `#[runtime::test]`-annotated functions
 ///
 /// Will not run the annotated function if it is called in the CI environment.
+///
+/// It is important to put it **before** the `#[runtime::test]` attribute, like that:
+///
+/// ```text
+/// #[heim_derive::skip_ci]
+/// #[runtime::test]
+/// async fn test_foo() {}
+/// ```
 ///
 /// Supported CI:
 ///  * Azure Pipelines
@@ -246,6 +256,7 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let func: syn::ItemFn = syn::parse(item).unwrap();
+    let attrs = &func.attrs;
     let vis = &func.vis;
     let constness = &func.constness;
     let unsafety = &func.unsafety;
@@ -257,8 +268,9 @@ pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let ident_repr = format!("{}", &func.ident);
 
     let expanded = quote::quote! {
+        #(#attrs)*
         #vis #constness #unsafety #asyncness #abi fn #ident() {
-            fn inner() {
+            async fn inner() {
                 #body
             }
             let in_ci = ::std::env::vars()
@@ -271,9 +283,9 @@ pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 });
 
             if in_ci {
-                eprintln!("test {} ... ignored because of CI environment", #ident_repr);
+                eprintln!("test {} ... will be ignored because of CI environment", #ident_repr);
             } else {
-                inner();
+                await!(inner());
             }
         }
     };

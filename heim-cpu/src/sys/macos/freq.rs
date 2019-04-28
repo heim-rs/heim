@@ -26,8 +26,8 @@ impl CpuFrequency {
     }
 }
 
-pub fn frequency() -> impl Future<Item = CpuFrequency, Error = Error> {
-    future::lazy(|| {
+pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
+    future::lazy(|_| {
         let current = bindings::cpu_frequency()?;
         let min = bindings::cpu_frequency_min()?;
         let max = bindings::cpu_frequency_max()?;

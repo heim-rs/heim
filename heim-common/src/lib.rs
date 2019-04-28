@@ -1,3 +1,5 @@
+#![feature(await_macro, async_await, futures_api)]
+
 #[macro_use]
 extern crate uom;
 
@@ -14,8 +16,6 @@ pub use self::errors::{Error, ErrorKind, Result};
 /// and might change at any time.
 pub mod prelude {
     pub use super::errors::{Error, ErrorKind, Result};
-
-    pub use tokio::prelude::*;
-
     pub use super::utils;
+    pub use futures::prelude::*;
 }

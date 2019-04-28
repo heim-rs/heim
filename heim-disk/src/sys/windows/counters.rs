@@ -1,7 +1,6 @@
+use std::fs;
 use std::path::PathBuf;
 use std::os::windows::io::AsRawHandle;
-
-use tokio::fs;
 
 use heim_common::prelude::*;
 use heim_common::units::si::f64::Time;
@@ -53,14 +52,18 @@ impl IoCounters {
     }
 }
 
-fn inner_stream<F>(filter: F) -> impl Stream<Item=IoCounters, Error=Error>
-        where F: FnMut(&PathBuf) -> bool {
-    stream::iter_result(Volumes::new())
-    .filter(filter)
+fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
+        where F: FnMut(&PathBuf) -> bool + 'static {
+    stream::iter(Volumes::new())
+    .try_filter_map(move |path| {
+        if filter(&path) {
+            future::ok(Some(path))
+        } else {
+            future::ok(None)
+        }
+    })
     .and_then(|mut volume_path| {
-        // TODO: would be nice to pass a reference here instead of clone.
-        // I think that futures 0.3 will allow that?
-        fs::File::open(volume_path.clone())
+        let res = fs::File::open(&volume_path)
             // Since trailing backslash was trimmed by `Volumes` iterator,
             // we need to get it back in order to display
             // it later via `IoCounters::device_name`.
@@ -68,10 +71,11 @@ fn inner_stream<F>(filter: F) -> impl Stream<Item=IoCounters, Error=Error>
                 volume_path.push("\\");
                 (volume_path, file)
             })
-            .map_err(Error::from)
+            .map_err(Error::from);
+
+        future::ready(res)
     })
     .and_then(|(volume_path, file)| {
-        let file = file.into_std();
         let handle = file.as_raw_handle();
 
         // psutil additionally checks for some errors
@@ -84,7 +88,10 @@ fn inner_stream<F>(filter: F) -> impl Stream<Item=IoCounters, Error=Error>
         // See: https://github.com/giampaolo/psutil/blob/c0aba35a78649c453f0c89ab163a58a8efb4639e/psutil/_psutil_windows.c#L2262-L2281
 
         let perf = unsafe {
-            disks::disk_performance(&handle)?
+            match disks::disk_performance(&handle) {
+                Ok(perf) => perf,
+                Err(e) => return future::err(e),
+            }
         };
 
         let read_bytes = unsafe {
@@ -100,7 +107,7 @@ fn inner_stream<F>(filter: F) -> impl Stream<Item=IoCounters, Error=Error>
             *perf.WriteTime.QuadPart() as f64
         };
 
-        Ok(IoCounters {
+        let counters = IoCounters {
             volume_path,
             read_count: u64::from(perf.ReadCount),
             write_count: u64::from(perf.WriteCount),
@@ -110,16 +117,18 @@ fn inner_stream<F>(filter: F) -> impl Stream<Item=IoCounters, Error=Error>
             // https://github.com/giampaolo/psutil/issues/1012
             read_time: Time::new::<microsecond>(read_time * 10.0),
             write_time: Time::new::<microsecond>(write_time * 10.0),
-        })
+        };
+
+        future::ok(counters)
     })
 
 }
 
-pub fn io_counters() -> impl Stream<Item=IoCounters, Error=Error> {
+pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {
     inner_stream(|_| true)
 }
 
-pub fn io_counters_physical() -> impl Stream<Item=IoCounters, Error=Error> {
+pub fn io_counters_physical() -> impl Stream<Item=Result<IoCounters>> {
     inner_stream(|path: &PathBuf| {
         disks::is_fixed_drive(path.as_path())
     })
