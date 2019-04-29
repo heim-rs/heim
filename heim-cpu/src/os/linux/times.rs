@@ -1,4 +1,4 @@
-use heim_common::units::si::f64::Time;
+use crate::units::Time;
 
 /// Linux-specific extension for [CpuTime].
 ///

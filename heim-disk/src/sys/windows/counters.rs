@@ -3,10 +3,7 @@ use std::path::PathBuf;
 use std::os::windows::io::AsRawHandle;
 
 use heim_common::prelude::*;
-use heim_common::units::si::f64::Time;
-use heim_common::units::si::time::microsecond;
-use heim_common::units::iec::u64::Information;
-use heim_common::units::iec::information::byte;
+use heim_common::units::{Time, Information};
 
 use super::bindings::disks;
 use super::bindings::volumes::Volumes;
@@ -55,12 +52,8 @@ impl IoCounters {
 fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
         where F: FnMut(&PathBuf) -> bool + 'static {
     stream::iter(Volumes::new())
-    .try_filter_map(move |path| {
-        if filter(&path) {
-            future::ok(Some(path))
-        } else {
-            future::ok(None)
-        }
+    .try_filter(move |path| {
+        future::ready(filter(&path))
     })
     .and_then(|mut volume_path| {
         let res = fs::File::open(&volume_path)
@@ -111,12 +104,12 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
             volume_path,
             read_count: u64::from(perf.ReadCount),
             write_count: u64::from(perf.WriteCount),
-            read_bytes: Information::new::<byte>(read_bytes),
-            write_bytes: Information::new::<byte>(write_bytes),
+            read_bytes: Information::new(read_bytes),
+            write_bytes: Information::new(write_bytes),
             // `ReadTime` and `WriteTime` seems to be in tenths of microseconds
             // https://github.com/giampaolo/psutil/issues/1012
-            read_time: Time::new::<microsecond>(read_time * 10.0),
-            write_time: Time::new::<microsecond>(write_time * 10.0),
+            read_time: Time::from_microseconds(read_time * 10.0),
+            write_time: Time::from_microseconds(write_time * 10.0),
         };
 
         future::ok(counters)

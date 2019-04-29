@@ -7,18 +7,18 @@ use winapi::um::sysinfoapi;
 
 use heim_common::prelude::*;
 
-use crate::units::{Information, byte};
+use crate::units::Information;
 
 #[derive(Clone)]
 pub struct Memory(sysinfoapi::MEMORYSTATUSEX);
 
 impl Memory {
     pub fn total(&self) -> Information {
-        Information::new::<byte>(self.0.ullTotalPhys)
+        Information::new(self.0.ullTotalPhys)
     }
 
     pub fn available(&self) -> Information {
-        Information::new::<byte>(self.0.ullAvailPhys)
+        Information::new(self.0.ullAvailPhys)
     }
 
     pub fn free(&self) -> Information {
@@ -31,7 +31,7 @@ pub struct Swap(sysinfoapi::MEMORYSTATUSEX);
 
 impl Swap {
     pub fn total(&self) -> Information {
-        Information::new::<byte>(self.0.ullTotalPageFile)
+        Information::new(self.0.ullTotalPageFile)
     }
 
     pub fn used(&self) -> Information {
@@ -39,7 +39,7 @@ impl Swap {
     }
 
     pub fn free(&self) -> Information {
-        Information::new::<byte>(self.0.ullAvailPageFile)
+        Information::new(self.0.ullAvailPageFile)
     }
 
 }

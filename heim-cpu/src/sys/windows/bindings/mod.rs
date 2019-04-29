@@ -29,7 +29,7 @@ impl IntoTime for minwindef::FILETIME {
         let value = (HI_T * f64::from(self.dwHighDateTime))
             + (LO_T * f64::from(self.dwLowDateTime));
 
-        units::Time::new::<units::second>(value)
+        units::Time::new(value)
     }
 }
 
@@ -40,6 +40,6 @@ impl IntoTime for ntdef::LARGE_INTEGER {
         let value = (HI_T * f64::from(s.HighPart))
             + (LO_T * f64::from(s.LowPart));
 
-        units::Time::new::<units::second>(value)
+        units::Time::new(value)
     }
 }

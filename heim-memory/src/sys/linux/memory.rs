@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 
-use crate::units::{Information, kilobyte};
+use crate::units::Information;
 
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone, heim_derive::Getter)]
 pub struct Memory {
@@ -50,7 +50,7 @@ impl FromStr for Memory {
                     let bytes = match value.trim_start().splitn(2, ' ').next() {
                         Some(kbytes) => {
                             let value = kbytes.parse::<u64>()?;
-                            Information::new::<kilobyte>(value)
+                            Information::from_kilobytes(value)
                         },
                         None => continue,
                     };

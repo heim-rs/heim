@@ -1,9 +1,12 @@
+//! Command similar to `df -BM`
+
 #![feature(await_macro, async_await, futures_api)]
 
 use heim_common::prelude::*;
-use heim_common::units::iec::information::megabyte;
 use heim_disk as disk;
-/// Command similar to `df -BM`
+
+const MEGABYTE: u64 = 1_024 * 1_024;
+
 
 #[runtime::main]
 async fn main() -> Result<()> {
@@ -20,9 +23,9 @@ async fn main() -> Result<()> {
         println!(
             "{:<17} {:<10} {:<10} {:<10} {:<10?} {}",
             part.device().unwrap_or("N/A"),
-            usage.total().get::<megabyte>(),
-            usage.used().get::<megabyte>(),
-            usage.free().get::<megabyte>(),
+            usage.total().get() * MEGABYTE,
+            usage.used().get() * MEGABYTE,
+            usage.free().get() * MEGABYTE,
             part.file_system(),
             part.mount_point().to_string_lossy(),
         );

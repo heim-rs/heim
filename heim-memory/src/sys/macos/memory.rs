@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
 
-use crate::units::{Information, byte};
+use crate::units::Information;
 
 use super::{bindings, PAGE_SIZE};
 
@@ -51,23 +51,23 @@ pub fn memory() -> impl Future<Output = Result<Memory>> {
         let vm_stats = unsafe { bindings::host_vm_info()? };
         let page_size = *PAGE_SIZE;
 
-        let total = Information::new::<byte>(total);
-        let available = Information::new::<byte>(
+        let total = Information::new(total);
+        let available = Information::new(
             (vm_stats.active_count + vm_stats.free_count) as u64 * page_size
         );
-        let free = Information::new::<byte>(
+        let free = Information::new(
             (vm_stats.free_count - vm_stats.speculative_count) as u64 * page_size
         );
-        let used = Information::new::<byte>(
+        let used = Information::new(
             (vm_stats.active_count + vm_stats.wire_count) as u64 * page_size
         );
-        let active = Information::new::<byte>(
+        let active = Information::new(
             vm_stats.active_count as u64 * page_size
         );
-        let inactive = Information::new::<byte>(
+        let inactive = Information::new(
             vm_stats.inactive_count as u64 * page_size
         );
-        let wire = Information::new::<byte>(
+        let wire = Information::new(
             vm_stats.wire_count as u64 * page_size
         );
 

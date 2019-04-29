@@ -15,11 +15,11 @@ pub struct CpuFrequency(PROCESSOR_POWER_INFORMATION);
 
 impl CpuFrequency {
     pub fn current(&self) -> units::Frequency {
-        units::Frequency::new::<units::megahertz>(self.0.CurrentMhz.into())
+        units::Frequency::from_megahertzs(self.0.CurrentMhz.into())
     }
 
     pub fn max(&self) -> Option<units::Frequency> {
-        Some(units::Frequency::new::<units::megahertz>(self.0.MaxMhz.into()))
+        Some(units::Frequency::from_megahertzs(self.0.MaxMhz.into()))
     }
 
     pub fn min(&self) -> Option<units::Frequency> {

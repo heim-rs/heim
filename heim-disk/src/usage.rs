@@ -2,8 +2,7 @@ use std::fmt;
 use std::path::Path;
 
 use heim_common::prelude::*;
-use heim_common::units::iec::u64::Information;
-use heim_common::units::si::f64::Ratio;
+use heim_common::units::{Information, Ratio};
 
 use crate::sys;
 

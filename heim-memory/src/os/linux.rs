@@ -2,7 +2,7 @@
 
 /// Reference: https://gitlab.com/procps-ng/procps/blob/master/proc/sysinfo.c
 
-use crate::units::{Information, byte};
+use crate::units::Information;
 use crate::Memory;
 
 /// Linux-specific extension to [`Memory`]
@@ -39,7 +39,7 @@ impl MemoryExt for Memory {
         let inner = self.as_ref();
 
         let mut used = inner.total() - inner.free() - self.cached() - self.buffers();
-        if used <= Information::new::<byte>(0) {
+        if used <= Information::new(0) {
             // May be symptomatic of running within a LCX container where such
             // values will be dramatically distorted over those of the host.
             // Source: psutil

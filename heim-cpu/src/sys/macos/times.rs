@@ -36,10 +36,10 @@ impl From<bindings::host_cpu_load_info> for CpuTime {
         let ticks = *CLOCK_TICKS;
 
         CpuTime {
-            user: units::Time::new::<units::second>(f64::from(info.user) / ticks),
-            nice: units::Time::new::<units::second>(f64::from(info.nice) / ticks),
-            system: units::Time::new::<units::second>(f64::from(info.system) / ticks),
-            idle: units::Time::new::<units::second>(f64::from(info.idle) / ticks),
+            user: units::Time::new(f64::from(info.user) / ticks),
+            nice: units::Time::new(f64::from(info.nice) / ticks),
+            system: units::Time::new(f64::from(info.system) / ticks),
+            idle: units::Time::new(f64::from(info.idle) / ticks),
         }
     }
 }
@@ -49,10 +49,10 @@ impl From<bindings::processor_cpu_load_info> for CpuTime {
         let ticks = *CLOCK_TICKS;
 
         CpuTime {
-            user: units::Time::new::<units::second>(f64::from(info.user) / ticks),
-            nice: units::Time::new::<units::second>(f64::from(info.nice) / ticks),
-            system: units::Time::new::<units::second>(f64::from(info.system) / ticks),
-            idle: units::Time::new::<units::second>(f64::from(info.idle) / ticks),
+            user: units::Time::new(f64::from(info.user) / ticks),
+            nice: units::Time::new(f64::from(info.nice) / ticks),
+            system: units::Time::new(f64::from(info.system) / ticks),
+            idle: units::Time::new(f64::from(info.idle) / ticks),
         }
     }
 }

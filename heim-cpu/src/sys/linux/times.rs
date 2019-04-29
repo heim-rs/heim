@@ -1,8 +1,9 @@
 use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
-use heim_common::units::si::f64::Time;
-use heim_common::units::si::time::second;
+use heim_common::units::Time;
+//use heim_common::units::si::f64::Time;
+//use heim_common::units::si::time::second;
 
 use crate::sys::unix::CLOCK_TICKS;
 
@@ -33,7 +34,7 @@ impl FromStr for CpuTime {
             let value = part.parse::<u32>()
                 .map(|value| {
                     let value = f64::from(value) / *CLOCK_TICKS;
-                    Time::new::<second>(value)
+                    Time::new(value)
                 })?;
 
             match idx {

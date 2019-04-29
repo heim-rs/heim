@@ -4,10 +4,7 @@ use std::ffi::CString;
 use std::path::Path;
 
 use heim_common::prelude::*;
-use heim_common::units::si::f64::Ratio;
-use heim_common::units::si::ratio::ratio;
-use heim_common::units::iec::u64::Information;
-use heim_common::units::iec::information::byte;
+use heim_common::units::{Information, Ratio};
 
 use crate::os::unix::Flags;
 
@@ -21,29 +18,29 @@ impl Usage {
     pub fn total(&self) -> Information {
         let value = u64::from(self.0.f_blocks) * u64::from(self.0.f_frsize);
 
-        Information::new::<byte>(value)
+        Information::new(value)
     }
 
     pub fn used(&self) -> Information {
         let avail_to_root = u64::from(self.0.f_bfree) * u64::from(self.0.f_frsize);
 
-        self.total() - Information::new::<byte>(avail_to_root)
+        self.total() - Information::new(avail_to_root)
     }
 
     pub fn free(&self) -> Information {
         let value = u64::from(self.0.f_bavail) * u64::from(self.0.f_frsize);
 
-        Information::new::<byte>(value)
+        Information::new(value)
     }
 
     pub fn ratio(&self) -> Ratio {
         // FIXME: Possible value truncation while casting into f64.
         // Lucky us, it is a 2019 and we are good for the next couple of decades
-        let used = self.used().value as f64;
+        let used = *self.used().as_ref() as f32;
         let avail_to_user = u64::from(self.0.f_bavail) * u64::from(self.0.f_frsize);
-        let total_user = used + avail_to_user as f64;
+        let total_user = used + avail_to_user as f32;
 
-        Ratio::new::<ratio>(used / total_user)
+        Ratio::new(used / total_user)
     }
 
     pub fn flags(&self) -> Flags {

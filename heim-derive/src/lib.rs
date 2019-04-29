@@ -1,10 +1,14 @@
 #![feature(await_macro, async_await, futures_api)]
 
+#![recursion_limit="128"]
+
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use syn::parse;
 use syn::spanned::Spanned;
+
+mod unit;
 
 #[derive(Debug)]
 struct ImplTarget {
@@ -238,6 +242,29 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
+
+#[proc_macro_derive(Unit)]
+pub fn unit(input: TokenStream) -> TokenStream {
+    let struct_type: syn::ItemStruct = syn::parse(input).unwrap();
+    let field = match struct_type.fields {
+        // Only newtype structs are supported
+        syn::Fields::Unnamed(ref unnamed) if unnamed.unnamed.len() == 1 => unnamed.unnamed[0].ty.clone(),
+        // TODO: Nice compile error
+        _ => unimplemented!(),
+    };
+
+    let implementation = unit::implementation(&struct_type, &field);
+    let ops = unit::ops(&struct_type, &field);
+
+    let expanded = quote::quote! {
+        #implementation
+        #ops
+    };
+
+    expanded.into()
+}
+
+
 /// Used for `#[runtime::test]`-annotated functions
 ///
 /// Will not run the annotated function if it is called in the CI environment.
@@ -254,8 +281,9 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
 ///  * Azure Pipelines
 ///  * Cirrus CI
 #[proc_macro_attribute]
-pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
     let func: syn::ItemFn = syn::parse(item).unwrap();
+    let cfg = proc_macro2::TokenStream::from(attr);
     let attrs = &func.attrs;
     let vis = &func.vis;
     let constness = &func.constness;
@@ -282,7 +310,7 @@ pub fn skip_ci(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     }
                 });
 
-            if in_ci {
+            if cfg!(#cfg) && in_ci {
                 eprintln!("test {} ... will be ignored because of CI environment", #ident_repr);
             } else {
                 await!(inner());

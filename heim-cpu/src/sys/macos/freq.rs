@@ -1,6 +1,3 @@
-// TODO: Implement stubs
-// https://github.com/heim-rs/heim/issues/2
-
 use heim_common::prelude::*;
 
 use crate::units;
@@ -33,9 +30,9 @@ pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
         let max = bindings::cpu_frequency_max()?;
 
         Ok(CpuFrequency {
-            current: units::Frequency::new::<units::hertz>(current),
-            min: units::Frequency::new::<units::hertz>(min),
-            max: units::Frequency::new::<units::hertz>(max),
+            current: units::Frequency::new(current),
+            min: units::Frequency::new(min),
+            max: units::Frequency::new(max),
         })
     })
 }

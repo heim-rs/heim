@@ -3,7 +3,6 @@
 extern crate test;
 
 use heim_common::prelude::*;
-use heim_common::units::si::time::second;
 use heim_host as host;
 
 cfg_if::cfg_if! {
@@ -17,8 +16,6 @@ cfg_if::cfg_if! {
 #[runtime::test]
 async fn smoke_platform() {
     let platform = await!(host::platform());
-    assert!(platform.is_ok());
-
     let platform = platform.unwrap();
     let _ = platform.system();
     let _ = platform.release();
@@ -30,10 +27,10 @@ async fn smoke_platform() {
 async fn smoke_uptime() {
     let uptime = await!(host::uptime());
 
-    assert!(uptime.is_ok());
-    assert!(uptime.unwrap().get::<second>() > 0.0);
+    assert!(uptime.unwrap().get() > 0.0);
 }
 
+#[heim_derive::skip_ci(target_os = "windows")] // https://github.com/heim-rs/heim/issues/32
 #[runtime::test]
 async fn smoke_users() {
     let mut users = host::users();

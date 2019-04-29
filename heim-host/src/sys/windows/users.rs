@@ -172,8 +172,9 @@ impl Stream for Sessions {
             let address = Self::get_address(session.SessionId)?;
 
             // Fast-skipping users with empty username
-            if session_info.UserName[0] == 0x00 {
-                continue
+            match session_info.UserName.iter().next() {
+                Some(0x00) | None => continue,
+                _ => {}
             }
 
             let username = Self::from_wide(&session_info.UserName);

@@ -1,9 +1,37 @@
-//! Units system used by `heim`.
-//!
-//! This module does two things:
-//!
-//!  * Re-exports `uom` SI system of units and quantities
-//!  * Exports custom system for Information units (bit, bit rate and etc)
-pub use uom::si;
-pub mod iec;
-pub use uom::si::Unit;
+/// Time measurement unit.
+///
+/// Base unit is `second`.
+#[derive(heim_derive::Unit, Copy, Clone, Debug, Default, PartialOrd, PartialEq)]
+pub struct Time(f64);
+
+impl Time {
+    pub fn from_nanoseconds(value: f64) -> Self {
+        Self::new(value * 1_000_000_000.0)
+    }
+
+    pub fn from_milliseconds(value: f64) -> Self {
+        Self::new(value * 1_000.0)
+    }
+
+    pub fn from_microseconds(value: f64) -> Self {
+        Self::new(value * 1_000_000.0)
+    }
+}
+
+/// Information measurement unit.
+///
+/// Base unit is `byte`.
+#[derive(heim_derive::Unit, Copy, Clone, Debug, Default, PartialOrd, Ord, PartialEq, Eq, Hash)]
+pub struct Information(u64);
+
+impl Information {
+    pub fn from_kilobytes(value: u64) -> Self {
+        Self::new(value * 1_024)
+    }
+}
+
+/// Ratio measurement unit.
+///
+/// It is dimensionless and represents the value in the `[0.0 … 1.0]` range
+#[derive(heim_derive::Unit, Copy, Clone, Debug, Default, PartialOrd, PartialEq)]
+pub struct Ratio(f32);

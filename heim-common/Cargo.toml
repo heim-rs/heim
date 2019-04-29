@@ -14,16 +14,12 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
+heim-derive = { version = "0.0.2", path = "../heim-derive" }
 cfg-if = "0.1.7"
 try_from = "0.3.2"
 errno = "0.2.4"
 runtime = "0.3.0-alpha.2"
 futures-preview = { git = "https://github.com/rust-lang-nursery/futures-rs.git", branch = "master" }
-
-[dependencies.uom]
-version = "0.22.1"
-default-features = false
-features = ["autoconvert", "usize", "u64", "f64", "si", "std"]
 
 [dev-dependencies]
 criterion = "0.2.10"

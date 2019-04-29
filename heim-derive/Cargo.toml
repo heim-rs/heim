@@ -17,9 +17,10 @@ maintenance = { status = "experimental" }
 proc-macro = true
 
 [dependencies]
-quote = "0.6.11"
+proc-macro2 = "0.4.29"
+quote = "0.6.12"
 
 [dependencies.syn]
-version = "0.15.30"
+version = "0.15.33"
 # TODO: Remove unused traits when crate will be stable enough to use
 features = ["derive", "full", "parsing", "printing", "clone-impls", "extra-traits", "proc-macro"]

@@ -3,6 +3,9 @@
 //! This crate is a part of [heim](https://crates.io/crates/heim) project,
 //! consider using it instead.
 
+#![allow(stable_features)]
+#![feature(futures_api)]
+
 #[cfg(target_os = "windows")]
 #[macro_use]
 extern crate winapi;
@@ -23,7 +26,4 @@ pub use self::users::*;
 #[cfg(any(doc, not(target_os = "windows")))]
 type Pid = libc::pid_t;
 
-/// Re-exported measurement units used in this crate.
-pub mod units {
-    pub use heim_common::units::si::f64::Time;
-}
+pub use heim_common::units::Time;

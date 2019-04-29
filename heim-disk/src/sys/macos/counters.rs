@@ -2,7 +2,7 @@
 // https://github.com/heim-rs/heim/issues/10
 
 use heim_common::prelude::*;
-use heim_common::units::iec::u64::Information;
+use heim_common::units::Information;
 
 pub struct IoCounters;
 

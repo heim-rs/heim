@@ -4,10 +4,7 @@ use std::path::Path;
 use winapi::um::{fileapi, winnt};
 
 use heim_common::prelude::*;
-use heim_common::units::si::f64::Ratio;
-use heim_common::units::si::ratio::ratio;
-use heim_common::units::iec::u64::Information;
-use heim_common::units::iec::information::byte;
+use heim_common::units::{Ratio, Information};
 
 #[derive(Default)]
 pub struct Usage {
@@ -18,7 +15,7 @@ pub struct Usage {
 
 impl Usage {
     pub fn total(&self) -> Information {
-        Information::new::<byte>(unsafe {
+        Information::new(unsafe {
             *self.total.QuadPart()
         })
     }
@@ -28,15 +25,14 @@ impl Usage {
     }
 
     pub fn free(&self) -> Information {
-        Information::new::<byte>(unsafe {
+        Information::new(unsafe {
             *self.total.QuadPart()
         })
     }
 
     pub fn ratio(&self) -> Ratio {
-        // TODO: IEC system should declare it's own Ratio?
         // TODO: Possible value truncation
-        Ratio::new::<ratio>(self.used().value as f64 / self.total().value as f64)
+        Ratio::new((*self.used().as_ref() as f64 / *self.total().as_ref() as f64) as f32)
     }
 }
 
