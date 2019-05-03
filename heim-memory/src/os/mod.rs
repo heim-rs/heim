@@ -3,7 +3,7 @@
 //! These are not cross-platform and their usage should be `cfg`-wrapped.
 
 #[cfg(any(doc, not(windows)))]
-use crate::units::Information;
+use crate::Information;
 
 cfg_if::cfg_if! {
     if #[cfg(any(doc, target_os = "linux"))] {

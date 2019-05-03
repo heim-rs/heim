@@ -5,14 +5,17 @@
 pub struct Time(f64);
 
 impl Time {
+    #[doc(hidden)]
     pub fn from_nanoseconds(value: f64) -> Self {
         Self::new(value * 1_000_000_000.0)
     }
 
+    #[doc(hidden)]
     pub fn from_milliseconds(value: f64) -> Self {
         Self::new(value * 1_000.0)
     }
 
+    #[doc(hidden)]
     pub fn from_microseconds(value: f64) -> Self {
         Self::new(value * 1_000_000.0)
     }
@@ -25,6 +28,7 @@ impl Time {
 pub struct Information(u64);
 
 impl Information {
+    #[doc(hidden)]
     pub fn from_kilobytes(value: u64) -> Self {
         Self::new(value * 1_024)
     }

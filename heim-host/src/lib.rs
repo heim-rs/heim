@@ -1,4 +1,4 @@
-//! Information about host system.
+//! Crate with futures and streams to determine the information about current system.
 //!
 //! This crate is a part of [heim](https://crates.io/crates/heim) project,
 //! consider using it instead.

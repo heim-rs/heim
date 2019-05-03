@@ -1,6 +1,6 @@
+#![allow(stable_features)]
 #![feature(await_macro, async_await, futures_api)]
-
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 
 extern crate proc_macro;
 
@@ -242,7 +242,6 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
-
 #[proc_macro_derive(Unit)]
 pub fn unit(input: TokenStream) -> TokenStream {
     let struct_type: syn::ItemStruct = syn::parse(input).unwrap();
@@ -263,7 +262,6 @@ pub fn unit(input: TokenStream) -> TokenStream {
 
     expanded.into()
 }
-
 
 /// Used for `#[runtime::test]`-annotated functions
 ///

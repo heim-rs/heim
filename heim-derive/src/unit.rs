@@ -1,4 +1,4 @@
-use proc_macro2::{TokenStream};
+use proc_macro2::TokenStream;
 use syn::{ItemStruct, Type};
 
 pub fn implementation(struct_item: &ItemStruct, inner: &Type) -> TokenStream {

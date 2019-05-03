@@ -7,7 +7,7 @@ pub fn uptime() -> impl Future<Output=Result<Time>> {
         .and_then(|contents| {
             let result = match contents.splitn(2, ' ').next() {
                 Some(raw_value) => raw_value.parse::<f64>().map_err(Into::into),
-                None => Err(Error::new(ErrorKind::UnknownValue))
+                None => Err(Error::new(ErrorKind::UnknownValue("Unable to read uptime value")))
             };
 
             future::ready(result)

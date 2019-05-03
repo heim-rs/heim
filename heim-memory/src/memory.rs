@@ -2,8 +2,7 @@ use std::fmt;
 
 use heim_common::prelude::*;
 
-use crate::sys;
-use crate::units::Information;
+use crate::{sys, Information};
 
 /// Physical memory statistics.
 ///

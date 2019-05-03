@@ -10,7 +10,8 @@ use winapi::shared::minwindef;
 use heim_common::prelude::*;
 
 // Is not declared in the `winapi`
-// TODO: Would be nice to contribute it into `winapi` later
+// TODO: Get rid of it when the winapi-rs PR will be merged
+// https://github.com/retep998/winapi-rs/pull/765
 #[repr(C)]
 #[derive(Default)]
 #[allow(non_snake_case)]

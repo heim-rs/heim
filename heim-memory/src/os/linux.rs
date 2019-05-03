@@ -2,8 +2,7 @@
 
 /// Reference: https://gitlab.com/procps-ng/procps/blob/master/proc/sysinfo.c
 
-use crate::units::Information;
-use crate::Memory;
+use crate::{Information, Memory};
 
 /// Linux-specific extension to [`Memory`]
 pub trait MemoryExt {

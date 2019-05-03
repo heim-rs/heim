@@ -7,6 +7,8 @@ use mach::vm_types::integer_t;
 use mach::kern_return::kern_return_t;
 use mach::message::mach_msg_type_number_t;
 
+pub mod iokit;
+
 /// https://developer.apple.com/documentation/kernel/host_flavor_t?language=objc
 pub type host_flavor_t = integer_t;
 

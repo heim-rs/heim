@@ -11,8 +11,9 @@ but via [heim](https://crates.io/crates/heim) crate.
 
 |             | Linux | MacOS | Windows | FreeBSD | OpenBSD | Solaris | Redox |
 | ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
-|             |       |       |         |         |         |         |       |
-|             |       |       |         |         |         |         |       |
+| io_counters | ✓     | ✓     | ✓       |         |         |         |       |
+| partitions  | ✓     | ✓     |         |         |         |         |       |
+| usage       | ✓     | ✓     | ✓       |         |         |         |       |
 
 Legend:
 

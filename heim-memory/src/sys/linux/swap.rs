@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 
-use crate::units::Information;
+use crate::Information;
 
 static PROC_VMSTAT: &'static str = "/proc/vmstat";
 static PROC_MEMINFO: &'static str = "/proc/meminfo";

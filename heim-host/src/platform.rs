@@ -5,6 +5,24 @@ use heim_common::prelude::*;
 use crate::{sys, Arch};
 
 /// Host system information.
+///
+/// ## Provided information
+///
+/// For example, for Linux host command `uname -a` returns the following line:
+/// ```bash
+/// $ uname -a
+/// Linux tardis 5.0.5-arch1-1-ARCH #1 SMP PREEMPT Wed Mar 27 17:53:10 UTC 2019 x86_64 GNU/Linux
+/// ```
+///
+/// Information in this struct for the same host will look like this:
+/// ```text
+/// Platform {
+///    system: "Linux",
+///    release: "5.0.5-arch1-1-ARCH",
+///    version: "#1 SMP PREEMPT Wed Mar 27 17:53:10 UTC 2019",
+///    architecture: X86_64,
+/// }
+/// ```
 #[derive(heim_derive::ImplWrap)]
 pub struct Platform(sys::Platform);
 

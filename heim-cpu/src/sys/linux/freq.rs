@@ -62,7 +62,7 @@ pub fn frequency() -> impl Future<Output=Result<CpuFrequency>> {
             },
             // Unable to determine CPU frequencies for some reasons.
             // Might happen for containerized environments, such as Microsoft Azure, for example.
-            Ok(_) => future::err(Error::new(ErrorKind::UnknownValue)),
+            Ok(_) => future::err(Error::new(ErrorKind::UnknownValue("No data"))),
             Err(e) => future::err(e),
         }
     })

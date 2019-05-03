@@ -1,4 +1,5 @@
-//! Memory information.
+//! Crate with futures and streams to determine the memory and swap information
+//! available in the current system.
 //!
 //! This crate is a part of [heim](https://crates.io/crates/heim) project,
 //! consider using it instead.
@@ -14,7 +15,4 @@ mod sys;
 pub use self::memory::*;
 pub use self::swap::*;
 
-/// Re-exported measurement units used in this crate.
-pub mod units {
-    pub use heim_common::units::Information;
-}
+pub use heim_common::units::Information;

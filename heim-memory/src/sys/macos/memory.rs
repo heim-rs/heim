@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
 
-use crate::units::Information;
+use crate::Information;
 
 use super::{bindings, PAGE_SIZE};
 

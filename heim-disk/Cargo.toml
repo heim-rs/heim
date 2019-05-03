@@ -27,15 +27,15 @@ winapi = { version = "0.3.7", features = ["std", "winnt", "ntdef", "fileapi", "h
 widestring = "0.4.0"
 tokio = { version = "0.1.18", features = ["fs"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+mach = "0.2.3"
+core-foundation = "0.6.4"
+
 [dev-dependencies]
 runtime = "0.3.0-alpha.2"
 
 [features]
 doc = []
-
-#[[bench]]
-#name = "disk"
-#harness = false
 
 [package.metadata.docs.rs]
 features = ["doc"]

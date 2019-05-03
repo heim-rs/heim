@@ -7,7 +7,7 @@ use winapi::um::sysinfoapi;
 
 use heim_common::prelude::*;
 
-use crate::units::Information;
+use crate::Information;
 
 #[derive(Clone)]
 pub struct Memory(sysinfoapi::MEMORYSTATUSEX);

@@ -66,7 +66,9 @@ pub fn time() -> impl Future<Output=Result<CpuTime>> {
             match res {
                 (Some(Ok(time)), _) => future::ok(time),
                 (Some(Err(e)), _) => future::err(e),
-                (None, _) => future::err(Error::new(ErrorKind::UnknownValue))
+                (None, _) => future::err(
+                    Error::new(ErrorKind::UnknownValue("cumulative time line is missing"))
+                )
             }
         })
 }

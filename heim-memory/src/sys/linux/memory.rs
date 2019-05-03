@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 
-use crate::units::Information;
+use crate::Information;
 
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone, heim_derive::Getter)]
 pub struct Memory {
