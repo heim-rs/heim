@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use std::path::{Path, PathBuf};
-use std::ffi::CStr;
+use std::ffi::{CStr, OsStr};
 use std::pin::Pin;
 
 use heim_common::prelude::*;
@@ -21,12 +21,11 @@ pub struct Partition {
     fs: FileSystem,
     mount_point: PathBuf,
     flags: libc::uint32_t,
-    options: String,
 }
 
 impl Partition {
-    pub fn device(&self) -> Option<&str> {
-        Some(self.device.as_str())
+    pub fn device(&self) -> Option<&OsStr> {
+        Some(OsStr::new(self.device.as_str()))
     }
 
     pub fn mount_point(&self) -> &Path {
@@ -35,10 +34,6 @@ impl Partition {
 
     pub fn file_system(&self) -> &FileSystem {
         &self.fs
-    }
-
-    pub fn options(&self) -> &str {
-        self.options.as_str()
     }
 
     pub fn raw_flags(&self) -> libc::uint32_t {
@@ -64,14 +59,11 @@ impl From<libc::statfs> for Partition {
         let fs = FileSystem::from_str(&fs_type)
             .expect("For some stupid reasons failed to parse FS string");
 
-        let options = Flags::from_bits_truncate(stat.f_flags).into_string();
-
         Partition {
             device,
             fs,
             mount_point,
             flags: stat.f_flags,
-            options,
         }
     }
 }

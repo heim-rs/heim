@@ -18,7 +18,7 @@ cfg_if::cfg_if! {
 
 #[runtime::main]
 async fn main() -> Result<()> {
-    let usage = await!(disk::usage(USAGE_PATH));
+    let usage = await!(disk::usage(USAGE_PATH))?;
     dbg!(usage);
 
     Ok(())

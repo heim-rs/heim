@@ -48,9 +48,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.kind {
             ErrorKind::Incompatible => f.write_str("Incompatible with current OS"),
-            ErrorKind::UnknownValue(key) => {
-                f.write_str(&format!("Unable to determine the value: {}", key))
-            },
+            ErrorKind::UnknownValue(key) => f.write_str(&format!("Unable to determine the value: {}", key)),
             ErrorKind::FromNul(e) => fmt::Display::fmt(e, f),
             ErrorKind::FromFfiString(e) => fmt::Display::fmt(e, f),
             ErrorKind::Io(e) => fmt::Display::fmt(e, f),

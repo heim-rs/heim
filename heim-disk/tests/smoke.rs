@@ -13,7 +13,6 @@ async fn smoke_partitions() {
         let _ = part.device();
         let _ = part.mount_point();
         let _ = part.file_system();
-        let _ = part.options();
     }
 }
 
@@ -26,7 +25,6 @@ async fn smoke_partitions_physical() {
         let _ = part.device();
         let _ = part.mount_point();
         let _ = part.file_system();
-        let _ = part.options();
     }
 }
 

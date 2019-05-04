@@ -21,6 +21,7 @@ pub enum FileSystem {
     // TODO: Extend list
     // References:
     //  * https://linux.die.net/man/2/fstatfs
+    //  * FAT, FAT32, NTFS, HPFS, CDFS, UDF or NWFS
     Other(String),
 
     #[doc(hidden)]
@@ -62,17 +63,17 @@ impl FromStr for FileSystem {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        match s {
-            "ext2" => Ok(FileSystem::Ext2),
-            "ext3" => Ok(FileSystem::Ext3),
-            "ext4" => Ok(FileSystem::Ext4),
-            "vfat" => Ok(FileSystem::VFat),
-            "ntfs" => Ok(FileSystem::Ntfs),
-            "zfs" => Ok(FileSystem::Zfs),
-            "hfs" => Ok(FileSystem::Hfs),
-            "reiserfs" => Ok(FileSystem::Reiserfs),
-            "fuseblk" => Ok(FileSystem::FuseBlk),
-            other => Ok(FileSystem::Other(other.to_string())),
+        match () {
+            _ if s.eq_ignore_ascii_case("ext2") => Ok(FileSystem::Ext2),
+            _ if s.eq_ignore_ascii_case("ext3") => Ok(FileSystem::Ext3),
+            _ if s.eq_ignore_ascii_case("ext4") => Ok(FileSystem::Ext4),
+            _ if s.eq_ignore_ascii_case("vfat") => Ok(FileSystem::VFat),
+            _ if s.eq_ignore_ascii_case("ntfs") => Ok(FileSystem::Ntfs),
+            _ if s.eq_ignore_ascii_case("zfs") => Ok(FileSystem::Zfs),
+            _ if s.eq_ignore_ascii_case("hfs") => Ok(FileSystem::Hfs),
+            _ if s.eq_ignore_ascii_case("reiserfs") => Ok(FileSystem::Reiserfs),
+            _ if s.eq_ignore_ascii_case("fuseblk") => Ok(FileSystem::FuseBlk),
+            _ => Ok(FileSystem::Other(s.to_string())),
         }
     }
 }

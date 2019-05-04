@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fmt;
 use std::path::Path;
 
@@ -10,8 +11,7 @@ use crate::{sys, FileSystem};
 pub struct Partition(sys::Partition);
 
 impl Partition {
-    // TODO: Should return `Option<OsStr>`, since device name might vary differently
-    pub fn device(&self) -> Option<&str> {
+    pub fn device(&self) -> Option<&OsStr> {
         self.as_ref().device()
     }
 
@@ -23,14 +23,6 @@ impl Partition {
     pub fn file_system(&self) -> &FileSystem {
         self.as_ref().file_system()
     }
-
-    /// Returns mount options.
-    ///
-    /// Since options are widely different from system to system,
-    /// at the moment they are returned as a `&str`.
-    pub fn options(&self) -> &str {
-        self.as_ref().options()
-    }
 }
 
 impl fmt::Debug for Partition {
@@ -39,7 +31,6 @@ impl fmt::Debug for Partition {
             .field("device", &self.device())
             .field("mount_point", &self.mount_point())
             .field("file_system", &self.file_system())
-            .field("options", &self.options())
             .finish()
     }
 }

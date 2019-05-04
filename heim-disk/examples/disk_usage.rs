@@ -3,6 +3,8 @@
 #![allow(stable_features)]
 #![feature(await_macro, async_await, futures_api)]
 
+use std::ffi::OsStr;
+
 use heim_common::prelude::*;
 use heim_disk as disk;
 
@@ -21,12 +23,12 @@ async fn main() -> Result<()> {
         let usage = await!(disk::usage(part.mount_point().to_path_buf()))?;
 
         println!(
-            "{:<17} {:<10} {:<10} {:<10} {:<10?} {}",
-            part.device().unwrap_or("N/A"),
-            usage.total().get() * MEGABYTE,
-            usage.used().get() * MEGABYTE,
-            usage.free().get() * MEGABYTE,
-            part.file_system(),
+            "{:<17} {:<10} {:<10} {:<10} {:<10} {}",
+            part.device().unwrap_or_else(|| OsStr::new("N/A")).to_string_lossy(),
+            usage.total().get() / MEGABYTE,
+            usage.used().get() / MEGABYTE,
+            usage.free().get() / MEGABYTE,
+            part.file_system().as_str(),
             part.mount_point().to_string_lossy(),
         );
     }

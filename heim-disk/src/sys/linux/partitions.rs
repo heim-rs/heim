@@ -3,6 +3,7 @@ use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::pin::Pin;
+use std::ffi::OsStr;
 
 use heim_common::prelude::*;
 
@@ -17,8 +18,8 @@ pub struct Partition {
 }
 
 impl Partition {
-    pub fn device(&self) -> Option<&str> {
-        self.device.as_ref().map(String::as_str)
+    pub fn device(&self) -> Option<&OsStr> {
+        self.device.as_ref().map(|device| OsStr::new(device.as_str()))
     }
 
     pub fn mount_point(&self) -> &Path {
