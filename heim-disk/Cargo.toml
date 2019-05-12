@@ -32,7 +32,8 @@ mach = "0.2.3"
 core-foundation = "0.6.4"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.2"
+winapi = { version = "0.3.7", features = ["winnt", "ntdef"] }
+runtime = "0.3.0-alpha.3"
 
 [features]
 doc = []

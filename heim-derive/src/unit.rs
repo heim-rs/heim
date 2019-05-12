@@ -7,10 +7,12 @@ pub fn implementation(struct_item: &ItemStruct, inner: &Type) -> TokenStream {
 
     quote::quote! {
         impl#generics #ident#generics {
+            /// Creates a new type instance with a `inner` value.
             pub fn new(inner: #inner) -> Self#generics {
                 Self(inner)
             }
 
+            /// Consumes the type instance and returns inner value.
             pub fn get(self) -> #inner {
                 self.0
             }

@@ -1,4 +1,5 @@
 use std::pin::Pin;
+use std::ffi::OsStr;
 
 use heim_common::prelude::*;
 use heim_common::units::{Time, Information};
@@ -16,8 +17,8 @@ pub struct IoCounters {
 }
 
 impl IoCounters {
-    pub fn device_name(&self) -> &str {
-        self.device.as_str()
+    pub fn device_name(&self) -> &OsStr {
+        OsStr::new(self.device.as_str())
     }
 
     pub fn read_count(&self) -> u64 {

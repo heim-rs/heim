@@ -1,5 +1,4 @@
-#![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api, test)]
+#![feature(async_await, futures_api, test)]
 
 extern crate test;
 
@@ -8,24 +7,22 @@ use heim_cpu as cpu;
 
 #[runtime::bench]
 async fn bench_time() {
-    await!(cpu::time());
+    cpu::time().await
 }
 
 #[runtime::bench]
 async fn bench_times() {
     let stream = cpu::times().for_each(|_| future::ready(()));
 
-    await!(stream);
+    stream.await
 }
 
 #[runtime::bench]
 async fn bench_stats() {
-    let stats = cpu::stats();
-
-    await!(stats);
+    cpu::stats().await
 }
 
 #[runtime::bench]
 async fn bench_frequency() {
-    await!(cpu::frequency());
+    cpu::frequency().await
 }

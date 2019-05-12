@@ -1,4 +1,4 @@
-#![feature(await_macro, async_await, test)]
+#![feature(async_await, test)]
 
 extern crate test;
 
@@ -7,17 +7,17 @@ use heim_host as host;
 
 #[runtime::bench]
 async fn bench_platform() {
-    await!(host::platform())
+    host::platform().await
 }
 
 #[runtime::bench]
 async fn bench_uptime() {
-    await!(host::uptime())
+    host::uptime().await
 }
 
 #[runtime::bench]
 async fn bench_users() {
     let stream = host::users().for_each(|_| future::ready(()));
 
-    await!(stream)
+    stream.await
 }

@@ -56,7 +56,7 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
                 }))
             },
             Ok(None) => future::ok(None),
-            Err(e) => future::err(e),
+            Err(e) => future::err(e)
         }
     })
     .try_filter_map(future::ok)

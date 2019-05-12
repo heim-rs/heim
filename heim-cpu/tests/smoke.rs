@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api, test)]
+#![feature(async_await, futures_api, test)]
 
 use heim_common::prelude::*;
 use heim_cpu as cpu;
@@ -7,7 +7,7 @@ use heim_cpu as cpu;
 #[heim_derive::skip_ci(target_os = "linux")]
 #[runtime::test]
 async fn smoke_frequency() {
-    let freq = await!(cpu::frequency());
+    let freq = cpu::frequency().await;
 
     let freq = freq.unwrap();
     assert!(freq.current().get() > 0);
@@ -19,7 +19,7 @@ async fn smoke_frequency() {
 #[cfg(target_os = "linux")]
 async fn smoke_frequencies() {
     let mut frequencies = cpu::os::linux::frequencies();
-    while let Some(freq) = await!(frequencies.next()) {
+    while let Some(freq) = frequencies.next().await {
         let f = freq.unwrap();
 
         let _ = f.current();
@@ -31,7 +31,7 @@ async fn smoke_frequencies() {
 //#[heim_derive::skip_ci(all())]
 #[runtime::test]
 async fn smoke_stats() {
-    let stats = await!(cpu::stats());
+    let stats = cpu::stats().await;
     let stats = stats.unwrap();
 
     let _ = stats.ctx_switches();
@@ -40,7 +40,7 @@ async fn smoke_stats() {
 
 #[runtime::test]
 async fn smoke_time() {
-    let time = await!(cpu::time());
+    let time = cpu::time().await;
     let time = time.unwrap();
 
     let _ = time.system();
@@ -51,7 +51,7 @@ async fn smoke_time() {
 #[runtime::test]
 async fn smoke_times() {
     let mut times = cpu::times();
-    while let Some(time) = await!(times.next()) {
+    while let Some(time) = times.next().await {
         let time = time.unwrap();
 
         let _ = time.system();

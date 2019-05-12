@@ -1,3 +1,4 @@
+use std::io;
 use std::ptr;
 use std::mem;
 use std::path::Path;
@@ -5,9 +6,12 @@ use std::os::windows::io::RawHandle;
 use std::os::windows::ffi::OsStrExt;
 
 use winapi::um::{winbase, winnt, winioctl, fileapi, ioapiset};
-use winapi::shared::minwindef;
+use winapi::shared::{minwindef, winerror};
 
 use heim_common::prelude::*;
+
+const ERROR_INVALID_FUNCTION: i32 = winerror::ERROR_INVALID_FUNCTION as i32;
+const ERROR_NOT_SUPPORTED: i32 = winerror::ERROR_NOT_SUPPORTED as i32;
 
 // Is not declared in the `winapi`
 // TODO: Get rid of it when the winapi-rs PR will be merged
@@ -30,7 +34,13 @@ pub struct DISK_PERFORMANCE {
     pub StorageManagerName: [winnt::WCHAR; 8],
 }
 
-pub unsafe fn disk_performance(handle: &RawHandle) -> Result<DISK_PERFORMANCE> {
+/// ## Returns
+///
+/// `DeviceIoControl` might fail in some rare and hardly reproducible conditions.
+/// Few of the errors will be ignored (same as psutil does), in that case `Ok(None)`
+/// will be returned. Higher level code should ignore such an entries.
+/// For reference: https://github.com/giampaolo/psutil/blob/5a398984d709d750da1fc0e450d72c771e18f393/psutil/_psutil_windows.c#L2262-L2277
+pub unsafe fn disk_performance(handle: &RawHandle) -> Result<Option<DISK_PERFORMANCE>> {
     let mut perf = DISK_PERFORMANCE::default();
     let mut bytes_returned: minwindef::DWORD = 0;
 
@@ -46,9 +56,15 @@ pub unsafe fn disk_performance(handle: &RawHandle) -> Result<DISK_PERFORMANCE> {
     );
 
     if result == 0 {
-        Err(Error::last_os_error())
+        let e = io::Error::last_os_error();
+        match e.raw_os_error() {
+            // See function doc
+            Some(ERROR_INVALID_FUNCTION) => Ok(None),
+            Some(ERROR_NOT_SUPPORTED) => Ok(None),
+            _ => Err(e.into()),
+        }
     } else {
-        Ok(perf)
+        Ok(Some(perf))
     }
 }
 

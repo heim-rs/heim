@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api, test)]
+#![feature(async_await, futures_api, test)]
 
 extern crate test;
 
@@ -16,7 +16,7 @@ cfg_if::cfg_if! {
 
 #[runtime::test]
 async fn smoke_platform() {
-    let platform = await!(host::platform());
+    let platform = host::platform().await;
     let platform = platform.unwrap();
     let _ = platform.system();
     let _ = platform.release();
@@ -26,7 +26,7 @@ async fn smoke_platform() {
 
 #[runtime::test]
 async fn smoke_uptime() {
-    let uptime = await!(host::uptime());
+    let uptime = host::uptime().await;
 
     assert!(uptime.unwrap().get() > 0.0);
 }
@@ -35,7 +35,7 @@ async fn smoke_uptime() {
 #[runtime::test]
 async fn smoke_users() {
     let mut users = host::users();
-    while let Some(user) = await!(users.next()) {
+    while let Some(user) = users.next().await {
         let user = user.unwrap();
 
         let _ = user.username();

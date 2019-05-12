@@ -1,7 +1,7 @@
 //! Command similar to `df -BM`
 
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 
 use std::ffi::OsStr;
 
@@ -18,9 +18,9 @@ async fn main() -> Result<()> {
     );
 
     let mut partitions = disk::partitions_physical();
-    while let Some(part) = await!(partitions.next()) {
+    while let Some(part) = partitions.next().await {
         let part = part?;
-        let usage = await!(disk::usage(part.mount_point().to_path_buf()))?;
+        let usage = disk::usage(part.mount_point().to_path_buf()).await?;
 
         println!(
             "{:<17} {:<10} {:<10} {:<10} {:<10} {}",

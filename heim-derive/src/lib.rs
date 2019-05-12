@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 #![recursion_limit = "128"]
 
 extern crate proc_macro;
@@ -311,7 +311,7 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
             if cfg!(#cfg) && in_ci {
                 eprintln!("test {} ... will be ignored because of CI environment", #ident_repr);
             } else {
-                await!(inner());
+                inner().await;
             }
         }
     };

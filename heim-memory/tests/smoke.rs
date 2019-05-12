@@ -1,11 +1,11 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 
 use heim_memory as memory;
 
 #[runtime::test]
 async fn smoke_memory() {
-    let mem = await!(memory::memory());
+    let mem = memory::memory().await;
 
     assert!(mem.is_ok());
     let mem = mem.unwrap();
@@ -17,7 +17,7 @@ async fn smoke_memory() {
 
 #[runtime::test]
 async fn smoke_swap() {
-    let swap = await!(memory::swap());
+    let swap = memory::swap().await;
 
     assert!(swap.is_ok());
 }

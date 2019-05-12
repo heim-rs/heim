@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 
 use heim_common::prelude::*;
 use heim_disk as disk;
@@ -7,7 +7,7 @@ use heim_disk as disk;
 #[runtime::test]
 async fn smoke_partitions() {
     let mut partitions = disk::partitions();
-    while let Some(part) = await!(partitions.next()) {
+    while let Some(part) = partitions.next().await {
         let part = part.unwrap();
 
         let _ = part.device();
@@ -19,7 +19,7 @@ async fn smoke_partitions() {
 #[runtime::test]
 async fn smoke_partitions_physical() {
     let mut partitions = disk::partitions_physical();
-    while let Some(part) = await!(partitions.next()) {
+    while let Some(part) = partitions.next().await {
         let part = part.unwrap();
 
         let _ = part.device();
@@ -30,7 +30,7 @@ async fn smoke_partitions_physical() {
 
 #[runtime::test]
 async fn smoke_usage() {
-    let usage = await!(disk::usage("/"));
+    let usage = disk::usage("/").await;
 
     let usage = usage.unwrap();
 
@@ -44,7 +44,7 @@ async fn smoke_usage() {
 #[runtime::test]
 async fn smoke_io_counters() {
     let mut counters = disk::io_counters();
-    while let Some(count) = await!(counters.next()) {
+    while let Some(count) = counters.next().await {
         let count = count.unwrap();
 
         let _ = count.device_name();
@@ -58,7 +58,7 @@ async fn smoke_io_counters() {
 #[runtime::test]
 async fn smoke_io_counters_physical() {
     let mut counters = disk::io_counters_physical();
-    while let Some(count) = await!(counters.next()) {
+    while let Some(count) = counters.next().await {
         let count = count.unwrap();
 
         let _ = count.device_name();

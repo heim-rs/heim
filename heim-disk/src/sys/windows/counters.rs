@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use std::os::windows::io::AsRawHandle;
+use std::ffi::OsStr;
 
 use heim_common::prelude::*;
 use heim_common::units::{Time, Information};
@@ -19,9 +20,8 @@ pub struct IoCounters {
 }
 
 impl IoCounters {
-    pub fn device_name(&self) -> &str {
-        self.volume_path.to_str()
-            .expect("Volume GUID path should be the proper unicode")
+    pub fn device_name(&self) -> &OsStr {
+        self.volume_path.as_os_str()
     }
 
     pub fn read_count(&self) -> u64 {
@@ -60,6 +60,7 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
             // Since trailing backslash was trimmed by `Volumes` iterator,
             // we need to get it back in order to display
             // it later via `IoCounters::device_name`.
+            // TODO: It will probably re-allocate, should check it up
             .map(|file| {
                 volume_path.push("\\");
                 (volume_path, file)
@@ -82,7 +83,8 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
 
         let perf = unsafe {
             match disks::disk_performance(&handle) {
-                Ok(perf) => perf,
+                Ok(Some(perf)) => perf,
+                Ok(None) => return future::ok(None),
                 Err(e) => return future::err(e),
             }
         };
@@ -112,9 +114,9 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
             write_time: Time::from_microseconds(write_time * 10.0),
         };
 
-        future::ok(counters)
+        future::ok(Some(counters))
     })
-
+    .try_filter_map(future::ok)
 }
 
 pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {

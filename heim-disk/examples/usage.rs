@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 
 use heim_common::prelude::*;
 use heim_disk as disk;
@@ -18,7 +18,7 @@ cfg_if::cfg_if! {
 
 #[runtime::main]
 async fn main() -> Result<()> {
-    let usage = await!(disk::usage(USAGE_PATH))?;
+    let usage = disk::usage(USAGE_PATH).await?;
     dbg!(usage);
 
     Ok(())

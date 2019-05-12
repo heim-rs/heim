@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api, test)]
+#![feature(async_await, futures_api, test)]
 
 extern crate test;
 
@@ -16,31 +16,31 @@ static USAGE_PATH: &'static str = "C:\\";
 async fn bench_partitions() {
     let stream = disk::partitions().for_each(|_| future::ready(()));
 
-    await!(stream)
+    stream.await
 }
 
 #[runtime::bench]
 async fn bench_partitions_physical() {
     let stream = disk::partitions_physical().for_each(|_| future::ready(()));
 
-    await!(stream)
+    stream.await
 }
 
 #[runtime::bench]
 async fn bench_io_counters() {
     let stream = disk::io_counters().for_each(|_| future::ready(()));
 
-    await!(stream)
+    stream.await
 }
 
 #[runtime::bench]
 async fn bench_io_counters_physical() {
     let stream = disk::io_counters_physical().for_each(|_| future::ready(()));
 
-    await!(stream)
+    stream.await
 }
 
 #[runtime::bench]
 async fn bench_usage() {
-    await!(disk::usage(USAGE_PATH))
+    disk::usage(USAGE_PATH).await
 }

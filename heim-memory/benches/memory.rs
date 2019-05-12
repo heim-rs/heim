@@ -1,4 +1,4 @@
-#![feature(await_macro, async_await, test)]
+#![feature(async_await, test)]
 
 extern crate test;
 
@@ -6,10 +6,10 @@ use heim_memory as memory;
 
 #[runtime::bench]
 async fn bench_memory() {
-    await!(memory::memory())
+    memory::memory().await
 }
 
 #[runtime::bench]
 async fn bench_swap() {
-    await!(memory::swap())
+    memory::swap().await
 }

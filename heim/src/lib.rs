@@ -8,10 +8,10 @@
 //! You may want to check out [GitHub projects](https://github.com/heim-rs/heim/projects)
 //! for more information about cross-platform support.
 
-#![allow(stable_features)]
-#![warn(missing_docs)]
+#![allow(stable_features)] // Used for `future_api` feature
 #![forbid(unused)]
 #![forbid(bare_trait_objects)]
+#![forbid(missing_docs)]
 
 /// CPU information
 pub mod cpu {

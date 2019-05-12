@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::ffi::CString;
+use std::ffi::{CString, OsStr};
 
 use heim_common::prelude::*;
 use heim_common::utils::parse::ParseIterator;
@@ -34,8 +34,8 @@ pub struct IoCounters {
 }
 
 impl IoCounters {
-    pub fn device_name(&self) -> &str {
-        self.name.as_str()
+    pub fn device_name(&self) -> &OsStr {
+        OsStr::new(self.name.as_str())
     }
 
     // Based on the sysstat code:

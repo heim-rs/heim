@@ -1,5 +1,5 @@
 #![allow(stable_features)]
-#![feature(await_macro, async_await, futures_api)]
+#![feature(async_await, futures_api)]
 
 use heim_common::prelude::*;
 use heim_memory as memory;
@@ -8,8 +8,8 @@ const MEGABYTE: u64 = 1_024 * 1_024;
 
 #[runtime::main]
 async fn main() -> Result<()> {
-    let memory = await!(memory::memory())?;
-    let swap = await!(memory::swap())?;
+    let memory = memory::memory().await?;
+    let swap = memory::swap().await?;
 
     println!("              total        free   available");
     println!(

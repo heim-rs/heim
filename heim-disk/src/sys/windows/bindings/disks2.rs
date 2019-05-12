@@ -64,7 +64,9 @@ impl LogicalDrive {
             fileapi::GetVolumeInformationW(
                 self.0.as_ptr(),
                 ptr::null_mut(),
-                (self.0.len() * 2) as DWORD,  // Originally Windows `ARRAYSIZE` macro is used here
+                // Originally Windows `ARRAYSIZE` macro is used here,
+                // and we need to calculate length in bytes (while having u16 chars)
+                (self.0.len() * 2) as DWORD,
                 ptr::null_mut(),
                 ptr::null_mut(),
                 &mut flags as *mut _,
@@ -80,10 +82,15 @@ impl LogicalDrive {
         if result == 0 {
             let e = io::Error::last_os_error();
             match e.raw_os_error() {
-                // "Device not ready" error might happen for a floppy and CD drives,
-                // if they are empty. We are going to ignore them at all in that case
-                // TODO: Is there maybe some constant instead of that magical `21`?
-                Some(21) => Ok(None),
+                // With floppy and CD drives we might get some errors if they are empty.
+                // We are going to ignore them at all in these cases
+                // TODO: Is there maybe some constant instead of these magical `21` and `123`?
+                // errno 21 - "Device not ready"
+                //      when there is no floppy or disk
+                //
+                // errno 123 - The filename, directory name, or volume label syntax is incorrect.
+                //      happens at Azure Pipelines, probably should be ignored too
+                Some(0) | Some(21) | Some(123) => Ok(None),
                 _ => Err(e.into()),
             }
         } else {
@@ -94,7 +101,7 @@ impl LogicalDrive {
             //
             // Quite unsafe, because we are going to poke some random memory here.
             // It is still in the range of pre-allocated capacity buffer (see above),
-            // but it is still might be filled with a garbage.
+            // but it might be filled with a garbage (let's hope it is not).
             unsafe {
                 fs_type.set_len(MAX_PATH + 1);
             }
