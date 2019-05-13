@@ -12,9 +12,3 @@ members = [
 #    "heim-virt",
 #    "heim-winservice",
 ]
-
-
-[patch.crates-io]
-runtime = { git = "https://github.com/taiki-e/runtime", branch = "await" }
-romio = { git = "https://github.com/dbcfd/romio", branch = "futures-changes" }
-juliex = { git = "https://github.com/taiki-e/juliex", branch = "await" }
