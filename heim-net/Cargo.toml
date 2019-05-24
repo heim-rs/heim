@@ -26,7 +26,7 @@ libc = "^0.2"
 runtime = "0.3.0-alpha.4"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.13.0"
+nix = "0.14.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 hex = "0.3.2"
