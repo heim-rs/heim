@@ -7,8 +7,13 @@ members = [
     "heim-derive",
     "heim-memory",
     "heim-disk",
-#    "heim-net",
+    "heim-net",
 #    "heim-process",
 #    "heim-virt",
 #    "heim-winservice",
 ]
+
+[patch.crates-io]
+# awaiting for this PR to be published
+# https://github.com/rust-lang-nursery/futures-rs/pull/1627
+futures-preview = { git = "https://github.com/rust-lang-nursery/futures-rs", rev = "9e801418191191b1b18b2c33303792df1d880390" }

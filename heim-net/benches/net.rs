@@ -1,29 +1,19 @@
-#[macro_use]
-extern crate criterion;
+#![feature(async_await, test)]
 
-use criterion::Criterion;
+extern crate test;
 
 use heim_net as net;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn criterion_benchmark(c: &mut Criterion) {
-    //    c.bench_function("connections", |b| {
-    //        let mut runtime = runtime::new().unwrap();
-    //        b.iter(|| {
-    //            runtime
-    //                .block_collect(net::connections(net::ConnectionKind::all()))
-    //                .count()
-    //        })
-    //    });
-    c.bench_function("io_counters", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(net::io_counters()).count())
-    });
-    c.bench_function("nic", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(net::nic()).count())
-    });
+#[runtime::bench]
+async fn bench_io_counters() {
+    let stream = net::io_counters().for_each(|_| future::ready(()));
+
+    stream.await
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+#[runtime::bench]
+async fn bench_nic() {
+    let stream = net::nic().for_each(|_| future::ready(()));
+
+    stream.await
+}

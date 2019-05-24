@@ -1,8 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_common::units::iec::information::byte;
-use heim_common::units::iec::u64::Information;
+use heim_common::units::Information;
 use heim_common::utils::parse::ParseIterator;
 
 #[derive(Debug)]
@@ -82,7 +81,7 @@ impl FromStr for IoCounters {
             interface,
             rx_bytes: parts
                 .try_from_next()
-                .map(|bytes: u64| Information::new::<byte>(bytes))?,
+                .map(|bytes: u64| Information::new(bytes))?,
             rx_packets: parts.try_from_next()?,
             rx_errs: parts.try_from_next()?,
             rx_drop: parts.try_from_next()?,
@@ -92,7 +91,7 @@ impl FromStr for IoCounters {
             rx_multicast: parts.try_from_next()?,
             tx_bytes: parts
                 .try_from_next()
-                .map(|bytes: u64| Information::new::<byte>(bytes))?,
+                .map(|bytes: u64| Information::new(bytes))?,
             tx_packets: parts.try_from_next()?,
             tx_errs: parts.try_from_next()?,
             tx_drop: parts.try_from_next()?,
@@ -104,8 +103,11 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = IoCounters, Error = Error> {
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     utils::fs::read_lines("/proc/net/dev")
+        .into_stream()
         .skip(2)
-        .and_then(|line| IoCounters::from_str(&line))
+        .and_then(|line| {
+            future::ready(IoCounters::from_str(&line))
+        })
 }

@@ -1,11 +1,13 @@
+#![feature(async_await)]
+
 use heim_common::prelude::*;
 use heim_net as net;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn main() -> Result<()> {
-    let mut rt = runtime::new().unwrap();
-    for nic in rt.block_collect(net::nic()) {
-        println!("{:?}", nic);
+#[runtime::main]
+async fn main() -> Result<()> {
+    let mut nic = net::nic();
+    while let Some(iface) = nic.next().await {
+        dbg!(iface?);
     }
 
     Ok(())

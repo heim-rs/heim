@@ -17,11 +17,7 @@ maintenance = { status = "experimental" }
 heim-derive = { version = "0.0.2", path = "../heim-derive" }
 cfg-if = "0.1.7"
 try_from = "0.3.2"
-runtime = "0.3.0-alpha.3"
 futures-preview = "0.3.0-alpha.16"
-
-[dev-dependencies]
-criterion = "0.2.10"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.13.0"
@@ -30,7 +26,7 @@ nix = "0.13.0"
 winapi = { version = "0.3.7", features = ["winnt", "minwindef"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libc = "0.2.53"
+libc = "^0.2"
 mach = "0.2.3"
 core-foundation = "0.6.4"
 

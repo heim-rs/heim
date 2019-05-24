@@ -8,15 +8,10 @@
 #![deny(unstable_features)]
 #![deny(bare_trait_objects)]
 
-//#[macro_use]
-//extern crate log;
-
 mod sys;
 
-//mod connections;
 mod counters;
 mod nic;
 
-//pub use self::connections::*;
 pub use self::counters::*;
 pub use self::nic::*;

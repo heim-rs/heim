@@ -20,7 +20,7 @@ heim-host = { version = "0.0.2", path = "../heim-host" }
 heim-cpu = {version = "0.0.2", path = "../heim-cpu" }
 heim-memory = {version = "0.0.2", path = "../heim-memory" }
 heim-disk = {version = "0.0.2", path = "../heim-disk" }
-# heim-net = {version = "0.0.1", path = "../heim-net" }
+heim-net = {version = "0.0.2", path = "../heim-net" }
 
 [features]
 doc = [
@@ -29,7 +29,7 @@ doc = [
     "heim-cpu/doc",
     "heim-memory/doc",
     "heim-disk/doc",
-#    "heim-net/doc",
+    "heim-net/doc",
 ]
 
 [package.metadata.docs.rs]

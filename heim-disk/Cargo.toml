@@ -20,12 +20,11 @@ cfg-if = "0.1.7"
 bitflags = "1.0.4"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.51"
+libc = "^0.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3.7", features = ["std", "winnt", "ntdef", "fileapi", "handleapi", "ioapiset", "winioctl", "impl-default", "errhandlingapi"] }
 widestring = "0.4.0"
-tokio = { version = "0.1.18", features = ["fs"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.2.3"
@@ -33,7 +32,7 @@ core-foundation = "0.6.4"
 
 [dev-dependencies]
 winapi = { version = "0.3.7", features = ["winnt", "ntdef"] }
-runtime = "0.3.0-alpha.3"
+runtime = "0.3.0-alpha.4"
 
 [features]
 doc = []

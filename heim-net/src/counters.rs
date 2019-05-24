@@ -1,7 +1,7 @@
 use std::fmt;
 
 use heim_common::prelude::*;
-use heim_common::units::iec::u64::Information;
+use heim_common::units::Information;
 
 use crate::sys;
 
@@ -10,42 +10,53 @@ use crate::sys;
 pub struct IoCounters(sys::IoCounters);
 
 impl IoCounters {
+    /// Returns network interface name.
     pub fn interface(&self) -> &str {
         self.as_ref().interface()
     }
 
+    /// Returns information amount which was sent via this interface.
     // TODO: Method returns `Information`, not the "bytes". Should it be renamed?
     pub fn bytes_sent(&self) -> Information {
         self.as_ref().bytes_sent()
     }
 
+    /// Returns information amount which was received via this interface.
     // TODO: Method returns `Information`, not the "bytes". Should it be renamed?
     pub fn bytes_recv(&self) -> Information {
         self.as_ref().bytes_recv()
     }
 
+    /// Returns packets amount which was sent via this interface.
     pub fn packets_sent(&self) -> u64 {
         self.as_ref().packets_sent()
     }
 
+    /// Returns packets amount which was sent via this interface.
     pub fn packets_recv(&self) -> u64 {
         self.as_ref().packets_recv()
     }
 
     // TODO: Not sure about methods names below:
 
+    /// Returns errors amount which had occurred while sending data
+    /// via this interface.
     pub fn errors_sent(&self) -> u64 {
         self.as_ref().errors_sent()
     }
 
+    /// Returns errors amount which had occurred while receiving data
+    /// via this interface.
     pub fn errors_recv(&self) -> u64 {
         self.as_ref().errors_recv()
     }
 
+    /// Returns packets amount which were dropped while receiving them.
     pub fn drop_recv(&self) -> u64 {
         self.as_ref().drop_recv()
     }
 
+    /// Returns packets amount which were dropped while sending them.
     pub fn drop_sent(&self) -> u64 {
         self.as_ref().drop_sent()
     }
@@ -70,6 +81,6 @@ impl fmt::Debug for IoCounters {
 /// Returns stream which yield [IO counters] for each network interface.
 ///
 /// [IO counters]: struct.IoCounters.html
-pub fn io_counters() -> impl Stream<Item = IoCounters, Error = Error> {
-    sys::io_counters().map(Into::into)
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+    sys::io_counters().map_ok(Into::into)
 }
