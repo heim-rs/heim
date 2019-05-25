@@ -57,6 +57,7 @@ pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
                     CString::new(string).map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))
                 })?;
 
+            // TODO: Use MaybeUninit here
             let mut vfs: libc::statvfs = mem::uninitialized();
             let result = libc::statvfs(path.into_raw(), &mut vfs);
 

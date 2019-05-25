@@ -62,6 +62,7 @@ pub fn nic() -> impl Stream<Item = Result<Nic>> {
     future::lazy(|_| {
         // `nix::ifaddrs` structs are not safe to send between threads,
         // so collecting them in a once
+        // TODO: Can we Pin them maybe?
         let iter = ifaddrs::getifaddrs()?;
         let interfaces = iter.collect::<Vec<_>>();
 

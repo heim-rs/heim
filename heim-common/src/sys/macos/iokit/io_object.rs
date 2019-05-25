@@ -19,6 +19,7 @@ impl IoObject {
     /// Returns typed dictionary with this object properties.
     pub fn properties(&self) -> Result<CFDictionary<CFString, CFType>> {
         unsafe {
+            // TODO: Use MaybeUninit here
             let mut props: CFMutableDictionaryRef = mem::uninitialized();
 
             let result = ffi::IORegistryEntryCreateCFProperties(
@@ -37,6 +38,7 @@ impl IoObject {
 
     pub fn parent(&self, plane: &[u8]) -> Result<IoObject> {
         let mut parent: ffi::io_object_t = unsafe {
+            // TODO: Use MaybeUninit here
             mem::uninitialized()
         };
 

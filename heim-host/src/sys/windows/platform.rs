@@ -91,6 +91,7 @@ impl Platform {
 }
 
 unsafe fn get_native_system_info() -> impl Future<Output=Result<SystemInfo>> {
+    // TODO: Use MaybeUninit here
     let mut info: sysinfoapi::SYSTEM_INFO = mem::zeroed();
     sysinfoapi::GetNativeSystemInfo(&mut info);
 
@@ -111,6 +112,7 @@ unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW
         let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW)
             -> ntdef::NTSTATUS = mem::transmute(func as *const ());
 
+        // TODO: Use MaybeUninit here
         let mut osinfo: winnt::RTL_OSVERSIONINFOEXW = mem::zeroed();
         osinfo.dwOSVersionInfoSize = mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as _;
         if func(&mut osinfo) == ntstatus::STATUS_SUCCESS {

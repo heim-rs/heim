@@ -35,6 +35,7 @@ impl Platform {
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
 pub fn platform() -> impl Future<Output = Result<Platform>> {
     future::lazy(|_| unsafe {
+        // TODO: Use MaybeUninit here
         let mut uts: libc::utsname = mem::uninitialized();
         if libc::uname(&mut uts) == 0 {
             let raw_arch = into_cow(&uts.machine);

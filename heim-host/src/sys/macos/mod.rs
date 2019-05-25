@@ -6,6 +6,7 @@ mod uptime;
 pub use self::uptime::*;
 
 unsafe fn timebase_info() -> io::Result<libc::mach_timebase_info> {
+    // TODO: Use MaybeUninit here
     let mut info: libc::mach_timebase_info = mem::zeroed();
     let res = libc::mach_timebase_info(&mut info);
 
