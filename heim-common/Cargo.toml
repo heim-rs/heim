@@ -16,7 +16,6 @@ maintenance = { status = "experimental" }
 [dependencies]
 heim-derive = { version = "0.0.2", path = "../heim-derive" }
 cfg-if = "0.1.7"
-try_from = "0.3.2"
 futures-preview = "0.3.0-alpha.16"
 
 [target.'cfg(unix)'.dependencies]

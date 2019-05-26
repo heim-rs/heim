@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 use heim_common::units::Information;
-use heim_common::utils::parse::ParseIterator;
+use heim_common::utils::iter::*;
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -80,25 +80,25 @@ impl FromStr for IoCounters {
         Ok(IoCounters {
             interface,
             rx_bytes: parts
-                .try_from_next()
+                .try_parse_next()
                 .map(|bytes: u64| Information::new(bytes))?,
-            rx_packets: parts.try_from_next()?,
-            rx_errs: parts.try_from_next()?,
-            rx_drop: parts.try_from_next()?,
-            rx_fifo: parts.try_from_next()?,
-            rx_frame: parts.try_from_next()?,
-            rx_compressed: parts.try_from_next()?,
-            rx_multicast: parts.try_from_next()?,
+            rx_packets: parts.try_parse_next()?,
+            rx_errs: parts.try_parse_next()?,
+            rx_drop: parts.try_parse_next()?,
+            rx_fifo: parts.try_parse_next()?,
+            rx_frame: parts.try_parse_next()?,
+            rx_compressed: parts.try_parse_next()?,
+            rx_multicast: parts.try_parse_next()?,
             tx_bytes: parts
-                .try_from_next()
+                .try_parse_next()
                 .map(|bytes: u64| Information::new(bytes))?,
-            tx_packets: parts.try_from_next()?,
-            tx_errs: parts.try_from_next()?,
-            tx_drop: parts.try_from_next()?,
-            tx_fifo: parts.try_from_next()?,
-            tx_frame: parts.try_from_next()?,
-            tx_compressed: parts.try_from_next()?,
-            tx_multicast: parts.try_from_next()?,
+            tx_packets: parts.try_parse_next()?,
+            tx_errs: parts.try_parse_next()?,
+            tx_drop: parts.try_parse_next()?,
+            tx_fifo: parts.try_parse_next()?,
+            tx_frame: parts.try_parse_next()?,
+            tx_compressed: parts.try_parse_next()?,
+            tx_multicast: parts.try_parse_next()?,
         })
     }
 }

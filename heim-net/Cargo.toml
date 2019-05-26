@@ -17,7 +17,6 @@ maintenance = { status = "experimental" }
 heim-derive = { version = "0.0.2", path = "../heim-derive" }
 heim-common = { version = "0.0.2", path = "../heim-common" }
 cfg-if = "0.1.7"
-try_from = "0.3.2"
 bitflags = "1.0.4"
 macaddr = "0.1"
 libc = "^0.2"

@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::ffi::{CString, OsStr};
 
 use heim_common::prelude::*;
-use heim_common::utils::parse::ParseIterator;
+use heim_common::utils::iter::*;
 use heim_common::units::{Information, Time};
 
 // Copied from the `psutil` sources:
@@ -68,17 +68,17 @@ impl FromStr for IoCounters {
         let mut parts = s.split_whitespace().skip(2);
 
         let name: String = parts.try_from_next()?;
-        let read_count = parts.try_from_next()?;
-        let read_merged_count = parts.try_from_next()?;
-        let read_bytes = parts.try_from_next()
+        let read_count = parts.try_parse_next()?;
+        let read_merged_count = parts.try_parse_next()?;
+        let read_bytes = parts.try_parse_next()
             .map(|bytes: u64| Information::new(bytes * DISK_SECTOR_SIZE))?;
         let mut parts = parts.skip(1);
-        let write_count = parts.try_from_next()?;
-        let write_merged_count = parts.try_from_next()?;
-        let write_bytes = parts.try_from_next()
+        let write_count = parts.try_parse_next()?;
+        let write_merged_count = parts.try_parse_next()?;
+        let write_bytes = parts.try_parse_next()
             .map(|bytes: u64| Information::new(bytes * DISK_SECTOR_SIZE))?;
         let mut parts = parts.skip(2);
-        let busy_time = parts.try_from_next()
+        let busy_time = parts.try_parse_next()
             .map(|seconds: u64| Time::new(seconds as f64))?;
 
         Ok(IoCounters {
