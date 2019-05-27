@@ -47,15 +47,15 @@ impl Swap {
 fn memory_status() -> impl Future<Output=Result<sysinfoapi::MEMORYSTATUSEX>> {
     future::lazy(|_| {
         unsafe {
-            // TODO: Use MaybeUninit here
-            let mut mem_status = mem::uninitialized::<sysinfoapi::MEMORYSTATUSEX>();
-            mem_status.dwLength = mem::size_of::<sysinfoapi::MEMORYSTATUSEX>() as minwindef::DWORD;
+            let mut mem_status = mem::MaybeUninit::<sysinfoapi::MEMORYSTATUSEX>::uninit();
+            let length = mem::size_of::<sysinfoapi::MEMORYSTATUSEX>() as minwindef::DWORD;
+            (*mem_status.as_mut_ptr()).dwLength = length;
 
-            let result = sysinfoapi::GlobalMemoryStatusEx(&mut mem_status);
+            let result = sysinfoapi::GlobalMemoryStatusEx(mem_status.as_mut_ptr());
             if result == 0 {
                 Err(Error::last_os_error())
             } else {
-                Ok(mem_status)
+                Ok(mem_status.assume_init())
             }
         }
     })

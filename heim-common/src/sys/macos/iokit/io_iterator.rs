@@ -1,4 +1,3 @@
-use std::mem;
 use std::ops::{Deref, DerefMut};
 
 use mach::kern_return;
@@ -7,6 +6,12 @@ use super::{ffi, IoObject};
 
 #[derive(Debug)]
 pub struct IoIterator(ffi::io_iterator_t);
+
+impl From<ffi::io_iterator_t> for IoIterator {
+    fn from(iter: ffi::io_iterator_t) -> IoIterator {
+        IoIterator(iter)
+    }
+}
 
 impl Deref for IoIterator {
     type Target = ffi::io_iterator_t;
@@ -39,17 +44,5 @@ impl Drop for IoIterator {
             ffi::IOObjectRelease(self.0)
         };
         assert_eq!(result, kern_return::KERN_SUCCESS);
-    }
-}
-
-impl Default for IoIterator {
-    // It is unsafe to just create an `IoIterator` instance via `default`
-    // and do not initialize it later.
-    // In addition, it needs to be initialized properly before the `Drop` call.
-    fn default() -> IoIterator {
-        let inner = unsafe {
-            mem::zeroed()
-        };
-        IoIterator(inner)
     }
 }

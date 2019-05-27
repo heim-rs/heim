@@ -1,3 +1,5 @@
+use std::mem;
+
 use core_foundation::base::{mach_port_t, kCFNull};
 use mach::{port, mach_port, kern_return, traps};
 
@@ -33,14 +35,21 @@ impl IoMasterPort {
             ret
         };
 
-        let mut iterator = IoIterator::default();
+        let mut raw_iterator = mem::MaybeUninit::<ffi::io_iterator_t>::uninit();
 
         let result = unsafe {
-            ffi::IOServiceGetMatchingServices(self.0, service, &mut *iterator)
+            ffi::IOServiceGetMatchingServices(
+                self.0,
+                service,
+                raw_iterator.as_mut_ptr(),
+            )
         };
 
         if result == kern_return::KERN_SUCCESS {
-            Ok(iterator)
+            let raw_iterator = unsafe {
+                raw_iterator.assume_init()
+            };
+            Ok(raw_iterator.into())
         } else {
             Err(Error::last_os_error())
         }

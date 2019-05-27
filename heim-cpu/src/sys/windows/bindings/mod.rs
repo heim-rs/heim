@@ -13,11 +13,10 @@ const LO_T: f64 = 1e-7;
 
 // TODO: This one can be cached in the `lazy_static`
 pub unsafe fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
-    // TODO: Use MaybeUninit here
-    let mut info: sysinfoapi::SYSTEM_INFO = mem::uninitialized();
-    sysinfoapi::GetSystemInfo(&mut info);
+    let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
+    sysinfoapi::GetSystemInfo(info.as_mut_ptr());
 
-    info
+    info.assume_init()
 }
 
 pub trait IntoTime {

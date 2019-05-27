@@ -35,19 +35,23 @@ impl Platform {
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
 pub fn platform() -> impl Future<Output = Result<Platform>> {
     future::lazy(|_| unsafe {
-        // TODO: Use MaybeUninit here
-        let mut uts: libc::utsname = mem::uninitialized();
-        if libc::uname(&mut uts) == 0 {
+        let mut uts = mem::MaybeUninit::<libc::utsname>::uninit();
+        let result = libc::uname(uts.as_mut_ptr());
+
+        if result != 0 {
+            Err(Error::last_os_error())
+        } else {
+            let uts = uts.assume_init();
             let raw_arch = into_cow(&uts.machine);
             let arch = Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown);
+
             Ok(Platform {
                 system: into_cow(&uts.sysname).into_owned(),
                 release: into_cow(&uts.release).into_owned(),
                 version: into_cow(&uts.version).into_owned(),
                 arch,
             })
-        } else {
-            Err(Error::last_os_error())
+
         }
     })
 }

@@ -103,20 +103,20 @@ pub unsafe fn hw_memsize() -> Result<u64> {
 
 pub unsafe fn vm_swapusage() -> Result<libc::xsw_usage> {
     let mut name: [i32; 2] = [CTL_VM, VM_SWAPUSAGE];
-    // TODO: Use MaybeUninit here
-    let mut value: libc::xsw_usage = mem::uninitialized();
+    let mut value = mem::MaybeUninit::<libc::xsw_usage>::uninit();
     let mut length = mem::size_of::<libc::xsw_usage>();
 
     let result = libc::sysctl(
         name.as_mut_ptr(),
         2,
-        &mut value as *mut _ as *mut libc::c_void,
+        value.as_mut_ptr() as *mut libc::c_void,
         &mut length as *mut libc::size_t,
         ptr::null_mut(),
         0,
     );
 
     if result == 0 {
+        let value = value.assume_init();
         Ok(value)
     } else {
         Err(Error::last_os_error())

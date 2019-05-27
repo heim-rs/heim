@@ -1,7 +1,7 @@
 use std::mem;
+use std::convert::AsRef;
 
 use mach::kern_return;
-
 use core_foundation::base::{CFType, TCFType};
 use core_foundation::dictionary::CFMutableDictionaryRef;
 use core_foundation::string::CFString;
@@ -10,7 +10,6 @@ use core_foundation::dictionary::{CFDictionary, CFMutableDictionary};
 
 use crate::{Result, Error};
 use super::ffi;
-use std::convert::AsRef;
 
 #[derive(Debug)]
 pub struct IoObject(ffi::io_object_t);
@@ -19,40 +18,40 @@ impl IoObject {
     /// Returns typed dictionary with this object properties.
     pub fn properties(&self) -> Result<CFDictionary<CFString, CFType>> {
         unsafe {
-            // TODO: Use MaybeUninit here
-            let mut props: CFMutableDictionaryRef = mem::uninitialized();
+            let mut props = mem::MaybeUninit::<CFMutableDictionaryRef>::uninit();
 
             let result = ffi::IORegistryEntryCreateCFProperties(
                 self.0,
-                &mut props,
+                props.as_mut_ptr(),
                 kCFAllocatorDefault,
                 0
             );
             if result != kern_return::KERN_SUCCESS {
                 Err(Error::last_os_error())
             } else {
+                let props = props.assume_init();
                 Ok(CFMutableDictionary::wrap_under_create_rule(props).to_immutable())
             }
         }
     }
 
     pub fn parent(&self, plane: &[u8]) -> Result<IoObject> {
-        let mut parent: ffi::io_object_t = unsafe {
-            // TODO: Use MaybeUninit here
-            mem::uninitialized()
-        };
+        let mut parent = mem::MaybeUninit::<ffi::io_object_t>::uninit();
 
         let result = unsafe {
             ffi::IORegistryEntryGetParentEntry(
                 self.0,
                 plane.as_ref().as_ptr() as *const libc::c_char,
-                &mut parent as *mut _ as *mut ffi::io_registry_entry_t
+                parent.as_mut_ptr() as *mut ffi::io_registry_entry_t
             )
         };
 
         if result != kern_return::KERN_SUCCESS {
             Err(Error::last_os_error())
         } else {
+            let parent = unsafe {
+                parent.assume_init()
+            };
             Ok(parent.into())
         }
     }

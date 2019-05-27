@@ -50,22 +50,24 @@ impl Usage {
 
 pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
     future::lazy(move |_| {
-        unsafe {
-            let path = path.as_ref().to_str()
-                .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidInput))
-                .and_then(|string| {
-                    CString::new(string).map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))
-                })?;
+        let path = path.as_ref().to_str()
+            .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidInput))
+            .and_then(|string| {
+                CString::new(string).map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))
+            })?;
 
-            // TODO: Use MaybeUninit here
-            let mut vfs: libc::statvfs = mem::uninitialized();
-            let result = libc::statvfs(path.into_raw(), &mut vfs);
+        let mut vfs = mem::MaybeUninit::<libc::statvfs>::uninit();
+        let result = unsafe {
+            libc::statvfs(path.into_raw(), vfs.as_mut_ptr())
+        };
 
-            if result == 0 {
-                Ok(Usage(vfs))
-            } else {
-                Err(Error::last_os_error())
-            }
+        if result == 0 {
+            let vfs = unsafe {
+                vfs.assume_init()
+            };
+            Ok(Usage(vfs))
+        } else {
+            Err(Error::last_os_error())
         }
     })
 }

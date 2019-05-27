@@ -91,9 +91,9 @@ impl Platform {
 }
 
 unsafe fn get_native_system_info() -> impl Future<Output=Result<SystemInfo>> {
-    // TODO: Use MaybeUninit here
-    let mut info: sysinfoapi::SYSTEM_INFO = mem::zeroed();
-    sysinfoapi::GetNativeSystemInfo(&mut info);
+    let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
+    sysinfoapi::GetNativeSystemInfo(info.as_mut_ptr());
+    let info = info.assume_init();
 
     future::ok(info.into())
 }
@@ -112,11 +112,10 @@ unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW
         let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW)
             -> ntdef::NTSTATUS = mem::transmute(func as *const ());
 
-        // TODO: Use MaybeUninit here
-        let mut osinfo: winnt::RTL_OSVERSIONINFOEXW = mem::zeroed();
-        osinfo.dwOSVersionInfoSize = mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as _;
-        if func(&mut osinfo) == ntstatus::STATUS_SUCCESS {
-            future::ok(osinfo)
+        let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
+        (*osinfo.as_mut_ptr()).dwOSVersionInfoSize = mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
+        if func(osinfo.as_mut_ptr()) == ntstatus::STATUS_SUCCESS {
+            future::ok(osinfo.assume_init())
         } else {
             // https://docs.microsoft.com/en-us/windows/desktop/devnotes/rtlgetversion#return-value
             unreachable!("RtlGetVersion should just work");
