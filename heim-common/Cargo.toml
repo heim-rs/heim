@@ -26,7 +26,7 @@ winapi = { version = "0.3.7", features = ["winnt", "minwindef"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "^0.2"
-mach = "0.2.3"
+mach = "0.3.2"
 core-foundation = "0.6.4"
 
 [features]
