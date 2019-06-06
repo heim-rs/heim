@@ -126,7 +126,7 @@ impl Swap {
             }
         }
 
-        Err(Error::new(ErrorKind::Parse))
+        Err(Error::missing_entity("<unknown>"))
     }
 }
 

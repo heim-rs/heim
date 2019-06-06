@@ -30,7 +30,7 @@ impl CpuFrequency {
 unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
     let info = get_system_info();
     if info.dwNumberOfProcessors == 0 {
-        return Err(Error::new(ErrorKind::UnknownValue("No processors were found")))
+        return Err(Error::incompatible("No processors was found"));
     }
 
     let proc_amount = info.dwNumberOfProcessors as usize;
@@ -59,7 +59,7 @@ pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
         Ok(processors) => {
             let freq = processors.into_iter().next()
                 .map(CpuFrequency)
-                .ok_or_else(|| Error::new(ErrorKind::UnknownValue("No processors were found")));
+                .ok_or_else(|| Error::incompatible("No processors was found"));
 
             future::ready(freq)
         },

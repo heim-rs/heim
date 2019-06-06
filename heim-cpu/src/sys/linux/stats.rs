@@ -18,10 +18,10 @@ impl FromStr for CpuStats {
 
         for line in s.lines() {
             let mut parts = line.split(' ');
-            let field = match parts.next() {
-                Some(name) if name == "ctxt" => &mut stats.ctx_switches,
-                Some(name) if name == "intr" => &mut stats.interrupts,
-                Some(name) if name == "softirq" => &mut stats.soft_interrupts,
+            let (name, field) = match parts.next() {
+                Some(name) if name == "ctxt" => ("ctxt", &mut stats.ctx_switches),
+                Some(name) if name == "intr" => ("intr", &mut stats.interrupts),
+                Some(name) if name == "softirq" => ("softirq", &mut stats.soft_interrupts),
                 _ => continue,
             };
 
@@ -31,8 +31,7 @@ impl FromStr for CpuStats {
                     matched_lines += 1;
                     *field = value;
                 },
-                // TODO: Return better error type?
-                None => return Err(Error::new(ErrorKind::Parse))
+                None => return Err(Error::missing_entity(name))
             }
 
             if matched_lines == 3 {

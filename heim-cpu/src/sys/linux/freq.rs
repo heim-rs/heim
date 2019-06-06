@@ -1,4 +1,3 @@
-use std::io;
 use std::ops;
 use std::path::{Path, PathBuf};
 
@@ -62,7 +61,9 @@ pub fn frequency() -> impl Future<Output=Result<CpuFrequency>> {
             },
             // Unable to determine CPU frequencies for some reasons.
             // Might happen for containerized environments, such as Microsoft Azure, for example.
-            Ok(_) => future::err(Error::new(ErrorKind::UnknownValue("No data"))),
+            Ok(_) => future::err(
+                Error::incompatible("No CPU frequencies was found, running in VM?"),
+            ),
             Err(e) => future::err(e),
         }
     })
@@ -81,7 +82,7 @@ pub fn frequencies() -> impl Stream<Item=Result<CpuFrequency>> {
                 .expect("Invalid glob pattern");
 
     stream::iter(walker)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e).into())
+        .map_err(|e| Error::from(Box::new(e)))
         .and_then(|path| {
             let current = current_freq(&path);
             let max = max_freq(&path);

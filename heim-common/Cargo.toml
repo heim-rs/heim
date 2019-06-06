@@ -22,7 +22,7 @@ futures-preview = "0.3.0-alpha.16"
 nix = "0.14.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "0.3.7", features = ["winnt", "minwindef"] }
+winapi = { version = "0.3.7", features = ["winnt", "minwindef", "libloaderapi"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "^0.2"

@@ -34,8 +34,8 @@ pub mod memory {
 }
 
 /// Network information
-pub mod net {
-    pub use heim_net::*;
-}
+//pub mod net {
+//    pub use heim_net::*;
+//}
 
-pub use heim_common::{Error, ErrorKind, Result};
+pub use heim_common::{Error, Result};

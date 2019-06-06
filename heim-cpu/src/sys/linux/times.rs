@@ -2,8 +2,6 @@ use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
-//use heim_common::units::si::f64::Time;
-//use heim_common::units::si::time::second;
 
 use crate::sys::unix::CLOCK_TICKS;
 
@@ -67,7 +65,7 @@ pub fn time() -> impl Future<Output=Result<CpuTime>> {
                 (Some(Ok(time)), _) => future::ok(time),
                 (Some(Err(e)), _) => future::err(e),
                 (None, _) => future::err(
-                    Error::new(ErrorKind::UnknownValue("cumulative time line is missing"))
+                    Error::missing_entity("cumulative time line")
                 )
             }
         })

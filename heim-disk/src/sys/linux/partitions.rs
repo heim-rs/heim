@@ -44,22 +44,19 @@ impl FromStr for Partition {
         let device = match parts.next() {
             Some(device) if device == "none" => None,
             Some(device) => Some(device.to_string()),
-            None => return Err(Error::new(ErrorKind::Parse)),
+            None => return Err(Error::missing_entity("device")),
         };
         let mount_point = match parts.next() {
             Some(point) => PathBuf::from(point),
-            None => return Err(Error::new(ErrorKind::Parse)),
+            None => return Err(Error::missing_entity("mount point")),
         };
         let fs_type = match parts.next() {
-            Some(fs) => match FileSystem::from_str(fs) {
-                Ok(fs) => fs,
-                Err(e) => return Err(e),
-            },
-            _ => return Err(Error::new(ErrorKind::Parse)),
+            Some(fs) => FileSystem::from_str(fs)?,
+            _ => return Err(Error::missing_entity("file-system type")),
         };
         let options = match parts.next() {
             Some(opts) => opts.to_string(),
-            None => return Err(Error::new(ErrorKind::Parse)),
+            None => return Err(Error::missing_entity("options")),
         };
 
         Ok(Partition {

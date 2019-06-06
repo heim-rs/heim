@@ -6,7 +6,7 @@ use core_foundation::number::{CFNumber, CFNumberGetTypeID};
 
 pub use core_foundation::base::TCFType;
 
-use crate::{Result, Error, ErrorKind};
+use crate::{Result, Error};
 
 pub trait DictionaryProps {
     fn get_dict(&self, raw_key: &'static str) -> Result<CFDictionary<CFString, CFType>>;
@@ -38,7 +38,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                     Some(CFDictionary::wrap_under_get_rule(ptr))
                 }
             })
-            .ok_or_else(|| Error::new(ErrorKind::UnknownValue(raw_key)))
+            .ok_or_else(|| Error::missing_entity(raw_key))
     }
 
     fn get_bool(&self, raw_key: &'static str) -> Result<bool> {
@@ -53,7 +53,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFBoolean>()
             })
             .map(Into::into)
-            .ok_or_else(|| Error::new(ErrorKind::UnknownValue(raw_key)))
+            .ok_or_else(|| Error::missing_entity(raw_key))
     }
 
     fn get_i64(&self, raw_key: &'static str) -> Result<i64> {
@@ -68,7 +68,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFNumber>()
             })
             .and_then(|number| number.to_i64())
-            .ok_or_else(|| Error::new(ErrorKind::UnknownValue(raw_key)))
+            .ok_or_else(|| Error::missing_entity(raw_key))
     }
 
     fn get_string(&self, raw_key: &'static str) -> Result<String> {
@@ -83,6 +83,6 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFString>()
             })
             .map(|cf_string| cf_string.to_string())
-            .ok_or_else(|| Error::new(ErrorKind::UnknownValue(raw_key)))
+            .ok_or_else(|| Error::missing_entity(raw_key))
     }
 }

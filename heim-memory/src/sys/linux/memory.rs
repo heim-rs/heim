@@ -67,7 +67,8 @@ impl FromStr for Memory {
             }
         }
 
-        Err(Error::new(ErrorKind::Parse))
+        // TODO: Kinda bad to name it like this
+        Err(Error::missing_entity("<unknown>"))
     }
 }
 

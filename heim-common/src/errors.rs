@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::error;
 use std::ffi;
 use std::fmt;
@@ -10,121 +11,115 @@ use std::string;
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
-pub enum ErrorKind {
-    /// Unable to call system function because program is incompatible with OS used
-    Incompatible,
-    /// Unable to determine the requested value
-    UnknownValue(&'static str),
-    FromNul(ffi::NulError),
-    FromFfiString(ffi::IntoStringError),
-    Io(io::Error),
-    /// Generic parse error. If applicable, try to use more specific ErrorKind
-    Parse,
-    ParseInt(num::ParseIntError),
-    ParseFloat(num::ParseFloatError),
-    ParseString(string::ParseError),
-    FromUtf8(string::FromUtf8Error),
+pub enum LoadFailureReason {
+    MissingEntity(Cow<'static, str>),
+    Incompatible(&'static str),
     Other(Box<dyn error::Error + Send + 'static>),
+
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 #[derive(Debug)]
-pub struct Error {
-    kind: ErrorKind,
+pub enum Error {
+    /// Any error which may happen during the data fetch.
+    ///
+    /// Usually means that `heim` is not compatible
+    /// with a system it's running on.
+    ///
+    /// Caller should consider it as an opaque enum member
+    /// and use the data in it only for debugging reasons.
+    /// Contents of this enum members are not stable and may
+    /// change without any warning.
+    LoadFailure(LoadFailureReason),
 }
 
 impl Error {
-    pub fn new(kind: ErrorKind) -> Error {
-        Error {
-            kind,
-        }
+    pub fn last_os_error() -> Error {
+        let e = Box::new(io::Error::last_os_error());
+        Error::LoadFailure(LoadFailureReason::Other(e))
     }
 
-    pub fn last_os_error() -> Error {
-        io::Error::last_os_error().into()
+    pub fn missing_entity<T: Into<Cow<'static, str>>>(name: T) -> Error {
+        Error::LoadFailure(LoadFailureReason::MissingEntity(name.into()))
+    }
+
+    pub fn incompatible(desc: &'static str) -> Error {
+        Error::LoadFailure(LoadFailureReason::Incompatible(desc))
     }
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self.kind {
-            ErrorKind::Incompatible => f.write_str("Incompatible with current OS"),
-            ErrorKind::UnknownValue(key) => f.write_str(&format!("Unable to determine the value: {}", key)),
-            ErrorKind::FromNul(e) => fmt::Display::fmt(e, f),
-            ErrorKind::FromFfiString(e) => fmt::Display::fmt(e, f),
-            ErrorKind::Io(e) => fmt::Display::fmt(e, f),
-            ErrorKind::Parse => f.write_str("Unable to parse"),
-            ErrorKind::ParseInt(e) => fmt::Display::fmt(e, f),
-            ErrorKind::ParseFloat(e) => fmt::Display::fmt(e, f),
-            ErrorKind::ParseString(e) => fmt::Display::fmt(e, f),
-            ErrorKind::FromUtf8(e) => fmt::Display::fmt(e, f),
-            ErrorKind::Other(e) => fmt::Display::fmt(e, f),
+        match self {
+            Error::LoadFailure(LoadFailureReason::MissingEntity(name)) => {
+                f.write_fmt(format_args!("Expected entity `{}` is missing", name))
+            },
+            Error::LoadFailure(LoadFailureReason::Incompatible(reason)) => {
+                f.write_str(reason)
+            },
+            Error::LoadFailure(LoadFailureReason::Other(e)) => {
+                fmt::Display::fmt(e, f)
+            }
+            _ => f.write_str("Unknown error"),
         }
     }
 }
 
-impl error::Error for Error {}
+impl error::Error for Error {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match self {
+            Error::LoadFailure(LoadFailureReason::Other(e)) => Some(&**e),
+            _ => None,
+        }
+    }
+}
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error {
-            kind: ErrorKind::Io(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<num::ParseIntError> for Error {
     fn from(e: num::ParseIntError) -> Self {
-        Error {
-            kind: ErrorKind::ParseInt(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<num::ParseFloatError> for Error {
     fn from(e: num::ParseFloatError) -> Self {
-        Error {
-            kind: ErrorKind::ParseFloat(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<ffi::NulError> for Error {
     fn from(e: ffi::NulError) -> Self {
-        Error {
-            kind: ErrorKind::FromNul(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<ffi::IntoStringError> for Error {
     fn from(e: ffi::IntoStringError) -> Self {
-        Error {
-            kind: ErrorKind::FromFfiString(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<string::ParseError> for Error {
     fn from(e: string::ParseError) -> Self {
-        Error {
-            kind: ErrorKind::ParseString(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<string::FromUtf8Error> for Error {
     fn from(e: string::FromUtf8Error) -> Self {
-        Error {
-            kind: ErrorKind::FromUtf8(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
 impl From<net::AddrParseError> for Error {
-    fn from(_e: net::AddrParseError) -> Self {
-        Error {
-            kind: ErrorKind::Parse,
-        }
+    fn from(e: net::AddrParseError) -> Self {
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }
 
@@ -133,15 +128,13 @@ where
     T: error::Error + Send + 'static,
 {
     fn from(e: Box<T>) -> Self {
-        Error {
-            kind: ErrorKind::Other(e),
-        }
+        Error::LoadFailure(LoadFailureReason::Other(e))
     }
 }
 
 #[cfg(unix)]
 impl From<nix::Error> for Error {
-    fn from(_e: nix::Error) -> Self {
-        unimplemented!()
+    fn from(e: nix::Error) -> Self {
+        Error::LoadFailure(LoadFailureReason::Other(Box::new(e)))
     }
 }

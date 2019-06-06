@@ -150,7 +150,7 @@ pub unsafe fn NtQuerySystemInformation(
     let func = libloaderapi::GetProcAddress(ntdll, funcname.as_ptr());
 
     if func.is_null() {
-        return Err(Error::new(ErrorKind::Incompatible));
+        return Err(Error::incompatible("Unable to get NtQuerySystemInformation function address"));
     }
 
     let func: extern "stdcall" fn(
@@ -201,7 +201,7 @@ pub fn query_system_information<T>() -> Result<Vec<T>> where T: SystemInformatio
     let info = unsafe { get_system_info() };
     let proc_amount = info.dwNumberOfProcessors as usize;
     if proc_amount == 0 {
-        return Err(Error::new(ErrorKind::UnknownValue("No processors were found")));
+        return Err(Error::incompatible("No processors were found"));
     }
 
     let mut info = Vec::<T>::with_capacity(proc_amount);

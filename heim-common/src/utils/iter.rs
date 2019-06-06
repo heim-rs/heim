@@ -1,7 +1,8 @@
+use std::io;
 use std::str::FromStr;
 use std::convert::TryFrom;
 
-use crate::{Error, ErrorKind, Result};
+use crate::{Error, Result};
 
 pub trait TryIterator: Iterator {
     fn try_next(&mut self) -> Result<<Self as Iterator>::Item>;
@@ -24,7 +25,11 @@ where
     T: Iterator,
 {
     fn try_next(&mut self) -> Result<<Self as Iterator>::Item> {
-        self.next().ok_or_else(|| Error::new(ErrorKind::Parse))
+        self.next()
+            .ok_or_else(|| {
+                io::Error::from(io::ErrorKind::InvalidData)
+            })
+            .map_err(Into::into)
     }
 
     fn try_from_next<R, E>(&mut self) -> Result<R>
