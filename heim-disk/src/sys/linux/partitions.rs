@@ -2,7 +2,6 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::pin::Pin;
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
@@ -103,7 +102,7 @@ pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
         .try_collect::<HashSet<_>>()
         .map_ok(HashSet::from_iter)
         .map_ok(|fs: HashSet<FileSystem>| {
-            let stream = partitions()
+            partitions()
                 .try_filter_map(move |part| match part {
                     Partition {
                         device: None, ..
@@ -112,13 +111,7 @@ pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
                         ref fs_type, ..
                     } if !fs.contains(fs_type) => future::ok(None),
                     partition => future::ok(Some(partition)),
-                });
-
-            // TODO: https://github.com/rust-lang-nursery/futures-rs/issues/1444
-            Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>
+                })
         })
-        .unwrap_or_else(|e| {
-            Box::pin(stream::once(future::err(e)))
-        })
-        .flatten_stream()
+        .try_flatten_stream()
 }

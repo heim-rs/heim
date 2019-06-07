@@ -58,13 +58,9 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     .map_ok(|interfaces| {
         let stream = stream::iter(interfaces).map(Ok);
 
-        // TODO: https://github.com/rust-lang-nursery/futures-rs/issues/1444
-        Box::pin(stream) as Pin<Box<dyn Stream<Item=_> + Send>>
+        Ok(stream)
     })
-    .unwrap_or_else(|e| {
-        Box::pin(stream::once(future::err(e)))
-    })
-    .flatten_stream()
+    .try_flatten_stream()
     .and_then(|msg: if_msghdr2| {
         let mut name: [u8; libc::IF_NAMESIZE] = [0; libc::IF_NAMESIZE];
         let result = unsafe {

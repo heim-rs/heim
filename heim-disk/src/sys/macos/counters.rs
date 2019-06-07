@@ -1,4 +1,3 @@
-use std::pin::Pin;
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
@@ -55,11 +54,9 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
 
         let stream = stream::iter(services).map(Ok);
 
-        // https://github.com/rust-lang-nursery/futures-rs/issues/1444
-        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+        Ok(stream)
     })
-    .unwrap_or_else(|e| Box::pin(stream::once(future::err(e))))
-    .flatten_stream()
+    .try_flatten_stream()
     .map(|io_object: Result<iokit::IoObject>| {
         match io_object {
             Ok(obj) => {

@@ -1,5 +1,3 @@
-use std::pin::Pin;
-
 use heim_common::prelude::*;
 
 use crate::units;
@@ -72,12 +70,8 @@ pub fn times() -> impl Stream<Item = Result<CpuTime>> {
 
         let stream = stream::iter(processors).map(Ok);
 
-        // https://github.com/rust-lang-nursery/futures-rs/issues/1444
-        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+        Ok(stream)
     })
-    .unwrap_or_else(|e| {
-        Box::pin(stream::once(future::err(e)))
-    })
-    .flatten_stream()
+    .try_flatten_stream()
     .map_ok(Into::into)
 }

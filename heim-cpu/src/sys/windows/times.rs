@@ -1,5 +1,3 @@
-use std::pin::Pin;
-
 use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
@@ -66,13 +64,9 @@ pub fn times() -> impl Stream<Item = Result<CpuTime>> {
 
         let stream = stream::iter(processors).map(Ok);
 
-        // https://github.com/rust-lang-nursery/futures-rs/issues/1444
-        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+        Ok(stream)
     })
-    .unwrap_or_else(|e| {
-        Box::pin(stream::once(future::err(e)))
-    })
-    .flatten_stream()
+    .try_flatten_stream()
     .map_ok(|proc_info: winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION| {
         let user = proc_info.UserTime.into_time();
         let idle = proc_info.IdleTime.into_time();

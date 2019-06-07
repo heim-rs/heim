@@ -14,6 +14,7 @@ members = [
 ]
 
 [patch.crates-io]
-# awaiting for this PR to be published
+# awaiting for this PRs to be published
 # https://github.com/rust-lang-nursery/futures-rs/pull/1627
-futures-preview = { git = "https://github.com/rust-lang-nursery/futures-rs", rev = "9e801418191191b1b18b2c33303792df1d880390" }
+# https://github.com/rust-lang-nursery/futures-rs/pull/1618
+futures-preview = { git = "https://github.com/rust-lang-nursery/futures-rs", rev = "14cf135b41bff10ac4139d914e585e32bacfcd7a" }

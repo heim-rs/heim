@@ -71,13 +71,9 @@ pub fn nic() -> impl Stream<Item = Result<Nic>> {
     .map_ok(|interfaces| {
         let stream = stream::iter(interfaces).map(Ok);
 
-        // TODO: https://github.com/rust-lang-nursery/futures-rs/issues/1444
-        Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>
+        Ok(stream)
     })
-    .unwrap_or_else(|e| {
-        Box::pin(stream::once(future::err(e)))
-    })
-    .flatten_stream()
+    .try_flatten_stream()
     .try_filter_map(|addr: ifaddrs::InterfaceAddress| {
         // Skipping unsupported address families
         let result = if addr.address.is_some() {
