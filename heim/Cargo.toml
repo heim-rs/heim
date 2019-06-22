@@ -16,13 +16,18 @@ maintenance = { status = "experimental" }
 [dependencies]
 heim-common = { version = "0.0.2", path = "../heim-common" }
 heim-derive = { version = "0.0.2", path = "../heim-derive" }
-heim-host = { version = "0.0.2", path = "../heim-host" }
-heim-cpu = {version = "0.0.2", path = "../heim-cpu" }
-heim-memory = {version = "0.0.2", path = "../heim-memory" }
-heim-disk = {version = "0.0.2", path = "../heim-disk" }
+heim-host = { version = "0.0.2", path = "../heim-host", optional = true }
+heim-cpu = {version = "0.0.2", path = "../heim-cpu", optional = true }
+heim-memory = {version = "0.0.2", path = "../heim-memory", optional = true }
+heim-disk = {version = "0.0.2", path = "../heim-disk", optional = true }
 # heim-net = {version = "0.0.2", path = "../heim-net" }
 
 [features]
+default = ["host", "cpu", "memory", "disk"]
+host = ["heim-host"]
+cpu = ["heim-cpu"]
+memory = ["heim-memory"]
+disk = ["heim-disk"]
 doc = [
     "heim-common/doc",
     "heim-host/doc",

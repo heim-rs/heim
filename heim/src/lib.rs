@@ -14,21 +14,25 @@
 #![forbid(missing_docs)]
 
 /// CPU information
+#[cfg(feature = "cpu")]
 pub mod cpu {
     pub use heim_cpu::*;
 }
 
 /// Disk information
+#[cfg(feature = "disk")]
 pub mod disk {
     pub use heim_disk::*;
 }
 
 /// Host information
+#[cfg(feature = "host")]
 pub mod host {
     pub use heim_host::*;
 }
 
 /// Memory information
+#[cfg(feature = "memory")]
 pub mod memory {
     pub use heim_memory::*;
 }
