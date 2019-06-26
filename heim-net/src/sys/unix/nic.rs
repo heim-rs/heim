@@ -1,5 +1,3 @@
-use std::pin::Pin;
-
 use nix::ifaddrs;
 use nix::net::if_::InterfaceFlags;
 use nix::sys::socket;
@@ -66,12 +64,7 @@ pub fn nic() -> impl Stream<Item = Result<Nic>> {
         let iter = ifaddrs::getifaddrs()?;
         let interfaces = iter.collect::<Vec<_>>();
 
-        Ok(interfaces)
-    })
-    .map_ok(|interfaces| {
-        let stream = stream::iter(interfaces).map(Ok);
-
-        Ok(stream)
+        Ok(stream::iter(interfaces).map(Ok))
     })
     .try_flatten_stream()
     .try_filter_map(|addr: ifaddrs::InterfaceAddress| {

@@ -1,5 +1,3 @@
-use std::pin::Pin;
-
 use heim_common::prelude::*;
 use heim_common::units::Information;
 
@@ -56,9 +54,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
         }
     })
     .map_ok(|interfaces| {
-        let stream = stream::iter(interfaces).map(Ok);
-
-        Ok(stream)
+        stream::iter(interfaces).map(Ok)
     })
     .try_flatten_stream()
     .and_then(|msg: if_msghdr2| {
