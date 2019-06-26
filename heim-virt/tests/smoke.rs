@@ -1,0 +1,9 @@
+#![allow(stable_features)]
+#![feature(async_await, futures_api)]
+
+use heim_virt as virt;
+
+#[runtime::test]
+async fn smoke_detect() {
+    let _ = virt::detect().await;
+}

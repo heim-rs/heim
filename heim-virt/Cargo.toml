@@ -1,6 +1,6 @@
 [package]
 name = "heim-virt"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Placeholder crate"
@@ -14,6 +14,14 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
+heim-common = { version = "0.0.2", path = "../heim-common" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+raw-cpuid = "6.1.0"
+
+[dev-dependencies]
+runtime = "0.3.0-alpha.5"
+tempfile = "3.0"
 
 [package.metadata.docs.rs]
 features = ["doc"]

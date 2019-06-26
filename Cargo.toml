@@ -9,7 +9,7 @@ members = [
     "heim-disk",
 #    "heim-net",
 #    "heim-process",
-#    "heim-virt",
+    "heim-virt",
 #    "heim-winservice",
 ]
 

@@ -1,6 +1,6 @@
+use std::convert::TryFrom;
 use std::io;
 use std::str::FromStr;
-use std::convert::TryFrom;
 
 use crate::{Error, Result};
 
@@ -13,7 +13,10 @@ pub trait TryIterator: Iterator {
         Error: From<E>;
 }
 
-pub trait ParseIterator<I>: TryIterator<Item = I> where I: AsRef<str> {
+pub trait ParseIterator<I>: TryIterator<Item = I>
+where
+    I: AsRef<str>,
+{
     fn try_parse_next<R, E>(&mut self) -> Result<R>
     where
         R: FromStr<Err = E>,
@@ -26,9 +29,7 @@ where
 {
     fn try_next(&mut self) -> Result<<Self as Iterator>::Item> {
         self.next()
-            .ok_or_else(|| {
-                io::Error::from(io::ErrorKind::InvalidData)
-            })
+            .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData))
             .map_err(Into::into)
     }
 
@@ -43,11 +44,16 @@ where
     }
 }
 
-impl<T, I> ParseIterator<I> for T where T: TryIterator<Item = I>, I: AsRef<str> {
-    fn try_parse_next<R, E>(&mut self) -> Result<R> where
-        R: FromStr<Err=E>,
-        Error: From<E> {
-
+impl<T, I> ParseIterator<I> for T
+where
+    T: TryIterator<Item = I>,
+    I: AsRef<str>,
+{
+    fn try_parse_next<R, E>(&mut self) -> Result<R>
+    where
+        R: FromStr<Err = E>,
+        Error: From<E>,
+    {
         let value = self.try_next()?;
 
         FromStr::from_str(value.as_ref()).map_err(Into::into)

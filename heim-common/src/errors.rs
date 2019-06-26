@@ -54,13 +54,9 @@ impl fmt::Display for Error {
         match self {
             Error::LoadFailure(LoadFailureReason::MissingEntity(name)) => {
                 f.write_fmt(format_args!("Expected entity `{}` is missing", name))
-            },
-            Error::LoadFailure(LoadFailureReason::Incompatible(reason)) => {
-                f.write_str(reason)
-            },
-            Error::LoadFailure(LoadFailureReason::Other(e)) => {
-                fmt::Display::fmt(e, f)
             }
+            Error::LoadFailure(LoadFailureReason::Incompatible(reason)) => f.write_str(reason),
+            Error::LoadFailure(LoadFailureReason::Other(e)) => fmt::Display::fmt(e, f),
             _ => f.write_str("Unknown error"),
         }
     }

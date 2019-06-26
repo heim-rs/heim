@@ -1,5 +1,5 @@
-use std::fmt;
 use std::ffi::OsStr;
+use std::fmt;
 
 use heim_common::prelude::*;
 use heim_common::units::Information;

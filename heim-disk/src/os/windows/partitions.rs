@@ -1,7 +1,6 @@
 use winapi::shared::minwindef::DWORD;
 use winapi::um::winnt;
 
-
 #[derive(Debug)] // TODO: Extend derives list
 pub enum DriveType {
     CdRom,
@@ -78,7 +77,6 @@ bitflags::bitflags! {
         const FILE_VOLUME_QUOTAS = winnt::FILE_VOLUME_QUOTAS;
     }
 }
-
 
 pub trait PartitionExt {
     fn flags(&self) -> Flags;

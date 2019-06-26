@@ -11,7 +11,6 @@
 use std::fs;
 use std::io::{self, BufRead};
 use std::path::Path;
-use std::pin::Pin;
 use std::str::FromStr;
 
 use crate::prelude::*;
@@ -20,6 +19,13 @@ pub fn path_exists<T>(path: T) -> impl Future<Output = bool>
 where
     T: AsRef<Path> + Send + 'static,
 {
+    // TODO: It is using a "sync" API
+    // but since it is used only at Linux and only for in-memory located
+    // filesystems, it should not be a big problem, since that kind of IO
+    // will not block so much.
+    //
+    // In any way, this thing should be refactored when `runtime` crate
+    // will have the proper async FS I/O support.
     future::ready(path.as_ref().exists())
 }
 
@@ -28,6 +34,13 @@ pub fn read_to_string<T>(path: T) -> impl Future<Output = Result<String>>
 where
     T: AsRef<Path> + Send + 'static,
 {
+    // TODO: It is using a "sync" API
+    // but since it is used only at Linux and only for in-memory located
+    // filesystems, it should not be a big problem, since that kind of IO
+    // will not block so much.
+    //
+    // In any way, this thing should be refactored when `runtime` crate
+    // will have the proper async FS I/O support.
     let res = fs::read_to_string(path).map_err(From::from);
 
     future::ready(res)
@@ -51,17 +64,20 @@ pub fn read_lines<T>(path: T) -> impl TryStream<Ok = String, Error = Error>
 where
     T: AsRef<Path> + Send + 'static,
 {
-    // https://github.com/rust-lang-nursery/futures-rs/issues/1444
     future::ready(fs::File::open(path))
         .map_err(Error::from)
         .map_ok(|file| {
+            // TODO: It is using a "sync" API
+            // but since it is used only at Linux and only for in-memory located
+            // filesystems, it should not be a big problem, since that kind of IO
+            // will not block so much.
+            //
+            // In any way, this thing should be refactored when `runtime` crate
+            // will have the proper async FS I/O support.
             let reader = io::BufReader::new(file);
-            let stream = stream::iter(reader.lines()).map_err(Error::from);
-
-            Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>
+            stream::iter(reader.lines()).map_err(Error::from)
         })
-        .unwrap_or_else(|e| Box::pin(stream::once(future::err(e))))
-        .flatten_stream()
+        .try_flatten_stream()
 }
 
 pub fn read_lines_into<T, R, E>(path: T) -> impl TryStream<Ok = R, Error = Error>
@@ -75,4 +91,37 @@ where
 
         future::ready(res)
     })
+}
+
+pub fn read_first_line<T>(path: T) -> impl TryFuture<Ok = String, Error = Error>
+where
+    T: AsRef<Path> + Send + 'static,
+{
+    // TODO: Looks dumb
+    read_lines(path)
+        .into_stream()
+        .into_future()
+        .map(|(try_line, _)| match try_line {
+            Some(Ok(line)) => Ok(line),
+            Some(Err(e)) => Err(e),
+            None => Err(Error::missing_entity("line")),
+        })
+}
+
+/// Returns stream of files and directories contained in the `T` directory.
+pub fn read_dir<T>(path: T) -> impl TryStream<Ok = fs::DirEntry, Error = Error>
+where
+    T: AsRef<Path> + Send + 'static,
+{
+    // TODO: It is using a "sync" API
+    // but since it is used only at Linux and only for in-memory located
+    // filesystems, it should not be a big problem, since that kind of IO
+    // will not block so much.
+    //
+    // In any way, this thing should be refactored when `runtime` crate
+    // will have the proper async FS I/O support.
+    future::ready(fs::read_dir(path))
+        .map_err(Error::from)
+        .map_ok(|iter| stream::iter(iter).map_err(Error::from))
+        .try_flatten_stream()
 }
