@@ -1,12 +1,26 @@
-//! `Heim` is a fast and eventually full-featured framework for Rust programming language
+//! `heim` is fast and eventually full-featured async framework for Rust programming language
 //! intended to provide any possible information about the system it is running.
 //!
-//! ## Compatibility
+//! At a high level, it provides information about:
+//!
+//!  * CPU
+//!  * Disks
+//!  * Host
+//!  * Memory
+//!  * Networks (*TBD*)
+//!  * Processes (*TBD*)
+//!  * Virtualization
+//!  * Windows services (*TBD*)
+//!
+//! ## Platform support
 //!
 //! At the moment `heim` is in **MVP** phase, which means that only the big triple
-//! (Linux, MacOS and Windows) are supported.
+//! (Linux, MacOS and Windows) are **partially** supported.
 //! You may want to check out [GitHub projects](https://github.com/heim-rs/heim/projects)
 //! for more information about cross-platform support.
+//!
+//! In addition, it would be better to double check if returned information is reliable.
+//! You know, just in case.
 
 #![allow(stable_features)] // Used for `future_api` feature
 #![forbid(unused)]
@@ -37,8 +51,9 @@ pub mod memory {
     pub use heim_memory::*;
 }
 
-/// Network information
-//pub mod net {
-//    pub use heim_net::*;
-//}
+/// Virtualization system information
+pub mod virt {
+    pub use heim_virt::*;
+}
+
 pub use heim_common::{Error, Result};

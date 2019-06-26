@@ -1,26 +1,14 @@
 # heim-cpu
 
-This crate provides cross-platform functions to query information
-about system CPUs.
+[![Latest Version](https://img.shields.io/crates/v/heim-cpu.svg)](https://crates.io/crates/heim-cpu)
+[![Latest Version](https://docs.rs/heim-cpu/badge.svg)](https://docs.rs/heim-cpu)
+[![dependency status](https://deps.rs/crate/heim-cpu/0.0.2/status.svg)](https://deps.rs/crate/heim-cpu/0.0.2)
+[![Build Status](https://dev.azure.com/heim-rs/heim/_apis/build/status/heim-rs.heim?branchName=master)](https://dev.azure.com/heim-rs/heim/_build/latest?definitionId=1&branchName=master)
+![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
+[![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 
-It is a part of [heim project](https://github.com/heim-rs),
+> Cross-platform information about system CPUs.
+
+`heim-cpu` a part of [heim project](https://github.com/heim-rs),
 and preferably should not be used directly,
 but via [heim](https://crates.io/crates/heim) crate.
-
-## Compatibility matrix
-
-|             | Linux | MacOS | Windows | FreeBSD | OpenBSD | Solaris | Redox |
-| ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
-| time        | ✓     | ✓     | ✓       |         |         |         |       |
-| times       | ✓     | ✓     | ✓       |         |         |         |       |
-| stats       | ✓     |       | ✓       |         |         |         |       |
-| frequency   | ≈     | ✓     | ✓       |         |         |         |       |
-| frequencies | ≈     | X     | X       | X       | X       | X       | ?     |
-
-Legend:
-
- * `✓` — implemented
- * `≈` — implemented, but not reliable (e.g. might not support all OS versions)
- * ` ` — not implemented
- * `X` — not available and will not be implemented
- * `?` — not sure if possible

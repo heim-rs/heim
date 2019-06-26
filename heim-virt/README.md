@@ -1,29 +1,14 @@
 # heim-virt
 
-This crate provides cross-platform functions to detect
-virtualization system in which program is running.
+[![Latest Version](https://img.shields.io/crates/v/heim-virt.svg)](https://crates.io/crates/heim-virt)
+[![Latest Version](https://docs.rs/heim-virt/badge.svg)](https://docs.rs/heim-virt)
+[![dependency status](https://deps.rs/crate/heim-virt/0.0.2/status.svg)](https://deps.rs/crate/heim-virt/0.0.2)
+[![Build Status](https://dev.azure.com/heim-rs/heim/_apis/build/status/heim-rs.heim?branchName=master)](https://dev.azure.com/heim-rs/heim/_build/latest?definitionId=1&branchName=master)
+![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
+[![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 
-At the moment not all declared virtualization systems are detected,
-therefore this crate should be used very carefully.
+> Cross-platform information about virtualization system program running under.
 
-See the [issues list](https://github.com/heim-rs/heim/issues?q=is%3Aissue+is%3Aopen+label%3AA-virt)
-for a not supported currently systems.
-
-
-It is a part of [heim project](https://github.com/heim-rs),
+`heim-virt` a part of [heim project](https://github.com/heim-rs),
 and preferably should not be used directly,
 but via [heim](https://crates.io/crates/heim) crate.
-
-## Compatibility matrix
-
-|             | Linux | MacOS | Windows | FreeBSD | OpenBSD | Solaris | Redox |
-| ----------- | ----- | ----- | ------- | ------- | ------- | ------- | ----- |
-| detect      | ≈     |       |         |         |         |         |       |
-
-Legend:
-
- * `✓` — implemented
- * `≈` — implemented, but not reliable (e.g. might not support all targeted OS versions)
- * ` ` — not implemented
- * `X` — not available and will not be implemented
- * `?` — not sure if possible

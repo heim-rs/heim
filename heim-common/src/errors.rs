@@ -20,6 +20,7 @@ pub enum LoadFailureReason {
     __Nonexhaustive,
 }
 
+/// Error which might happen while calling `heim` API.
 #[derive(Debug)]
 pub enum Error {
     /// Any error which may happen during the data fetch.
@@ -35,15 +36,18 @@ pub enum Error {
 }
 
 impl Error {
+    #[doc(hidden)]
     pub fn last_os_error() -> Error {
         let e = Box::new(io::Error::last_os_error());
         Error::LoadFailure(LoadFailureReason::Other(e))
     }
 
+    #[doc(hidden)]
     pub fn missing_entity<T: Into<Cow<'static, str>>>(name: T) -> Error {
         Error::LoadFailure(LoadFailureReason::MissingEntity(name.into()))
     }
 
+    #[doc(hidden)]
     pub fn incompatible(desc: &'static str) -> Error {
         Error::LoadFailure(LoadFailureReason::Incompatible(desc))
     }
