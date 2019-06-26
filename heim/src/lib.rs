@@ -52,6 +52,7 @@ pub mod memory {
 }
 
 /// Virtualization system information
+#[cfg(feature = "virt")]
 pub mod virt {
     pub use heim_virt::*;
 }
