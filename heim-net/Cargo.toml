@@ -22,7 +22,7 @@ macaddr = "0.1"
 libc = "^0.2"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.5"
+runtime = "0.3.0-alpha.6"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.14.0"

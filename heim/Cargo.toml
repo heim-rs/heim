@@ -24,7 +24,7 @@ heim-virt = { version = "0.0.2", path = "../heim-virt", optional = true }
 heim-net = {version = "0.0.2", path = "../heim-net", optional = true }
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "virt"]
+default = ["host", "cpu", "memory", "disk", "net"]
 host = ["heim-host"]
 cpu = ["heim-cpu"]
 memory = ["heim-memory"]
