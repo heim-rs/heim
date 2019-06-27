@@ -1,5 +1,4 @@
 use heim_common::prelude::*;
-use heim_common::utils::fs;
 
 use crate::Pid;
 
@@ -8,7 +7,7 @@ pub fn pids() -> impl Stream<Item = Result<Pid>> {
     stream::iter(vec![])
 }
 
-pub fn pid_exists(pid: Pid) -> impl Future<Output = Result<bool>> {
+pub fn pid_exists(_pid: Pid) -> impl Future<Output = Result<bool>> {
     // TODO: Stub
     future::ok(false)
 }
