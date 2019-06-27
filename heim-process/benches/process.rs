@@ -1,21 +1,15 @@
-#[macro_use]
-extern crate criterion;
+#![allow(stable_features)]
+#![feature(async_await, futures_api, test)]
 
-use criterion::Criterion;
+extern crate test;
 
+use heim_common::prelude::*;
 use heim_process as process;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("pids", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_collect(process::pids()))
-    });
-    c.bench_function("pid_exists", |b| {
-        let mut runtime = runtime::new().unwrap();
-        b.iter(|| runtime.block_run(process::pid_exists(1)))
-    });
+#[runtime::bench]
+async fn bench_pids() {
+    let stream = process::pids().for_each(|_| future::ready(()));
+
+    stream.await
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);

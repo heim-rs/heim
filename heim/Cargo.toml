@@ -21,15 +21,17 @@ heim-cpu = {version = "0.0.2", path = "../heim-cpu", optional = true }
 heim-memory = {version = "0.0.2", path = "../heim-memory", optional = true }
 heim-disk = {version = "0.0.2", path = "../heim-disk", optional = true }
 heim-virt = { version = "0.0.2", path = "../heim-virt", optional = true }
+heim-process = { version = "0.0.2", path = "../heim-process", optional = true }
 heim-net = {version = "0.0.2", path = "../heim-net", optional = true }
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net"]
+default = ["host", "cpu", "memory", "disk", "net", "process"]
 host = ["heim-host"]
 cpu = ["heim-cpu"]
 memory = ["heim-memory"]
 disk = ["heim-disk"]
 net = ["heim-net"]
+process = ["heim-process"]
 virt = ["heim-virt"]
 doc = [
     "heim-common/doc",
@@ -38,6 +40,7 @@ doc = [
     "heim-memory/doc",
     "heim-disk/doc",
     "heim-net/doc",
+    "heim-process/doc",
     "heim-virt/doc",
 ]
 

@@ -1,12 +1,12 @@
+//! System processes information.
+//!
+//! This crate is a part of [heim](https://crates.io/crates/heim) project,
+//! consider using it instead.
+
 mod sys;
 
 mod pids;
-mod process;
-mod types;
 
 pub use self::pids::*;
-pub use self::process::*;
-pub use self::types::*;
 
-#[cfg(test)]
-mod tests;
+pub type Pid = libc::pid_t;

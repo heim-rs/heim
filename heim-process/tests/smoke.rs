@@ -1,18 +1,14 @@
+#![allow(stable_features)]
+#![feature(async_await, futures_api)]
+
+use heim_common::prelude::*;
 use heim_process as process;
-use heim_runtime::{self as runtime, SyncRuntime};
 
-#[test]
-fn smoke_pids() {
-    let mut rt = runtime::new().unwrap();
-    let pids = rt.block_collect(process::pids());
+#[runtime::test]
+async fn smoke_pids() {
+    let mut pids = process::pids();
 
-    assert_ne!(0, pids.count());
-}
-
-#[test]
-fn smoke_processes() {
-    let mut rt = runtime::new().unwrap();
-    let processes = rt.block_collect(process::processes());
-
-    assert_ne!(0, processes.count());
+    while let Some(pid) = pids.next().await {
+        assert!(pid.is_ok());
+    }
 }

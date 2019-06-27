@@ -1,6 +1,6 @@
 [package]
 name = "heim-process"
-version = "0.1.0"
+version = "0.0.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform processes information"
@@ -14,25 +14,16 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.1", path = "../heim-derive" }
-heim-common = { version = "0.0.1", path = "../heim-common" }
+heim-derive = { version = "0.0.2", path = "../heim-derive" }
+heim-common = { version = "0.0.2", path = "../heim-common" }
 cfg-if = "0.1.7"
-libc = "0.2.51"
+libc = "^0.2"
 
 [dev-dependencies]
-heim-runtime = { version = "0.0.1", path = "../heim-runtime" }
-criterion = "0.2.10"
-
-[target.'cfg(target_os = "linux")'.dependencies.tokio]
-version = "0.1.18"
-features = ["fs"]
+runtime = "0.3.0-alpha.6"
 
 [features]
 doc = []
-
-[[bench]]
-name = "process"
-harness = false
 
 [package.metadata.docs.rs]
 features = ["doc"]
