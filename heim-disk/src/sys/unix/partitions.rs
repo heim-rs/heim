@@ -1,26 +1,18 @@
 use std::str::FromStr;
 use std::path::{Path, PathBuf};
 use std::ffi::{CStr, OsStr};
-use std::pin::Pin;
 
 use heim_common::prelude::*;
 
 use crate::FileSystem;
 use super::bindings;
 
-cfg_if::cfg_if! {
-    if #[cfg(target_os = "macos")] {
-        use crate::os::macos::Flags;
-    }
-}
-
-
 #[derive(Debug)]
 pub struct Partition {
     device: String,
     fs: FileSystem,
     mount_point: PathBuf,
-    flags: libc::uint32_t,
+    flags: u32,
 }
 
 impl Partition {
@@ -36,7 +28,7 @@ impl Partition {
         &self.fs
     }
 
-    pub fn raw_flags(&self) -> libc::uint32_t {
+    pub fn raw_flags(&self) -> u32 {
         self.flags
     }
 }
@@ -71,27 +63,22 @@ impl From<libc::statfs> for Partition {
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     future::lazy(|_| {
-        match bindings::mounts() {
-            Ok(mounts) => {
-                let stream = stream::iter(mounts).map(|mount| {
-                    Ok(Partition::from(mount))
-                });
-                Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>
-            },
-            Err(e) => {
-                Box::pin(stream::once(future::err(e)))
-            }
-        }
+        bindings::mounts().map(|mounts| {
+            stream::iter(mounts).map(|mount| {
+                Ok(Partition::from(mount))
+            })
+        })
     })
-    .flatten_stream()
+    .try_flatten_stream()
 }
 
 pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
     partitions()
         .try_filter_map(|partition| {
-            match partition.file_system().is_physical() {
-                true => future::ok(Some(partition)),
-                false => future::ok(None),
+            if partition.file_system().is_physical() {
+                future::ok(Some(partition))
+            } else {
+                future::ok(None)
             }
         })
 }

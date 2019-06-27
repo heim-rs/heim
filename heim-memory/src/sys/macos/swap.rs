@@ -34,6 +34,7 @@ impl Swap {
     }
 }
 
+#[allow(clippy::identity_conversion)]
 pub fn swap() -> impl Future<Output = Result<Swap>> {
     future::lazy(|_| {
         let xsw_usage = unsafe { bindings::vm_swapusage()? };

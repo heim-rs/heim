@@ -4,7 +4,6 @@ use crate::Information;
 
 use super::{bindings, PAGE_SIZE};
 
-
 pub struct Memory {
     total: Information,
     available: Information,
@@ -53,22 +52,22 @@ pub fn memory() -> impl Future<Output = Result<Memory>> {
 
         let total = Information::new(total);
         let available = Information::new(
-            (vm_stats.active_count + vm_stats.free_count) as u64 * page_size
+            u64::from(vm_stats.active_count + vm_stats.free_count) * page_size
         );
         let free = Information::new(
-            (vm_stats.free_count - vm_stats.speculative_count) as u64 * page_size
+            u64::from(vm_stats.free_count - vm_stats.speculative_count) * page_size
         );
         let used = Information::new(
-            (vm_stats.active_count + vm_stats.wire_count) as u64 * page_size
+            u64::from(vm_stats.active_count + vm_stats.wire_count) * page_size
         );
         let active = Information::new(
-            vm_stats.active_count as u64 * page_size
+            u64::from(vm_stats.active_count) * page_size
         );
         let inactive = Information::new(
-            vm_stats.inactive_count as u64 * page_size
+            u64::from(vm_stats.inactive_count) * page_size
         );
         let wire = Information::new(
-            vm_stats.wire_count as u64 * page_size
+            u64::from(vm_stats.wire_count) * page_size
         );
 
         Ok(Memory {
