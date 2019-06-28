@@ -22,6 +22,9 @@ libc = "0.2.58"
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3.7", default-features = false, features = ["minwindef"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+mach = "0.3.2"
+
 [dev-dependencies]
 runtime = "0.3.0-alpha.6"
 
