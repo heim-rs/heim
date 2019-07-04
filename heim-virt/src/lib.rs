@@ -1,5 +1,6 @@
-//! `heim-virt` crate tries to detect the virtualization system
-//! in which program is running.
+//! Virtualization system detection.
+//!
+//! This module is enabled with the `**host**` feature flag (enabled by default).
 //!
 //! At the moment not all declared virtualization systems are detected,
 //! therefore this crate should be used very carefully.
@@ -152,6 +153,11 @@ impl Virtualization {
 
 /// Returns future which tries to determine if the running program is running
 /// in some [Virtualization] system.
+///
+/// ## Compatibility
+///
+/// At the moment this function works only for Linux (partially)
+/// and always returns `None` for macOS and Windows (TBD).
 pub fn detect() -> impl Future<Output = Option<Virtualization>> {
     self::sys::detect()
 }

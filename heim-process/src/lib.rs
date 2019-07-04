@@ -1,7 +1,6 @@
 //! System processes information.
 //!
-//! This crate is a part of [heim](https://crates.io/crates/heim) project,
-//! consider using it instead.
+//! This module is enabled with the `**process**` feature flag (enabled by default).
 
 mod sys;
 

@@ -56,6 +56,8 @@ impl fmt::Debug for CpuFrequency {
 }
 
 /// Returns future which will resolve into [CpuFrequency].
+///
+/// [CpuFrequency]: ./struct.CpuFrequency.html
 pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
     sys::frequency().map_ok(Into::into)
 }

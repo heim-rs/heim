@@ -8,6 +8,7 @@ use std::num;
 use std::result;
 use std::string;
 
+/// Type alias for types returned by `heim` functions.
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]

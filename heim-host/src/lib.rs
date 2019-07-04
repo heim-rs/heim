@@ -1,7 +1,6 @@
-//! Crate with futures and streams to determine the information about current system.
+//! Host system information.
 //!
-//! This crate is a part of [heim](https://crates.io/crates/heim) project,
-//! consider using it instead.
+//! This module is enabled with the `**host**` feature flag (enabled by default).
 
 #![allow(stable_features)]
 #![feature(futures_api)]

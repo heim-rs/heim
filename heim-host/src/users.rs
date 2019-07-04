@@ -6,6 +6,8 @@ use heim_common::prelude::*;
 /// User currently connected to system.
 ///
 /// See [os] module for OS-specific extensions.
+///
+/// [os]: ./os/
 #[derive(heim_derive::ImplWrap)]
 pub struct User(sys::User);
 
@@ -22,7 +24,7 @@ impl fmt::Debug for User {
     }
 }
 
-/// Returns stream which yields [User]
+/// Returns stream which yields [User]s.
 pub fn users() -> impl Stream<Item = Result<User>> {
     sys::users().map_ok(Into::into)
 }

@@ -7,6 +7,8 @@ use crate::units::Time;
 pub trait CpuTimeExt {
     /// Returns time spent by niced (prioritized) processes executing in user mode,
     /// this also includes [guest_nice] time.
+    ///
+    /// [guest_nice]: #tymethod.guest_nice
     fn nice(&self) -> Time;
 
     /// Returns time spent waiting for I/O to complete.

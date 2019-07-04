@@ -7,16 +7,16 @@
 //!  * Disks
 //!  * Host
 //!  * Memory
-//!  * Networks (*TBD*)
-//!  * Processes (*TBD*)
-//!  * Virtualization
-//!  * Windows services (*TBD*)
+//!  * Networks (*in progress*)
+//!  * Processes (*in progress*)
+//!  * Virtualization (*in progress*)
+//!  * Windows services (*in progress*)
 //!
 //! ## Platform support
 //!
 //! At the moment `heim` is in **MVP** phase, which means that only the big triple
 //! (Linux, MacOS and Windows) are **partially** supported.
-//! You may want to check out [GitHub projects](https://github.com/heim-rs/heim/projects)
+//! You may want to check out [GitHub projects page](https://github.com/heim-rs/heim/projects)
 //! for more information about cross-platform support.
 //!
 //! In addition, it would be better to double check if returned information is reliable.
@@ -27,34 +27,32 @@
 #![forbid(bare_trait_objects)]
 #![forbid(missing_docs)]
 
-/// CPU information
 #[cfg(feature = "cpu")]
-pub mod cpu {
-    pub use heim_cpu::*;
-}
+#[doc(inline)]
+pub use heim_cpu as cpu;
 
-/// Disk information
 #[cfg(feature = "disk")]
-pub mod disk {
-    pub use heim_disk::*;
-}
+#[doc(inline)]
+pub use heim_disk as disk;
 
-/// Host information
 #[cfg(feature = "host")]
-pub mod host {
-    pub use heim_host::*;
-}
+#[doc(inline)]
+pub use heim_host as host;
 
-/// Memory information
 #[cfg(feature = "memory")]
-pub mod memory {
-    pub use heim_memory::*;
-}
+#[doc(inline)]
+pub use heim_memory as memory;
 
-/// Virtualization system information
+#[cfg(feature = "net")]
+#[doc(inline)]
+pub use heim_net as net;
+
+#[cfg(feature = "process")]
+#[doc(inline)]
+pub use heim_process as process;
+
 #[cfg(feature = "virt")]
-pub mod virt {
-    pub use heim_virt::*;
-}
+#[doc(inline)]
+pub use heim_virt as virt;
 
 pub use heim_common::{Error, Result};

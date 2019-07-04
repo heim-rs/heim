@@ -1,7 +1,6 @@
 //! Network information.
 //!
-//! This crate is a part of [heim](https://crates.io/crates/heim) project,
-//! consider using it instead.
+//! This module is enabled with the `**net**` feature flag (enabled by default).
 
 #![deny(unused)]
 #![warn(missing_docs)]

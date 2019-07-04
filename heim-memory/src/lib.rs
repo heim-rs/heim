@@ -1,8 +1,6 @@
-//! Crate with futures and streams to determine the memory and swap information
-//! available in the current system.
+//! Memory and swap information.
 //!
-//! This crate is a part of [heim](https://crates.io/crates/heim) project,
-//! consider using it instead.
+//! This module is enabled with the `**memory**` feature flag (enabled by default).
 
 #![allow(stable_features)]
 #![feature(futures_api)]

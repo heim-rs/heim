@@ -35,19 +35,18 @@ It targets to have at least the same functionality as
     Thanks to a various `futures` combinators, it's up to you
     to choose the exact information you want to get.
 
- 4. Idiomatic and easy to use.\
-    Should it even be explained?
+ 4. Idiomatic and easy to use.
  
 ## Platform support
 
-At the moment it is in MVP phase, so probably feature you need is still missing.
-
-Check out [Github projects page](https://github.com/heim-rs/heim/projects)
+At the moment it is in **MVP** phase, which means that only the big triple
+(Linux, macOS and Windows) are **partially** supported.
+You may want to [Github projects page](https://github.com/heim-rs/heim/projects)
 for more information.
 
 Please, be aware, that at the moment `heim` (and all sub-crates)
-have the "**experimental**" status,
-so double check the results before push your code into a production.
+has the "**experimental**" status,
+so double check the results before pushing your code to a production.
 
 ## License
 
