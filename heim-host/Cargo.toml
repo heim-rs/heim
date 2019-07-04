@@ -1,6 +1,6 @@
 [package]
 name = "heim-host"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform host information"
@@ -15,8 +15,8 @@ build = "build.rs"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.2", path = "../heim-derive" }
-heim-common = { version = "0.0.2", path = "../heim-common" }
+heim-derive = { version = "0.0.3", path = "../heim-derive" }
+heim-common = { version = "0.0.3", path = "../heim-common" }
 cfg-if = "0.1.7"
 platforms = "0.2.0"
 libc = "0.2.58"

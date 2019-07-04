@@ -1,6 +1,6 @@
 [package]
 name = "heim-virt"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform virtualization system detection"
@@ -14,7 +14,7 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-common = { version = "0.0.2", path = "../heim-common" }
+heim-common = { version = "0.0.3", path = "../heim-common" }
 cfg-if = "0.1.9"
 
 [target.'cfg(target_os = "linux")'.dependencies]

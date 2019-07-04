@@ -1,6 +1,6 @@
 [package]
 name = "heim-common"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Common stuff shared across heim project crates"
@@ -14,9 +14,9 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.2", path = "../heim-derive" }
+heim-derive = { version = "0.0.3", path = "../heim-derive" }
 cfg-if = "0.1.7"
-futures-preview = "0.3.0-alpha.16"
+futures-preview = "0.3.0-alpha.17"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.14.0"
