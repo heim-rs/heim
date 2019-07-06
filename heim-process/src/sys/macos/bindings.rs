@@ -1,9 +1,12 @@
 use std::ptr;
 use std::mem;
 
-use heim_common::prelude::{Error, Result};
-
 use mach::{vm_types, boolean};
+
+use heim_common::prelude::Error;
+
+use crate::{Pid, ProcessError};
+
 
 #[allow(non_camel_case_types)]
 type caddr_t = *const libc::c_char;
@@ -131,7 +134,7 @@ pub struct kinfo_proc_eproc {
     pub e_spare: [i32; 4],
 }
 
-pub fn processes() -> Result<Vec<kinfo_proc>> {
+pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
     let mut name: [i32; 3] = [libc::CTL_KERN, libc::KERN_PROC, libc::KERN_PROC_ALL];
     let mut size: libc::size_t = 0;
     let mut processes: Vec<kinfo_proc> = vec![];
@@ -176,6 +179,36 @@ pub fn processes() -> Result<Vec<kinfo_proc>> {
                 return Ok(processes);
             }
         }
+    }
+}
+
+pub fn process(pid: Pid) -> Result<kinfo_proc, ProcessError> {
+    let mut name: [i32; 4] = [libc::CTL_KERN, libc::KERN_PROC, libc::KERN_PROC_PID, pid];
+    let mut size: libc::size_t = mem::size_of::<kinfo_proc>();
+    let mut info = mem::MaybeUninit::<kinfo_proc>::uninit();
+
+    let result = unsafe {
+        libc::sysctl(
+            name.as_mut_ptr(),
+            4,
+            info.as_mut_ptr() as *mut kinfo_proc as *mut libc::c_void,
+            &mut size as *mut libc::size_t,
+            ptr::null_mut(),
+            0
+        )
+    };
+
+    if result < 0 {
+        return Err(Error::last_os_error().into())
+    }
+
+    // sysctl succeeds but size is zero, happens when process has gone away
+    if size == 0 {
+        return Err(ProcessError::NoSuchProcess(pid))
+    }
+
+    unsafe {
+        Ok(info.assume_init())
     }
 }
 
