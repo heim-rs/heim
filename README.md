@@ -17,6 +17,14 @@ It targets to have at least the same functionality as
 [gopsutil](https://github.com/shirou/gopsutil) or
 [oshi](https://github.com/oshi/oshi) eventually.
 
+## Requirements
+
+`heim` API targets to compile with stable Rust 1.36+;
+but examples, tests and benchmarks are using `async_await` feature,
+and therefore, are requiring the `nightly`.\
+Of course, you can use `heim` without the `async` keyword,
+just be careful with the examples.
+
 ## Background
 
 `heim` has few key things, which are defining its development and public interface:
@@ -42,12 +50,17 @@ It targets to have at least the same functionality as
 
 At the moment it is in **MVP** phase, which means that only the big triple
 (Linux, macOS and Windows) are **partially** supported.
-You may want to [Github projects page](https://github.com/heim-rs/heim/projects)
+You may want to check the [Github projects page](https://github.com/heim-rs/heim/projects)
 for more information.
 
 Please, be aware, that at the moment `heim` (and all sub-crates)
 has the "**experimental**" status,
 so double check the results before pushing your code to a production.
+
+## Donations
+
+If you appreciate my work and want to support me or speed up the project development,
+you can do it [here](https://svartalf.info/donate/).
 
 ## License
 
@@ -56,4 +69,3 @@ or [MIT license](https://github.com/heim-rs/heim/blob/master/LICENSE-MIT) at you
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this crate by you,
 as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
-
