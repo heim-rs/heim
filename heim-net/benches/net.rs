@@ -2,6 +2,7 @@
 
 extern crate test;
 
+use heim_common::prelude::*;
 use heim_net as net;
 
 #[runtime::bench]

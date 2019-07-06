@@ -1,5 +1,4 @@
-#![allow(stable_features)]
-#![feature(async_await, futures_api, test)]
+#![feature(async_await, test)]
 
 use heim_common::prelude::*;
 use heim_cpu as cpu;

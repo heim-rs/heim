@@ -22,10 +22,14 @@
 //! In addition, it would be better to double check if returned information is reliable.
 //! You know, just in case.
 
-#![allow(stable_features)] // Used for `future_api` feature
-#![forbid(unused)]
-#![forbid(bare_trait_objects)]
-#![forbid(missing_docs)]
+#![forbid(
+    unused,
+    unstable_features,
+    bare_trait_objects,
+    future_incompatible,
+    missing_debug_implementations,
+    nonstandard_style
+)]
 
 #[cfg(feature = "cpu")]
 #[doc(inline)]

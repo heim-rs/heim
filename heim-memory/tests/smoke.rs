@@ -1,5 +1,4 @@
-#![allow(stable_features)]
-#![feature(async_await, futures_api)]
+#![feature(async_await)]
 
 use heim_memory as memory;
 

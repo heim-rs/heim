@@ -45,7 +45,6 @@ pub enum Virtualization {
     /// FreeBSD bhyve (https://wiki.freebsd.org/bhyve)
     Bhyve,
     //    Zvm,
-
     /// Parallels (https://www.parallels.com/)
     Parallels,
 

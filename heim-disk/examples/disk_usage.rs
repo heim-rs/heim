@@ -1,7 +1,6 @@
 //! Command similar to `df -BM`
 
-#![allow(stable_features)]
-#![feature(async_await, futures_api)]
+#![feature(async_await)]
 
 use std::ffi::OsStr;
 

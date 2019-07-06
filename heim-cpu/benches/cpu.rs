@@ -1,4 +1,4 @@
-#![feature(async_await, futures_api, test)]
+#![feature(async_await, test)]
 
 extern crate test;
 

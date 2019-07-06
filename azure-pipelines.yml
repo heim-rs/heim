@@ -13,9 +13,9 @@ jobs:
         $HOME/.cargo/bin/rustup component add rustfmt
         $HOME/.cargo/bin/rustup component add clippy
       displayName: Install nightly Rust and components
-    #- script: |
-    #    $HOME/.cargo/bin/cargo fmt -- --check
-    #  displayName: Run rustfmt
+    - script: |
+        $HOME/.cargo/bin/cargo fmt -- --check
+      displayName: Run rustfmt
     - script: |
         $HOME/.cargo/bin/cargo clippy --all-targets --all-features
       # -- -D warnings

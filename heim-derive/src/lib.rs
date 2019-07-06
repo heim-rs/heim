@@ -1,5 +1,3 @@
-#![allow(stable_features)]
-#![feature(async_await, futures_api)]
 #![recursion_limit = "128"]
 
 extern crate proc_macro;
@@ -296,9 +294,18 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
     let expanded = quote::quote! {
         #(#attrs)*
         #vis #constness #unsafety #asyncness #abi fn #ident() {
+            #[cfg(test)]
             async fn inner() {
                 #body
             }
+
+            #[cfg(test)]
+            fn inner_run() {
+                let _ = async {
+                    inner().await
+                };
+            }
+
             let in_ci = ::std::env::vars()
                 .any(|(key, _)| {
                     match key.as_str() {
@@ -311,7 +318,7 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
             if cfg!(#cfg) && in_ci {
                 eprintln!("test {} ... will be ignored because of CI environment", #ident_repr);
             } else {
-                inner().await;
+                inner_run();
             }
         }
     };

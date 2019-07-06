@@ -1,9 +1,6 @@
 //! Disks information.
 //!
-//! This module is enabled with the `**disk**` feature flag (enabled by default).
-
-#![allow(stable_features)]
-#![feature(futures_api)]
+//! This module is enabled with the `disk` feature flag (enabled by default).
 
 pub mod os;
 mod sys;

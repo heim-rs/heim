@@ -1,5 +1,6 @@
-#![allow(stable_features)]
-#![feature(futures_api)]
+//! This crate shares common functionality across the `heim` sub-crates.
+//!
+//! Do **NOT** use it directly.
 
 mod errors;
 pub mod sys;
@@ -15,7 +16,7 @@ pub use self::errors::{Error, Result};
 pub mod prelude {
     pub use super::errors::{Error, Result};
     pub use super::utils;
-    pub use futures::prelude::*;
     pub use futures::future::{FutureExt, TryFutureExt};
+    pub use futures::prelude::*;
     pub use futures::stream::{StreamExt, TryStreamExt};
 }

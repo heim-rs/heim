@@ -1,11 +1,6 @@
 //! Network information.
 //!
-//! This module is enabled with the `**net**` feature flag (enabled by default).
-
-#![deny(unused)]
-#![warn(missing_docs)]
-#![deny(unstable_features)]
-#![deny(bare_trait_objects)]
+//! This module is enabled with the `net` feature flag (enabled by default).
 
 mod sys;
 

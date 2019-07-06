@@ -69,7 +69,7 @@ impl fmt::Debug for IoCounters {
 /// ## Examples
 ///
 /// ```rust
-/// # #![feature(async_await, futures_api)]
+/// # #![feature(async_await)]
 /// # use heim_common::prelude::*;
 /// # use heim_common::Result;
 /// # use heim_disk::io_counters;
@@ -95,7 +95,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
 /// ## Examples
 ///
 /// ```rust
-/// # #![feature(async_await, futures_api)]
+/// # #![feature(async_await)]
 /// # use heim_common::prelude::*;
 /// # use heim_common::Result;
 /// # use heim_disk::io_counters_physical;

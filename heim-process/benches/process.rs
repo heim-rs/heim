@@ -1,5 +1,4 @@
-#![allow(stable_features)]
-#![feature(async_await, futures_api, test)]
+#![feature(async_await, test)]
 
 extern crate test;
 
@@ -12,4 +11,3 @@ async fn bench_pids() {
 
     stream.await
 }
-

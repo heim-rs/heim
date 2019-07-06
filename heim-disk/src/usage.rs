@@ -47,7 +47,7 @@ impl fmt::Debug for Usage {
 /// ## Examples
 ///
 /// ```rust
-/// # #![feature(async_await, futures_api)]
+/// # #![feature(async_await)]
 /// #
 /// # use heim_common::Result;
 /// # use heim_disk::usage;

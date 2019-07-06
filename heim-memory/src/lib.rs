@@ -1,9 +1,6 @@
 //! Memory and swap information.
 //!
-//! This module is enabled with the `**memory**` feature flag (enabled by default).
-
-#![allow(stable_features)]
-#![feature(futures_api)]
+//! This module is enabled with the `memory` feature flag (enabled by default).
 
 mod memory;
 pub mod os;

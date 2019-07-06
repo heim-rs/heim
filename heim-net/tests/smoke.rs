@@ -3,7 +3,6 @@
 use heim_common::prelude::*;
 use heim_net as net;
 
-
 #[runtime::test]
 async fn smoke_io_counters() {
     let mut counters = net::io_counters();
@@ -37,4 +36,3 @@ async fn smoke_nic() {
         let _ = iface.is_multicast();
     }
 }
-

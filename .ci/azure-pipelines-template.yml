@@ -4,14 +4,14 @@ jobs:
           vmImage: ${{ parameters.vmImage }}
       strategy:
           matrix:
-#              stable:
-#                  rustup_toolchain: stable
+              stable:
+                  rustup_toolchain: stable
 #              beta:
 #                  rustup_toolchain: beta
               nightly:
                   rustup_toolchain: nightly
-#              minimum_supported_version:
-#                  rustup_toolchain: 1.31.0
+              minimum_supported_version:
+                  rustup_toolchain: 1.36.0
       steps:
           - ${{ if ne(parameters.name, 'Windows') }}:
                 # Linux and macOS.
@@ -32,5 +32,13 @@ jobs:
                 rustc -Vv
                 cargo -V
             displayName: Query rust and cargo versions
-          - script: cargo test --all-features
-            displayName: Build and run tests
+          - script: |
+                cargo build
+            displayName: Compile sources
+          - bash: |
+                if [[ ${RUSTUP_TOOLCHAIN} == "nightly" ]]; then
+                  cargo test --all-features
+                else
+                  echo "Tests suite will be running only with nightly rustc"
+                fi
+            displayName: Run tests

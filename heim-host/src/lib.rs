@@ -1,9 +1,6 @@
 //! Host system information.
 //!
-//! This module is enabled with the `**host**` feature flag (enabled by default).
-
-#![allow(stable_features)]
-#![feature(futures_api)]
+//! This module is enabled with the `host` feature flag (enabled by default).
 
 #[cfg(target_os = "windows")]
 #[macro_use]
