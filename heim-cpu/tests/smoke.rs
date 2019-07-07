@@ -58,3 +58,10 @@ async fn smoke_times() {
         let _ = time.idle();
     }
 }
+
+#[runtime::test]
+async fn smoke_cpu_logical_count() {
+    let count = cpu::logical_count().await.unwrap();
+
+    assert!(count > 0);
+}
