@@ -6,3 +6,7 @@ use crate::sys;
 pub fn logical_count() -> impl Future<Output = Result<u64>> {
     sys::logical_count()
 }
+
+pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
+    sys::physical_count()
+}

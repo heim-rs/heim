@@ -30,8 +30,8 @@ impl FromStr for CpuStats {
                     let value = raw_value.trim_end().parse::<u64>()?;
                     matched_lines += 1;
                     *field = value;
-                },
-                None => return Err(Error::missing_entity(name))
+                }
+                None => return Err(Error::missing_entity(name)),
             }
 
             if matched_lines == 3 {
@@ -43,6 +43,6 @@ impl FromStr for CpuStats {
     }
 }
 
-pub fn stats() -> impl Future<Output=Result<CpuStats>> {
+pub fn stats() -> impl Future<Output = Result<CpuStats>> {
     utils::fs::read_into("/proc/stat")
 }

@@ -6,6 +6,7 @@ use heim_cpu as cpu;
 #[runtime::main]
 async fn main() -> Result<()> {
     dbg!(cpu::logical_count().await?);
+    dbg!(cpu::physical_count().await?);
 
     Ok(())
 }

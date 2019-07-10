@@ -29,11 +29,10 @@ impl FromStr for CpuTime {
 
         let parts = value.split_whitespace().skip(1);
         for (idx, part) in parts.enumerate() {
-            let value = part.parse::<u32>()
-                .map(|value| {
-                    let value = f64::from(value) / *CLOCK_TICKS;
-                    Time::new(value)
-                })?;
+            let value = part.parse::<u32>().map(|value| {
+                let value = f64::from(value) / *CLOCK_TICKS;
+                Time::new(value)
+            })?;
 
             match idx {
                 0 => times.user = value,
@@ -54,31 +53,23 @@ impl FromStr for CpuTime {
     }
 }
 
-pub fn time() -> impl Future<Output=Result<CpuTime>> {
+pub fn time() -> impl Future<Output = Result<CpuTime>> {
     // cumulative time is always the first line
     utils::fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
         .into_stream()
         .take(1)
         .into_future()
-        .then(|res| {
-            match res {
-                (Some(Ok(time)), _) => future::ok(time),
-                (Some(Err(e)), _) => future::err(e),
-                (None, _) => future::err(
-                    Error::missing_entity("cumulative time line")
-                )
-            }
+        .then(|res| match res {
+            (Some(Ok(time)), _) => future::ok(time),
+            (Some(Err(e)), _) => future::err(e),
+            (None, _) => future::err(Error::missing_entity("cumulative time line")),
         })
 }
 
-pub fn times() -> impl Stream<Item=Result<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     utils::fs::read_lines("/proc/stat")
         .into_stream()
         .skip(1)
-        .try_filter(|line| {
-            future::ready(line.starts_with("cpu"))
-        })
-        .and_then(|line| {
-            future::ready(CpuTime::from_str(&line))
-        })
+        .try_filter(|line| future::ready(line.starts_with("cpu")))
+        .and_then(|line| future::ready(CpuTime::from_str(&line)))
 }
