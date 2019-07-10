@@ -17,13 +17,19 @@ It targets to have at least the same functionality as
 [gopsutil](https://github.com/shirou/gopsutil) or
 [oshi](https://github.com/oshi/oshi) eventually.
 
-## Requirements
+## Technical notes
 
 `heim` API targets to compile with stable Rust 1.36+;
-but examples, tests and benchmarks are using `async_await` feature,
-and therefore, are requiring the `nightly`.\
+but examples, tests and benchmarks are using [`async_await`](https://github.com/rust-lang/rust/issues/50547)
+feature, and therefore, are requiring the `nightly`.\
 Of course, you can use `heim` without the `async` keyword,
 just be careful with the examples.
+
+`heim` is using `futures = "0.3"` and it is expected from users to understand
+how futures are working, how to use them and what differences there are
+between `0.1` and `0.3` versions.\
+It is not a project goal to provide any kind of information about how to
+combine `heim` with `actix`, `hyper`, `tide` or any other Rust crate.
 
 ## Background
 
@@ -48,14 +54,15 @@ just be careful with the examples.
  
 ## Platform support
 
-At the moment it is in **MVP** phase, which means that only the big triple
-(Linux, macOS and Windows) are **partially** supported.
+At the moment it is in **MVP** phase, which means that [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
+platforms only (Linux, macOS and Windows for `i686` and `x86_64`)
+are **partially** supported.
 You may want to check the [Github projects page](https://github.com/heim-rs/heim/projects)
 for more information.
 
 Please, be aware, that at the moment `heim` (and all sub-crates)
 has the "**experimental**" status,
-so double check the results before pushing your code to a production.
+so consider to double check the results before pushing your code to a production.
 
 ## Donations
 
