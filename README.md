@@ -17,20 +17,6 @@ It targets to have at least the same functionality as
 [gopsutil](https://github.com/shirou/gopsutil) or
 [oshi](https://github.com/oshi/oshi) eventually.
 
-## Technical notes
-
-`heim` API targets to compile with stable Rust 1.36+;
-but examples, tests and benchmarks are using [`async_await`](https://github.com/rust-lang/rust/issues/50547)
-feature, and therefore, are requiring the `nightly`.\
-Of course, you can use `heim` without the `async` keyword,
-just be careful with the examples.
-
-`heim` is using `futures = "0.3"` and it is expected from users to understand
-how futures are working, how to use them and what differences there are
-between `0.1` and `0.3` versions.\
-It is not a project goal to provide any kind of information about how to
-combine `heim` with `actix`, `hyper`, `tide` or any other Rust crate.
-
 ## Background
 
 `heim` has few key things, which are defining its development and public interface:
@@ -51,7 +37,25 @@ combine `heim` with `actix`, `hyper`, `tide` or any other Rust crate.
     to choose the exact information you want to get.
 
  4. Idiomatic and easy to use.
- 
+
+## Technical notes
+
+`heim` API targets to compile with stable Rust 1.36+;
+but examples, tests and benchmarks are using [`async_await`](https://github.com/rust-lang/rust/issues/50547)
+feature, and therefore, requiring `nightly` compiler.\
+Of course, you can use `heim` without the `async` keyword,
+just be careful with the examples.
+
+`heim` is using `futures = "0.3"` and it is expected from users to understand
+how futures are working, how to use them and what differences there are
+between `0.1` and `0.3` versions.\
+It is not a project goal to provide any kind of information about how to
+combine `heim` with `actix`, `hyper`, `tide` or any other Rust crate.
+
+At the moment `heim` is not dependant on any async runtime, but it will in a future
+and most probably it will be a [runtime](https://crates.io/crates/runtime) crate.
+Users may want to consider that fact during the development.
+
 ## Platform support
 
 At the moment it is in **MVP** phase, which means that [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
