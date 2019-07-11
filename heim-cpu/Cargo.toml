@@ -31,7 +31,7 @@ features = [
     "winnt",
     "processthreadsapi",
     "impl-default",
-    "winbase"
+    "winbase",
 ]
 
 [target.'cfg(target_os = "macos")'.dependencies]
