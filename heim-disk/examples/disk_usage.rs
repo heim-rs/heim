@@ -23,7 +23,9 @@ async fn main() -> Result<()> {
 
         println!(
             "{:<17} {:<10} {:<10} {:<10} {:<10} {}",
-            part.device().unwrap_or_else(|| OsStr::new("N/A")).to_string_lossy(),
+            part.device()
+                .unwrap_or_else(|| OsStr::new("N/A"))
+                .to_string_lossy(),
             usage.total().get() / MEGABYTE,
             usage.used().get() / MEGABYTE,
             usage.free().get() / MEGABYTE,

@@ -19,8 +19,12 @@ pub enum ProcessError {
 impl fmt::Display for ProcessError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ProcessError::NoSuchProcess(pid) => f.write_fmt(format_args!("Process {} does not exists", pid)),
-            ProcessError::ZombieProcess(pid) => f.write_fmt(format_args!("Process {} is zombie", pid)),
+            ProcessError::NoSuchProcess(pid) => {
+                f.write_fmt(format_args!("Process {} does not exists", pid))
+            }
+            ProcessError::ZombieProcess(pid) => {
+                f.write_fmt(format_args!("Process {} is zombie", pid))
+            }
             ProcessError::Load(e) => fmt::Display::fmt(e, f),
             _ => unreachable!(),
         }

@@ -69,7 +69,11 @@ pub fn nic() -> impl Stream<Item = Result<Nic>> {
     .try_flatten_stream()
     .try_filter_map(|addr: ifaddrs::InterfaceAddress| {
         // Skipping unsupported address families
-        let result = if addr.address.is_some() { Some(Nic(addr)) } else { None };
+        let result = if addr.address.is_some() {
+            Some(Nic(addr))
+        } else {
+            None
+        };
 
         future::ok(result)
     })

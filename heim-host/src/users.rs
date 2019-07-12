@@ -20,7 +20,9 @@ impl User {
 
 impl fmt::Debug for User {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("User").field("username", &self.username()).finish()
+        f.debug_struct("User")
+            .field("username", &self.username())
+            .finish()
     }
 }
 

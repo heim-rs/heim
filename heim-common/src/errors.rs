@@ -51,7 +51,9 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::MissingEntity(name) => f.write_fmt(format_args!("Expected entity `{}` is missing", name)),
+            Error::MissingEntity(name) => {
+                f.write_fmt(format_args!("Expected entity `{}` is missing", name))
+            }
             Error::Incompatible(reason) => f.write_str(reason),
             Error::Other(e) => fmt::Display::fmt(e, f),
             _ => f.write_str("Unknown error"),

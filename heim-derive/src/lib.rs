@@ -19,10 +19,7 @@ impl parse::Parse for ImplTarget {
         let target: syn::Path = input.parse()?;
         input.parse::<syn::Token![,]>()?;
         let cfg: syn::Meta = input.parse()?;
-        Ok(ImplTarget {
-            target,
-            cfg,
-        })
+        Ok(ImplTarget { target, cfg })
     }
 }
 
@@ -111,7 +108,9 @@ pub fn impl_wrap(input: TokenStream) -> TokenStream {
     let generics = &struct_type.generics;
     let field = match struct_type.fields {
         // Only newtype structs are supported
-        syn::Fields::Unnamed(ref unnamed) if unnamed.unnamed.len() == 1 => unnamed.unnamed[0].ty.clone(),
+        syn::Fields::Unnamed(ref unnamed) if unnamed.unnamed.len() == 1 => {
+            unnamed.unnamed[0].ty.clone()
+        }
         // TODO: Nice compile error
         _ => unimplemented!(),
     };
@@ -192,10 +191,7 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
     let struct_name = &ast.ident;
 
-    let methods = if let syn::Data::Struct(syn::DataStruct {
-        ref fields, ..
-    }) = ast.data
-    {
+    let methods = if let syn::Data::Struct(syn::DataStruct { ref fields, .. }) = ast.data {
         fields
             .iter()
             .map(|field| {
@@ -245,7 +241,9 @@ pub fn unit(input: TokenStream) -> TokenStream {
     let struct_type: syn::ItemStruct = syn::parse(input).unwrap();
     let field = match struct_type.fields {
         // Only newtype structs are supported
-        syn::Fields::Unnamed(ref unnamed) if unnamed.unnamed.len() == 1 => unnamed.unnamed[0].ty.clone(),
+        syn::Fields::Unnamed(ref unnamed) if unnamed.unnamed.len() == 1 => {
+            unnamed.unnamed[0].ty.clone()
+        }
         // TODO: Nice compile error
         _ => unimplemented!(),
     };
