@@ -1,50 +1,55 @@
-use std::mem;
 use std::result;
 
 use heim_common::prelude::*;
 
-use winapi::shared::minwindef::DWORD;
-use winapi::um::psapi;
+use winapi::um::minwinbase;
+use winapi::shared::winerror;
 
 use crate::{Pid, ProcessError};
+use super::bindings;
 
 pub fn pids() -> impl Stream<Item = result::Result<Pid, ProcessError>> {
     future::lazy(|_| {
-        let mut processes = Vec::with_capacity(1024);
-        let mut bytes_returned: DWORD = 0;
+        let pids = bindings::pids()?;
 
-        loop {
-            let cb = (processes.capacity() * mem::size_of::<DWORD>()) as DWORD;
-            let result = unsafe {
-                psapi::EnumProcesses(
-                    processes.as_mut_ptr(),
-                    cb,
-                    &mut bytes_returned,
-                )
-            };
-
-            if result == 0 {
-                return Err(Error::last_os_error().into())
-            }
-
-            if cb == bytes_returned {
-                processes.reserve(1024);
-                continue;
-            } else {
-                unsafe {
-                    processes.set_len(bytes_returned as usize / mem::size_of::<DWORD>());
-                }
-                break;
-            }
-        }
-
-        Ok(stream::iter(processes).map(Ok))
+        Ok(stream::iter(pids).map(Ok))
     })
     .try_flatten_stream()
     .map_ok(Pid::from)
 }
 
-pub fn pid_exists(_pid: Pid) -> impl Future<Output = result::Result<bool, ProcessError>> {
-    // TODO: Stub
-    future::ok(false)
+pub fn pid_exists(pid: Pid) -> impl Future<Output = result::Result<bool, ProcessError>> {
+    future::lazy(move |_| {
+        // Special case for "System Idle Process"
+        if pid == 0 {
+            return Ok(true)
+        }
+
+        let process = match bindings::Process::info(pid) {
+            Ok(process) => process,
+            // Means that there is no such process
+            Err(ref e) if e.raw_os_error() == Some(winerror::ERROR_INVALID_PARAMETER as i32) => {
+                return Ok(false)
+            },
+            // Process exists, but we do not have an access to it
+            Err(ref e) if e.raw_os_error() == Some(winerror::ERROR_ACCESS_DENIED as i32) => {
+                return Ok(true)
+            },
+            Err(e) => return Err(ProcessError::from(Error::from(e)))
+        };
+
+        match process.exit_code() {
+            // TODO: Same as `psutil` this line is prone to error,
+            // if the process had exited with code equal to `STILL_ACTIVE`
+            Ok(code) if code == minwinbase::STILL_ACTIVE => Ok(true),
+            Err(ref e) if e.raw_os_error() == Some(winerror::ERROR_ACCESS_DENIED as i32) => Ok(true),
+            Err(e) => Err(e.into()),
+            Ok(..) => {
+                // Falling back to checking if pid is in list of running pids
+                let pids = bindings::pids().map_err(Error::from)?;
+
+                Ok(pids.contains(&pid))
+            }
+        }
+    })
 }

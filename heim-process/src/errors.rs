@@ -1,5 +1,6 @@
 use std::error;
 use std::fmt;
+use std::io;
 
 use heim_common::Error;
 
@@ -38,5 +39,11 @@ impl error::Error for ProcessError {
 impl From<Error> for ProcessError {
     fn from(e: Error) -> Self {
         ProcessError::Load(e)
+    }
+}
+
+impl From<io::Error> for ProcessError {
+    fn from(e: io::Error) -> Self {
+        ProcessError::from(Error::from(e))
     }
 }
