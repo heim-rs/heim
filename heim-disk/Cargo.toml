@@ -1,11 +1,11 @@
 [package]
 name = "heim-disk"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform disk information"
-keywords = ["heim", "system", "disk", "information"]
-categories = ["asynchronous", "os"]
+keywords = ["heim", "system", "disk", "partition", "filesystem"]
+categories = ["asynchronous", "os", "api-bindings"]
 repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
@@ -14,8 +14,8 @@ license = "Apache-2.0 OR MIT"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.3", path = "../heim-derive" }
-heim-common = { version = "0.0.3", path = "../heim-common" }
+heim-derive = { version = "0.0.4", path = "../heim-derive" }
+heim-common = { version = "0.0.4", path = "../heim-common" }
 cfg-if = "0.1.7"
 bitflags = "1.0.4"
 

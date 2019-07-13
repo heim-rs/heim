@@ -1,11 +1,11 @@
 [package]
 name = "heim-host"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform host information"
-keywords = ["heim", "system", "host", "information"]
-categories = ["asynchronous", "os"]
+keywords = ["heim", "system", "host", "uptime", "users"]
+categories = ["asynchronous", "os", "api-bindings"]
 repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
@@ -15,8 +15,8 @@ build = "build.rs"
 maintenance = { status = "experimental" }
 
 [dependencies]
-heim-derive = { version = "0.0.3", path = "../heim-derive" }
-heim-common = { version = "0.0.3", path = "../heim-common" }
+heim-derive = { version = "0.0.4", path = "../heim-derive" }
+heim-common = { version = "0.0.4", path = "../heim-common" }
 cfg-if = "0.1.7"
 platforms = "0.2.0"
 libc = "0.2.58"
