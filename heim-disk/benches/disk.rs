@@ -12,20 +12,6 @@ static USAGE_PATH: &'static str = "/";
 static USAGE_PATH: &'static str = "C:\\";
 
 #[runtime::bench]
-async fn bench_partitions() {
-    let stream = disk::partitions().for_each(|_| future::ready(()));
-
-    stream.await
-}
-
-#[runtime::bench]
-async fn bench_partitions_physical() {
-    let stream = disk::partitions_physical().for_each(|_| future::ready(()));
-
-    stream.await
-}
-
-#[runtime::bench]
 async fn bench_io_counters() {
     let stream = disk::io_counters().for_each(|_| future::ready(()));
 
@@ -35,6 +21,20 @@ async fn bench_io_counters() {
 #[runtime::bench]
 async fn bench_io_counters_physical() {
     let stream = disk::io_counters_physical().for_each(|_| future::ready(()));
+
+    stream.await
+}
+
+#[runtime::bench]
+async fn bench_partitions() {
+    let stream = disk::partitions().for_each(|_| future::ready(()));
+
+    stream.await
+}
+
+#[runtime::bench]
+async fn bench_partitions_physical() {
+    let stream = disk::partitions_physical().for_each(|_| future::ready(()));
 
     stream.await
 }
