@@ -1,6 +1,6 @@
 //! System processes information.
 //!
-//! This module is enabled with the `**process**` feature flag (enabled by default).
+//! This module is enabled with the `process` feature flag (enabled by default).
 
 #![deny(
     unused,

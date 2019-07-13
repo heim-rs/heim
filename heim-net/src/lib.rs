@@ -29,3 +29,6 @@ mod nic;
 
 pub use self::counters::*;
 pub use self::nic::*;
+
+// Re-exports
+pub use macaddr::{MacAddr, MacAddr6, MacAddr8};

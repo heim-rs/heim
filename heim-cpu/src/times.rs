@@ -5,6 +5,12 @@ use heim_common::prelude::*;
 use crate::{sys, units};
 
 /// System CPU time.
+///
+/// ## Compatibility
+///
+/// For Linux additional information can be retrieved with [CpuTimeExt] extension trait.
+///
+/// [CpuTimeExt]: ./os/linux/trait.CpuTimeExt.html
 #[derive(heim_derive::ImplWrap)]
 pub struct CpuTime(sys::CpuTime);
 

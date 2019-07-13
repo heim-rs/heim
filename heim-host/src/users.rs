@@ -7,7 +7,7 @@ use heim_common::prelude::*;
 ///
 /// See [os] module for OS-specific extensions.
 ///
-/// [os]: ./os/
+/// [os]: ./os/index.html
 #[derive(heim_derive::ImplWrap)]
 pub struct User(sys::User);
 
@@ -27,6 +27,8 @@ impl fmt::Debug for User {
 }
 
 /// Returns stream which yields [User]s.
+///
+/// [User]: ./struct.User.html
 pub fn users() -> impl Stream<Item = Result<User>> {
     sys::users().map_ok(Into::into)
 }

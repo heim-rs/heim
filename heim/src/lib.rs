@@ -14,9 +14,10 @@
 //!
 //! ## Platform support
 //!
-//! At the moment `heim` is in **MVP** phase, which means that only the big triple
-//! (Linux, MacOS and Windows) are **partially** supported.
-//! You may want to check out [GitHub projects page](https://github.com/heim-rs/heim/projects)
+//! At the moment it is in **MVP** phase, which means that [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
+//! platforms only (Linux, macOS and Windows for `i686` and `x86_64`)
+//! are **partially** supported.
+//! You may want to check out the [GitHub projects page](https://github.com/heim-rs/heim/projects)
 //! for more information about cross-platform support.
 //!
 //! In addition, it would be better to double check if returned information is reliable.

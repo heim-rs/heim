@@ -4,7 +4,7 @@ use crate::{sys, Time};
 
 /// Returns future which resolves into [Time] amount from the system boot.
 ///
-/// [Time]: `crate::Time`
+/// [Time]: ./struct.Time.html
 pub fn uptime() -> impl Future<Output = Result<Time>> {
     sys::uptime()
 }

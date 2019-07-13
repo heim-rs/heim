@@ -9,7 +9,7 @@ use crate::{sys, Information};
 /// Only three metrics are guaranteed to be cross-platform,
 /// for other metrics see `MemoryExt` traits in the [os] submodules.
 ///
-/// [os]: `crate::os`
+/// [os]: ./os/index.html
 #[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
 
@@ -43,6 +43,8 @@ impl fmt::Debug for Memory {
 }
 
 /// Returns future which will resolve into [Memory] struct.
+///
+/// [Memory]: ./struct.Memory.html
 pub fn memory() -> impl future::Future<Output = Result<Memory>> {
     sys::memory().map(|res| res.map(Into::into))
 }

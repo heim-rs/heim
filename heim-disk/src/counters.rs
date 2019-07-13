@@ -66,24 +66,6 @@ impl fmt::Debug for IoCounters {
 /// Same to similar tools, on Windows it may be necessary to issue `diskperf -y` command
 /// from `cmd.exe` first in order to enable IO counters.
 ///
-/// ## Examples
-///
-/// ```rust
-/// # #![feature(async_await)]
-/// # use heim_common::prelude::*;
-/// # use heim_common::Result;
-/// # use heim_disk::io_counters;
-/// #
-/// # #[runtime::main]
-/// # async fn main() -> Result<()> {
-/// let mut counters_stream = io_counters();
-/// while let Some(counter) = counters_stream.next().await {
-///    dbg!(counter?);
-/// }
-/// # Ok(())
-/// # }
-/// ```
-///
 /// [IO counters]: struct.IoCounters.html
 pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters().map_ok(Into::into)
@@ -91,24 +73,6 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
 
 /// Returns future which will resolve into [IO counters]
 /// for each physical disk installed on the system.
-///
-/// ## Examples
-///
-/// ```rust
-/// # #![feature(async_await)]
-/// # use heim_common::prelude::*;
-/// # use heim_common::Result;
-/// # use heim_disk::io_counters_physical;
-/// #
-/// # #[runtime::main]
-/// # async fn main() -> Result<()> {
-/// let mut counters_stream = io_counters_physical();
-/// while let Some(counter) = counters_stream.next().await {
-///    dbg!(counter?);
-/// }
-/// # Ok(())
-/// # }
-/// ```
 ///
 /// [IO counters]: struct.IoCounters.html
 pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {

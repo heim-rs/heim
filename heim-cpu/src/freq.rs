@@ -5,13 +5,6 @@ use heim_common::prelude::*;
 use crate::{sys, units};
 
 /// System CPU frequency.
-///
-/// ## Compatibility
-///
-/// Per-CPU frequencies retrieval is available for Linux,
-/// see [frequencies] function.
-///
-/// [frequencies]: crate::os::linux::frequencies;
 #[derive(heim_derive::ImplWrap)]
 pub struct CpuFrequency(sys::CpuFrequency);
 
@@ -57,7 +50,13 @@ impl fmt::Debug for CpuFrequency {
 
 /// Returns future which will resolve into [CpuFrequency].
 ///
+/// ## Compatibility
+///
+/// Per-CPU frequencies retrieval is available for Linux,
+/// see Linux-specific [frequencies] function.
+///
 /// [CpuFrequency]: ./struct.CpuFrequency.html
+/// [frequencies]: ./os/linux/fn.frequencies.html
 pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
     sys::frequency().map_ok(Into::into)
 }

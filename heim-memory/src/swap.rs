@@ -7,9 +7,9 @@ use crate::{sys, Information};
 /// Swap memory statistics.
 ///
 /// Only three metrics are guaranteed to be cross-platform,
-/// for other metrics see [SwapExt] trait.
+/// for other metrics see [OS]-specific extensions.
 ///
-/// [SwapExt]: crate::os::SwapExt
+/// [OS]: ./os/index.html
 #[derive(heim_derive::ImplWrap)]
 pub struct Swap(sys::Swap);
 
@@ -41,6 +41,8 @@ impl fmt::Debug for Swap {
 }
 
 /// Returns future which will resolve into [Swap] struct.
+///
+/// [Swap]: ./struct.Swap.html
 pub fn swap() -> impl Future<Output = Result<Swap>> {
     sys::swap().map(|res| res.map(Into::into))
 }

@@ -7,6 +7,12 @@ use heim_common::prelude::*;
 use crate::{sys, FileSystem};
 
 /// Mounted disk partition.
+///
+/// ## Compatibility
+///
+/// See [os]-specific extension traits also.
+///
+/// [os]: ./os/index.html
 #[derive(heim_derive::ImplWrap)]
 pub struct Partition(sys::Partition);
 

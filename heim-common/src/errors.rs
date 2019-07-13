@@ -16,7 +16,7 @@ pub type Result<T> = result::Result<T, Error>;
 /// Usually means that `heim` is not compatible
 /// with a system it's running on.
 ///
-/// Users should consider this enum as opaque type (like with `Box<dyn Error>`)
+/// Users should consider this enum as opaque type (kinda like with `Box<dyn Error>`)
 /// and use the data in it only for debugging reasons.
 /// Contents of this enum are not stable and may
 /// change without any warning.

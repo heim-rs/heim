@@ -1,6 +1,6 @@
 //! Virtualization system detection.
 //!
-//! This module is enabled with the `**host**` feature flag (enabled by default).
+//! This module is enabled with the `virt` feature flag (enabled by default).
 //!
 //! At the moment not all declared virtualization systems are detected,
 //! therefore this crate should be used very carefully.
@@ -176,7 +176,7 @@ impl Virtualization {
 /// ## Compatibility
 ///
 /// At the moment this function works only for Linux (partially)
-/// and always returns `None` for macOS and Windows (TBD).
+/// and always returns `None` for macOS and Windows.
 pub fn detect() -> impl Future<Output = Option<Virtualization>> {
     self::sys::detect()
 }

@@ -7,6 +7,12 @@ use heim_common::units::{Information, Ratio};
 use crate::sys;
 
 /// Disk usage statistics.
+///
+/// ## Compatibility
+///
+/// See [os]-specific extension traits also.
+///
+/// [os]: ./os/index.html
 #[derive(heim_derive::ImplWrap)]
 pub struct Usage(sys::Usage);
 
@@ -45,26 +51,7 @@ impl fmt::Debug for Usage {
 
 /// Returns disk [Usage] statistics about the partition which contains the given `path`.
 ///
-/// ## Examples
-///
-/// ```rust
-/// # #![feature(async_await)]
-/// #
-/// # use heim_common::Result;
-/// # use heim_disk::usage;
-/// #
-/// #[cfg(unix)]
-/// static USAGE_PATH: &'static str = "/";
-/// #[cfg(windows)]
-/// static USAGE_PATH: &'static str = "C:\\";
-///
-/// # #[runtime::main]
-/// # async fn main() -> Result<()> {
-/// let usage = usage(USAGE_PATH).await?;
-/// dbg!(usage);
-/// #    Ok(())
-/// # }
-/// ```
+/// [Usage]: ./struct.Usage.html
 pub fn usage<T>(path: T) -> impl Future<Output = Result<Usage>>
 where
     T: AsRef<Path>,
