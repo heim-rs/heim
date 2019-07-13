@@ -69,7 +69,7 @@ impl LogicalDrive {
                 (self.0.len() * 2) as DWORD,
                 ptr::null_mut(),
                 ptr::null_mut(),
-                &mut flags as *mut _,
+                &mut flags,
                 fs_type.as_mut_ptr(),
                 fs_type.capacity() as DWORD,
             )

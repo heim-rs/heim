@@ -22,13 +22,24 @@
 //! In addition, it would be better to double check if returned information is reliable.
 //! You know, just in case.
 
-#![forbid(
+#![deny(
     unused,
-    unstable_features,
+    unused_imports,
+    unused_features,
     bare_trait_objects,
     future_incompatible,
     missing_debug_implementations,
-    nonstandard_style
+    missing_docs,
+    nonstandard_style,
+    dead_code,
+    deprecated
+)]
+#![warn(
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_results
 )]
 
 #[cfg(feature = "cpu")]

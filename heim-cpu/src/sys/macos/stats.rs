@@ -1,10 +1,8 @@
-// TODO: Implement stubs
-// https://github.com/heim-rs/heim/issues/4
-
 use heim_common::prelude::*;
 
 use super::bindings;
 
+#[derive(Debug)]
 pub struct CpuStats {
     ctx_switches: u64,
     interrupts: u64,

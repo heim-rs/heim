@@ -6,10 +6,12 @@ use mach::{port, mach_port, kern_return, traps};
 use crate::{Result, Error};
 use super::{ffi, IoIterator};
 
+/// Safe wrapper around the IOKit master port.
 #[derive(Debug)]
 pub struct IoMasterPort(mach_port_t);
 
 impl IoMasterPort {
+    /// Gets the new IO master port for communication with IOKit.
     pub fn new() -> Result<IoMasterPort> {
         let mut master_port: port::mach_port_t = port::MACH_PORT_NULL;
 

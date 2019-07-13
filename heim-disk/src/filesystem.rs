@@ -8,20 +8,39 @@ use std::str::FromStr;
 /// and all virtual filesystems will go into the `Other` element.
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum FileSystem {
+    /// ext2 (https://en.wikipedia.org/wiki/Ext2)
     Ext2,
+
+    /// ext3 (https://en.wikipedia.org/wiki/Ext3)
     Ext3,
+
+    /// ext4 (https://en.wikipedia.org/wiki/Ext4)
     Ext4,
+
+    /// FAT (https://en.wikipedia.org/wiki/File_Allocation_Table)
     VFat,
+
+    /// NTFS (https://en.wikipedia.org/wiki/NTFS)
     Ntfs,
+
+    /// ZFS (https://en.wikipedia.org/wiki/ZFS)
     Zfs,
+
+    /// HFS (https://en.wikipedia.org/wiki/Hierarchical_File_System)
     Hfs,
+
+    /// ReiserFS (https://en.wikipedia.org/wiki/ReiserFS)
     Reiserfs,
+
+    // TODO: Should it be considered as a physical FS?
+    /// FUSE (https://en.wikipedia.org/wiki/Filesystem_in_Userspace)
     FuseBlk,
 
     // TODO: Extend list
     // References:
     //  * https://linux.die.net/man/2/fstatfs
     //  * FAT, FAT32, NTFS, HPFS, CDFS, UDF or NWFS
+    /// Some unspecified filesystem.
     Other(String),
 
     #[doc(hidden)]
@@ -42,6 +61,7 @@ impl FileSystem {
         !self.is_physical()
     }
 
+    /// Returns a string identifying this filesystem.
     pub fn as_str(&self) -> &str {
         match self {
             FileSystem::Ext2 => "ext2",

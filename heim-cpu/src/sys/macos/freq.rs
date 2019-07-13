@@ -3,6 +3,7 @@ use heim_common::prelude::*;
 use crate::units;
 use super::bindings;
 
+#[derive(Debug)]
 pub struct CpuFrequency {
     current: units::Frequency,
     min: units::Frequency,

@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt;
 use std::path::Path;
 
 use winapi::um::{fileapi, winnt};
@@ -36,6 +37,17 @@ impl Usage {
     }
 }
 
+impl fmt::Debug for Usage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Usage")
+            .field("total", &self.total())
+            .field("used", &self.used())
+            .field("free", &self.free())
+            .field("ratio", &self.ratio())
+            .finish()
+    }
+}
+
 pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
     future::lazy(move |_| {
         let path = match widestring::U16CString::from_os_str(path.as_ref()) {
@@ -47,9 +59,9 @@ pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
         let result = unsafe {
             fileapi::GetDiskFreeSpaceExW(
                 path.as_ptr(),
-                &mut usage.available as &mut _ as winnt::PULARGE_INTEGER,
-                &mut usage.total as &mut _ as winnt::PULARGE_INTEGER,
-                &mut usage.free as &mut _ as winnt::PULARGE_INTEGER,
+                &mut usage.available,
+                &mut usage.total,
+                &mut usage.free,
             )
         };
 

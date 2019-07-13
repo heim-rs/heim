@@ -1,6 +1,6 @@
 #![allow(non_camel_case_types, dead_code, unused)]
 
-use libc::{c_char};
+use libc::c_char;
 use core_foundation::base::{CFAllocatorRef, mach_port_t};
 use core_foundation::dictionary::{CFDictionaryRef, CFMutableDictionaryRef};
 use mach::{kern_return, boolean};

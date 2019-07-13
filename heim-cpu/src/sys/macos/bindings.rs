@@ -91,6 +91,7 @@ extern "C" {
     ) -> kern_return_t;
 }
 
+#[allow(trivial_casts)]
 pub unsafe fn cpu_load_info() -> Result<host_cpu_load_info> {
     let port = macos::mach_host_self();
     let mut stats = host_cpu_load_info::default();
@@ -118,6 +119,7 @@ pub unsafe fn cpu_load_info() -> Result<host_cpu_load_info> {
     }
 }
 
+#[allow(trivial_casts)]
 pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     let port = macos::mach_host_self();
     let mut stats: Vec<processor_cpu_load_info> = Vec::with_capacity(1);
@@ -128,7 +130,7 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     let result = host_processor_info(
         port,
         PROCESSOR_CPU_LOAD_INFO,
-        &mut result_count as *mut _ as *mut natural_t,
+        &mut result_count,
         &mut stats.as_mut_ptr() as *mut _  as *mut processor_info_array_t,
         &count as *const _ as *const mach_msg_type_number_t
     );
@@ -148,6 +150,7 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     }
 }
 
+#[allow(trivial_casts)]
 pub unsafe fn vm_meter() -> Result<vmmeter> {
     let port = macos::mach_host_self();
     let mut stats = vmmeter::default();
@@ -175,6 +178,7 @@ pub unsafe fn vm_meter() -> Result<vmmeter> {
     }
 }
 
+#[allow(trivial_casts)]
 unsafe fn frequency(key: &[u8]) -> Result<u64> {
     let str = CStr::from_bytes_with_nul_unchecked(key);
     let mut value = 0u64;
@@ -182,8 +186,8 @@ unsafe fn frequency(key: &[u8]) -> Result<u64> {
 
     let result = libc::sysctlbyname(
         str.as_ptr(),
-        &mut value as *mut u64 as *mut libc::c_void,
-        &mut length as *mut libc::size_t,
+        &mut value as *mut _ as *mut libc::c_void,
+        &mut length,
         ptr::null_mut(),
         0,
     );

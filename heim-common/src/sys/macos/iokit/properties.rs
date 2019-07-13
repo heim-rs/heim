@@ -8,13 +8,18 @@ pub use core_foundation::base::TCFType;
 
 use crate::{Result, Error};
 
+/// Extends `CFDictionary` with a few methods used by `heim` crates.
 pub trait DictionaryProps {
+    /// Get the dictionary value with the `raw_key` key.
     fn get_dict(&self, raw_key: &'static str) -> Result<CFDictionary<CFString, CFType>>;
 
+    /// Get the bool value with the `raw_key` key.
     fn get_bool(&self, raw_key: &'static str) -> Result<bool>;
 
+    /// Get the i64 value with the `raw_key` key.
     fn get_i64(&self, raw_key: &'static str) -> Result<i64>;
 
+    /// Get the string value with the `raw_key` key.
     fn get_string(&self, raw_key: &'static str) -> Result<String>;
 }
 

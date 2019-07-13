@@ -1,3 +1,5 @@
+use std::fmt;
+
 use heim_common::prelude::*;
 use heim_common::units::Information;
 
@@ -44,6 +46,14 @@ impl IoCounters {
     // TODO: `drop_sent` is not supported!
     pub fn drop_sent(&self) -> u64 {
         0
+    }
+}
+
+impl fmt::Debug for IoCounters {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("IoCounters")
+            .field("name", &self.name)
+            .finish()
     }
 }
 

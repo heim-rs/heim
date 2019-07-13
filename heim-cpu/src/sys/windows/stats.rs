@@ -2,6 +2,7 @@ use heim_common::prelude::*;
 
 use super::bindings::winternl;
 
+#[derive(Debug)]
 pub struct CpuStats {
     ctx_switches: u64,
     interrupts: u64,

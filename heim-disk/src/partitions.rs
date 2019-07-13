@@ -11,10 +11,12 @@ use crate::{sys, FileSystem};
 pub struct Partition(sys::Partition);
 
 impl Partition {
+    /// Returns partition device name if available.
     pub fn device(&self) -> Option<&OsStr> {
         self.as_ref().device()
     }
 
+    /// Returns partition mount point path.
     pub fn mount_point(&self) -> &Path {
         self.as_ref().mount_point()
     }

@@ -26,6 +26,7 @@ impl Usage {
         self.as_ref().free()
     }
 
+    /// Returns the ratio between used and free information amount in partition.
     pub fn ratio(&self) -> Ratio {
         self.as_ref().ratio()
     }

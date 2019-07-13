@@ -6,6 +6,7 @@ use heim_common::prelude::*;
 use crate::units;
 use super::bindings::{winternl, IntoTime};
 
+#[derive(Debug)]
 pub struct CpuTime {
     user: units::Time,
     system: units::Time,

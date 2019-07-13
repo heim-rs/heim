@@ -1,5 +1,6 @@
 use std::io;
 use std::mem;
+use std::fmt;
 use std::ffi::CString;
 use std::path::Path;
 
@@ -45,6 +46,14 @@ impl Usage {
 
     pub fn flags(&self) -> Flags {
         Flags::from_bits_truncate(self.0.f_flag)
+    }
+}
+
+// TODO: Stub
+impl fmt::Debug for Usage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Usage")
+            .finish()
     }
 }
 

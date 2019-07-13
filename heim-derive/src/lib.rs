@@ -1,4 +1,27 @@
+//! Proc-macros for `heim` crates.
+//!
+//! Do not use directly.
+
 #![recursion_limit = "128"]
+#![deny(
+    unused,
+    unused_imports,
+    unused_features,
+    bare_trait_objects,
+    future_incompatible,
+    missing_debug_implementations,
+    missing_docs,
+    nonstandard_style,
+    dead_code,
+    deprecated
+)]
+#![warn(
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_results
+)]
 
 extern crate proc_macro;
 
@@ -17,7 +40,7 @@ struct ImplTarget {
 impl parse::Parse for ImplTarget {
     fn parse(input: parse::ParseStream) -> parse::Result<Self> {
         let target: syn::Path = input.parse()?;
-        input.parse::<syn::Token![,]>()?;
+        let _ = input.parse::<syn::Token![,]>()?;
         let cfg: syn::Meta = input.parse()?;
         Ok(ImplTarget { target, cfg })
     }
@@ -236,6 +259,7 @@ pub fn impl_getters(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
+/// Attach traits and stuff for a measurement unit type.
 #[proc_macro_derive(Unit)]
 pub fn unit(input: TokenStream) -> TokenStream {
     let struct_type: syn::ItemStruct = syn::parse(input).unwrap();

@@ -22,8 +22,11 @@ pub type Result<T> = result::Result<T, Error>;
 /// change without any warning.
 #[derive(Debug)]
 pub enum Error {
+    #[doc(hidden)]
     MissingEntity(Cow<'static, str>),
+    #[doc(hidden)]
     Incompatible(&'static str),
+    #[doc(hidden)]
     Other(Box<dyn error::Error + Send + 'static>),
 
     #[doc(hidden)]

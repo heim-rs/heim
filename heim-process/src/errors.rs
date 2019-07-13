@@ -6,10 +6,14 @@ use heim_common::Error;
 
 use crate::Pid;
 
+/// Error which might happen during the process information fetching.
 #[derive(Debug)]
 pub enum ProcessError {
+    /// Process with this pis does not exists.
     NoSuchProcess(Pid),
+    /// Might be returned when querying zombie process on Unix systems.
     ZombieProcess(Pid),
+    /// Data loading failure.
     Load(Error),
 
     #[doc(hidden)]

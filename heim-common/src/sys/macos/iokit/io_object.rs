@@ -11,6 +11,7 @@ use core_foundation::dictionary::{CFDictionary, CFMutableDictionary};
 use crate::{Result, Error};
 use super::ffi;
 
+/// Safe wrapper around the IOKit `io_object_t` type.
 #[derive(Debug)]
 pub struct IoObject(ffi::io_object_t);
 
@@ -35,6 +36,7 @@ impl IoObject {
         }
     }
 
+    /// Gets the parent `io_object_t` for this `io_object_t` is there any.
     pub fn parent(&self, plane: &[u8]) -> Result<IoObject> {
         let mut parent = mem::MaybeUninit::<ffi::io_object_t>::uninit();
 
@@ -42,7 +44,7 @@ impl IoObject {
             ffi::IORegistryEntryGetParentEntry(
                 self.0,
                 plane.as_ref().as_ptr() as *const libc::c_char,
-                parent.as_mut_ptr() as *mut ffi::io_registry_entry_t
+                parent.as_mut_ptr()
             )
         };
 

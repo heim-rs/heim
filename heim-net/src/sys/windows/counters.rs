@@ -1,6 +1,7 @@
 use heim_common::prelude::*;
 use heim_common::units::Information;
 
+#[derive(Debug)]
 pub struct IoCounters;
 
 impl IoCounters {

@@ -80,6 +80,10 @@ impl fmt::Debug for IoCounters {
 
 /// Returns stream which yield [IO counters] for each network interface.
 ///
+/// ## Compatibility
+///
+/// Windows implementation is missing, see https://github.com/heim-rs/heim/issues/26
+///
 /// [IO counters]: struct.IoCounters.html
 pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters().map_ok(Into::into)

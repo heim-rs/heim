@@ -1,4 +1,3 @@
-use std::pin::Pin;
 use std::path::{Path, PathBuf};
 use std::ffi::{OsString, OsStr};
 
@@ -8,6 +7,7 @@ use crate::FileSystem;
 use crate::os::windows::{Flags, DriveType};
 use super::bindings::disks2;
 
+#[derive(Debug)]
 pub struct Partition {
     // Might be missing for a remote FS, such as SMB
     volume: Option<OsString>,
@@ -33,6 +33,10 @@ impl Partition {
     pub fn flags(&self) -> Flags {
         self.flags
     }
+
+    pub fn drive_type(&self) -> Option<DriveType> {
+        self.drive_type
+    }
 }
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
@@ -40,10 +44,10 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
         let disks = disks2::LogicalDrives::new()?;
 
         let stream = stream::iter(disks).map(Ok);
-        Ok(Box::pin(stream) as Pin<Box<dyn Stream<Item = _> + Send>>)
+
+        Ok(stream)
     })
-    .unwrap_or_else(|e: Error| Box::pin(stream::once(future::err(e))))
-    .flatten_stream()
+    .try_flatten_stream()
     .and_then(|disk: disks2::LogicalDrive| {
         match disk.information() {
             Ok(Some((flags, fs))) => {

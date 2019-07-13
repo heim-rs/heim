@@ -14,6 +14,7 @@ use heim_common::prelude::*;
 
 use super::into_cow;
 
+#[derive(Debug)]
 pub struct User {
     username: String,
     terminal: String,

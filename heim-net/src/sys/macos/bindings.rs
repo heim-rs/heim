@@ -116,7 +116,7 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
         name.as_mut_ptr(),
         6,
         ptr::null_mut(),
-        &mut length as *mut libc::size_t,
+        &mut length,
         ptr::null_mut(),
         0,
     );
@@ -129,14 +129,14 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
     let result = libc::sysctl(
         name.as_mut_ptr(),
         6,
-        data.as_mut_ptr() as *mut _ as *mut libc::c_void,
-        &mut length as *mut libc::size_t,
+        data.as_mut_ptr() as *mut libc::c_void,
+        &mut length,
         ptr::null_mut(),
         0,
     );
 
     if result == 0 {
-        data.set_len(length as usize);
+        data.set_len(length);
         Ok(Routes {
             position: 0,
             data,

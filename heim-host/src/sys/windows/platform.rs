@@ -1,5 +1,6 @@
 use std::io;
 use std::mem;
+use std::fmt;
 use std::ffi::CStr;
 
 use winapi::um::{sysinfoapi, winnt, libloaderapi};
@@ -11,7 +12,9 @@ use heim_common::sys::windows::get_ntdll;
 use crate::Arch;
 
 // Partial copy of the `sysinfoapi::SYSTEM_INFO`,
-// because it contains pointers and we need to sent it between threads
+// because it contains pointers and we need to sent it between threads.
+// TODO: It would be better to make `SYSTEM_INFO` Sendable somehow?
+#[derive(Debug)]
 struct SystemInfo {
     processor_arch: minwindef::WORD,
 }
@@ -87,6 +90,17 @@ impl Platform {
             winnt::PROCESSOR_ARCHITECTURE_INTEL => Arch::X86,
             _ => Arch::Unknown,
         }
+    }
+}
+
+impl fmt::Debug for Platform {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Platform")
+            .field("system", &self.system())
+            .field("release", &self.release())
+            .field("version", &self.version())
+            .field("architecture", &self.architecture())
+            .finish()
     }
 }
 

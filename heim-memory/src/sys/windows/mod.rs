@@ -1,5 +1,6 @@
 /// https://docs.microsoft.com/en-US/windows/desktop/api/sysinfoapi/ns-sysinfoapi-_memorystatusex
 
+use std::fmt;
 use std::mem;
 
 use winapi::shared::minwindef;
@@ -26,6 +27,16 @@ impl Memory {
     }
 }
 
+impl fmt::Debug for Memory {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Memory")
+            .field("total", &self.total())
+            .field("available", &self.available())
+            .field("free", &self.free())
+            .finish()
+    }
+}
+
 #[derive(Clone)]
 pub struct Swap(sysinfoapi::MEMORYSTATUSEX);
 
@@ -43,6 +54,17 @@ impl Swap {
     }
 
 }
+
+impl fmt::Debug for Swap {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Swap")
+            .field("total", &self.total())
+            .field("used", &self.used())
+            .field("free", &self.free())
+            .finish()
+    }
+}
+
 
 fn memory_status() -> impl Future<Output=Result<sysinfoapi::MEMORYSTATUSEX>> {
     future::lazy(|_| {

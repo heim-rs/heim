@@ -1,3 +1,5 @@
+//! Windows-specific routines used across `heim` crates.
+
 use std::iter;
 use std::ffi::OsStr;
 use std::os::windows::ffi::OsStrExt;

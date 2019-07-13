@@ -32,7 +32,7 @@ fn topology() -> impl Future<Output = Result<u64>> {
         })
         .and_then(|contents| future::ready(contents.trim().parse::<u64>().map_err(Error::from)))
         .try_fold(acc, |mut acc, cpu_id| {
-            acc.insert(cpu_id);
+            let _ = acc.insert(cpu_id);
 
             future::ok(acc)
         })
@@ -87,7 +87,7 @@ fn cpu_info() -> impl Future<Output = Result<Option<u64>>> {
                             .physical_id
                             .take()
                             .expect("Will not happen, match guard covers that");
-                        acc.group.insert((physical_id, core_id));
+                        let _ = acc.group.insert((physical_id, core_id));
 
                         Ok(acc)
                     }

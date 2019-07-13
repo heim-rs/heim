@@ -8,6 +8,25 @@
 //! See the [issues list](https://github.com/heim-rs/heim/issues?q=is%3Aissue+is%3Aopen+label%3AA-virt)
 //! for a not supported currently systems.
 
+#![deny(
+    unused,
+    unused_imports,
+    unused_features,
+    bare_trait_objects,
+    future_incompatible,
+    missing_debug_implementations,
+    missing_docs,
+    nonstandard_style,
+    dead_code,
+    deprecated
+)]
+#![warn(
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_results
+)]
 #![cfg_attr(test, feature(async_await))]
 
 use heim_common::prelude::*;
@@ -123,6 +142,7 @@ impl Virtualization {
         }
     }
 
+    /// Returns string identifying this virtualization system.
     pub fn as_str(&self) -> &str {
         match self {
             Virtualization::Kvm => "kvm",

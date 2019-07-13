@@ -69,6 +69,9 @@ bitflags::bitflags! {
     }
 }
 
+/// Unix-specific extensions for [Usage] struct.
+///
+/// [Usage]: ../../struct.Usage.html
 #[heim_derive::os_ext_for(crate::Usage, cfg(unix))]
 pub trait UsageExt {
     /// Returns [Flags] for current filesystem;

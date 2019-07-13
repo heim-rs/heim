@@ -51,6 +51,7 @@ pub struct vm_statistics64 {
     pub total_uncompressed_pages_in_compressor: u64,
 }
 
+#[allow(trivial_casts)]
 pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
     let port = macos::mach_host_self();
     let mut stats = vm_statistics64::default();
@@ -80,6 +81,7 @@ pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
     }
 }
 
+#[allow(trivial_casts)]
 pub unsafe fn hw_memsize() -> Result<u64> {
     let mut name: [i32; 2] = [CTL_HW, HW_MEMSIZE];
     let mut value = 0u64;
@@ -89,7 +91,7 @@ pub unsafe fn hw_memsize() -> Result<u64> {
         name.as_mut_ptr(),
         2,
         &mut value as *mut u64 as *mut libc::c_void,
-        &mut length as *mut libc::size_t,
+        &mut length,
         ptr::null_mut(),
         0,
     );
@@ -110,7 +112,7 @@ pub unsafe fn vm_swapusage() -> Result<libc::xsw_usage> {
         name.as_mut_ptr(),
         2,
         value.as_mut_ptr() as *mut libc::c_void,
-        &mut length as *mut libc::size_t,
+        &mut length,
         ptr::null_mut(),
         0,
     );

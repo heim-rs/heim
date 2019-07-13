@@ -5,6 +5,7 @@ use std::ffi::CStr;
 use heim_common::prelude::*;
 
 
+#[allow(trivial_casts)]
 fn sysctl(key: &[u8]) -> Result<u64> {
     let str = unsafe {
         CStr::from_bytes_with_nul_unchecked(key)
@@ -16,7 +17,7 @@ fn sysctl(key: &[u8]) -> Result<u64> {
         libc::sysctlbyname(
             str.as_ptr(),
             &mut value as *mut i32 as *mut libc::c_void,
-            &mut length as *mut libc::size_t,
+            &mut length,
             ptr::null_mut(),
             0,
         )

@@ -9,6 +9,7 @@ use heim_common::units::{Time, Information};
 use super::bindings::disks;
 use super::bindings::volumes::Volumes;
 
+#[derive(Debug)]
 pub struct IoCounters {
     volume_path: PathBuf,
     read_count: u64,

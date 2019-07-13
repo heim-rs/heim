@@ -4,6 +4,7 @@ use crate::units;
 use super::bindings;
 use crate::sys::unix::CLOCK_TICKS;
 
+#[derive(Debug)]
 pub struct CpuTime {
     user: units::Time,
     nice: units::Time,

@@ -4,6 +4,7 @@ use mach::kern_return;
 
 use super::{ffi, IoObject};
 
+/// Safe wrapper around the IOKit `io_iterator_t` type.
 #[derive(Debug)]
 pub struct IoIterator(ffi::io_iterator_t);
 

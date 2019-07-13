@@ -1,13 +1,20 @@
 use winapi::shared::minwindef::DWORD;
 use winapi::um::winnt;
 
-#[derive(Debug)] // TODO: Extend derives list
+/// Windows-specific drive type.
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum DriveType {
+    /// CD-ROM drive
     CdRom,
+    /// Drive is fixed media; for example, a hard disk drive or a flash drive
     Fixed,
+    /// The root path is invalid; for example, there is no volume mounted at the specified path.
     NoRootDir,
+    /// RAM disk
     RamDisk,
+    /// Drive is a remote (network) disk
     Remote,
+    /// Drive has removable media; for example, a floppy drive, thumb drive, or flash card reader.
     Removable,
 }
 
@@ -78,13 +85,24 @@ bitflags::bitflags! {
     }
 }
 
+/// Extension for [Partition] struct.
+///
+/// [Partition]: ../../struct.Partition.html
 pub trait PartitionExt {
+    /// Gets mount flags for this partition.
     fn flags(&self) -> Flags;
+
+    /// Get drive type for this partition, if can be determined.
+    fn drive_type(&self) -> Option<DriveType>;
 }
 
 #[cfg(target_os = "windows")]
 impl PartitionExt for crate::Partition {
     fn flags(&self) -> Flags {
         self.as_ref().flags()
+    }
+
+    fn drive_type(&self) -> Option<DriveType> {
+        self.as_ref().drive_type()
     }
 }

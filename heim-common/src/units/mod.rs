@@ -1,3 +1,5 @@
+//! Basic measurement units used across `heim` sub-crates.
+//!
 /// Time measurement unit.
 ///
 /// Base unit is `second`.

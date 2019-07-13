@@ -1,5 +1,6 @@
 bitflags::bitflags! {
     // These flags are declared at `bsd/sys/mount.h`
+    /// Partition mount flags.
     pub struct Flags: libc::c_uint {
         // User specifiable flags
 
@@ -68,13 +69,21 @@ bitflags::bitflags! {
         const MNT_RELOAD = 0x0004_0000;
         /// Force unmount or readonly change
         const MNT_FORCE = 0x0008_0000;
+
+        // TODO: It is declared at `mount.h`, but it is hard to find what does it means.
+        // Should we have it at all?
+
         // `bitflags` at this point is not allowing to use other constants
         //                   MNT_UPDATE  | MNT_NOBLOCK | MNT_RELOAD  | MNT_FORCE
-        const MNT_CMDFLAGS = 0x0001_0000 | 0x0002_0000 | 0x0004_0000 | 0x0008_0000;
+        // const MNT_CMDFLAGS = 0x0001_0000 | 0x0002_0000 | 0x0004_0000 | 0x0008_0000;
     }
 }
 
+/// macOS-specific extension for [Partition] struct.
+///
+/// [Partition]: ../../struct.Partition.html
 pub trait PartitionExt {
+    /// Mount flags
     fn flags(&self) -> Flags;
 }
 

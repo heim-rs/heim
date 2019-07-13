@@ -1,12 +1,17 @@
-// Why in a hell there is a sync FS operations in the async crate?!
-//
-// At the moment `runtime` crate does not provides the abstractions for the files IO.
-// Yet, in our case, FS opts are needed only for Linux and only `procfs` is used there.
-// Since `procfs` stores data in the memory, it would not be very terrible to read this
-// data synchronously -- it still will be quick enough.
-//
-// When `runtime` crate will provide fully async FS abstractions,
-// we will switch to them.
+//! Filesystem I/O abstractions.
+//!
+//! This module should be used only in `heim` sub-crates,
+//! do not use it directly.
+//!
+//! ## Why in a hell there is a sync FS operations in the async crate?!
+//!
+//! At the moment `runtime` crate does not provides the abstractions for the files IO.
+//! Yet, in our case, FS opts are needed only for Linux and only `procfs` is used there.
+//! Since `procfs` stores data in the memory, it would not be very terrible to read this
+//! data synchronously -- it still will be quick enough.
+//!
+//! When `runtime` crate will provide fully async FS abstractions,
+//! we will switch to them.
 
 use std::fs;
 use std::io::{self, BufRead};
@@ -15,6 +20,7 @@ use std::str::FromStr;
 
 use crate::prelude::*;
 
+/// Returns future which checks if path `T` points to some file.
 pub fn path_exists<T>(path: T) -> impl Future<Output = bool>
 where
     T: AsRef<Path> + Send + 'static,
@@ -46,6 +52,8 @@ where
     future::ready(res)
 }
 
+// TODO: Probably should be renamed into `try_read_into`
+/// Reads file and attempts to parse it's contents into `R` type.
 pub fn read_into<T, R, E>(path: T) -> impl Future<Output = Result<R>>
 where
     T: AsRef<Path> + Send + 'static,
@@ -80,6 +88,7 @@ where
         .try_flatten_stream()
 }
 
+/// Returns stream which reads lines from file and tries to parse them with help of `FromStr` trait.
 pub fn read_lines_into<T, R, E>(path: T) -> impl TryStream<Ok = R, Error = Error>
 where
     T: AsRef<Path> + Send + 'static,
@@ -93,6 +102,7 @@ where
     })
 }
 
+/// Returns future which tries to read the first line from file.
 pub fn read_first_line<T>(path: T) -> impl TryFuture<Ok = String, Error = Error>
 where
     T: AsRef<Path> + Send + 'static,

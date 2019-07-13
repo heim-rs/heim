@@ -4,6 +4,7 @@ use crate::Information;
 
 use super::{bindings, PAGE_SIZE};
 
+#[derive(Debug)]
 pub struct Memory {
     total: Information,
     available: Information,

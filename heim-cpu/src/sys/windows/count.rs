@@ -21,7 +21,7 @@ pub fn logical_count() -> impl Future<Output = Result<u64>> {
 pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
     let mut buffer_size = 0;
 
-    let result = unsafe {
+    let _ = unsafe {
         sysinfoapi::GetLogicalProcessorInformationEx(
             winnt::RelationProcessorCore,
             ptr::null_mut(),

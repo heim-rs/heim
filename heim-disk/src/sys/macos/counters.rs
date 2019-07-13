@@ -4,6 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::{Time, Information};
 use heim_common::sys::macos::iokit::{self, DictionaryProps};
 
+#[derive(Debug)]
 pub struct IoCounters {
     device: String,
     removable: bool,

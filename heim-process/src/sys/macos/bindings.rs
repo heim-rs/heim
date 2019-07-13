@@ -145,7 +145,7 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
                 name.as_mut_ptr(),
                 3,
                 ptr::null_mut(),
-                &mut size as *mut libc::size_t,
+                &mut size,
                 ptr::null_mut(),
                 0
             )
@@ -160,8 +160,8 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             libc::sysctl(
                 name.as_mut_ptr(),
                 3,
-                processes.as_mut_ptr() as *mut kinfo_proc as *mut libc::c_void,
-                &mut size as *mut libc::size_t,
+                processes.as_mut_ptr() as *mut libc::c_void,
+                &mut size,
                 ptr::null_mut(),
                 0,
             )
@@ -191,8 +191,8 @@ pub fn process(pid: Pid) -> Result<kinfo_proc, ProcessError> {
         libc::sysctl(
             name.as_mut_ptr(),
             4,
-            info.as_mut_ptr() as *mut kinfo_proc as *mut libc::c_void,
-            &mut size as *mut libc::size_t,
+            info.as_mut_ptr() as *mut libc::c_void,
+            &mut size,
             ptr::null_mut(),
             0
         )
@@ -216,7 +216,7 @@ pub fn process(pid: Pid) -> Result<kinfo_proc, ProcessError> {
 mod tests {
     use std::mem;
 
-    use super::{vmspace, pcred, kinfo_proc, kinfo_proc_eproc, extern_proc};
+    use super::{vmspace, pcred, kinfo_proc, kinfo_proc_eproc};
 
     #[test]
     fn test_layout() {
