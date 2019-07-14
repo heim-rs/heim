@@ -5,10 +5,10 @@ use heim_disk as disk;
 
 cfg_if::cfg_if! {
     if #[cfg(unix)] {
-        static USAGE_PATH: &'static str = "/";
+        static USAGE_PATH: &str = "/";
 
     } else if #[cfg(windows)] {
-        static USAGE_PATH: &'static str = "C:\\";
+        static USAGE_PATH: &str = "C:\\";
     } else {
         compile_error!("Unsupported OS for this example");
     }

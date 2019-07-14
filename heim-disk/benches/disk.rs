@@ -6,10 +6,10 @@ use heim_common::prelude::*;
 use heim_disk as disk;
 
 #[cfg(unix)]
-static USAGE_PATH: &'static str = "/";
+static USAGE_PATH: &str = "/";
 
 #[cfg(windows)]
-static USAGE_PATH: &'static str = "C:\\";
+static USAGE_PATH: &str = "C:\\";
 
 #[runtime::bench]
 async fn bench_io_counters() {
