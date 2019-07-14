@@ -48,7 +48,7 @@ pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
         }
     }
 
-    if buf.len() > 0 {
+    if !buf.is_empty() {
         future::ok(Some(buf.len() as u64))
     } else {
         future::ok(None)

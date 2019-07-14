@@ -41,6 +41,7 @@ pub struct DISK_PERFORMANCE {
 /// will be returned. Higher level code should ignore such an entries.
 /// For reference: https://github.com/giampaolo/psutil/blob/5a398984d709d750da1fc0e450d72c771e18f393/psutil/_psutil_windows.c#L2262-L2277
 #[allow(trivial_casts)]
+#[allow(clippy::trivially_copy_pass_by_ref)]
 pub unsafe fn disk_performance(handle: &RawHandle) -> Result<Option<DISK_PERFORMANCE>> {
     let mut perf = DISK_PERFORMANCE::default();
     let mut bytes_returned: minwindef::DWORD = 0;

@@ -4,8 +4,8 @@ use heim_common::prelude::*;
 
 use crate::Information;
 
-static PROC_VMSTAT: &'static str = "/proc/vmstat";
-static PROC_MEMINFO: &'static str = "/proc/meminfo";
+static PROC_VMSTAT: &str = "/proc/vmstat";
+static PROC_MEMINFO: &str = "/proc/meminfo";
 
 #[derive(Debug, Default, Clone)]
 pub struct VmStat {

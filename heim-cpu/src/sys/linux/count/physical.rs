@@ -37,7 +37,7 @@ fn topology() -> impl Future<Output = Result<u64>> {
             future::ok(acc)
         })
         .and_then(|acc| {
-            if acc.len() > 0 {
+            if !acc.is_empty() {
                 future::ok(acc.len() as u64)
             } else {
                 // This error will not be propagated to caller,
@@ -54,14 +54,12 @@ struct Collector {
 }
 
 fn parse_line(line: &str) -> Result<u64> {
-    let value = line
+    line
         .split(':')
-        .skip(1)
-        .next()
+        .nth(2)
         .map(|value| value.trim())
         .ok_or_else(|| Error::incompatible("Unsupported format for /proc/cpuinfo"))
-        .and_then(|value| value.parse::<u64>().map_err(Error::from));
-    value
+        .and_then(|value| value.parse::<u64>().map_err(Error::from))
 }
 
 fn cpu_info() -> impl Future<Output = Result<Option<u64>>> {
@@ -102,7 +100,7 @@ fn cpu_info() -> impl Future<Output = Result<Option<u64>>> {
             future::ready(result)
         })
         .map_ok(|acc| {
-            if acc.group.len() > 0 {
+            if !acc.group.is_empty() {
                 Some(acc.group.len() as u64)
             } else {
                 None
