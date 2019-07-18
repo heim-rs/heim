@@ -49,8 +49,7 @@ unsafe impl Send for Sessions {}
 impl Sessions {
     #[allow(trivial_casts)]
     pub fn new() -> Result<Sessions> {
-        // TODO: Use MaybeUninit here
-        let mut info: wtsapi32::WTS_SESSION_INFOW = unsafe { mem::zeroed() };
+        let mut info = mem::MaybeUninit::<wtsapi32::WTS_SESSION_INFOW>::uninit();
         let mut count: DWORD = 0;
 
         let result = unsafe {
@@ -67,6 +66,10 @@ impl Sessions {
         if result == 0 {
             Err(Error::last_os_error())
         } else {
+            let info = unsafe {
+                info.assume_init()
+            };
+
             Ok(Sessions {
                 info,
                 count,
