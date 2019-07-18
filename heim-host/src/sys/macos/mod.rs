@@ -8,12 +8,11 @@ mod uptime;
 pub use self::uptime::*;
 
 unsafe fn timebase_info() -> io::Result<mach_time::mach_timebase_info> {
-    // TODO: Use MaybeUninit here
-    let mut info: mach_time::mach_timebase_info = mem::zeroed();
-    let res = mach_time::mach_timebase_info(&mut info);
+    let mut info = mem::MaybeUninit::<mach_time::mach_timebase_info>::uninit();
+    let res = mach_time::mach_timebase_info(info.as_mut_ptr());
 
     if res == kern_return::KERN_SUCCESS {
-        Ok(info)
+        Ok(info.assume_init())
     } else {
         Err(io::Error::last_os_error())
     }
