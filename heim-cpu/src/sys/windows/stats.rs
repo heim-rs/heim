@@ -23,12 +23,8 @@ impl CpuStats {
         self.dpc_count
     }
 
-    pub fn system_calls(&self) -> u64 {
+    pub fn syscalls(&self) -> u64 {
         self.system_calls
-    }
-
-    pub fn soft_interrupts(&self) -> u64 {
-        unimplemented!()
     }
 }
 

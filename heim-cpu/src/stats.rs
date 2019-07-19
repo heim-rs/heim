@@ -5,6 +5,8 @@ use heim_common::prelude::*;
 use crate::sys;
 
 /// CPU statistics.
+///
+/// See [OS-specific extensions](./os/index.html) for more statistics.
 #[derive(heim_derive::ImplWrap)]
 pub struct CpuStats(sys::CpuStats);
 
@@ -17,12 +19,6 @@ impl CpuStats {
     /// Returns number of interrupts since system boot.
     pub fn interrupts(&self) -> u64 {
         self.as_ref().interrupts()
-    }
-
-    // TODO: Move to OsExt
-    /// Returns number of software interrupts since boot.
-    pub fn soft_interrupts(&self) -> u64 {
-        self.as_ref().soft_interrupts()
     }
 }
 
