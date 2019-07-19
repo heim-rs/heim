@@ -31,8 +31,6 @@ impl Sessions {
             )
         };
 
-        dbg!("WTSEnumerateSessionsW", result);
-
         if result == 0 {
             Err(Error::last_os_error())
         } else {
@@ -68,7 +66,7 @@ impl Iterator for Sessions {
 
     #[allow(trivial_casts)]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current > self.count {
+        if self.current >= self.count {
             None
         } else {
             let session: wtsapi32::WTS_SESSION_INFOW = unsafe {
