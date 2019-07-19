@@ -1,7 +1,7 @@
 mod uptime;
 mod platform;
 mod users;
-mod wtsapi32;
+mod bindings;
 
 pub use self::uptime::*;
 pub use self::platform::*;

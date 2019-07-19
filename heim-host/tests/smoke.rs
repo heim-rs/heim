@@ -30,7 +30,6 @@ async fn smoke_uptime() {
     assert!(uptime.unwrap().get() > 0.0);
 }
 
-#[heim_derive::skip_ci(target_os = "windows")] // https://github.com/heim-rs/heim/issues/32
 #[runtime::test]
 async fn smoke_users() {
     let mut users = host::users();
