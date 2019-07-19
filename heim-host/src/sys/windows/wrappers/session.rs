@@ -1,15 +1,14 @@
 use std::ptr;
-use std::ffi::OsString;
 use std::net::{IpAddr, Ipv4Addr};
-use std::os::windows::ffi::OsStringExt;
 
 use winapi::shared::minwindef::DWORD;
-use winapi::shared::ntdef::{LPWSTR, WCHAR};
+use winapi::shared::ntdef::{LPWSTR, PVOID};
 use winapi::shared::ws2def::{AF_INET, AF_INET6, AF_IPX, AF_NETBIOS, AF_UNSPEC};
 
 use heim_common::prelude::{Result, Error};
 
-use super::wtsapi32;
+use super::super::bindings::wtsapi32;
+use super::WtsInfo;
 
 #[derive(Debug)]
 pub struct Session {
@@ -25,7 +24,7 @@ impl Session {
 
     // https://docs.microsoft.com/ru-ru/windows/desktop/api/wtsapi32/ns-wtsapi32-_wtsinfow
     #[allow(trivial_casts)]
-    pub fn info(&self) -> Result<wtsapi32::WTSINFOW> {
+    pub fn info(&self) -> Result<WtsInfo> {
         let mut buffer: wtsapi32::PWTSINFOW = ptr::null_mut();
         let mut bytes: DWORD = 0;
         let result = unsafe {
@@ -43,7 +42,7 @@ impl Session {
         }
 
         unsafe {
-            Ok(*buffer)
+            Ok(WtsInfo(*buffer))
         }
     }
 
@@ -87,13 +86,10 @@ impl Session {
             other => unreachable!("Unknown family {}", other),
         };
 
-        Ok(address)
-    }
+        unsafe {
+            wtsapi32::WTSFreeMemory(address_ptr as *mut _ as PVOID);
+        }
 
-    // TODO: Seems like it is used widely across `heim`, should be refactored
-    pub fn from_wide(chars: &[WCHAR]) -> String {
-        // TODO: Use `memchr` crate if possible?
-        let first_null = chars.iter().position(|c| *c == 0x00).unwrap_or(0);
-        OsString::from_wide(&chars[..first_null]).to_string_lossy().to_string()
+        Ok(address)
     }
 }

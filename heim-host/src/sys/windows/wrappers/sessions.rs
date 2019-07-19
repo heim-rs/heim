@@ -5,7 +5,8 @@ use winapi::shared::minwindef::DWORD;
 
 use heim_common::prelude::*;
 
-use super::{wtsapi32, Session};
+use super::super::bindings::wtsapi32;
+use super::Session;
 
 /// Iterator over user sessions
 pub struct Sessions {

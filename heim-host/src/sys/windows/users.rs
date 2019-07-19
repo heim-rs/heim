@@ -1,7 +1,7 @@
 use std::net::IpAddr;
 
 use heim_common::prelude::*;
-use super::bindings;
+use super::wrappers::{Session, Sessions};
 
 #[derive(Debug)]
 pub struct User {
@@ -11,23 +11,19 @@ pub struct User {
 }
 
 impl User {
-    pub fn from_session(session: bindings::Session) -> Result<Option<User>> {
+    pub fn from_session(session: Session) -> Result<Option<User>> {
         let info = session.info()?;
-        let address = session.address()?;
 
-        // Fast-skipping users with empty username
-        match info.UserName.iter().next() {
-            Some(0x00) | None => return Ok(None),
-            _ => {}
-        }
-
-        let username = bindings::Session::from_wide(&info.UserName);
-        let domain = bindings::Session::from_wide(&info.Domain);
+        let username = match info.username() {
+            None => return Ok(None),
+            Some(username) => username,
+        };
+        let domain = info.domain();
 
         Ok(Some(User {
             domain,
             username,
-            address,
+            address: session.address()?,
         }))
     }
 
@@ -47,7 +43,7 @@ impl User {
 
 pub fn users() -> impl Stream<Item=Result<User>> {
     future::lazy(|_| {
-        let sessions = bindings::Sessions::new()?;
+        let sessions = Sessions::new()?;
 
         Ok(stream::iter(sessions).map(Ok))
     })
