@@ -66,6 +66,7 @@ impl Drop for Sessions {
 impl Iterator for Sessions {
     type Item = Session;
 
+    #[allow(trivial_casts)]
     fn next(&mut self) -> Option<Self::Item> {
         if self.current > self.count {
             None
@@ -79,46 +80,3 @@ impl Iterator for Sessions {
         }
     }
 }
-
-//impl Iterator for Sessions {
-//    type Item = Result<User>;
-//
-//    #[allow(trivial_casts)]
-//    fn next(&mut self) -> Option<Self::Item> {
-//        loop {
-//            if self.current > self.count {
-//                return None
-//            }
-//
-//            let session: wtsapi32::WTS_SESSION_INFOW = unsafe {
-//                *(&mut self.info as wtsapi32::PWTS_SESSION_INFOW).offset(self.current as isize)
-//            };
-//
-//            // No matter of result returned later, this one entry was fetched
-//            // and will not be accessed later
-//            self.current += 1;
-//
-//            let mut session_info = Self::get_session_info(session.SessionId)?;
-//            let address = Self::get_address(session.SessionId)?;
-//
-//            // Fast-skipping users with empty username
-//            match session_info.UserName.iter().next() {
-//                Some(0x00) | None => continue,
-//                _ => {}
-//            }
-//
-//            let username = Self::from_wide(&session_info.UserName);
-//            let domain = Self::from_wide(&session_info.Domain);
-//
-//            unsafe {
-//                wtsapi32::WTSFreeMemory(&mut session_info as *mut _ as PVOID);
-//            }
-//
-//            return Some(Ok(User {
-//                domain,
-//                username,
-//                address,
-//            }))
-//        }
-//    }
-//}
