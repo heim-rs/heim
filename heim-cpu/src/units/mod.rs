@@ -10,6 +10,10 @@ pub struct Frequency(u64);
 
 #[doc(hidden)]
 impl Frequency {
+    pub fn from_kilohertzs(value: u64) -> Self {
+        Self::new(value * 1_000)
+    }
+
     pub fn from_megahertzs(value: u64) -> Self {
         Self::new(value * 1_000_000)
     }

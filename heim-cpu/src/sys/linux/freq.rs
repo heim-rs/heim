@@ -97,7 +97,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
 fn read_freq(path: PathBuf) -> impl Future<Output = Result<Frequency>> {
     utils::fs::read_to_string(path)
         .and_then(|value| future::ready(value.trim_end().parse::<u64>().map_err(Error::from)))
-        .map_ok(Frequency::new)
+        .map_ok(Frequency::from_kilohertzs)
 }
 
 fn current_freq(path: &Path) -> impl Future<Output = Result<Frequency>> {
