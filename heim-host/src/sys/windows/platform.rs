@@ -1,15 +1,20 @@
 use std::io;
 use std::mem;
 use std::fmt;
-use std::ffi::CStr;
+use std::ffi::{OsString, CStr};
+use std::os::windows::ffi::OsStringExt;
 
-use winapi::um::{sysinfoapi, winnt, libloaderapi};
+use winapi::um::{sysinfoapi, winnt, libloaderapi, winbase};
 use winapi::shared::{ntdef, ntstatus, minwindef};
 
 use heim_common::prelude::*;
 use heim_common::sys::windows::get_ntdll;
 
 use crate::Arch;
+
+// TODO: Is not declared in `winapi` crate
+// See https://github.com/retep998/winapi-rs/issues/780
+const MAX_COMPUTERNAME_LENGTH: minwindef::DWORD = 31;
 
 // Partial copy of the `sysinfoapi::SYSTEM_INFO`,
 // because it contains pointers and we need to sent it between threads.
@@ -34,6 +39,7 @@ impl From<sysinfoapi::SYSTEM_INFO> for SystemInfo {
 pub struct Platform {
     sysinfo: SystemInfo,
     version: winnt::OSVERSIONINFOEXW,
+    hostname: String,
     build: String,
 }
 
@@ -77,8 +83,7 @@ impl Platform {
     }
 
     pub fn hostname(&self) -> &str {
-        // TODO: Stub, see https://github.com/heim-rs/heim/issues/72
-        ""
+        self.hostname.as_str()
     }
 
     pub fn architecture(&self) -> Arch {
@@ -104,6 +109,7 @@ impl fmt::Debug for Platform {
             .field("system", &self.system())
             .field("release", &self.release())
             .field("version", &self.version())
+            .field("hostname", &self.hostname())
             .field("architecture", &self.architecture())
             .finish()
     }
@@ -144,22 +150,32 @@ unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW
     }
 }
 
+unsafe fn get_computer_name() -> impl Future<Output=Result<String>> {
+    let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
+    let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
+
+    let result = winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size);
+    if result == 0 {
+        future::err(Error::last_os_error())
+    } else {
+        buffer.set_len(size as usize + 1);
+        let str = OsString::from_wide(&buffer[..(size as usize)]).to_string_lossy().to_string();
+        future::ok(str)
+    }
+}
+
 pub fn platform() -> impl Future<Output=Result<Platform>> {
     let sysinfo = unsafe { get_native_system_info() };
     let version = unsafe { rtl_get_version() };
+    let hostname = unsafe { get_computer_name() };
 
-    future::join(sysinfo, version)
-        .then(|result| {
-            match result {
-                (Ok(sysinfo), Ok(version)) => {
-                    future::ok(Platform {
-                        sysinfo,
-                        version,
-                        build: format!("{}", version.dwBuildNumber),
-                    })
-                },
-                (Err(e), _) => future::err(e),
-                (_, Err(e)) => future::err(e),
+    future::try_join3(sysinfo, version, hostname)
+        .map_ok(|(sysinfo, version, hostname)| {
+            Platform {
+                sysinfo,
+                version,
+                hostname,
+                build: format!("{}", version.dwBuildNumber),
             }
         })
 }
