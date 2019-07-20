@@ -2,6 +2,7 @@
 //!
 //! Do not use directly.
 
+#![doc(html_root_url = "https://docs.rs/heim-derive/0.0.4")]
 #![recursion_limit = "128"]
 #![deny(
     unused,

@@ -24,3 +24,6 @@ quote = "0.6.12"
 version = "0.15.39"
 # TODO: Remove unused traits when crate will be stable enough to use
 features = ["derive", "full", "parsing", "printing", "clone-impls", "extra-traits", "proc-macro"]
+
+[dev-dependencies]
+version-sync = "0.8"

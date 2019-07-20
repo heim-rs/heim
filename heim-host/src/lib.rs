@@ -2,6 +2,7 @@
 //!
 //! This module is enabled with the `host` feature flag (enabled by default).
 
+#![doc(html_root_url = "https://docs.rs/heim-host/0.0.4")]
 #![deny(
     unused,
     unused_imports,

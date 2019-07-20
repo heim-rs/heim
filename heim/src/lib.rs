@@ -23,6 +23,7 @@
 //! In addition, it would be better to double check if returned information is reliable.
 //! You know, just in case.
 
+#![doc(html_root_url = "https://docs.rs/heim/0.0.4")]
 #![deny(
     unused,
     unused_imports,

@@ -24,6 +24,9 @@ heim-net = {version = "0.0.4", path = "../heim-net", optional = true }
 heim-process = { version = "0.0.4", path = "../heim-process", optional = true }
 heim-virt = { version = "0.0.4", path = "../heim-virt", optional = true }
 
+[dev-dependencies]
+version-sync = "0.8"
+
 [features]
 default = ["host", "cpu", "memory", "disk", "net", "process", "virt"]
 host = ["heim-host"]

@@ -18,6 +18,9 @@ heim-derive = { version = "0.0.4", path = "../heim-derive" }
 cfg-if = "0.1.7"
 futures-preview = "0.3.0-alpha.17"
 
+[dev-dependencies]
+version-sync = "0.8"
+
 [target.'cfg(unix)'.dependencies]
 nix = "0.14.0"
 
