@@ -76,6 +76,11 @@ impl Platform {
         self.build.as_str()
     }
 
+    pub fn hostname(&self) -> &str {
+        // TODO: Stub, see https://github.com/heim-rs/heim/issues/72
+        ""
+    }
+
     pub fn architecture(&self) -> Arch {
         match self.sysinfo.processor_arch {
             // While there are other `PROCESSOR_ARCHITECTURE_*` consts exists,
@@ -85,7 +90,7 @@ impl Platform {
             winnt::PROCESSOR_ARCHITECTURE_ARM => Arch::ARM,
             winnt::PROCESSOR_ARCHITECTURE_ARM64 => Arch::AARCH64,
             // TODO: Is it okay to match Ia64 to unknown arch?
-            // `platforms::Arch` enum does not have specific member to Itanium.
+            // `platforms::Arch` enum does not have specific member for Itanium.
             winnt::PROCESSOR_ARCHITECTURE_IA64 => Arch::Unknown,
             winnt::PROCESSOR_ARCHITECTURE_INTEL => Arch::X86,
             _ => Arch::Unknown,

@@ -11,6 +11,7 @@ pub struct Platform {
     system: String,
     release: String,
     version: String,
+    hostname: String,
     arch: Arch,
 }
 
@@ -25,6 +26,10 @@ impl Platform {
 
     pub fn version(&self) -> &str {
         &self.version
+    }
+
+    pub fn hostname(&self) -> &str {
+        &self.hostname
     }
 
     pub fn architecture(&self) -> Arch {
@@ -49,6 +54,7 @@ pub fn platform() -> impl Future<Output = Result<Platform>> {
                 system: into_cow(&uts.sysname).into_owned(),
                 release: into_cow(&uts.release).into_owned(),
                 version: into_cow(&uts.version).into_owned(),
+                hostname: into_cow(&uts.nodename).into_owned(),
                 arch,
             })
 

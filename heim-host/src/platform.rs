@@ -20,6 +20,7 @@ use crate::{sys, Arch};
 ///    system: "Linux",
 ///    release: "5.0.5-arch1-1-ARCH",
 ///    version: "#1 SMP PREEMPT Wed Mar 27 17:53:10 UTC 2019",
+///    hostname: "tardis",
 ///    architecture: X86_64,
 /// }
 /// ```
@@ -42,6 +43,11 @@ impl Platform {
         self.as_ref().version()
     }
 
+    /// Returns system hostname.
+    pub fn hostname(&self) -> &str {
+        self.as_ref().hostname()
+    }
+
     /// Returns system architecture.
     pub fn architecture(&self) -> Arch {
         self.as_ref().architecture()
@@ -54,6 +60,7 @@ impl fmt::Debug for Platform {
             .field("system", &self.system())
             .field("release", &self.release())
             .field("version", &self.version())
+            .field("hostname", &self.hostname())
             .field("architecture", &self.architecture())
             .finish()
     }
