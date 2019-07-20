@@ -24,6 +24,17 @@ use crate::{sys, Arch};
 ///    architecture: X86_64,
 /// }
 /// ```
+///
+/// Windows example:
+/// ```text
+/// Platform {
+///     system: "Windows",
+///     release: "10",
+///     version: "17763",
+///     hostname: "WINDEV1905EVAL",
+///     architecture: X86_64,
+/// }
+/// ```
 #[derive(heim_derive::ImplWrap)]
 pub struct Platform(sys::Platform);
 

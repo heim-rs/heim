@@ -2,7 +2,7 @@ use crate::units::Time;
 
 /// Linux-specific extension for [CpuTime].
 ///
-/// [CpuTime]: crate::CpuTime
+/// [CpuTime]: ../../struct.CpuTime.html
 #[heim_derive::os_ext_for(crate::CpuTime, cfg(target_os = "linux"))]
 pub trait CpuTimeExt {
     /// Returns time spent by niced (prioritized) processes executing in user mode,

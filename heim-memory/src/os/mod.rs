@@ -22,7 +22,7 @@ cfg_if::cfg_if! {
 ///
 /// Applicable for all supported platforms except Windows.
 ///
-/// [Swap]: crate::Swap
+/// [Swap]: ../struct.Swap.html
 #[cfg(any(doc, not(windows)))]
 pub trait SwapExt {
     /// The cumulative amount of information the system has swapped in from disk.
