@@ -20,6 +20,12 @@ pub enum FileSystem {
     /// FAT (https://en.wikipedia.org/wiki/File_Allocation_Table)
     VFat,
 
+    /// exFAT (https://en.wikipedia.org/wiki/ExFAT)
+    ExFat,
+
+    /// F2FS (https://en.wikipedia.org/wiki/F2FS)
+    F2fs,
+
     /// NTFS (https://en.wikipedia.org/wiki/NTFS)
     Ntfs,
 
@@ -29,17 +35,35 @@ pub enum FileSystem {
     /// HFS (https://en.wikipedia.org/wiki/Hierarchical_File_System)
     Hfs,
 
-    /// ReiserFS (https://en.wikipedia.org/wiki/ReiserFS)
-    Reiserfs,
+    /// HFS+ (https://en.wikipedia.org/wiki/HFS_Plus)
+    HfsPlus,
+
+    /// JFS (https://en.wikipedia.org/wiki/JFS_(file_system))
+    Jfs,
+
+    /// ReiserFS 3 (https://en.wikipedia.org/wiki/ReiserFS)
+    Reiser3,
+
+    /// ReiserFS 4 (https://en.wikipedia.org/wiki/Reiser4)
+    Reiser4,
+
+    /// Btrfs (https://en.wikipedia.org/wiki/Btrfs)
+    Btrfs,
+
+    /// MINIX FS (https://en.wikipedia.org/wiki/MINIX_file_system)
+    Minix,
+
+    /// NILFS (https://en.wikipedia.org/wiki/NILFS)
+    Nilfs,
+
+    /// XFS (https://en.wikipedia.org/wiki/XFS)
+    Xfs,
 
     // TODO: Should it be considered as a physical FS?
     /// FUSE (https://en.wikipedia.org/wiki/Filesystem_in_Userspace)
     FuseBlk,
 
     // TODO: Extend list
-    // References:
-    //  * https://linux.die.net/man/2/fstatfs
-    //  * FAT, FAT32, NTFS, HPFS, CDFS, UDF or NWFS
     /// Some unspecified filesystem.
     Other(String),
 
@@ -71,10 +95,19 @@ impl FileSystem {
             FileSystem::Ntfs => "ntfs",
             FileSystem::Zfs => "zfs",
             FileSystem::Hfs => "hfs",
-            FileSystem::Reiserfs => "reiserfs",
+            FileSystem::Reiser3 => "reiserfs",
+            FileSystem::Reiser4 => "reiser4",
             FileSystem::FuseBlk => "fuseblk",
+            FileSystem::ExFat => "exfat",
+            FileSystem::F2fs => "f2fs",
+            FileSystem::HfsPlus => "hfs+",
+            FileSystem::Jfs => "jfs",
+            FileSystem::Btrfs => "btrfs",
+            FileSystem::Minix => "minix",
+            FileSystem::Nilfs => "nilfs",
+            FileSystem::Xfs => "xfs",
             FileSystem::Other(string) => string.as_str(),
-            _ => unreachable!(),
+            _ => unimplemented!(),
         }
     }
 }
@@ -91,7 +124,17 @@ impl FromStr for FileSystem {
             _ if s.eq_ignore_ascii_case("ntfs") => Ok(FileSystem::Ntfs),
             _ if s.eq_ignore_ascii_case("zfs") => Ok(FileSystem::Zfs),
             _ if s.eq_ignore_ascii_case("hfs") => Ok(FileSystem::Hfs),
-            _ if s.eq_ignore_ascii_case("reiserfs") => Ok(FileSystem::Reiserfs),
+            _ if s.eq_ignore_ascii_case("reiserfs") => Ok(FileSystem::Reiser3),
+            _ if s.eq_ignore_ascii_case("reiser4") => Ok(FileSystem::Reiser4),
+            _ if s.eq_ignore_ascii_case("exfat") => Ok(FileSystem::ExFat),
+            _ if s.eq_ignore_ascii_case("f2fs") => Ok(FileSystem::F2fs),
+            _ if s.eq_ignore_ascii_case("hfsplus") => Ok(FileSystem::HfsPlus),
+            _ if s.eq_ignore_ascii_case("jfs") => Ok(FileSystem::Jfs),
+            _ if s.eq_ignore_ascii_case("btrfs") => Ok(FileSystem::Btrfs),
+            _ if s.eq_ignore_ascii_case("minix") => Ok(FileSystem::Minix),
+            _ if s.eq_ignore_ascii_case("nilfs") => Ok(FileSystem::Nilfs),
+            _ if s.eq_ignore_ascii_case("xfs") => Ok(FileSystem::Xfs),
+
             _ if s.eq_ignore_ascii_case("fuseblk") => Ok(FileSystem::FuseBlk),
             _ => Ok(FileSystem::Other(s.to_string())),
         }
