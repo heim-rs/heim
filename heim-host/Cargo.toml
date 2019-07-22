@@ -13,6 +13,7 @@ build = "build.rs"
 
 [badges]
 maintenance = { status = "experimental" }
+azure-devops = { project = "heim-rs", pipeline = "heim" }
 
 [dependencies]
 heim-derive = { version = "0.0.4", path = "../heim-derive" }
