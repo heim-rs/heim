@@ -40,7 +40,5 @@ pub use self::platform::*;
 pub use self::uptime::*;
 pub use self::users::*;
 
-#[cfg(any(doc, not(target_os = "windows")))]
-type Pid = libc::pid_t;
-
 pub use heim_common::units::Time;
+pub use heim_common::Pid;

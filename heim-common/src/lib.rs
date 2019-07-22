@@ -30,6 +30,15 @@ pub mod utils;
 
 pub use self::errors::{Error, Result};
 
+/// Process identifier type.
+#[cfg(unix)]
+pub type Pid = libc::pid_t;
+
+/// Process identifier type.
+// TODO: Is it a correct type for pid?
+#[cfg(target_os = "windows")]
+pub type Pid = winapi::shared::minwindef::DWORD;
+
 /// Prelude intended to be used across `heim-*` crates.
 ///
 /// Consider not to use it in your code, because it is kinda internal

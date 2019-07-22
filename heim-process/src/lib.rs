@@ -31,12 +31,4 @@ mod pids;
 pub use self::pids::*;
 
 pub use self::errors::ProcessError;
-
-/// Process identifier type.
-#[cfg(not(target_os = "windows"))]
-pub type Pid = libc::pid_t;
-
-/// Process identifier type.
-// TODO: Is it a correct type for pid?
-#[cfg(target_os = "windows")]
-pub type Pid = winapi::shared::minwindef::DWORD;
+pub use heim_common::Pid;

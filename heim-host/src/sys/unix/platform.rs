@@ -1,10 +1,10 @@
 use std::mem;
 use std::str::FromStr;
+use std::ffi::CStr;
 
 use heim_common::prelude::*;
 
 use crate::Arch;
-use super::into_cow;
 
 #[derive(Debug)]
 pub struct Platform {
@@ -47,14 +47,14 @@ pub fn platform() -> impl Future<Output = Result<Platform>> {
             Err(Error::last_os_error())
         } else {
             let uts = uts.assume_init();
-            let raw_arch = into_cow(&uts.machine);
+            let raw_arch = CStr::from_ptr(uts.machine.as_ptr()).to_string_lossy();
             let arch = Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown);
 
             Ok(Platform {
-                system: into_cow(&uts.sysname).into_owned(),
-                release: into_cow(&uts.release).into_owned(),
-                version: into_cow(&uts.version).into_owned(),
-                hostname: into_cow(&uts.nodename).into_owned(),
+                system: CStr::from_ptr(uts.sysname.as_ptr()).to_string_lossy().into_owned(),
+                release: CStr::from_ptr(uts.release.as_ptr()).to_string_lossy().into_owned(),
+                version: CStr::from_ptr(uts.version.as_ptr()).to_string_lossy().into_owned(),
+                hostname: CStr::from_ptr(uts.nodename.as_ptr()).to_string_lossy().into_owned(),
                 arch,
             })
 

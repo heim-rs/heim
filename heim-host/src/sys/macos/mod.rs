@@ -4,8 +4,10 @@ use std::mem;
 use mach::{kern_return, mach_time};
 
 mod uptime;
+mod users;
 
 pub use self::uptime::*;
+pub use self::users::*;
 
 unsafe fn timebase_info() -> io::Result<mach_time::mach_timebase_info> {
     let mut info = mem::MaybeUninit::<mach_time::mach_timebase_info>::uninit();
