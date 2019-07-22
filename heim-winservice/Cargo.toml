@@ -10,8 +10,3 @@ license = "Apache-2.0 OR MIT"
 
 [badges]
 maintenance = { status = "experimental" }
-
-[dependencies]
-
-[package.metadata.docs.rs]
-features = ["doc"]

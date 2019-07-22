@@ -22,6 +22,12 @@
 //!
 //! In addition, it would be better to double check if returned information is reliable.
 //! You know, just in case.
+//!
+//! ## Documentation
+//!
+//! Note that `heim` also is provides platform-specific APIs.
+//! If you are browsing this documentation via [docs.rs](https://docs.rs/heim),
+//! do not forget to use the platform selector at the page header.
 
 #![doc(html_root_url = "https://docs.rs/heim/0.0.4")]
 #![deny(

@@ -38,9 +38,3 @@ mach = "0.3.2"
 [dev-dependencies]
 runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
-
-[features]
-doc = []
-
-[package.metadata.docs.rs]
-features = ["doc"]

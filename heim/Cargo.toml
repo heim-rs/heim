@@ -37,16 +37,3 @@ disk = ["heim-disk"]
 net = ["heim-net"]
 process = ["heim-process"]
 virt = ["heim-virt"]
-doc = [
-    "heim-common/doc",
-    "heim-host/doc",
-    "heim-cpu/doc",
-    "heim-memory/doc",
-    "heim-disk/doc",
-    "heim-net/doc",
-    "heim-process/doc",
-    "heim-virt/doc",
-]
-
-[package.metadata.docs.rs]
-features = ["doc"]

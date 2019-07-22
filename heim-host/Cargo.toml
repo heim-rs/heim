@@ -32,9 +32,3 @@ mach = "0.3.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3.7", features = ["sysinfoapi", "libloaderapi", "minwindef", "winnt", "ntdef"] }
-
-[features]
-doc = []
-
-[package.metadata.docs.rs]
-features = ["doc"]

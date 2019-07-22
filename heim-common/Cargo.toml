@@ -32,9 +32,3 @@ winapi = { version = "0.3.7", features = ["winnt", "minwindef", "libloaderapi"] 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.3.2"
 core-foundation = "0.6.4"
-
-[features]
-doc = []
-
-[package.metadata.docs.rs]
-features = ["doc"]

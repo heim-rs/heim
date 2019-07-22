@@ -25,9 +25,3 @@ raw-cpuid = "6.1.0"
 runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
 tempfile = "3.0"
-
-[features]
-doc = []
-
-[package.metadata.docs.rs]
-features = ["doc"]

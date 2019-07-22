@@ -2,16 +2,13 @@
 //!
 //! These are not cross-platform and their usage should be `cfg`-wrapped.
 
-#[cfg(any(doc, not(windows)))]
+#[cfg(not(windows))]
 use crate::Information;
 
 cfg_if::cfg_if! {
-    if #[cfg(any(doc, target_os = "linux"))] {
+    if #[cfg(target_os = "linux")] {
         pub mod linux;
-    } else if #[cfg(any(doc, target_os = "windows"))] {
-        #[doc(hidden)]
-        pub mod windows;
-    } else if #[cfg(any(doc, target_os = "macos"))] {
+    } else if #[cfg(target_os = "macos")] {
         pub mod macos;
     }
 }
@@ -23,7 +20,7 @@ cfg_if::cfg_if! {
 /// Applicable for all supported platforms except Windows.
 ///
 /// [Swap]: ../struct.Swap.html
-#[cfg(any(doc, not(windows)))]
+#[cfg(not(windows))]
 pub trait SwapExt {
     /// The cumulative amount of information the system has swapped in from disk.
     fn sin(&self) -> Option<Information>;
