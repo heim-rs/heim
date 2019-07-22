@@ -42,11 +42,6 @@ impl IoCounters {
     pub fn drop_recv(&self) -> u64 {
         self.data.ifm_data.ifi_iqdrops
     }
-
-    // TODO: `drop_sent` is not supported!
-    pub fn drop_sent(&self) -> u64 {
-        0
-    }
 }
 
 impl fmt::Debug for IoCounters {

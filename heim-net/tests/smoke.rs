@@ -3,6 +3,12 @@
 use heim_common::prelude::*;
 use heim_net as net;
 
+#[cfg(target_os = "linux")]
+use heim_net::os::linux::IoCountersExt;
+
+#[cfg(target_os = "windows")]
+use heim_net::os::windows::IoCountersExt;
+
 #[runtime::test]
 async fn smoke_io_counters() {
     let mut counters = net::io_counters();
@@ -17,6 +23,8 @@ async fn smoke_io_counters() {
         let _ = counter.errors_sent();
         let _ = counter.errors_recv();
         let _ = counter.drop_recv();
+
+        #[cfg(any(target_os = "linux", target_os = "windows"))]
         let _ = counter.drop_sent();
     }
 }

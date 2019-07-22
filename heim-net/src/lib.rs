@@ -23,6 +23,7 @@
     unused_results
 )]
 
+pub mod os;
 mod sys;
 
 mod counters;

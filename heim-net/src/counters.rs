@@ -55,11 +55,6 @@ impl IoCounters {
     pub fn drop_recv(&self) -> u64 {
         self.as_ref().drop_recv()
     }
-
-    /// Returns packets amount which were dropped while sending them.
-    pub fn drop_sent(&self) -> u64 {
-        self.as_ref().drop_sent()
-    }
 }
 
 impl fmt::Debug for IoCounters {
@@ -73,7 +68,6 @@ impl fmt::Debug for IoCounters {
             .field("errors_sent", &self.errors_sent())
             .field("errors_recv", &self.errors_recv())
             .field("drop_recv", &self.drop_recv())
-            .field("drop_sent", &self.drop_sent())
             .finish()
     }
 }
