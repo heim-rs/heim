@@ -27,7 +27,7 @@ impl Usage {
 
     pub fn free(&self) -> Information {
         Information::new(unsafe {
-            *self.total.QuadPart()
+            *self.free.QuadPart()
         })
     }
 
