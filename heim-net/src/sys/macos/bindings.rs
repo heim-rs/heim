@@ -22,12 +22,23 @@ impl Iterator for Routes {
                 self.data.as_ptr().add(self.position)
             };
 
+            // In order not to read uninitialized memory (leading to heap-buffer-overflow),
+            // which might happen if the whole `libc::if_msghdr` struct would be used here,
+            // we are going to read as small as possible bytes amount
+            // and see if that would be enough to determine the `ifm_type`
+            assert!(
+                self.position + mem::size_of::<if_msghdr_partial>() < self.data.len(),
+                "Not enough data to read the `if_msghdr` header, need at least {} bytes, got {}",
+                mem::size_of::<if_msghdr_partial>(),
+                self.data.len() - self.position,
+            );
+
             let hdr = unsafe {
-                let mut maybe_hdr = mem::MaybeUninit::<libc::if_msghdr>::uninit();
+                let mut maybe_hdr = mem::MaybeUninit::<if_msghdr_partial>::uninit();
                 ptr::copy_nonoverlapping(
                     data_ptr,
                     maybe_hdr.as_mut_ptr() as *mut u8,
-                    mem::size_of::<libc::if_msghdr>()
+                    mem::size_of::<if_msghdr_partial>()
                 );
                 maybe_hdr.assume_init()
             };
@@ -99,6 +110,13 @@ pub struct if_msghdr2 {
     pub ifm_snd_drops: libc::c_int,
     pub ifm_timer: libc::c_int,
     pub ifm_data: if_data64,
+}
+
+#[repr(C)]
+pub struct if_msghdr_partial {
+    pub ifm_msglen: libc::c_ushort,
+    pub ifm_version: libc::c_uchar,
+    pub ifm_type: libc::c_uchar,
 }
 
 pub unsafe fn net_pf_route() -> Result<Routes> {
