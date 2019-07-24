@@ -1,1 +1,1 @@
-//! This crate is an placeholder for a future development.
+//! This crate is a placeholder for future developments.

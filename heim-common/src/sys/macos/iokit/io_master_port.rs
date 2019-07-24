@@ -26,8 +26,8 @@ impl IoMasterPort {
         }
     }
 
-    /// Returns services matching the `name`,
-    /// where `name` is bytes string ending with a `0x00`,
+    /// Returns services matching `name`,
+    /// where `name` is a bytes string ending in a `0x00`,
     /// for example: `b"IOMedia\0"`
     pub fn get_services(&self, name: &[u8]) -> Result<IoIterator> {
         let service = unsafe {

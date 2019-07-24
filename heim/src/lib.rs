@@ -1,5 +1,5 @@
-//! `heim` is fast and eventually full-featured async framework for Rust programming language
-//! intended to provide any possible information about the system it is running.
+//! `heim` is a fast and eventually fully-featured async library for the Rust programming language
+//! intended to provide any possible information about the system it is running on.
 //!
 //! At a high level, it provides information about:
 //!
@@ -14,18 +14,18 @@
 //!
 //! ## Platform support
 //!
-//! At the moment it is in **MVP** phase, which means that [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
-//! platforms only (Linux, macOS and Windows for `i686` and `x86_64`)
-//! are **partially** supported.
-//! You may want to check out the [GitHub projects page](https://github.com/heim-rs/heim/projects)
-//! for more information about cross-platform support.
+//! At the moment, `heim` is in **MVP** phase, which means that there is only only **partial** support
+//! for [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
+//! platforms (Linux, macOS, and Windows for `i686` and `x86_64`).
+//! You can check the [GitHub projects page](https://github.com/heim-rs/heim/projects)
+//! for more information.
 //!
-//! In addition, it would be better to double check if returned information is reliable.
+//! In addition, it would be good to double check if the returned information is correct.
 //! You know, just in case.
 //!
 //! ## Documentation
 //!
-//! Note that `heim` also is provides platform-specific APIs.
+//! Note that `heim` also provides platform-specific APIs.
 //! If you are browsing this documentation via [docs.rs](https://docs.rs/heim),
 //! do not forget to use the platform selector at the page header.
 

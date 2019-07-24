@@ -1,4 +1,4 @@
-//! OS-specific routines for `heim` sub-crates (and only).
+//! OS-specific routines for `heim` sub-crates (and `heim` sub-crates only).
 //!
 //! Do not use them.
 

@@ -17,10 +17,10 @@ By participating, you are expected to uphold this code.
 
 ## I just have a question!
 
-First of all: do not file an issue to ask a question!
+First of all: do not file an issue to ask a question about how to use heim!
 
-This is not a project goal right now to provide any kind of information
-about how to work with `Futures`, use it in `actix` or such kind of thing.\
+It is not a project goal right now to provide any kind of information
+about how to work with `Futures`, use heim with `actix`, or any other such things.\
 Such issues will be closed immediately.
 
 Use any [Rust community channel available](https://www.rust-lang.org/community#contribute-talk) to get help
@@ -33,15 +33,15 @@ or check out the [Gitter](https://gitter.im/heim-rs/heim) chat.
 heim is split into multiple crates, each one responsible for a specific system component
 (ex. `heim-cpu` provides information about CPUs, `heim-memory` about system memory, you got it).
 
-`heim` crate acts as a facade to all these `heim-*` crates and does nothing more
-but re-exports of the things underline.
+The `heim` crate acts as a facade to all the `heim-*` crates and does nothing more
+than re-export all of them.
 
 ### Design decisions
 
-Since heim is a very young project, public API should not be considered as stable.
+Since heim is a very young project, the public API should not be considered stable.
 
 There is no separate repository for RFC proposals (yet?), so if you have an idea,
-just [create an issue](https://github.com/heim-rs/heim/issues/new) in main repository.
+just [create an issue](https://github.com/heim-rs/heim/issues/new) in the main repository.
 
 ## How can I contribute?
 
