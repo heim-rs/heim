@@ -8,7 +8,7 @@
 ![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
 [![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 
-> Cross-platform framework for system information fetching
+> Cross-platform library for system information fetching
 
 `heim` is an ongoing attempt to create the best tool for system information fetching
 (ex., CPU, memory, disks or processes stats) in the Rust crates ecosystem.\
@@ -19,54 +19,54 @@ It targets to have at least the same functionality as
 
 ## Background
 
-`heim` has few key things, which are defining its development and public interface:
+`heim` has a few key goals which define its development and public interface:
 
  1. Async-first.\
-    Async support in Rust becomes a first level citizen
-    and it is about time to use it.
-    While many things here are not requiring to be async right now,
-    it will help to create better and faster implementations later.
+    Async support in Rust has become a first class citizen
+    and it's about time to use it.
+    While many things here do not require async right now,
+    it will help create better and faster implementations later.
 
  2. Cross-platform.\
-    Any code from `heim` should just work at any platform supported.
-    OS-specific things are exists, but forces user to pay attention to them
-    due to API design.
+    Any code from `heim` should just work on any supported platforms.
+    OS-specific things do exist, but the API design forces users to
+    pay attention to them.
 
- 3. Smallest pieces possible.\
-    Thanks to a various `futures` combinators, it's up to you
+ 3. Modular design.\
+    Thanks to the various `futures` combinators, it's up to you
     to choose the exact information you want to get.
 
  4. Idiomatic and easy to use.
 
 ## Technical notes
 
-`heim` API targets to compile with stable Rust 1.36+;
-but examples, tests and benchmarks are using [`async_await`](https://github.com/rust-lang/rust/issues/50547)
-feature, and therefore, requiring `nightly` compiler.\
+`heim` requires stable Rust 1.36+,
+but examples, tests and benchmarks use the [`async_await`](https://github.com/rust-lang/rust/issues/50547)
+feature and therefore require a `nightly` compiler.\
 Of course, you can use `heim` without the `async` keyword,
-just be careful with the examples.
+just be aware that it is used by the examples.
 
-`heim` is using `futures = "0.3"` and it is expected from users to understand
-how futures are working, how to use them and what differences there are
-between `0.1` and `0.3` versions.\
+`heim` is using `std::future::Future` and it is expected that users understand
+how futures work, how to use them, and what differences there are
+between futures versions `0.1` and `0.3/std::future::Future`.\
 It is not a project goal to provide any kind of information about how to
-combine `heim` with `actix`, `hyper`, `tide` or any other Rust crate.
+combine `heim` with `actix`, `hyper`, `tide`, or any other Rust crate.
 
-At the moment `heim` is not dependant on any async runtime, but it will in a future
-and most probably it will be a [runtime](https://crates.io/crates/runtime) crate.
-Users may want to consider that fact during the development.
+At the moment `heim` is not dependant on any async runtime, but it will in the future
+and it will most likely be a [runtime](https://crates.io/crates/runtime) crate.
+Users may want to consider that fact during development.
 
 ## Platform support
 
-At the moment it is in **MVP** phase, which means that [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
-platforms only (Linux, macOS and Windows for `i686` and `x86_64`)
-are **partially** supported.
-You may want to check the [Github projects page](https://github.com/heim-rs/heim/projects)
+At the moment, `heim` is in **MVP** phase, which means that there is only only **partial** support
+for [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
+platforms (Linux, macOS, and Windows for `i686` and `x86_64`).
+You can check the [GitHub projects page](https://github.com/heim-rs/heim/projects)
 for more information.
 
-Please, be aware, that at the moment `heim` (and all sub-crates)
+Please be aware that at the moment, `heim` (and all sub-crates)
 has the "**experimental**" status,
-so consider to double check the results before pushing your code to a production.
+so consider double checking the results before pushing your code to production.
 
 ## Donations
 
