@@ -67,7 +67,7 @@ pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
 
         let mut vfs = mem::MaybeUninit::<libc::statvfs>::uninit();
         let result = unsafe {
-            libc::statvfs(path.into_raw(), vfs.as_mut_ptr())
+            libc::statvfs(path.as_ptr(), vfs.as_mut_ptr())
         };
 
         if result == 0 {
