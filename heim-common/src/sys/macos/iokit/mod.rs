@@ -1,8 +1,8 @@
 //! Somewhat-safe wrappers around the IOKit stuff.
 //!
 //! Intended to be used only across the `heim` project.
-//! There is no guarantees on stability or whatever, if you are going to use it directly
-//! in other project. Seriously, do not do it.
+//! There are no guarantees on stability or whatever, so you shouldn't use this
+//! directly in your own crate. Seriously, do not do it.
 
 mod ffi;
 mod io_iterator;

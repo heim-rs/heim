@@ -16,7 +16,7 @@ use super::ffi;
 pub struct IoObject(ffi::io_object_t);
 
 impl IoObject {
-    /// Returns typed dictionary with this object properties.
+    /// Returns a typed dictionary with this object's properties.
     pub fn properties(&self) -> Result<CFDictionary<CFString, CFType>> {
         unsafe {
             let mut props = mem::MaybeUninit::<CFMutableDictionaryRef>::uninit();
@@ -36,7 +36,7 @@ impl IoObject {
         }
     }
 
-    /// Gets the parent `io_object_t` for this `io_object_t` is there any.
+    /// Gets the parent `io_object_t` for this `io_object_t` if there is one.
     pub fn parent(&self, plane: &[u8]) -> Result<IoObject> {
         let mut parent = mem::MaybeUninit::<ffi::io_object_t>::uninit();
 
@@ -58,8 +58,8 @@ impl IoObject {
         }
     }
 
-    /// `class_name` should look like the `b"IOBlockStorageDriver\0"` --
-    /// a binary string with a trailing 0x00 char
+    /// `class_name` should look like `b"IOBlockStorageDriver\0"` --
+    /// a binary string with a trailing `0x00` char
     pub fn conforms_to(&self, class_name: &[u8]) -> bool {
         let result = unsafe {
             ffi::IOObjectConformsTo(

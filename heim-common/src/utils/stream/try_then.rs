@@ -49,7 +49,7 @@ where
     }
 }
 
-// Forwarding impl of Sink from the underlying stream
+// Forwarding impl of `Sink` from the underlying stream
 impl<S, F, T, Item> Sink<Item> for MapOk<S, F>
 where
     S: TryStream + Sink<Item>,
