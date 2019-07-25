@@ -25,7 +25,7 @@ pub enum Error {
     #[doc(hidden)]
     MissingEntity(Cow<'static, str>),
     #[doc(hidden)]
-    Incompatible(&'static str),
+    Incompatible(Cow<'static, str>),
     #[doc(hidden)]
     Other(Box<dyn error::Error + Send + 'static>),
 
@@ -46,8 +46,8 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn incompatible(desc: &'static str) -> Error {
-        Error::Incompatible(desc)
+    pub fn incompatible<T: Into<Cow<'static, str>>>(desc: T) -> Error {
+        Error::Incompatible(desc.into())
     }
 }
 

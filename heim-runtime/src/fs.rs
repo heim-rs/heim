@@ -1,7 +1,7 @@
 //! Async (if possible) FS operations with a fallback to sync one.
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 #[cfg(target_os = "windows")]
@@ -89,4 +89,12 @@ where
     T: AsRef<Path> + Send + 'static,
 {
     shims::fs::read_dir(path.as_ref())
+}
+
+/// Returns future which tries read the symlink.
+pub fn read_link<T>(path: T) -> impl TryFuture<Ok = PathBuf, Error = Error>
+where
+    T: AsRef<Path> + Send + 'static,
+{
+    shims::fs::read_link(path.as_ref())
 }

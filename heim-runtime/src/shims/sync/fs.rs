@@ -1,6 +1,6 @@
 use std::fs;
 use std::io::{self, BufRead as _};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 #[cfg(target_os = "windows")]
 use std::os::windows::io::{RawHandle, AsRawHandle};
@@ -88,4 +88,9 @@ pub fn read_dir(path: &Path) -> impl TryStream<Ok = fs::DirEntry, Error = Error>
         .map_err(Error::from)
         .map_ok(|iter| stream::iter(iter).map_err(Error::from))
         .try_flatten_stream()
+}
+
+pub fn read_link(path: &Path) -> impl TryFuture<Ok = PathBuf, Error = Error>
+{
+    future::ready(fs::read_link(path)).map_err(Error::from)
 }

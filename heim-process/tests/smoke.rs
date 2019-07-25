@@ -18,3 +18,17 @@ async fn smoke_pids() {
         assert!(pid.is_ok());
     }
 }
+
+#[runtime::test]
+async fn smoke_processes() {
+    let mut processes = process::processes();
+
+    while let Some(process) = processes.next().await {
+        let process = process.unwrap();
+
+        let _ = process.pid();
+        let _ = process.parent_pid();
+        let _ = process.name();
+        let _ = process.exe();
+    }
+}

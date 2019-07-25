@@ -1,10 +1,14 @@
 use std::error;
 use std::fmt;
 use std::io;
+use std::result;
 
 use heim_common::Error;
 
 use crate::Pid;
+
+/// A specialized `Result` type for process-related routines.
+pub type ProcessResult<T> = result::Result<T, ProcessError>;
 
 /// Error which might happen during the process information fetching.
 #[derive(Debug)]
@@ -13,6 +17,8 @@ pub enum ProcessError {
     NoSuchProcess(Pid),
     /// Might be returned when querying zombie process on Unix systems.
     ZombieProcess(Pid),
+    /// Not enough permissions to query the process information.
+    AccessDenied(Pid),
     /// Data loading failure.
     Load(Error),
 
@@ -28,6 +34,9 @@ impl fmt::Display for ProcessError {
             }
             ProcessError::ZombieProcess(pid) => {
                 f.write_fmt(format_args!("Process {} is zombie", pid))
+            }
+            ProcessError::AccessDenied(pid) => {
+                f.write_fmt(format_args!("Access denied for process {}", pid))
             }
             ProcessError::Load(e) => fmt::Display::fmt(e, f),
             _ => unreachable!(),
