@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
+use heim_runtime::fs;
 
 use crate::Information;
 
@@ -131,11 +132,11 @@ impl Swap {
 }
 
 fn vm_stat() -> impl Future<Output=Result<VmStat>> {
-    utils::fs::read_into(PROC_VMSTAT)
+    fs::read_into(PROC_VMSTAT)
 }
 
 pub fn swap() -> impl Future<Output=Result<Swap>> {
-    let meminfo = utils::fs::read_to_string(PROC_MEMINFO);
+    let meminfo = fs::read_to_string(PROC_MEMINFO);
     future::join(meminfo, vm_stat())
         .then(|result| {
             match result {

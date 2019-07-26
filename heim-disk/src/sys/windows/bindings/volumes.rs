@@ -42,7 +42,7 @@ impl Volumes {
             // What does that strange and mysterious `- 1` means?
             //
             // `PathBuf` yielded by this iterator will be passed into a
-            // Windows' `CreateFile` later (with help of `tokio::fs::File::open`)
+            // Windows' `CreateFile` later
             // and if "Volume GUID path" as in our case ends with a backslash `\`
             // (hint: it ends with it here), `CreateFile` assumes then that
             // we are opening not the volume itself, but a root directory on it.

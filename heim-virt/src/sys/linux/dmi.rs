@@ -1,5 +1,5 @@
 use heim_common::prelude::{future, stream, Future, FutureExt, TryFutureExt, StreamExt, TryStreamExt};
-use heim_common::utils::fs;
+use heim_runtime::fs;
 
 use crate::Virtualization;
 

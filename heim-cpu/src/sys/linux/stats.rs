@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
+use heim_runtime::fs;
 
 #[derive(Debug, Default, heim_derive::Getter)]
 pub struct CpuStats {
@@ -44,5 +45,5 @@ impl FromStr for CpuStats {
 }
 
 pub fn stats() -> impl Future<Output = Result<CpuStats>> {
-    utils::fs::read_into("/proc/stat")
+    fs::read_into("/proc/stat")
 }

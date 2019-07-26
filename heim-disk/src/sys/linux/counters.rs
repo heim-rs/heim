@@ -4,6 +4,7 @@ use std::ffi::{CString, OsStr};
 use heim_common::prelude::*;
 use heim_common::utils::iter::*;
 use heim_common::units::{Information, Time};
+use heim_runtime::fs;
 
 // Copied from the `psutil` sources:
 //
@@ -95,7 +96,7 @@ impl FromStr for IoCounters {
 }
 
 pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {
-    utils::fs::read_lines_into("/proc/diskstats")
+    fs::read_lines_into("/proc/diskstats")
         .into_stream()
 }
 

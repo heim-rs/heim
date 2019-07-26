@@ -1,5 +1,5 @@
 use heim_common::prelude::{future, Stream, Future, TryStreamExt, FutureExt};
-use heim_common::utils::fs;
+use heim_runtime::fs;
 
 use crate::{Pid, ProcessError};
 

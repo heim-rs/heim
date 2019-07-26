@@ -5,6 +5,7 @@ use std::str::FromStr;
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
+use heim_runtime::fs;
 
 use crate::FileSystem;
 
@@ -69,7 +70,7 @@ impl FromStr for Partition {
 
 // Returns stream with known physical (only!) partitions
 fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
-    utils::fs::read_lines("/proc/filesystems")
+    fs::read_lines("/proc/filesystems")
         .try_filter_map(|line| {
             let mut parts = line.splitn(2, '\t');
             let nodev = match parts.next() {
@@ -88,7 +89,7 @@ fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
 }
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
-    utils::fs::read_lines("/proc/mounts")
+    fs::read_lines("/proc/mounts")
         .try_filter_map(|line| {
             let result = Partition::from_str(&line).ok();
 

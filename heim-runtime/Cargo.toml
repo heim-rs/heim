@@ -1,0 +1,21 @@
+[package]
+name = "heim-runtime"
+version = "0.0.2"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+description = "Runtime shims for heim crate"
+keywords = ["heim", "runtime", "shim", "sync"]
+categories = ["asynchronous", "os", "api-bindings"]
+repository = "https://github.com/heim-rs/heim"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+heim-common = { version = "0.0.5", path = "../heim-common" }
+cfg-if = "0.1.9"
+
+[dev-dependencies]
+version-sync = "0.8"
+
+[features]
+default = ["reactor-polyfill"]
+reactor-polyfill = []

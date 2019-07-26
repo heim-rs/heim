@@ -17,6 +17,7 @@ azure-devops = { project = "heim-rs", pipeline = "heim" }
 [dependencies]
 heim-common = { version = "0.0.5", path = "../heim-common" }
 heim-derive = { version = "0.0.5", path = "../heim-derive" }
+heim-runtime = { version = "0.0.2", path = "../heim-runtime" }
 heim-cpu = {version = "0.0.5", path = "../heim-cpu", optional = true }
 heim-disk = {version = "0.0.5", path = "../heim-disk", optional = true }
 heim-host = { version = "0.0.5", path = "../heim-host", optional = true }
@@ -29,7 +30,9 @@ heim-virt = { version = "0.0.5", path = "../heim-virt", optional = true }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "reactor-polyfill"]
+
+# Modules
 host = ["heim-host"]
 cpu = ["heim-cpu"]
 memory = ["heim-memory"]
@@ -37,3 +40,16 @@ disk = ["heim-disk"]
 net = ["heim-net"]
 process = ["heim-process"]
 virt = ["heim-virt"]
+
+# Reactors
+reactor-polyfill = [
+    "heim-runtime/reactor-polyfill",
+    "heim-cpu/reactor-polyfill",
+    "heim-cpu/reactor-polyfill",
+    "heim-disk/reactor-polyfill",
+    "heim-host/reactor-polyfill",
+    "heim-memory/reactor-polyfill",
+    "heim-net/reactor-polyfill",
+    "heim-process/reactor-polyfill",
+    "heim-virt/reactor-polyfill",
+]

@@ -2,6 +2,7 @@ use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_runtime::fs;
 
 use crate::sys::unix::CLOCK_TICKS;
 
@@ -55,7 +56,7 @@ impl FromStr for CpuTime {
 
 pub fn time() -> impl Future<Output = Result<CpuTime>> {
     // cumulative time is always the first line
-    utils::fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
+    fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
         .into_stream()
         .take(1)
         .into_future()
@@ -67,7 +68,7 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
 }
 
 pub fn times() -> impl Stream<Item = Result<CpuTime>> {
-    utils::fs::read_lines("/proc/stat")
+    fs::read_lines("/proc/stat")
         .into_stream()
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))

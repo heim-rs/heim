@@ -3,7 +3,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::str;
 
 use heim_common::prelude::*;
-use heim_common::utils::fs;
+use heim_runtime::fs;
 
 fn topology() -> impl Future<Output = Result<u64>> {
     let acc = HashSet::<u64>::new();

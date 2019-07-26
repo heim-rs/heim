@@ -1,10 +1,9 @@
-use std::fs;
 use std::path::PathBuf;
-use std::os::windows::io::AsRawHandle;
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
 use heim_common::units::{Time, Information};
+use heim_runtime::fs;
 
 use super::bindings::disks;
 use super::bindings::volumes::Volumes;
@@ -57,18 +56,17 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
         future::ready(filter(&path))
     })
     .and_then(|mut volume_path| {
-        let res = fs::File::open(&volume_path)
+        // TODO: Get rid of a clone
+        fs::File::open(volume_path.clone())
             // Since trailing backslash was trimmed by `Volumes` iterator,
             // we need to get it back in order to display
             // it later via `IoCounters::device_name`.
             // TODO: It will probably re-allocate, should check it up
-            .map(|file| {
+            .map_ok(|file| {
                 volume_path.push("\\");
                 (volume_path, file)
             })
-            .map_err(Error::from);
-
-        future::ready(res)
+            .map_err(Error::from)
     })
     .and_then(|(volume_path, file)| {
         let handle = file.as_raw_handle();

@@ -3,6 +3,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::units::Information;
 use heim_common::utils::iter::*;
+use heim_runtime::fs;
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -104,7 +105,7 @@ impl FromStr for IoCounters {
 }
 
 pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    utils::fs::read_lines("/proc/net/dev")
+    fs::read_lines("/proc/net/dev")
         .into_stream()
         .skip(2)
         .and_then(|line| {

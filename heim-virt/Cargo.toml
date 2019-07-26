@@ -16,6 +16,7 @@ azure-devops = { project = "heim-rs", pipeline = "heim" }
 
 [dependencies]
 heim-common = { version = "0.0.5", path = "../heim-common" }
+heim-runtime = { version = "0.0.2", path = "../heim-runtime" }
 cfg-if = "0.1.9"
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -25,3 +26,6 @@ raw-cpuid = "6.1.0"
 runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
 tempfile = "3.0"
+
+[features]
+reactor-polyfill = ["heim-runtime/reactor-polyfill"]

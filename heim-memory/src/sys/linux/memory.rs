@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
+use heim_runtime::fs;
 
 use crate::Information;
 
@@ -73,5 +74,5 @@ impl FromStr for Memory {
 }
 
 pub fn memory() -> impl Future<Output=Result<Memory>> {
-    utils::fs::read_into("/proc/meminfo")
+    fs::read_into("/proc/meminfo")
 }

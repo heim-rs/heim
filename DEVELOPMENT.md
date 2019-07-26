@@ -100,7 +100,7 @@ pub fn cpu_times() -> impl Future<Item=CpuStats, Error=Error> {
 }
 ```
 
-What will happen here: `/proc/stat` will be read asynchronously with the help of `tokio::fs`
+What will happen here: `/proc/stat` will be read asynchronously with the help of `heim_runtime::fs`
 and then parsed with the `FromStr` implementation.
 
 Now let's go back to the public `CpuStats` struct.

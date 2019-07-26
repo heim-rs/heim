@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::utils::fs;
+use heim_runtime::fs;
 
 fn sysconf() -> impl Future<Output = Result<u64>> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };

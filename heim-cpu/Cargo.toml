@@ -17,6 +17,7 @@ azure-devops = { project = "heim-rs", pipeline = "heim" }
 [dependencies]
 heim-derive = { version = "0.0.5", path = "../heim-derive" }
 heim-common = { version = "0.0.5", path = "../heim-common" }
+heim-runtime = { version = "0.0.2", path = "../heim-runtime" }
 lazy_static = "1.3.0"
 cfg-if = "0.1.7"
 
@@ -42,3 +43,6 @@ mach = "0.3.2"
 [dev-dependencies]
 runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
+
+[features]
+reactor-polyfill = ["heim-runtime/reactor-polyfill"]

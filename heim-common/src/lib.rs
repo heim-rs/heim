@@ -45,7 +45,6 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 /// and might change at any time.
 pub mod prelude {
     pub use super::errors::{Error, Result};
-    pub use super::utils;
     pub use futures::future::{FutureExt, TryFutureExt};
     pub use futures::prelude::*;
     pub use futures::stream::{StreamExt, TryStreamExt};

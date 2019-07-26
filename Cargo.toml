@@ -2,9 +2,10 @@
 members = [
     "heim",
     "heim-common",
+    "heim-derive",
+    "heim-runtime",
     "heim-host",
     "heim-cpu",
-    "heim-derive",
     "heim-memory",
     "heim-disk",
     "heim-net",

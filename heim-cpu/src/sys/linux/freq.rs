@@ -2,6 +2,7 @@ use std::ops;
 use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
+use heim_runtime::fs;
 
 use crate::units::Frequency;
 
@@ -95,7 +96,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
 
 #[allow(clippy::redundant_closure)]
 fn read_freq(path: PathBuf) -> impl Future<Output = Result<Frequency>> {
-    utils::fs::read_to_string(path)
+    fs::read_to_string(path)
         .and_then(|value| future::ready(value.trim_end().parse::<u64>().map_err(Error::from)))
         .map_ok(Frequency::from_kilohertzs)
 }
