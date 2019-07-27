@@ -21,11 +21,7 @@ pub trait CpuTimeExt {
     fn soft_irq(&self) -> Time;
 
     /// Returns time spent by other operating systems running in a virtualized environment.
-    ///
-    /// ## Compatibility
-    ///
-    /// Available for Linux 2.6.11+, older versions always returns `None`.
-    fn steal(&self) -> Option<Time>;
+    fn steal(&self) -> Time;
 
     /// Returns time spent running a virtual CPU for guest operating systems
     /// under the control of the Linux kernel.

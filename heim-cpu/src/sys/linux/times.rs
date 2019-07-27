@@ -15,7 +15,7 @@ pub struct CpuTime {
     io_wait: Time,
     irq: Time,
     soft_irq: Time,
-    steal: Option<Time>,
+    steal: Time,
     guest: Option<Time>,
     guest_nice: Option<Time>,
 }
@@ -43,7 +43,7 @@ impl FromStr for CpuTime {
                 4 => times.io_wait = value,
                 5 => times.irq = value,
                 6 => times.soft_irq = value,
-                7 => times.steal = Some(value),
+                7 => times.steal = value,
                 8 => times.guest = Some(value),
                 9 => times.guest_nice = Some(value),
                 _ => break,
