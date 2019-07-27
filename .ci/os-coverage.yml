@@ -5,7 +5,7 @@ jobs:
     - job: ${{ parameters.name }}
       # There is no reason to run tests coverage if tests are failing
       dependsOn: nightly
-      condition: and(succeeded(), eq('${{ parameters.toolchain }}', 'nightly'), not(startsWith('${{ parameters.vmImage }}', 'macOS')))
+      condition: and(succeeded(), eq('${{ parameters.toolchain }}', 'nightly'))
       pool:
           vmImage: ${{ parameters.vmImage }}
 
@@ -24,7 +24,10 @@ jobs:
             displayName: Run tests suite
             env:
                 CARGO_INCREMENTAL: 0
-                RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+                ${{ if not(startsWith(parameters.vmImage, 'macOS')) }}:
+                    RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+                ${{ if startsWith(parameters.vmImage, 'macOS') }}:
+                    RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
 
           - task: CopyFiles@2
             displayName: 'Gather coverage results'

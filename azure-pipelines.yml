@@ -14,7 +14,7 @@ stages:
       parameters:
           name: macos
           displayName: macOS
-          vmImage: macOS-10.14
+          vmImage: macOS-10.13
 
     - template: .ci/os-stage.yml
       parameters:
