@@ -21,3 +21,10 @@ stages:
                 toolchain: 1.36.0
                 name: min_supported_version
                 vmImage: ${{ parameters.vmImage }}
+
+          - template: os-coverage.yml
+            parameters:
+                toolchain: nightly
+                name: code_coverage
+                vmImage: ${{ parameters.vmImage }}
+                os_flag: ${{ parameters.name }}

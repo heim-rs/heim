@@ -1,0 +1,64 @@
+parameters:
+    toolchain: ''
+
+jobs:
+    - job: ${{ parameters.name }}
+      # There is no reason to run tests coverage if tests are failing
+      dependsOn: nightly
+      condition: and(succeeded(), eq('${{ parameters.toolchain }}', 'nightly'), not(startsWith('${{ parameters.vmImage }}', 'macOS')))
+      pool:
+          vmImage: ${{ parameters.vmImage }}
+
+      steps:
+          - template: install-rust.yml
+            parameters:
+                toolchain: ${{ parameters.toolchain }}
+
+          - script: |
+                cargo +${{ parameters.toolchain }} install grcov
+                cargo clean
+            displayName: Install grcov
+
+          - script: |
+                cargo +${{ parameters.toolchain }} test --all --all-features
+            displayName: Run tests suite
+            env:
+                CARGO_INCREMENTAL: 0
+                RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+
+          - task: CopyFiles@2
+            displayName: 'Gather coverage results'
+            inputs:
+                ${{ if not(startsWith(parameters.vmImage, 'windows')) }}:
+                    contents: 'target/**/heim*.gc*'
+                ${{ if startsWith(parameters.vmImage, 'windows') }}:
+                    contents: 'target\**\heim*.gc*'
+                TargetFolder: '$(Build.ArtifactStagingDirectory)'
+                flattenFolders: true
+                cleanTargetFolder: true
+
+          - task: ArchiveFiles@2
+            displayName: 'Create coverage archive'
+            inputs:
+                rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+                includeRootFolder: false
+                archiveType: 'zip'
+                tarCompression: 'none'
+                ${{ if not(startsWith(parameters.vmImage, 'windows')) }}:
+                    archiveFile: '$(Build.SourcesDirectory)/ccov.zip'
+                ${{ if startsWith(parameters.vmImage, 'windows') }}:
+                    archiveFile: '$(Build.SourcesDirectory)\ccov.zip'
+                replaceExistingArchive: true
+
+          - script: |
+                grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore-dir "/*" -o lcov.info
+            displayName: Convert results into lcov format
+            env:
+                COMMIT_SHA: $(Build.SourceVersion)
+                SERVICE_JOB_NUMBER: $(Build.BuildId)
+
+          - bash: |
+                bash <(curl -s https://codecov.io/bash) -f lcov.info -F ${{ parameters.os_flag }} -Z
+            displayName: Upload results
+            env:
+                CODECOV_TOKEN: $(codecov.token)
