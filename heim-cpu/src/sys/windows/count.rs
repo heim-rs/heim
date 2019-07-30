@@ -7,6 +7,8 @@ use heim_common::prelude::*;
 
 
 pub fn logical_count() -> impl Future<Output = Result<u64>> {
+    // Safety: seems to be a very straightforward function.
+    // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getactiveprocessorcount
     let result = unsafe {
         winbase::GetActiveProcessorCount(winnt::ALL_PROCESSOR_GROUPS)
     };

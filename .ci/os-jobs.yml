@@ -16,6 +16,6 @@ jobs:
             displayName: Build sources
 
           - script: |
-                cargo +${{ parameters.toolchain }} test --all --all-features
+                cargo +${{ parameters.toolchain }} test --all --all-features --no-fail-fast -- --nocapture
             condition: eq('${{ parameters.toolchain }}', 'nightly')
             displayName: Run tests (nightly only)
