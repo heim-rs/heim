@@ -53,15 +53,29 @@ jobs:
                     archiveFile: '$(Build.SourcesDirectory)\ccov.zip'
                 replaceExistingArchive: true
 
-          - script: |
-                grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore-dir "/*" -o lcov.info
-            displayName: Convert results into lcov format
-            env:
-                COMMIT_SHA: $(Build.SourceVersion)
-                SERVICE_JOB_NUMBER: $(Build.BuildId)
-
           - bash: |
-                bash <(curl -s https://codecov.io/bash) -f lcov.info -F ${{ parameters.os_flag }} -Z
-            displayName: Upload results
+                grcov ccov.zip \
+                    -s . \
+                    -t coveralls+ \
+                    --llvm \
+                    --branch \
+                    --ignore-not-existing \
+                    --ignore-dir "/*" \
+                    --ignore-dir "C:/*" \
+                    --commit-sha "${COMMIT_SHA}" \
+                    --token "${COVERALLS_TOKEN}" \
+                    --service-job-number "${CI_BUILD_NUMBER}" \
+                    --service-name "${CI_NAME}" \
+                    --service-number "${CI_BUILD_ID}" \
+                    -o coverage.json
+                cat coverage.json | sed -e "s#\"branch\":\"master\"#\"branch\":\"${CI_BRANCH}\"#" > coveralls.json
+                curl --fail -F 'json_file=@coveralls.json' https://coveralls.io/api/v1/jobs
+            displayName: Upload the results
             env:
-                CODECOV_TOKEN: $(codecov.token)
+                COVERALLS_TOKEN: $(coveralls.token)
+                COMMIT_SHA: $(Build.SourceVersion)
+                CI_NAME: "Azure DevOps"
+                CI_BUILD_ID: $(Build.BuildId)
+                CI_BUILD_NUMBER: $(Build.BuildNumber)
+                CI_BUILD_URL: $(Build.BuildUri)
+                CI_BRANCH: $(Build.SourceBranchName)
