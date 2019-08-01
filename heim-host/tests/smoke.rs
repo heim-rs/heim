@@ -30,5 +30,35 @@ async fn smoke_users() {
         let user = user.unwrap();
 
         let _ = user.username();
+
+        #[cfg(target_os = "linux")]
+        {
+            use heim_host::os::linux::UserExt;
+
+            let _ = user.pid();
+            let _ = user.terminal();
+            let _ = user.id();
+            let _ = user.hostname();
+            let _ = user.address();
+            let _ = user.session_id();
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            use heim_host::os::macos::UserExt;
+
+            let _ = user.pid();
+            let _ = user.terminal();
+            let _ = user.id();
+            let _ = user.hostname();
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            use heim_host::os::windows::UserExt;
+
+            let _ = user.domain();
+            let _ = user.address();
+        }
     }
 }

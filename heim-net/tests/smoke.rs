@@ -42,5 +42,23 @@ async fn smoke_nic() {
         let _ = iface.is_up();
         let _ = iface.is_loopback();
         let _ = iface.is_multicast();
+
+        #[cfg(target_os = "linux")]
+        {
+            use heim_net::os::linux::NicExt;
+
+            let _ = iface.broadcast();
+            let _ = iface.is_broadcast();
+            let _ = iface.is_point_to_point();
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            use heim_net::os::macos::NicExt;
+
+            let _ = iface.broadcast();
+            let _ = iface.is_broadcast();
+            let _ = iface.is_point_to_point();
+        }
     }
 }

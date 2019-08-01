@@ -13,6 +13,7 @@ pub trait UserExt {
     // TODO: Not all possible protocols are supported at the moment by the sys impl.
     // When they are will be implemented fully, this function should return `&IpAddr` directly,
     // without `Option<T>` wrapper.
+    // See https://github.com/heim-rs/heim/issues/63
     /// Client network address of a RDP session.
     ///
     /// At the moment not all possible protocols are supported
@@ -22,5 +23,4 @@ pub trait UserExt {
     /// It should be expected that method will return `&IpAddr` directly,
     /// when support for all protocols will arrive.
     fn address(&self) -> Option<&IpAddr>;
-
 }
