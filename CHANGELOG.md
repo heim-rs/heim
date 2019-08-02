@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `heim-runtime` crate with shims for async runtimes (only "sync" polyfill available at the moment)
+- `process::processes` function returning stream of `process::Process`
+- `process::Process` struct with `pid`, `parent_pid`, `name` and `exe` methods
 
 ### Changed
 
