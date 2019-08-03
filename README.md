@@ -1,6 +1,6 @@
 # heim
 
-![Project banner](.assets/banner.png)
+![Project banner](./.github/banner.png)
 
 [![Latest Version](https://img.shields.io/crates/v/heim.svg)](https://crates.io/crates/heim)
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
@@ -22,7 +22,7 @@ It targets to have at least the same functionality as
 [oshi](https://github.com/oshi/oshi) eventually.
 
 Why should I use `heim` instead of *{crate-name}*?
-See the [comparision](https://github.com/heim-rs/heim/blob/master/COMPARISION.md) page.
+See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) page.
 
 ## Background
 
