@@ -17,14 +17,15 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 * [`sys-info = "0.5.7"`](https://crates.io/crates/sys-info)
 * [`systemstat = "0.1.4"`](https://crates.io/crates/systemstat)
 
-## Common
+## Basics
 
-|                | heim       | psutil | sysinfo | sys-info | systemstat |
-|----------------|------------|--------|---------|----------|------------|
-| Pure Rust      | ✓          | ✓      | ✓       | ✗        | ✓          |
-| Execution flow | async *1   | sync   | sync    | sync     | sync       |
+|                | heim             | psutil | sysinfo | sys-info | systemstat |
+|----------------|------------------|--------|---------|----------|------------|
+| Pure Rust      | ✓                | ✓      | ✓       | ✗        | ✓          |
+| Execution flow | async *1         | sync   | sync    | sync     | sync       |
+| License        | Apache 2.0 / MIT | MIT    | MIT     | MIT      | Unlicense  |
 
-> *1: partial, ex. https://github.com/heim-rs/heim/issues/56
+> *1: not fully implemented, ex. https://github.com/heim-rs/heim/issues/56
 
 ## Supported platforms
 
@@ -41,8 +42,8 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
 |                | heim     | psutil | sysinfo | sys-info | systemstat |
 |----------------|----------|--------|---------|----------|------------|
-| logical count  | ✓        | ✓      | ✗ *2    | ✓        | ✗ *2       |
-| physical count | ✓        | ✓      | ✗ *2    | ✗ *2     | ✗ *2       |
+| logical count  | ✓        | ✓      | ✗       | ✓        | ✗          |
+| physical count | ✓        | ✓      | ✗       | ✗        | ✗          |
 | frequency      | ✓        | ✗      | ✗       | ✓        | ✗          |
 | time           | ✓        | ✓      | ✗       | ✗        | ✓          |
 | stats          | ✓        | ✗      | ✗       | ✗        | ✗          |
