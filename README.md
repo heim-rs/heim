@@ -1,5 +1,7 @@
 # heim
 
+![Banner](https://raw.githubusercontent.com/heim-rs/heim/master/.assets/banner.png)
+
 [![Latest Version](https://img.shields.io/crates/v/heim.svg)](https://crates.io/crates/heim)
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
 [![dependency status](https://deps.rs/crate/heim/0.0.5/status.svg)](https://deps.rs/crate/heim/0.0.5)
@@ -8,6 +10,7 @@
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-green.svg)
 ![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
 [![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
+![Platforms supported](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-brightgreen)
 
 > Cross-platform library for system information fetching
 
@@ -17,6 +20,9 @@ It targets to have at least the same functionality as
 [psutil](https://github.com/giampaolo/psutil),
 [gopsutil](https://github.com/shirou/gopsutil) or
 [oshi](https://github.com/oshi/oshi) eventually.
+
+Why should I use `heim` instead of *{crate-name}*?
+See the [comparision](https://github.com/heim-rs/heim/blob/master/COMPARISION.md) page.
 
 ## Background
 
