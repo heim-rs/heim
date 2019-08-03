@@ -11,4 +11,5 @@ members = [
     "heim-net",
     "heim-process",
     "heim-virt",
+    "heim-sensors",
 ]
