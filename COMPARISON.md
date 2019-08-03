@@ -1,9 +1,11 @@
 # Comparing `heim` to other crates
 
-This page provides an opinionated comparision between `heim` and 
-other Rust crates with the similar functionality.
+This page provides an opinionated comparison between `heim` and 
+other Rust crates with the similar functionality.\
+Primary goals are to understand what pieces are missing in `heim`
+and to help users choose the crate suitable for their needs.
 
-If you think that the results here wrong or outdated,
+If you think that the results here are wrong or outdated,
 feel free to [create an issue](https://github.com/heim-rs/heim/issues/new)
 or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
