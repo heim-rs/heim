@@ -1,6 +1,6 @@
 # heim
 
-![Banner](https://raw.githubusercontent.com/heim-rs/heim/master/.assets/banner.png)
+![Project banner](.assets/banner.png)
 
 [![Latest Version](https://img.shields.io/crates/v/heim.svg)](https://crates.io/crates/heim)
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
