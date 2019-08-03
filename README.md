@@ -11,6 +11,8 @@
 ![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
 [![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 ![Platforms supported](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-brightgreen)
+[![Backers on Open Collective](https://opencollective.com/heim-rs/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/heim-rs/sponsors/badge.svg)](#sponsors)
 
 > Cross-platform library for system information fetching
 
@@ -76,11 +78,6 @@ Please be aware that at the moment, `heim` (and all sub-crates)
 has the "**experimental**" status,
 so consider double checking the results before pushing your code to production.
 
-## Donations
-
-If you appreciate my work and want to support me or speed up the project development,
-you can do it [here](https://svartalf.info/donate/).
-
 ## License
 
 Licensed under either of [Apache License 2.0](https://github.com/heim-rs/heim/blob/master/LICENSE-APACHE)
@@ -88,3 +85,24 @@ or [MIT license](https://github.com/heim-rs/heim/blob/master/LICENSE-MIT) at you
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this crate by you,
 as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+## Donations
+
+If you appreciate my work and want to support me or speed up the project development,
+you can do it [here](https://svartalf.info/donate/) or
+support this project at [Open Collective](https://opencollective.com/heim-rs).
+
+## Contributors
+
+This project exists thanks to all the people who contribute.
+[![Contributors](https://opencollective.com/heim-rs/contributors.svg?width=890&button=false)](https://github.com/heim-rs/heim/graphs/contributors)
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/heim-rs#backer)]
+
+[![Backers](https://opencollective.com/heim-rs/backers.svg?width=890)](https://opencollective.com/heim-rs#backers)
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/heim-rs#sponsor)]
