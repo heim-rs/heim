@@ -76,9 +76,15 @@ async fn smoke_usage() {
     }
 }
 
-#[heim_derive::skip_ci(target_os = "windows")]
 #[runtime::test]
 async fn smoke_io_counters() {
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+
+        let _ = Command::new("diskperf").arg("-y").status();
+    }
+
     let mut counters = disk::io_counters();
     while let Some(count) = counters.next().await {
         let count = count.unwrap();
@@ -93,6 +99,13 @@ async fn smoke_io_counters() {
 
 #[runtime::test]
 async fn smoke_io_counters_physical() {
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+
+        let _ = Command::new("diskperf").arg("-y").status();
+    }
+
     let mut counters = disk::io_counters_physical();
     while let Some(count) = counters.next().await {
         let count = count.unwrap();

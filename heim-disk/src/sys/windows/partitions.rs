@@ -5,7 +5,7 @@ use heim_common::prelude::*;
 
 use crate::FileSystem;
 use crate::os::windows::{Flags, DriveType};
-use super::bindings::disks2;
+use super::bindings;
 
 #[derive(Debug)]
 pub struct Partition {
@@ -41,21 +41,21 @@ impl Partition {
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     future::lazy(|_| {
-        let disks = disks2::LogicalDrives::new()?;
+        let disks = bindings::Drives::new()?;
 
         let stream = stream::iter(disks).map(Ok);
 
         Ok(stream)
     })
     .try_flatten_stream()
-    .and_then(|disk: disks2::LogicalDrive| {
+    .and_then(|disk| {
         match disk.information() {
-            Ok(Some((flags, fs))) => {
+            Ok(Some((drive_type, flags, file_system))) => {
                 future::ok(Some(Partition {
                     volume: disk.volume_name().ok(),
-                    mount_point: PathBuf::from(disk.to_os_string()),
-                    drive_type: disk.drive_type(),
-                    file_system: fs,
+                    mount_point: disk.to_path_buf(),
+                    file_system,
+                    drive_type,
                     flags,
                 }))
             },

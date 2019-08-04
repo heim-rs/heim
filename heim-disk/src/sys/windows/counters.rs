@@ -5,8 +5,7 @@ use heim_common::prelude::*;
 use heim_common::units::{Time, Information};
 use heim_runtime::fs;
 
-use super::bindings::disks;
-use super::bindings::volumes::Volumes;
+use super::bindings;
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -51,7 +50,7 @@ impl IoCounters {
 
 fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
         where F: FnMut(&PathBuf) -> bool + 'static {
-    stream::iter(Volumes::new())
+    stream::iter(bindings::Volumes::new())
     .try_filter(move |path| {
         future::ready(filter(&path))
     })
@@ -81,7 +80,7 @@ fn inner_stream<F>(mut filter: F) -> impl Stream<Item=Result<IoCounters>>
         // See: https://github.com/giampaolo/psutil/blob/c0aba35a78649c453f0c89ab163a58a8efb4639e/psutil/_psutil_windows.c#L2262-L2281
 
         let perf = unsafe {
-            match disks::disk_performance(&handle) {
+            match bindings::disk_performance(&handle) {
                 Ok(Some(perf)) => perf,
                 Ok(None) => return future::ok(None),
                 Err(e) => return future::err(e),
@@ -124,6 +123,6 @@ pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {
 
 pub fn io_counters_physical() -> impl Stream<Item=Result<IoCounters>> {
     inner_stream(|path: &PathBuf| {
-        disks::is_fixed_drive(path.as_path())
+        bindings::DriveType::from_path(path) == Some(bindings::DriveType::Fixed)
     })
 }

@@ -103,10 +103,11 @@ unsafe impl Send for Volumes {}
 impl Drop for Volumes {
     fn drop(&mut self) {
         if let Some(handle) = self.handle {
-            // TODO: Handle the "handle" closing failure (warn! at least?)
-            let _ = unsafe {
+            let result = unsafe {
                 fileapi::FindVolumeClose(handle)
             };
+
+            assert!(result != 0, "Unable to close volumes handle");
         }
     }
 }

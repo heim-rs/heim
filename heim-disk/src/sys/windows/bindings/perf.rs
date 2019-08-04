@@ -1,11 +1,9 @@
 use std::io;
 use std::ptr;
 use std::mem;
-use std::path::Path;
 use std::os::windows::io::RawHandle;
-use std::os::windows::ffi::OsStrExt;
 
-use winapi::um::{winbase, winnt, winioctl, fileapi, ioapiset};
+use winapi::um::{winnt, winioctl, ioapiset};
 use winapi::shared::{minwindef, winerror};
 
 use heim_common::prelude::*;
@@ -16,6 +14,7 @@ const ERROR_NOT_SUPPORTED: i32 = winerror::ERROR_NOT_SUPPORTED as i32;
 // Is not declared in the `winapi`
 // TODO: Get rid of it when the winapi-rs PR will be merged
 // https://github.com/retep998/winapi-rs/pull/765
+// See https://github.com/heim-rs/heim/issues/62
 #[repr(C)]
 #[derive(Default)]
 #[allow(non_snake_case)]
@@ -38,7 +37,7 @@ pub struct DISK_PERFORMANCE {
 ///
 /// `DeviceIoControl` might fail in some rare and hardly reproducible conditions.
 /// Few of the errors will be ignored (same as psutil does), in that case `Ok(None)`
-/// will be returned. Higher level code should ignore such an entries.
+/// will be returned. Higher level code should ignore such entries.
 /// For reference: https://github.com/giampaolo/psutil/blob/5a398984d709d750da1fc0e450d72c771e18f393/psutil/_psutil_windows.c#L2262-L2277
 #[allow(trivial_casts)]
 #[allow(clippy::trivially_copy_pass_by_ref)]
@@ -67,18 +66,5 @@ pub unsafe fn disk_performance(handle: &RawHandle) -> Result<Option<DISK_PERFORM
         }
     } else {
         Ok(Some(perf))
-    }
-}
-
-pub fn is_fixed_drive(path: &Path) -> bool {
-    let buffer: Vec<winnt::WCHAR> = path.as_os_str().encode_wide().collect();
-
-    let result = unsafe {
-        fileapi::GetDriveTypeW(buffer.as_ptr())
-    };
-
-    match result {
-        winbase::DRIVE_FIXED => true,
-        _ => false,
     }
 }

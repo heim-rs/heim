@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `process::processes` function returning stream of `process::Process`
 - `process::Process` struct with `pid`, `parent_pid`, `name` and `exe` methods
 
+### Fixed
+
+- `disk::partitions` returned inconsistent data for Windows ([#92](https://github.com/heim-rs/heim/issues/71))
+
 ### Changed
 
 - `cpu::os::linux::CpuTimeExt::steal` returns `Time` now instead of `Option<Time>` ([#81](https://github.com/heim-rs/heim/issues/81))

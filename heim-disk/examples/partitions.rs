@@ -5,6 +5,7 @@ use heim_disk as disk;
 
 #[runtime::main]
 async fn main() -> Result<()> {
+    println!("---- Partitions ----");
     let mut partitions = disk::partitions();
     while let Some(part) = partitions.next().await {
         dbg!(part?);
@@ -12,7 +13,7 @@ async fn main() -> Result<()> {
 
     println!("---- Physical partitions ----");
 
-    let mut partitions = disk::partitions_physical();
+    let mut partitions = disk::partitions();
     while let Some(part) = partitions.next().await {
         dbg!(part?);
     }
