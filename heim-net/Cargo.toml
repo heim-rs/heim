@@ -34,4 +34,4 @@ nix = "0.14.0"
 hex = "0.3.2"
 
 [features]
-reactor-polyfill = ["heim-runtime/reactor-polyfill"]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]

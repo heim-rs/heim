@@ -30,7 +30,7 @@ heim-virt = { version = "0.0.5", path = "../heim-virt", optional = true }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "reactor-polyfill"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "runtime-polyfill"]
 
 # Modules
 host = ["heim-host"]
@@ -42,14 +42,14 @@ process = ["heim-process"]
 virt = ["heim-virt"]
 
 # Reactors
-reactor-polyfill = [
-    "heim-runtime/reactor-polyfill",
-    "heim-cpu/reactor-polyfill",
-    "heim-cpu/reactor-polyfill",
-    "heim-disk/reactor-polyfill",
-    "heim-host/reactor-polyfill",
-    "heim-memory/reactor-polyfill",
-    "heim-net/reactor-polyfill",
-    "heim-process/reactor-polyfill",
-    "heim-virt/reactor-polyfill",
+runtime-polyfill = [
+    "heim-runtime/runtime-polyfill",
+    "heim-cpu/runtime-polyfill",
+    "heim-cpu/runtime-polyfill",
+    "heim-disk/runtime-polyfill",
+    "heim-host/runtime-polyfill",
+    "heim-memory/runtime-polyfill",
+    "heim-net/runtime-polyfill",
+    "heim-process/runtime-polyfill",
+    "heim-virt/runtime-polyfill",
 ]

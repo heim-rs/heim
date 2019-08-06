@@ -34,4 +34,4 @@ runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
 
 [features]
-reactor-polyfill = ["heim-runtime/reactor-polyfill"]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]

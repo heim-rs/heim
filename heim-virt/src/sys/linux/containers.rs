@@ -1,3 +1,4 @@
+use std::marker::Unpin;
 use std::path::Path;
 
 use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryFutureExt, TryStreamExt};
@@ -20,7 +21,7 @@ fn try_guess_container(value: &str) -> Result<Virtualization, ()> {
 
 fn detect_wsl<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
 where
-    T: AsRef<Path> + Send + 'static,
+    T: AsRef<Path> + Send + Unpin + 'static,
 {
     fs::read_first_line(path)
         .map_err(|_| ())
@@ -37,7 +38,7 @@ where
 
 fn detect_systemd_container<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
 where
-    T: AsRef<Path> + Send + 'static,
+    T: AsRef<Path> + Send + Unpin + 'static,
 {
     // systemd PID 1 might have dropped this information into a file in `/run`.
     // This is better than accessing `/proc/1/environ`,
@@ -49,7 +50,7 @@ where
 
 fn detect_cgroups<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
 where
-    T: AsRef<Path> + Send + 'static,
+    T: AsRef<Path> + Send + Unpin + 'static,
 {
     fs::read_lines(path)
         .map_err(|_| ())
@@ -85,7 +86,7 @@ fn detect_openvz() -> impl Future<Output = Result<Virtualization, ()>> {
 }
 
 fn detect_init_env<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
-where T: AsRef<Path> + Send + 'static {
+where T: AsRef<Path> + Send + Unpin + 'static {
     fs::read_to_string(path)
         .map_err(|_| ())
         .and_then(|contents| {

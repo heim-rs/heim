@@ -28,4 +28,4 @@ version-sync = "0.8"
 tempfile = "3.0"
 
 [features]
-reactor-polyfill = ["heim-runtime/reactor-polyfill"]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]

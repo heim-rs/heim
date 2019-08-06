@@ -1,3 +1,4 @@
+use std::marker::Unpin;
 use std::path::Path;
 
 use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryStreamExt};
@@ -12,7 +13,8 @@ const DEVICE_TREE_ROOT: &str = "/proc/device-tree";
 const HYPERVISOR_COMPAT_PATH: &str = "/proc/device-tree/hypervisor/compatible";
 
 #[allow(unused)]
-fn hypervisor<T: AsRef<Path> + Send + 'static>(path: T) -> impl Future<Output = Result<Virtualization, ()>> {
+fn hypervisor<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+where T: AsRef<Path> + Send + Unpin + 'static{
     fs::read_lines(path)
         .into_stream() // TODO: Looks dumb
         .into_future()
@@ -25,7 +27,8 @@ fn hypervisor<T: AsRef<Path> + Send + 'static>(path: T) -> impl Future<Output = 
 }
 
 #[allow(unused)]
-fn device_tree<T: AsRef<Path> + Send + 'static>(path: T) -> impl Future<Output = Result<Virtualization, ()>> {
+fn device_tree<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+where T: AsRef<Path> + Send + Unpin + 'static {
     fs::read_dir(path)
         .try_filter(|entry| {
             let matched = match entry.file_name().to_str() {

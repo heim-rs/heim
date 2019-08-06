@@ -2,9 +2,9 @@
 //!
 //! ## Why?
 //!
-//! It might be expected that a async library should be a runtime-agnostic thing,
+//! It might be expected that an async library should be a runtime-agnostic thing,
 //! but due to current ecosystem state it is not possible yet;
-//! for example there is no async files I/O abstractions.
+//! for example there is no async files I/O abstraction.
 //!
 //! Until then, this crate will provide the wrappers around the various reactors, if possible,
 //! and end users may choose the implementation, which is compatible with their reactor.

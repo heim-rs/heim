@@ -35,4 +35,4 @@ mach = "0.3.2"
 winapi = { version = "0.3.7", features = ["sysinfoapi", "libloaderapi", "minwindef", "winnt", "ntdef"] }
 
 [features]
-reactor-polyfill = ["heim-runtime/reactor-polyfill"]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]
