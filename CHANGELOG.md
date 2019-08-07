@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `disk::partitions` returned inconsistent data for Windows ([#92](https://github.com/heim-rs/heim/issues/71))
+- `disk::partitions` returned inconsistent data for Windows ([#92](https://github.com/heim-rs/heim/issues/92))
+- `disk::io_counters` failed on any empty removable drive in Windows ([#94](https://github.com/heim-rs/heim/issues/94))
 
 ### Changed
 
