@@ -9,12 +9,16 @@ use crate::os::windows::DriveType;
 
 impl DriveType {
     pub(crate) fn from_path<T: AsRef<Path>>(path: T) -> Option<DriveType> {
-        let bytes = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        let mut bytes = path.as_ref().as_os_str().encode_wide().collect::<Vec<_>>();
+        bytes.push(0x0000);
 
         Self::from_slice(&bytes)
     }
 
     pub(crate) fn from_slice(chars: &[wchar_t]) -> Option<DriveType> {
+        debug_assert!(chars.last() == Some(&0x0000),
+            "Path for GetDriveTypeW should be null-terminated");
+
         let result = unsafe {
             fileapi::GetDriveTypeW(chars.as_ptr())
         };

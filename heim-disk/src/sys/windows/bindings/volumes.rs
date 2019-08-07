@@ -39,22 +39,7 @@ impl Volumes {
             let first_null = self.buffer.iter()
                 .position(|byte| *byte == 0x00).unwrap_or(0);
 
-            // What does that strange and mysterious `- 1` means?
-            //
-            // `PathBuf` yielded by this iterator will be passed into a
-            // Windows' `CreateFile` later
-            // and if "Volume GUID path" as in our case ends with a backslash `\`
-            // (hint: it ends with it here), `CreateFile` assumes then that
-            // we are opening not the volume itself, but a root directory on it.
-            //
-            // And we need to open volume in order to get performance statistics.
-            //
-            // Soo.. Since this iterator used only here, we can trim
-            // the trailing backslash in a very efficient manner.
-            //
-            // See also: https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-volume
-            // The same thing is explained somewhere at the end of the page.
-            let path_str = OsString::from_wide(&self.buffer[..first_null - 1]);
+            let path_str = OsString::from_wide(&self.buffer[..first_null]);
 
             self.handle = Some(handle);
 
@@ -76,8 +61,7 @@ impl Volumes {
             let first_null = self.buffer.iter()
                 .position(|byte| *byte == 0x00).unwrap_or(0);
 
-            // For a `- 1` explanation see a big comment above
-            let path_str = OsString::from_wide(&self.buffer[..first_null - 1]);
+            let path_str = OsString::from_wide(&self.buffer[..first_null]);
 
             Ok(Some(PathBuf::from(path_str)))
 
@@ -86,7 +70,7 @@ impl Volumes {
             let error = io::Error::last_os_error();
             match error.raw_os_error() {
                 // Iteration ended
-                Some(ERROR_NO_MORE_FILES) | Some(0) => Ok(None),
+                Some(ERROR_NO_MORE_FILES) => Ok(None),
                 // Some error
                 _ => Err(error.into())
             }
