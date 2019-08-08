@@ -2,34 +2,13 @@
 
 use std::ptr;
 use std::mem;
-use std::ffi::CStr;
 
-use winapi::um::libloaderapi;
-use winapi::shared::{ntdef, minwindef, ntstatus};
+use winapi::shared::{ntdef, minwindef};
 
 use heim_common::prelude::*;
-use heim_common::sys::windows::get_ntdll;
+use heim_common::sys::windows as ntdll;
 
 use super::get_system_info;
-
-pub type SYSTEM_INFORMATION_CLASS = minwindef::DWORD;
-
-// TODO: Proper winapi enum
-pub const SystemPerformanceInformation: SYSTEM_INFORMATION_CLASS = 2;
-pub const SystemProcessorPerformanceInformation: SYSTEM_INFORMATION_CLASS = 8;
-pub const SystemInterruptInformation: SYSTEM_INFORMATION_CLASS = 23;
-
-//typedef enum _SYSTEM_INFORMATION_CLASS {
-//    SystemBasicInformation = 0,
-//    SystemPerformanceInformation = 2,
-//    SystemTimeOfDayInformation = 3,
-//    SystemProcessInformation = 5,
-//    SystemProcessorPerformanceInformation = 8,
-//    SystemInterruptInformation = 23,
-//    SystemExceptionInformation = 33,
-//    SystemRegistryQuotaInformation = 37,
-//    SystemLookasideInformation = 45
-//} SYSTEM_INFORMATION_CLASS;
 
 #[repr(C)]
 pub struct SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION {
@@ -138,61 +117,26 @@ pub struct SYSTEM_INTERRUPT_INFORMATION {
     pub ApcBypassCount: minwindef::ULONG,
 }
 
-pub unsafe fn NtQuerySystemInformation(
-    SystemInformationClass: SYSTEM_INFORMATION_CLASS,
-    SystemInformation: ntdef::PVOID,
-    SystemInformationLength: minwindef::ULONG,
-    ReturnLength: minwindef::PULONG,
-) -> Result<()> {
-    let ntdll = get_ntdll()?;
-
-    let funcname = CStr::from_bytes_with_nul_unchecked(b"NtQuerySystemInformation\0");
-    let func = libloaderapi::GetProcAddress(ntdll, funcname.as_ptr());
-
-    if func.is_null() {
-        return Err(Error::incompatible("Unable to get NtQuerySystemInformation function address"));
-    }
-
-    let func: extern "stdcall" fn(
-        SYSTEM_INFORMATION_CLASS,
-        ntdef::PVOID,
-        minwindef::ULONG,
-        minwindef::PULONG,
-    ) -> ntdef::NTSTATUS = mem::transmute(func as *const ());
-
-    let result = func(
-        SystemInformationClass,
-        SystemInformation,
-        SystemInformationLength,
-        ReturnLength,
-    );
-
-    if result == ntstatus::STATUS_SUCCESS {
-        Ok(())
-    } else {
-        Err(Error::last_os_error())
-    }
-}
 
 pub trait SystemInformation: Sized {
-    fn class() -> SYSTEM_INFORMATION_CLASS;
+    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS;
 }
 
 impl SystemInformation for SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION {
-    fn class() -> SYSTEM_INFORMATION_CLASS {
-        SystemProcessorPerformanceInformation
+    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
+        ntdll::SystemProcessorPerformanceInformation
     }
 }
 
 impl SystemInformation for SYSTEM_PERFORMANCE_INFORMATION {
-    fn class() -> SYSTEM_INFORMATION_CLASS {
-        SystemPerformanceInformation
+    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
+        ntdll::SystemPerformanceInformation
     }
 }
 
 impl SystemInformation for SYSTEM_INTERRUPT_INFORMATION {
-    fn class() -> SYSTEM_INFORMATION_CLASS {
-        SystemInterruptInformation
+    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
+        ntdll::SystemInterruptInformation
     }
 }
 
@@ -208,7 +152,7 @@ pub fn query_system_information<T>() -> Result<Vec<T>> where T: SystemInformatio
     let buffer_length = proc_amount * mem::size_of::<T>();
 
     unsafe {
-        NtQuerySystemInformation(
+        ntdll::NtQuerySystemInformation(
             T::class(),
             info.as_mut_ptr() as *mut _,
             buffer_length as u32,

@@ -7,6 +7,8 @@ use heim_common::prelude::*;
 use super::{pids, bindings};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
+mod suspend;
+
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
@@ -99,8 +101,11 @@ impl Process {
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        // TODO: Stub
-        future::ok(Status::Running)
+        match suspend::is_suspended(self.pid) {
+            Ok(true) => future::ok(Status::Stopped),
+            Ok(false) => future::ok(Status::Running),
+            Err(e) => future::err(e),
+        }
     }
 }
 

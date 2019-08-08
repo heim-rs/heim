@@ -23,6 +23,9 @@ libc = "0.2.58"
 futures-preview = "0.3.0-alpha.17"
 lazy_static = "1.3.0"
 
+[target.'cfg(target_os = "windows")'.dependencies]
+ntapi = "0.3.3"
+
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
 version = "0.3.7"
 default-features = false
@@ -42,6 +45,7 @@ mach = "0.3.2"
 [dev-dependencies]
 runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
+backtrace = "0.3"
 
 [features]
 runtime-polyfill = ["heim-runtime/runtime-polyfill"]

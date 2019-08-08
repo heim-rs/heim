@@ -6,6 +6,7 @@ use winapi::shared::minwindef::DWORD;
 
 pub mod handle;
 pub mod snapshot;
+pub mod processes;
 
 pub use self::handle::ProcessHandle;
 
