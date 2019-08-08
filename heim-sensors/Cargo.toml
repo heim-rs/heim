@@ -12,6 +12,6 @@ license = "Apache-2.0 OR MIT"
 
 [badges]
 maintenance = { status = "experimental" }
-azure-devops = { project = "heim", pipeline = "heim-rs.heim" }
+azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]

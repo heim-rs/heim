@@ -10,7 +10,7 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-heim-common = { version = "0.0.5", path = "../heim-common" }
+heim-common = { version = "0.0.6", path = "../heim-common" }
 cfg-if = "0.1.9"
 
 # `runtime-polyfill` feature dependencies

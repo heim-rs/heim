@@ -1,6 +1,6 @@
 [package]
 name = "heim-derive"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Derive macros for heim crates"
@@ -12,7 +12,7 @@ license = "Apache-2.0 OR MIT"
 
 [badges]
 maintenance = { status = "experimental" }
-azure-devops = { project = "heim-rs", pipeline = "heim" }
+azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [lib]
 proc-macro = true

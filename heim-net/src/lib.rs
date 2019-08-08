@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `net` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-net/0.0.5")]
+#![doc(html_root_url = "https://docs.rs/heim-net/0.0.6")]
 #![deny(
     unused,
     unused_imports,

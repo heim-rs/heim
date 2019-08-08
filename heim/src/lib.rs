@@ -29,7 +29,7 @@
 //! If you are browsing this documentation via [docs.rs](https://docs.rs/heim),
 //! do not forget to use the platform selector at the page header.
 
-#![doc(html_root_url = "https://docs.rs/heim/0.0.5")]
+#![doc(html_root_url = "https://docs.rs/heim/0.0.6")]
 #![deny(
     unused,
     unused_imports,

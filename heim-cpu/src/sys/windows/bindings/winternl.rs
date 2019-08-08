@@ -3,7 +3,7 @@
 use std::ptr;
 use std::mem;
 
-use winapi::shared::{ntdef, minwindef};
+use winapi::shared::{ntdef, minwindef, ntstatus};
 
 use heim_common::prelude::*;
 use heim_common::sys::windows as ntdll;
@@ -152,12 +152,15 @@ pub fn query_system_information<T>() -> Result<Vec<T>> where T: SystemInformatio
     let buffer_length = proc_amount * mem::size_of::<T>();
 
     unsafe {
-        ntdll::NtQuerySystemInformation(
+        let result = ntdll::NtQuerySystemInformation(
             T::class(),
             info.as_mut_ptr() as *mut _,
             buffer_length as u32,
             ptr::null_mut(),
         )?;
+        if result != ntstatus::STATUS_SUCCESS {
+            return Err(Error::last_os_error())
+        }
         info.set_len(proc_amount);
     };
 
