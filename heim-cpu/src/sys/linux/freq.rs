@@ -1,5 +1,6 @@
 use std::ops;
 use std::path::{Path, PathBuf};
+use std::os::unix::ffi::OsStrExt;
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
@@ -73,11 +74,25 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
 
     // TODO: https://github.com/giampaolo/psutil/issues/1269
 
-    // TODO: `glob::glob` is synchronous, should replace it with some async dir reader
-    let walker = glob::glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq").expect("Invalid glob pattern");
+    fs::read_dir("/sys/devices/system/cpu/")
+        .try_filter(|entry| {
+            let name = entry.file_name();
+            let bytes = name.as_bytes();
+            if !bytes.starts_with(b"cpu") {
+                return future::ready(false);
+            }
+            let all_digits = &bytes[3..].iter()
+                .all(|byte| *byte >= b'0' && *byte <= b'9');
 
-    stream::iter(walker)
-        .map_err(|e| Error::from(Box::new(e)))
+            future::ready(*all_digits)
+        })
+        .map_ok(|entry| {
+            entry.path().join("cpufreq")
+        })
+        .try_filter(|path| {
+            // TODO: Get rid of the `.clone()`
+            fs::path_exists(path.clone())
+        })
         .and_then(|path| {
             let current = current_freq(&path);
             let max = max_freq(&path);
