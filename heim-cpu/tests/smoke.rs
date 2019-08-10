@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_cpu as cpu;
 
 #[heim_derive::skip_ci(target_os = "linux")]
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_frequency() {
     let freq = cpu::frequency().await.unwrap();
 
@@ -13,7 +13,7 @@ async fn smoke_frequency() {
     let _ = freq.max();
 }
 
-#[runtime::test]
+#[heim_derive::test]
 #[cfg(target_os = "linux")]
 async fn smoke_frequencies() {
     let mut frequencies = cpu::os::linux::frequencies();
@@ -26,7 +26,7 @@ async fn smoke_frequencies() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_stats() {
     let stats = cpu::stats().await.unwrap();
 
@@ -57,7 +57,7 @@ async fn smoke_stats() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_time() {
     let time = cpu::time().await;
     let time = time.unwrap();
@@ -80,7 +80,7 @@ async fn smoke_time() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_times() {
     let mut times = cpu::times();
     while let Some(time) = times.next().await {
@@ -105,7 +105,7 @@ async fn smoke_times() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_cpu_logical_count() {
     let count = cpu::logical_count().await.unwrap();
 
@@ -114,7 +114,7 @@ async fn smoke_cpu_logical_count() {
 
 // TODO: Crashes for some reasons in Azure VM, should be investigated
 #[heim_derive::skip_ci(target_os = "windows")]
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_cpu_physical_count() {
     let count = cpu::physical_count().await;
     assert!(count.is_ok(), "cpu::physical_count failed: {:#?}", count);

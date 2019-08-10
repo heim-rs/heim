@@ -9,7 +9,7 @@ use heim_disk as disk;
 
 const MEGABYTE: u64 = 1_024 * 1_024;
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} Mount",

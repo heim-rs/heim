@@ -2,7 +2,7 @@
 
 use heim_virt::detect;
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() {
     dbg!(detect().await);
 }

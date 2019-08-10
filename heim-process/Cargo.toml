@@ -20,7 +20,7 @@ heim-common = { version = "0.0.6", path = "../heim-common" }
 heim-runtime = { version = "0.0.2", path = "../heim-runtime" }
 cfg-if = "0.1.7"
 libc = "0.2.58"
-futures-preview = "0.3.0-alpha.17"
+futures-preview = "0.3.0-alpha.18"
 lazy_static = "1.3.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
@@ -43,7 +43,6 @@ features = [
 mach = "0.3.2"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.6"
 version-sync = "0.8"
 
 [features]

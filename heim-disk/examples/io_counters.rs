@@ -3,7 +3,7 @@
 use heim_common::prelude::*;
 use heim_disk as disk;
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<()> {
     let mut counters = disk::io_counters();
     while let Some(counter) = counters.next().await {

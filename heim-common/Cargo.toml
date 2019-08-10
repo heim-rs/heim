@@ -17,7 +17,8 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 [dependencies]
 heim-derive = { version = "0.0.6", path = "../heim-derive" }
 cfg-if = "0.1.7"
-futures-preview = "0.3.0-alpha.17"
+futures-preview = "0.3.0-alpha.18"
+pin-utils = "0.1.0-alpha.4"
 
 [dev-dependencies]
 version-sync = "0.8"

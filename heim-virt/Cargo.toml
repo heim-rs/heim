@@ -23,7 +23,8 @@ cfg-if = "0.1.9"
 raw-cpuid = "6.1.0"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.6"
+heim-derive = { version = "0.0.6", path = "../heim-derive" }
+futures-preview = "0.3.0-alpha.18"
 version-sync = "0.8"
 tempfile = "3.0"
 

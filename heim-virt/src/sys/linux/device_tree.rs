@@ -71,7 +71,7 @@ mod tests {
     use crate::Virtualization;
     use std::io::Write;
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_kvm() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
 
@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(Ok(Virtualization::Kvm), result);
     }
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_xen() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
 
@@ -93,7 +93,7 @@ mod tests {
         assert_eq!(Ok(Virtualization::Xen), result);
     }
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_unknown() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
 

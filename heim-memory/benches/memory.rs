@@ -4,12 +4,12 @@ extern crate test;
 
 use heim_memory as memory;
 
-#[runtime::bench]
+#[heim_derive::bench]
 async fn bench_memory() {
     memory::memory().await
 }
 
-#[runtime::bench]
+#[heim_derive::bench]
 async fn bench_swap() {
     memory::swap().await
 }

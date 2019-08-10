@@ -3,7 +3,7 @@
 use heim_common::prelude::StreamExt;
 use heim_process as process;
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<(), process::ProcessError> {
     let mut pids = process::pids();
     while let Some(pid) = pids.next().await {

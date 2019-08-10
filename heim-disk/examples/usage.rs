@@ -15,7 +15,7 @@ cfg_if::cfg_if! {
 
 }
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<()> {
     let usage = disk::usage(USAGE_PATH).await?;
     dbg!(usage);

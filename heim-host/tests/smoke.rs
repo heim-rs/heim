@@ -5,7 +5,7 @@ extern crate test;
 use heim_common::prelude::*;
 use heim_host as host;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_platform() {
     let platform = host::platform().await;
     let platform = platform.unwrap();
@@ -15,7 +15,7 @@ async fn smoke_platform() {
     let _ = platform.architecture();
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_uptime() {
     let uptime = host::uptime().await;
 
@@ -23,7 +23,7 @@ async fn smoke_uptime() {
 }
 
 #[heim_derive::skip_ci(target_os = "windows")] // https://github.com/heim-rs/heim/issues/32
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_users() {
     let mut users = host::users();
     while let Some(user) = users.next().await {

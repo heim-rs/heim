@@ -3,14 +3,14 @@
 use heim_common::prelude::*;
 use heim_process as process;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_pid_exists() {
     let result = process::pid_exists(1).await;
 
     assert!(result.is_ok());
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_pids() {
     let mut pids = process::pids();
 
@@ -19,7 +19,7 @@ async fn smoke_pids() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_processes() {
     let mut processes = process::processes();
 
@@ -27,8 +27,8 @@ async fn smoke_processes() {
         let process = process.unwrap();
 
         let _ = process.pid();
-        let _ = process.parent_pid();
-        let _ = process.name();
-        let _ = process.exe();
+        let _ = process.parent_pid().await;
+        let _ = process.name().await;
+        let _ = process.exe().await;
     }
 }

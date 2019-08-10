@@ -2,7 +2,7 @@
 
 use heim_memory as memory;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_memory() {
     let mem = memory::memory().await;
 
@@ -35,7 +35,7 @@ async fn smoke_memory() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_swap() {
     let swap = memory::swap().await;
 

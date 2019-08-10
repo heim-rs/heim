@@ -13,7 +13,7 @@ async fn linux_frequencies() -> Result<()> {
     Ok(())
 }
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<()> {
     let freq = cpu::frequency().await;
     dbg!(freq?);

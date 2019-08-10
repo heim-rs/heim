@@ -2,7 +2,7 @@
 
 use heim_virt as virt;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_detect() {
     let _ = virt::detect().await;
 }

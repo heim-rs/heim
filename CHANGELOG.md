@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unrelease]
+## [Unreleased]
 
 ### Changed
 
 - Replace `glob` crate usage from `cpu::frequency` for Linux with async fs shim
+- Update to `futures-preview = "0.3.0-alpha.18"` version
 
 ## [0.0.6] - 2019-08-08
 

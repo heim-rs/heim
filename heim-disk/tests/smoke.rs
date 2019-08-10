@@ -3,7 +3,7 @@
 use heim_common::prelude::*;
 use heim_disk as disk;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_partitions() {
     let mut partitions = disk::partitions();
     while let Some(part) = partitions.next().await {
@@ -30,7 +30,7 @@ async fn smoke_partitions() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_partitions_physical() {
     let mut partitions = disk::partitions_physical();
     while let Some(part) = partitions.next().await {
@@ -57,7 +57,7 @@ async fn smoke_partitions_physical() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_usage() {
     let usage = disk::usage("/").await;
 
@@ -76,7 +76,7 @@ async fn smoke_usage() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_io_counters() {
     #[cfg(target_os = "windows")]
     {
@@ -97,7 +97,7 @@ async fn smoke_io_counters() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_io_counters_physical() {
     #[cfg(target_os = "windows")]
     {

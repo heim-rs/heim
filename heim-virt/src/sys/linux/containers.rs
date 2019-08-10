@@ -128,7 +128,7 @@ mod tests {
 
     use crate::Virtualization;
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_wsl_1() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
         f.write_all(b"Microsoft Windows Subsystem for Linux").unwrap();
@@ -137,7 +137,7 @@ mod tests {
         assert_eq!(res, Ok(Virtualization::Wsl));
     }
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_wsl_2() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
         f.write_all(b"Microsoft WSL").unwrap();
@@ -146,7 +146,7 @@ mod tests {
         assert_eq!(res, Ok(Virtualization::Wsl));
     }
 
-    #[runtime::test]
+    #[heim_derive::test]
     async fn test_init_env() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
         f.write_all(b"LANG=C\0container=podman\0USER=root").unwrap();

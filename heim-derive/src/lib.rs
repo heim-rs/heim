@@ -284,15 +284,15 @@ pub fn unit(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
-/// Used for `#[runtime::test]`-annotated functions
+/// Used for `#[heim_derive::test]`-annotated functions
 ///
 /// Will not run the annotated function if it is called in the CI environment.
 ///
-/// It is important to put it **before** the `#[runtime::test]` attribute, like that:
+/// It is important to put it **before** the `#[heim_derive::test]` attribute, like that:
 ///
 /// ```text
 /// #[heim_derive::skip_ci]
-/// #[runtime::test]
+/// #[heim_derive::test]
 /// async fn test_foo() {}
 /// ```
 ///
@@ -333,4 +333,128 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     expanded.into()
+}
+
+/// Defines the async main function.
+///
+/// Same thing what `runtime::main` does, but without checks and with `futures::executor` instead.
+/// Created because `runtime` crate as a dependency is too huge
+/// and might break some time (ex. as with `futures-preview = "0.3.0-alpha.18"` update)
+/// and it will block development.
+///
+/// It is used for `heim` examples only.
+#[cfg(not(test))]
+#[proc_macro_attribute]
+pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = syn::parse_macro_input!(item as syn::ItemFn);
+
+    let ret = &input.decl.output;
+    let inputs = &input.decl.inputs;
+    let name = &input.ident;
+    let body = &input.block;
+    let attrs = &input.attrs;
+
+    if name != "main" {
+        let tokens = quote::quote_spanned! { name.span() =>
+          compile_error!("only the main function can be tagged with #[heim_derive::main]");
+        };
+        return TokenStream::from(tokens);
+    }
+
+    if input.asyncness.is_none() {
+        let tokens = quote::quote_spanned! { input.span() =>
+          compile_error!("the async keyword is missing from the function declaration");
+        };
+        return TokenStream::from(tokens);
+    }
+
+    let result = quote::quote! {
+        fn main() #ret {
+            #(#attrs)*
+            async fn main(#(#inputs),*) #ret {
+                #body
+            }
+
+            let mut pool = futures::executor::ThreadPool::new()
+                .expect("Failed to create futures threadpool");
+
+            pool.run(async {
+                main().await
+            })
+        }
+
+    };
+
+    result.into()
+}
+
+/// Defines the async test function.
+///
+/// It is used for `heim` test only. See `heim_derive::main` for additional details.
+#[proc_macro_attribute]
+pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = syn::parse_macro_input!(item as syn::ItemFn);
+
+    let ret = &input.decl.output;
+    let name = &input.ident;
+    let body = &input.block;
+    let attrs = &input.attrs;
+
+    if input.asyncness.is_none() {
+        let tokens = quote::quote_spanned! { input.span() =>
+          compile_error!("the async keyword is missing from the function declaration");
+        };
+        return TokenStream::from(tokens);
+    }
+
+    let result = quote::quote! {
+        #[test]
+        #(#attrs)*
+        fn #name() #ret {
+            let mut pool = futures::executor::ThreadPool::new()
+                .expect("Failed to create futures threadpool");
+
+            pool.run(async {
+                #body
+            })
+        }
+    };
+
+    result.into()
+}
+
+/// Defines the async benchmark function.
+///
+/// It is used for `heim` test only. See `heim_derive::main` for additional details.
+#[proc_macro_attribute]
+pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = syn::parse_macro_input!(item as syn::ItemFn);
+
+    let name = &input.ident;
+    let body = &input.block;
+    let attrs = &input.attrs;
+
+    if input.asyncness.is_none() {
+        let tokens = quote::quote_spanned! { input.span() =>
+          compile_error!("the async keyword is missing from the function declaration");
+        };
+        return TokenStream::from(tokens);
+    }
+
+    let result = quote::quote! {
+        #[bench]
+        #(#attrs)*
+        fn #name(b: &mut test::Bencher) {
+            let mut pool = futures::executor::ThreadPool::new()
+                .expect("Failed to create futures threadpool");
+
+            b.iter(|| {
+                let _ = pool.run(async {
+                    #body
+                });
+            });
+        }
+    };
+
+    result.into()
 }

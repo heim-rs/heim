@@ -9,7 +9,7 @@ use heim_net::os::linux::IoCountersExt;
 #[cfg(target_os = "windows")]
 use heim_net::os::windows::IoCountersExt;
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_io_counters() {
     let mut counters = net::io_counters();
     while let Some(counter) = counters.next().await {
@@ -29,7 +29,7 @@ async fn smoke_io_counters() {
     }
 }
 
-#[runtime::test]
+#[heim_derive::test]
 async fn smoke_nic() {
     let mut nic = net::nic();
     while let Some(iface) = nic.next().await {

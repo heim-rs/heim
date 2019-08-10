@@ -40,7 +40,7 @@ libc = "0.2.58"
 mach = "0.3.2"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.6"
+futures-preview = "0.3.0-alpha.18"
 version-sync = "0.8"
 
 [features]

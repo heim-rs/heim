@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use heim_common::prelude::StreamExt;
 use heim_process as process;
 
-#[runtime::main]
+#[heim_derive::main]
 async fn main() -> Result<(), process::ProcessError> {
     let mut processes = process::processes();
     println!(
