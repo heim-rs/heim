@@ -11,6 +11,7 @@
 //!  * Processes (*in progress*)
 //!  * Virtualization (*in progress*)
 //!  * Windows services (*in progress*)
+//!  * Hardware sensors (*in progress*)
 //!
 //! ## Platform support
 //!
@@ -77,5 +78,9 @@ pub use heim_process as process;
 #[cfg(feature = "virt")]
 #[doc(inline)]
 pub use heim_virt as virt;
+
+#[cfg(feature = "sensors")]
+#[doc(inline)]
+pub use heim_sensors as sensors;
 
 pub use heim_common::{Error, Result};

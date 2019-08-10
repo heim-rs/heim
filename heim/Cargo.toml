@@ -25,12 +25,13 @@ heim-memory = {version = "0.0.6", path = "../heim-memory", optional = true }
 heim-net = {version = "0.0.6", path = "../heim-net", optional = true }
 heim-process = { version = "0.0.6", path = "../heim-process", optional = true }
 heim-virt = { version = "0.0.6", path = "../heim-virt", optional = true }
+heim-sensors = { version = "0.0.1", path = "../heim-sensors", optional = true }
 
 [dev-dependencies]
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "runtime-polyfill"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-polyfill"]
 
 # Modules
 host = ["heim-host"]
@@ -40,6 +41,7 @@ disk = ["heim-disk"]
 net = ["heim-net"]
 process = ["heim-process"]
 virt = ["heim-virt"]
+sensors = ["heim-sensors"]
 
 # Reactors
 runtime-polyfill = [
@@ -52,4 +54,5 @@ runtime-polyfill = [
     "heim-net/runtime-polyfill",
     "heim-process/runtime-polyfill",
     "heim-virt/runtime-polyfill",
+    "heim-sensors/runtime-polyfill",
 ]
