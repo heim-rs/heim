@@ -28,7 +28,7 @@ futures-preview = "0.3.0-alpha.18"
 version-sync = "0.8"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.14.0"
+nix = "0.15.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 hex = "0.3.2"
