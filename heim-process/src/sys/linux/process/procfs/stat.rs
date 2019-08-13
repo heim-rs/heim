@@ -5,6 +5,7 @@ use std::convert::TryFrom;
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_common::utils::iter::{ParseIterator, TryIterator};
+use heim_common::sys::unix::CLOCK_TICKS;
 use heim_runtime::fs;
 
 use crate::{Pid, ProcessResult, Status};
@@ -49,6 +50,10 @@ pub struct Stat {
     pub state: Status,
     pub ppid: Pid,
     pub create_time: Time,
+    pub utime: Time,
+    pub stime: Time,
+    pub cutime: Time,
+    pub cstime: Time,
 }
 
 impl FromStr for Stat {
@@ -75,10 +80,10 @@ impl FromStr for Stat {
         let _cminflt: u64 = parts.try_parse_next()?;
         let _majflt: u64 = parts.try_parse_next()?;
         let _cmajflt: u64 = parts.try_parse_next()?;
-        let _utime: u64 = parts.try_parse_next()?;
-        let _stime: u64 = parts.try_parse_next()?;
-        let _cutime: i64 = parts.try_parse_next()?;
-        let _cstime: i64 = parts.try_parse_next()?;
+        let utime: u64 = parts.try_parse_next()?;
+        let stime: u64 = parts.try_parse_next()?;
+        let cutime: i64 = parts.try_parse_next()?;
+        let cstime: i64 = parts.try_parse_next()?;
         let _priority: i64 = parts.try_parse_next()?;
         let _nice: i64 = parts.try_parse_next()?;
         let _num_threads: i64 = parts.try_parse_next()?;
@@ -95,6 +100,11 @@ impl FromStr for Stat {
             state,
             ppid,
             create_time: Time::new(0.0),
+            // TODO: Possible values truncation during the `as f64` cast
+            utime: Time::new(utime as f64 / *CLOCK_TICKS),
+            stime: Time::new(stime as f64 / *CLOCK_TICKS),
+            cutime: Time::new(cutime as f64 / *CLOCK_TICKS),
+            cstime: Time::new(cstime as f64 / *CLOCK_TICKS),
         })
     }
 }

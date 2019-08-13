@@ -7,6 +7,10 @@ use heim_common::prelude::*;
 use super::{bindings, pids};
 use crate::{Pid, ProcessResult, Status};
 
+mod cpu_times;
+
+pub use self::cpu_times::CpuTime;
+
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
@@ -49,6 +53,11 @@ impl Process {
             },
             Err(e) => future::err(e),
         }
+    }
+
+    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
+        // TODO: Stub
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/108").into())
     }
 }
 

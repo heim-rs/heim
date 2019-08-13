@@ -2,9 +2,8 @@ use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_common::sys::unix::CLOCK_TICKS;
 use heim_runtime::fs;
-
-use crate::sys::unix::CLOCK_TICKS;
 
 #[derive(Debug, Default, heim_derive::Getter)]
 pub struct CpuTime {

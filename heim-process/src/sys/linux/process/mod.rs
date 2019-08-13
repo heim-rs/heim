@@ -9,6 +9,8 @@ use crate::{Pid, Status, ProcessError, ProcessResult};
 
 mod procfs;
 
+pub use self::procfs::CpuTime;
+
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
@@ -48,6 +50,10 @@ impl Process {
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
         future::ok(self.create_time)
+    }
+
+    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
+        procfs::stat(self.pid).map_ok(Into::into)
     }
 }
 

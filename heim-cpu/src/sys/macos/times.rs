@@ -1,8 +1,8 @@
 use heim_common::prelude::*;
+use heim_common::sys::unix::CLOCK_TICKS;
 
 use crate::units;
 use super::bindings;
-use crate::sys::unix::CLOCK_TICKS;
 
 #[derive(Debug)]
 pub struct CpuTime {

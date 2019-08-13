@@ -32,6 +32,7 @@ default-features = false
 features = [
     "minwindef",
     "winnt",
+    "winbase",
     "handleapi",
     "psapi",
     "processthreadsapi",
