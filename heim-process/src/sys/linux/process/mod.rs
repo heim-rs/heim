@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, convert::TryInto};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
@@ -65,4 +65,17 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
             pid,
             create_time: stat.create_time,
         })
+}
+
+pub fn process(pid: i32) -> impl Future<Output = ProcessResult<Process>> {
+    self::procfs::stat(pid).map_ok(move |stat| (pid, stat))
+    .map_ok(|(pid, stat)| Process {
+        pid,
+        create_time: stat.create_time,
+    })
+}
+
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    let pid = std::process::id().try_into().unwrap();
+    process(pid)
 }

@@ -68,3 +68,12 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
             pid,
         })
 }
+
+pub fn process(pid: i32) -> impl Future<Output = ProcessResult<Process>> {
+    future::ok(Process { pid })
+}
+
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    let pid = std::process::id().try_into().unwrap();
+    process(pid)
+}

@@ -57,3 +57,13 @@ impl fmt::Debug for Process {
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     sys::processes().map_ok(Into::into)
 }
+
+/// Returns the process associated to the pid.
+pub fn process(pid: i32) -> impl Future<Output = ProcessResult<Process>> {
+    sys::process(pid).map_ok(Into::into)
+}
+
+/// Returns the current process.
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    sys::current().map_ok(Into::into)
+}
