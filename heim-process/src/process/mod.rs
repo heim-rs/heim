@@ -16,6 +16,16 @@ pub use self::status::Status;
 pub struct Process(sys::Process);
 
 impl Process {
+    /// Load the process information with `pid` given.
+    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
+        sys::Process::get(pid).map_ok(Self)
+    }
+
+    /// Returns the `Process` matching the currently running program.
+    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
+        sys::Process::current().map_ok(Self)
+    }
+
     /// Returns the process pid.
     pub fn pid(&self) -> Pid {
         self.as_ref().pid()

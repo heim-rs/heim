@@ -18,6 +18,25 @@ pub struct Process {
 }
 
 impl Process {
+    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
+        procfs::stat(pid)
+            .map_ok(move |procfs::Stat { create_time, .. } | Process {
+                pid,
+                create_time,
+            })
+    }
+
+    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
+        future::lazy(|_| {
+            unsafe {
+                libc::getpid()
+            }
+        })
+        .then(|pid| {
+            Process::get(pid)
+        })
+    }
+
     pub fn pid(&self) -> Pid {
         self.pid
     }

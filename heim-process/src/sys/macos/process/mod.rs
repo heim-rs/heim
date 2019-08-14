@@ -17,6 +17,14 @@ pub struct Process {
 }
 
 impl Process {
+    pub fn get(_pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/118").into())
+    }
+
+    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/118").into())
+    }
+
     pub fn pid(&self) -> Pid {
         self.pid
     }
