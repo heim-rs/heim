@@ -20,9 +20,12 @@ pub struct Process {
 
 impl Process {
     pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        future::ok(Process {
-            pid,
-        })
+        match bindings::process(pid) {
+            Ok(..) => future::ok(Process {
+                pid,
+            }),
+            Err(e) => future::err(e),
+        }
     }
 
     pub fn current() -> impl Future<Output = ProcessResult<Self>> {

@@ -110,5 +110,6 @@ impl FromStr for Stat {
 }
 
 pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
+    // TODO: Convert not found error into the `ProcessError::NoSuchProcess`
     fs::read_into(format!("/proc/{}/stat", pid)).map_err(Into::into)
 }

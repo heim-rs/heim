@@ -3,8 +3,9 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
 use heim_common::prelude::*;
+use winapi::um::processthreadsapi;
 
-use super::{pids, bindings};
+use super::{pids, pid_exists, bindings};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod cpu_times;
@@ -20,12 +21,27 @@ pub struct Process {
 }
 
 impl Process {
-    pub fn get(_pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/119").into())
+    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
+        pid_exists(pid)
+            .and_then(move |is_exists| {
+                if is_exists {
+                    future::ok(Process {
+                        pid,
+                    })
+                } else {
+                    future::err(ProcessError::NoSuchProcess(pid))
+                }
+            })
     }
 
     pub fn current() -> impl Future<Output = ProcessResult<Self>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/119").into())
+        let pid = unsafe {
+            processthreadsapi::GetCurrentProcessId()
+        };
+
+        future::ok(Process {
+            pid
+        })
     }
 
     pub fn pid(&self) -> Pid {
