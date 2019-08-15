@@ -19,12 +19,22 @@ pub struct Process {
 }
 
 impl Process {
-    pub fn get(_pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/118").into())
+    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
+        future::ok(Process {
+            pid,
+        })
     }
 
     pub fn current() -> impl Future<Output = ProcessResult<Self>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/118").into())
+        future::lazy(|_| {
+            let pid = unsafe {
+                libc::getpid()
+            };
+
+            Ok(Process {
+                pid,
+            })
+        })
     }
 
     pub fn pid(&self) -> Pid {

@@ -34,7 +34,10 @@ async fn smoke_processes() {
         let _ = process.cpu_time().await;
         let _ = process.memory().await;
 
-        let _ = process.net_io_counters().try_for_each(|_| future::ok(())).await;
+        let _ = process
+            .net_io_counters()
+            .try_for_each(|_| future::ok(()))
+            .await;
 
         #[cfg(target_os = "linux")]
         {
