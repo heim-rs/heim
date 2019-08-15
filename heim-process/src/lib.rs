@@ -24,6 +24,7 @@
 )]
 
 mod errors;
+pub mod os;
 mod sys;
 
 mod pids;

@@ -9,7 +9,7 @@ use crate::{Pid, Status, ProcessError, ProcessResult};
 
 mod procfs;
 
-pub use self::procfs::CpuTime;
+pub use self::procfs::{Memory, CpuTime};
 
 #[derive(Debug)]
 pub struct Process {
@@ -73,6 +73,10 @@ impl Process {
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
         procfs::stat(self.pid).map_ok(Into::into)
+    }
+
+    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
+        procfs::stat_memory(self.pid)
     }
 }
 

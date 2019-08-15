@@ -8,8 +8,10 @@ use super::{bindings, pids};
 use crate::{Pid, ProcessResult, Status};
 
 mod cpu_times;
+mod memory;
 
 pub use self::cpu_times::CpuTime;
+pub use self::memory::Memory;
 
 #[derive(Debug)]
 pub struct Process {
@@ -66,6 +68,11 @@ impl Process {
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
         // TODO: Stub
         future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/108").into())
+    }
+
+    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
+        // TODO: Stub
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/122").into())
     }
 }
 

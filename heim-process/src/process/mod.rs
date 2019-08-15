@@ -6,9 +6,11 @@ use heim_common::prelude::*;
 use crate::{sys, Pid, ProcessResult};
 
 mod cpu_times;
+mod memory;
 mod status;
 
 pub use self::cpu_times::CpuTime;
+pub use self::memory::Memory;
 pub use self::status::Status;
 
 /// OS process.
@@ -54,6 +56,11 @@ impl Process {
     /// Returns future which resolves into the accumulated process time.
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
         self.as_ref().cpu_time().map_ok(Into::into)
+    }
+
+    /// Returns future which resolves into the memory information about this process.
+    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
+        self.as_ref().memory().map_ok(Into::into)
     }
 }
 
