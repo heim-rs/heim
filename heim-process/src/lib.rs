@@ -36,3 +36,4 @@ pub use self::process::*;
 pub use self::errors::{ProcessError, ProcessResult};
 pub use heim_common::units::Time;
 pub use heim_common::Pid;
+pub use heim_net::IoCounters;
