@@ -30,5 +30,17 @@ async fn smoke_processes() {
         let _ = process.parent_pid().await;
         let _ = process.name().await;
         let _ = process.exe().await;
+        let _ = process.status().await;
+        let _ = process.cpu_time().await;
+        let _ = process.memory().await;
+
+        let _ = process.net_io_counters().try_for_each(|_| future::ok(())).await;
+
+        #[cfg(target_os = "linux")]
+        {
+            use heim_process::os::linux::ProcessExt;
+
+            let _ = process.io_counters().await;
+        }
     }
 }
