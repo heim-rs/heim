@@ -21,5 +21,13 @@ async fn main() -> Result<(), process::ProcessError> {
         dbg!(counter);
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        println!("# Linux specifics");
+        use heim_process::os::linux::ProcessExt;
+
+        dbg!(process.io_counters().await?);
+    }
+
     Ok(())
 }

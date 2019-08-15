@@ -2,7 +2,6 @@ use std::fmt;
 use std::path::PathBuf;
 
 use heim_common::prelude::*;
-use heim_net::IoCounters;
 
 use crate::{sys, Pid, ProcessResult};
 
@@ -65,8 +64,10 @@ impl Process {
     }
 
     /// Returns stream which yield this process [IO counters] for each network interface.
-    pub fn net_io_counters(&self) -> impl Stream<Item = ProcessResult<IoCounters>> {
-        heim_net::internal::io_counters_for_pid(self.pid()).map_err(Into::into)
+    ///
+    /// [IO counters]: ./struct.IoCounters.html
+    pub fn net_io_counters(&self) -> impl Stream<Item = ProcessResult<heim_net::IoCounters>> {
+        heim_net::io_counters_for_pid(self.pid()).map_err(Into::into)
     }
 }
 

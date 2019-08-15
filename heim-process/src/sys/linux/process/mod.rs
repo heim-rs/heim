@@ -1,11 +1,14 @@
 use std::path::PathBuf;
 
+use futures::future::BoxFuture;
+
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_runtime::fs;
 
 use super::pids;
 use crate::{Pid, Status, ProcessError, ProcessResult};
+use crate::os::linux::IoCounters;
 
 mod procfs;
 
@@ -77,6 +80,12 @@ impl Process {
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
         procfs::stat_memory(self.pid)
+    }
+
+    // Linux-specific methods
+
+    pub fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>> {
+        procfs::io(self.pid).boxed()
     }
 }
 

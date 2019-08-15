@@ -1,8 +1,8 @@
-//! Linux-specific extensions
-
 use heim_common::units::Information;
 
-/// Linux-specific extension to [`Memory`]
+/// Linux-specific extension to process [Memory] information.
+///
+/// [Memory]: ../../struct.Memory.html
 #[heim_derive::os_ext_for(crate::Memory, cfg(target_os = "linux"))]
 pub trait MemoryExt {
     /// Returns the amount of memory that could be potentially shared with other processes.

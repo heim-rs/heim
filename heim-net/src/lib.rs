@@ -23,8 +23,6 @@
     unused_results
 )]
 
-#[doc(hidden)]
-pub mod internal;
 pub mod os;
 mod sys;
 
