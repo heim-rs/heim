@@ -18,7 +18,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "0.4.29"
+proc-macro2 = "1.0.1"
 quote = "0.6.12"
 
 [dependencies.syn]
