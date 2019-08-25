@@ -84,8 +84,10 @@ impl Process {
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        // TODO: Stub
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/122").into())
+        match darwin_libproc::task_info(self.pid) {
+            Ok(task_info) => future::ok(Memory::from(task_info)),
+            Err(e) => future::err(e.into())
+        }
     }
 }
 

@@ -45,6 +45,7 @@ features = [
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.3.2"
+darwin-libproc = { git = "https://github.com/heim-rs/darwin-libproc.git" }
 
 [dev-dependencies]
 version-sync = "0.8"

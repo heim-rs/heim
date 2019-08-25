@@ -6,6 +6,7 @@ use heim_common::prelude::*;
 
 use crate::{Pid, ProcessResult, ProcessError};
 
+// TODO: Replace with a `darwin-libproc` crate usage
 extern "C" {
     pub fn proc_pidpath(pid: libc::c_int, buffer: *mut libc::c_void, buffersize: u32) -> libc::c_int;
 }
