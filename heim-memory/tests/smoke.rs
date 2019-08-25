@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use heim_memory as memory;
 
 #[heim_derive::test]

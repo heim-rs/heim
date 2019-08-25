@@ -2,7 +2,6 @@ use std::fmt;
 
 use heim_common::prelude::*;
 use heim_common::units::Information;
-use heim_common::Pid;
 
 use super::bindings::{net_pf_route, if_msghdr2};
 
@@ -84,8 +83,4 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
             data: msg,
         })
     })
-}
-
-pub fn io_counters_for_pid(_pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
-    stream::iter(vec![])
 }

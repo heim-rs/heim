@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use std::path::PathBuf;
 
 use heim_common::prelude::StreamExt;

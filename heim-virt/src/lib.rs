@@ -28,7 +28,6 @@
     unused_import_braces,
     unused_results
 )]
-#![cfg_attr(test, feature(async_await))]
 
 use heim_common::prelude::*;
 

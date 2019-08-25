@@ -1,6 +1,7 @@
 //! Linux-specific extensions.
 
 use futures::future::BoxFuture;
+use futures::stream::BoxStream;
 
 use crate::ProcessResult;
 
@@ -20,4 +21,12 @@ pub trait ProcessExt {
     /// Since `-> impl Trait` is not allowed yet in the traits,
     /// this method returns boxed `Future`. This behavior will change later.
     fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>>;
+
+    /// Returns stream which yield this process [IO counters] for each network interface.
+    ///
+    /// Since `-> impl Trait` is not allowed yet in the traits,
+    /// this method returns boxed `Stream`. This behavior will change later.
+    ///
+    /// [IO counters]: ./struct.IoCounters.html
+    fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>>;
 }

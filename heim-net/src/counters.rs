@@ -2,7 +2,6 @@ use std::fmt;
 
 use heim_common::prelude::*;
 use heim_common::units::Information;
-use heim_common::Pid;
 
 use crate::sys;
 
@@ -82,16 +81,4 @@ impl fmt::Debug for IoCounters {
 /// [IO counters]: struct.IoCounters.html
 pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters().map_ok(Into::into)
-}
-
-/// Returns stream which yield [IO counters] for each network interface for process with given `pid`.
-///
-/// **MUST** be used as `process::Process::net_io_counters()`
-///
-/// ## Compatibility
-///
-/// Implemented only for Linux for now. For other platforms will return an empty stream.
-#[doc(hidden)]
-pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
-    sys::io_counters_for_pid(pid).map_ok(Into::into)
 }

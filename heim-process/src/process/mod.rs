@@ -62,13 +62,6 @@ impl Process {
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
         self.as_ref().memory().map_ok(Into::into)
     }
-
-    /// Returns stream which yield this process [IO counters] for each network interface.
-    ///
-    /// [IO counters]: ./struct.IoCounters.html
-    pub fn net_io_counters(&self) -> impl Stream<Item = ProcessResult<heim_net::IoCounters>> {
-        heim_net::io_counters_for_pid(self.pid()).map_err(Into::into)
-    }
 }
 
 impl fmt::Debug for Process {

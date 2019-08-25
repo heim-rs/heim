@@ -1,7 +1,5 @@
 //! Command similar to `df -BM`
 
-#![feature(async_await)]
-
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;

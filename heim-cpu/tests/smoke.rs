@@ -1,4 +1,4 @@
-#![feature(async_await, test)]
+#![feature(test)]
 
 use heim_common::prelude::*;
 use heim_cpu as cpu;

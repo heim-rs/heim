@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use futures::future::BoxFuture;
+use futures::stream::BoxStream;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
@@ -87,6 +88,10 @@ impl Process {
 
     pub fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>> {
         procfs::io(self.pid).boxed()
+    }
+
+    pub fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
+        heim_net::os::linux::io_counters_for_pid(self.pid()).map_err(Into::into).boxed()
     }
 }
 

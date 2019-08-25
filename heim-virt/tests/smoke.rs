@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use heim_virt as virt;
 
 #[heim_derive::test]

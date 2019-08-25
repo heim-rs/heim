@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use futures::stream::StreamExt;
 use heim_process as process;
 
@@ -15,18 +13,18 @@ async fn main() -> Result<(), process::ProcessError> {
     dbg!(process.cpu_time().await?);
     dbg!(process.memory().await?);
 
-    let mut net_io_counters = process.net_io_counters();
-    while let Some(counter) = net_io_counters.next().await {
-        let counter = counter?;
-        dbg!(counter);
-    }
-
     #[cfg(target_os = "linux")]
     {
         println!("# Linux specifics");
         use heim_process::os::linux::ProcessExt;
 
         dbg!(process.io_counters().await?);
+
+        let mut net_io_counters = process.net_io_counters();
+        while let Some(counter) = net_io_counters.next().await {
+            let counter = counter?;
+            dbg!(counter);
+        }
     }
 
     Ok(())

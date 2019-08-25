@@ -1,5 +1,3 @@
-#![feature(async_await)]
-
 use heim_common::prelude::StreamExt;
 use heim_process as process;
 

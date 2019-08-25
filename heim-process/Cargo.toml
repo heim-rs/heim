@@ -18,11 +18,13 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 heim-derive = { version = "0.0.6", path = "../heim-derive" }
 heim-common = { version = "0.0.6", path = "../heim-common" }
 heim-runtime = { version = "0.0.2", path = "../heim-runtime" }
-heim-net = { version = "0.0.6", path = "../heim-net" }
 cfg-if = "0.1.7"
 libc = "0.2.58"
 futures-preview = "0.3.0-alpha.18"
 lazy_static = "1.3.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+heim-net = { version = "0.0.6", path = "../heim-net" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 ntapi = "0.3.3"
