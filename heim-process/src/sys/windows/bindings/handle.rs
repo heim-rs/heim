@@ -1,9 +1,10 @@
+use std::mem;
 use std::io::{Result, Error};
 use std::path::PathBuf;
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
-use winapi::um::{winnt, processthreadsapi, handleapi, winbase};
+use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
 use winapi::shared::minwindef::{DWORD, MAX_PATH};
 use winapi::ctypes::wchar_t;
 
@@ -76,6 +77,29 @@ impl ProcessHandle {
             Err(Error::last_os_error())
         } else {
             Ok(OsString::from_wide(&buffer[..(size as usize)]).into())
+        }
+    }
+
+    pub fn memory(&self) -> Result<psapi::PROCESS_MEMORY_COUNTERS_EX> {
+        let mut counters = mem::MaybeUninit::<psapi::PROCESS_MEMORY_COUNTERS_EX>::uninit();
+
+        let result = unsafe {
+            psapi::GetProcessMemoryInfo(
+                self.0,
+                // Tricking the type checker,
+                // as the `winapi`' GetProcessMemoryInfo expects `PROCESS_MEMORY_COUNTERS`,
+                // not the `PROCESS_MEMORY_COUNTERS_EX`
+                counters.as_mut_ptr() as *mut psapi::PROCESS_MEMORY_COUNTERS,
+                mem::size_of::<psapi::PROCESS_MEMORY_COUNTERS_EX>() as DWORD,
+            )
+        };
+
+        if result == 0 {
+            Err(Error::last_os_error())
+        } else {
+            unsafe {
+                Ok(counters.assume_init())
+            }
         }
     }
 }

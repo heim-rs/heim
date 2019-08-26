@@ -143,8 +143,15 @@ impl Process {
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        // TODO: Stub
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/123").into())
+        let pid = self.pid;
+
+        future::lazy(move |_| {
+            let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+
+            handle.memory()
+                .map(Memory::from)
+                .map_err(ProcessError::from)
+        })
     }
 }
 
