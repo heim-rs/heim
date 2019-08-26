@@ -70,6 +70,7 @@ impl Process {
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
+        // TODO: https://github.com/heim-rs/heim/issues/138
         match bindings::process(self.pid) {
             Ok(kinfo_proc) => {
                 future::ready(Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from))
@@ -79,11 +80,15 @@ impl Process {
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        // TODO: Stub
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/108").into())
+        // TODO: https://github.com/heim-rs/heim/issues/138
+        match darwin_libproc::task_info(self.pid) {
+            Ok(task_info) => future::ok(CpuTime::from(task_info)),
+            Err(e) => future::err(e.into())
+        }
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
+        // TODO: https://github.com/heim-rs/heim/issues/138
         match darwin_libproc::task_info(self.pid) {
             Ok(task_info) => future::ok(Memory::from(task_info)),
             Err(e) => future::err(e.into())
