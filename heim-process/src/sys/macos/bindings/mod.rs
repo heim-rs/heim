@@ -8,8 +8,6 @@ use heim_common::prelude::Error;
 
 use crate::{Pid, ProcessError, Status};
 
-pub mod libproc;
-
 // Process status values, declared at `bsd/sys/proc.h`
 // ex. http://fxr.watson.org/fxr/source/bsd/sys/proc.h?v=xnu-792.6.70#L149
 // Used in `extern_proc.p_stat` field

@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 use heim_common::prelude::*;
 
 use super::{bindings, pids};
-use crate::{Pid, ProcessResult, Status};
+use crate::{Pid, ProcessResult, ProcessError, Status};
 
 mod cpu_times;
 mod memory;
@@ -66,7 +66,11 @@ impl Process {
     }
 
     pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        future::ready(bindings::libproc::pid_path(self.pid))
+        match darwin_libproc::pid_path(self.pid) {
+            Ok(path) => future::ok(path),
+            Err(..) if self.pid == 0 => future::err(ProcessError::AccessDenied(self.pid)),
+            Err(e) => future::err(e.into()),
+        }
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
