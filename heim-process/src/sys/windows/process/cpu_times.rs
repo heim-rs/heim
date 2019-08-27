@@ -2,16 +2,16 @@ use heim_common::units::Time;
 
 #[derive(Debug)]
 pub struct CpuTime {
-    utime: Time,
-    stime: Time,
+    pub(crate) user: Time,
+    pub(crate) kernel: Time,
 }
 
 impl CpuTime {
     pub fn user(&self) -> Time {
-        self.utime
+        self.user
     }
 
     pub fn system(&self) -> Time {
-        self.stime
+        self.kernel
     }
 }

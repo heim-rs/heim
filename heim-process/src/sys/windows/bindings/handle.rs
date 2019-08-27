@@ -5,9 +5,12 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
 use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
-use winapi::shared::minwindef::{DWORD, MAX_PATH};
+use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
 use winapi::ctypes::wchar_t;
 
+use heim_common::sys::windows::IntoTime;
+
+use super::super::process::CpuTime;
 use crate::Pid;
 
 #[derive(Debug)]
@@ -100,6 +103,32 @@ impl ProcessHandle {
             unsafe {
                 Ok(counters.assume_init())
             }
+        }
+    }
+
+    pub fn cpu_time(&self) -> Result<CpuTime> {
+        let mut creation = FILETIME::default();
+        let mut exit = FILETIME::default();
+        let mut kernel = FILETIME::default();
+        let mut user = FILETIME::default();
+
+        let result = unsafe {
+            processthreadsapi::GetProcessTimes(
+                self.0,
+                &mut creation,
+                &mut exit,
+                &mut kernel,
+                &mut user,
+            )
+        };
+
+        if result == 0 {
+            Err(Error::last_os_error())
+        } else {
+            Ok(CpuTime {
+                user: user.into_time(),
+                kernel: kernel.into_time(),
+            })
         }
     }
 }

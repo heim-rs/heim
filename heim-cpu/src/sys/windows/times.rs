@@ -2,9 +2,9 @@ use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
 use heim_common::prelude::*;
-
+use heim_common::sys::windows::IntoTime as _;
 use crate::units;
-use super::bindings::{winternl, IntoTime};
+use super::bindings::winternl;
 
 #[derive(Debug)]
 pub struct CpuTime {

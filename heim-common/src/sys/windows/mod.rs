@@ -13,6 +13,10 @@ use winapi::shared::{ntdef, minwindef};
 
 use crate::prelude::*;
 
+mod time;
+
+pub use self::time::IntoTime;
+
 #[allow(missing_docs)]
 pub type SYSTEM_INFORMATION_CLASS = minwindef::DWORD;
 

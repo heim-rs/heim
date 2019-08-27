@@ -138,8 +138,14 @@ impl Process {
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        // TODO: Stub
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/109").into())
+        let pid = self.pid;
+
+        future::lazy(move |_| {
+            let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+
+            handle.cpu_time()
+                .map_err(ProcessError::from)
+        })
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
