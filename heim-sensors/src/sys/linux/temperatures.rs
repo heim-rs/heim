@@ -20,6 +20,7 @@ fn file_name(prefix: &OsStr, postfix: &[u8]) -> OsString {
 
 fn read_temperature(path: PathBuf) -> impl Future<Output = Result<Temperature>> {
     fs::read_to_string(path)
+        .map_err(Error::from)
         .and_then(|contents| {
             match contents.trim_end().parse::<f64>() {
                 Ok(value) => future::ok(Temperature::from_millidegrees(value)),
@@ -42,12 +43,14 @@ fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor
     };
 
     let unit_name = fs::read_to_string(root.join("name"))
+        .map_err(Error::from)
         .map_ok(|mut string| {
             // Dropping trailing `\n`
             let _ = string.pop();
             string
         });
     let label = fs::read_to_string(root.join(file_name(prefix, b"label")))
+        .map_err(Error::from)
         .map_ok(|mut string| {
             // Dropping trailing `\n`
             let _ = string.pop();
@@ -102,6 +105,7 @@ fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {
             future::ok(inner)
         })
         .try_flatten()
+        .map_err(Error::from)
         .and_then(|entry| {
             hwmon_sensor(entry.path())
         })
@@ -134,6 +138,7 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
             future::ok(inner)
         })
         .try_flatten()
+        .map_err(Error::from)
         .and_then(|entry| {
             hwmon_sensor(entry.path())
         })
@@ -145,10 +150,12 @@ fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
         .try_filter(|entry| {
             future::ready(entry.file_name().as_bytes().starts_with(b"thermal_zone"))
         })
+        .map_err(Error::from)
         .and_then(|entry| {
             let root = entry.path();
             let temperature = read_temperature(root.join("temp"));
             let unit_name = fs::read_to_string(root.join("type"))
+                .map_err(Error::from)
                 .map_ok(|mut string| {
                     // Dropping trailing `\n`
                     let _ = string.pop();
@@ -173,6 +180,7 @@ fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
 
                     future::ready(bytes.starts_with(b"trip_point_") && bytes.ends_with(b"type"))
                 })
+                .map_err(Error::from)
                 .try_fold(sensor, |mut acc, entry| {
                     let name = entry.file_name();
                     let offset = name.len() - b"type".len();
@@ -185,6 +193,7 @@ fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
                     // TODO: Rewrite with `async_await` when it will be stable
                     // Because right now it looks just terrible
                     fs::read_to_string(type_path)
+                        .map_err(Error::from)
                         .and_then(move |content| {
                             match content.as_str() {
                                 "critical\n" => {

@@ -68,8 +68,8 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
 
 pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     fs::read_lines("/proc/stat")
-        .into_stream()
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))
+        .map_err(Error::from)
         .and_then(|line| future::ready(CpuTime::from_str(&line)))
 }

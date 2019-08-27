@@ -71,6 +71,7 @@ impl FromStr for Partition {
 // Returns stream with known physical (only!) partitions
 fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
     fs::read_lines("/proc/filesystems")
+        .map_err(Error::from)
         .try_filter_map(|line| {
             let mut parts = line.splitn(2, '\t');
             let nodev = match parts.next() {
@@ -90,6 +91,7 @@ fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     fs::read_lines("/proc/mounts")
+        .map_err(Error::from)
         .try_filter_map(|line| {
             let result = Partition::from_str(&line).ok();
 

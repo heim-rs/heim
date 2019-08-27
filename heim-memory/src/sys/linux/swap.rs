@@ -137,11 +137,12 @@ fn vm_stat() -> impl Future<Output=Result<VmStat>> {
 
 pub fn swap() -> impl Future<Output=Result<Swap>> {
     let meminfo = fs::read_to_string(PROC_MEMINFO);
+    // TODO: Replace with `try_join`
     future::join(meminfo, vm_stat())
         .then(|result| {
             match result {
                 (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
-                (Err(e), _) => future::err(e),
+                (Err(e), _) => future::err(e.into()),
                 (_, Err(e)) => future::err(e),
             }
         })

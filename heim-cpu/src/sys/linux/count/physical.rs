@@ -30,6 +30,7 @@ fn topology() -> impl Future<Output = Result<u64>> {
 
             fs::read_to_string(path)
         })
+        .map_err(Error::from)
         .and_then(|contents| future::ready(contents.trim().parse::<u64>().map_err(Error::from)))
         .try_fold(acc, |mut acc, cpu_id| {
             let _ = acc.insert(cpu_id);
@@ -66,6 +67,7 @@ fn cpu_info() -> impl Future<Output = Result<Option<u64>>> {
     let acc = Collector::default();
 
     fs::read_lines("/proc/cpuinfo")
+        .map_err(Error::from)
         .try_fold(acc, |mut acc, line| {
             let result = match &line {
                 l if l.starts_with("physical id") => match parse_line(l.as_str()) {

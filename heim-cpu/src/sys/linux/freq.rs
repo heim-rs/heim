@@ -75,6 +75,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
     // TODO: https://github.com/giampaolo/psutil/issues/1269
 
     fs::read_dir("/sys/devices/system/cpu/")
+        .map_err(Error::from)
         .try_filter(|entry| {
             let name = entry.file_name();
             let bytes = name.as_bytes();
@@ -112,6 +113,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
 #[allow(clippy::redundant_closure)]
 fn read_freq(path: PathBuf) -> impl Future<Output = Result<Frequency>> {
     fs::read_to_string(path)
+        .map_err(Error::from)
         .and_then(|value| future::ready(value.trim_end().parse::<u64>().map_err(Error::from)))
         .map_ok(Frequency::from_kilohertzs)
 }

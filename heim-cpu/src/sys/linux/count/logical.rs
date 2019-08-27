@@ -14,6 +14,7 @@ fn sysconf() -> impl Future<Output = Result<u64>> {
 fn cpuinfo() -> impl Future<Output = Result<u64>> {
     fs::read_lines("/proc/cpuinfo")
         .try_filter(|line| future::ready(line.starts_with("processor")))
+        .map_err(Error::from)
         .try_fold(0, |acc, _| future::ok(acc + 1))
 }
 

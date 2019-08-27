@@ -23,12 +23,12 @@ pub struct Process {
 
 impl Process {
     pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        // TODO: it should return `ProcessError::NoSuchProcess` if file does not exist
         procfs::stat(pid)
             .map_ok(move |procfs::Stat { create_time, .. } | Process {
                 pid,
                 create_time,
             })
+
     }
 
     pub fn current() -> impl Future<Output = ProcessResult<Self>> {

@@ -1,11 +1,11 @@
-mod sync;
+mod polyfill;
 
-pub use self::sync::*;
+pub use self::polyfill::*;
 
 //cfg_if::cfg_if! {
 //    if #[cfg(feature = "runtime-polyfill")] {
-//        mod sync;
+//        mod polyfill;
 //
-//        pub use self::sync::*;
+//        pub use self::polyfill::*;
 //    }
 //}

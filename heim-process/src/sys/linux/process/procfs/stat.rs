@@ -8,7 +8,7 @@ use heim_common::utils::iter::{ParseIterator, TryIterator};
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_runtime::fs;
 
-use crate::{Pid, ProcessResult, Status};
+use crate::{Pid, ProcessResult, ProcessError, Status};
 
 impl TryFrom<char> for Status {
     type Error = Error;
@@ -110,6 +110,15 @@ impl FromStr for Stat {
 }
 
 pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
-    // TODO: Convert not found error into the `ProcessError::NoSuchProcess`
-    fs::read_into(format!("/proc/{}/stat", pid)).map_err(Into::into)
+    fs::read_to_string(format!("/proc/{}/stat", pid))
+        .map_err(move |e| {
+            if e.kind() == io::ErrorKind::NotFound {
+                ProcessError::NoSuchProcess(pid)
+            } else {
+                e.into()
+            }
+        })
+        .and_then(|contents| {
+            future::ready(Stat::from_str(&contents).map_err(Into::into))
+        })
 }
