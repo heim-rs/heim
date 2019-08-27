@@ -1,15 +1,18 @@
 use std::fmt;
 use std::path::PathBuf;
+use std::time::Instant;
 
 use heim_common::prelude::*;
 
 use crate::{sys, Pid, ProcessResult};
 
 mod cpu_times;
+mod cpu_usage;
 mod memory;
 mod status;
 
 pub use self::cpu_times::CpuTime;
+pub use self::cpu_usage::CpuUsage;
 pub use self::memory::Memory;
 pub use self::status::Status;
 
@@ -56,6 +59,49 @@ impl Process {
     /// Returns future which resolves into the accumulated process time.
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
         self.as_ref().cpu_time().map_ok(Into::into)
+    }
+
+    /// Returns future which resolves into the CPU usage measurement.
+    ///
+    /// Returned [`CpuUsage`] struct represents instantaneous CPU usage and does not represent
+    /// any reasonable value by itself.
+    /// It is suggested to wait for a while with help of any async timer
+    /// (for accuracy recommended delay should be at least 100 ms),
+    /// call this method once again and subtract former [`CpuUsage`] from the new one.
+    ///
+    /// Same to any *nix system, calculated CPU usage might exceed 100 %
+    /// if the process is running multiple threads on different CPU cores.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// # use std::time::Duration;
+    /// # use heim_process::{Process, ProcessResult};
+    /// #
+    /// # #[heim_derive::main]
+    /// # async fn main() -> ProcessResult<()> {
+    /// let process = Process::current().await?;
+    /// let measurement_1 = process.cpu_usage().await?;
+    /// // Or any other async timer at your choice
+    /// futures_timer::Delay::new(Duration::from_millis(100)).await?;
+    /// let measurement_2 = process.cpu_usage().await?;
+    ///
+    /// println!("CPU usage: {} %", (measurement_2 - measurement_1).get() * 100.0);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [`CpuUsage`]: ./struct.CpuUsage.html
+    pub fn cpu_usage(&self) -> impl Future<Output = ProcessResult<CpuUsage>> {
+        self.cpu_time().and_then(|time| {
+            heim_cpu::logical_count()
+                .map_err(Into::into)
+                .map_ok(move |count| CpuUsage {
+                    cpu_count: count,
+                    cpu_time: time,
+                    at: Instant::now(),
+                })
+        })
     }
 
     /// Returns future which resolves into the memory information about this process.

@@ -5,6 +5,10 @@ use heim_process as process;
 async fn main() -> Result<(), process::ProcessError> {
     let process = process::Process::current().await?;
 
+    // Let's start with a CPU usage in order to measure how much time it will take
+    // to load all the things. See the end of file for a second CPU usage call.
+    let cpu_usage = process.cpu_usage().await?;
+
     dbg!(process.pid());
     dbg!(process.parent_pid().await?);
     dbg!(process.status().await?);
@@ -26,6 +30,9 @@ async fn main() -> Result<(), process::ProcessError> {
             dbg!(counter);
         }
     }
+
+    let cpu_usage_2 = process.cpu_usage().await?;
+    println!("CPU usage: {} %", (cpu_usage_2 - cpu_usage).get() * 100.0);
 
     Ok(())
 }
