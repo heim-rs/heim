@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 
 use heim_common::prelude::*;
 
-use super::{bindings, pids};
+use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
 
 mod cpu_times;
@@ -24,7 +24,7 @@ impl Process {
             Ok(..) => future::ok(Process {
                 pid,
             }),
-            Err(e) => future::err(e),
+            Err(e) => future::err(catch_zombie(e, pid)),
         }
     }
 
@@ -47,7 +47,7 @@ impl Process {
     pub fn parent_pid(&self) -> impl Future<Output = ProcessResult<Pid>> {
         match bindings::process(self.pid) {
             Ok(kinfo_proc) => future::ok(kinfo_proc.kp_eproc.e_ppid),
-            Err(e) => future::err(e),
+            Err(e) => future::err(catch_zombie(e, self.pid)),
         }
     }
 
@@ -61,7 +61,7 @@ impl Process {
 
                 future::ok(name)
             },
-            Err(e) => future::err(e),
+            Err(e) => future::err(catch_zombie(e, self.pid)),
         }
     }
 
@@ -69,33 +69,30 @@ impl Process {
         match darwin_libproc::pid_path(self.pid) {
             Ok(path) => future::ok(path),
             Err(..) if self.pid == 0 => future::err(ProcessError::AccessDenied(self.pid)),
-            Err(e) => future::err(e.into()),
+            Err(e) => future::err(catch_zombie(e, self.pid)),
         }
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        // TODO: https://github.com/heim-rs/heim/issues/138
         match bindings::process(self.pid) {
             Ok(kinfo_proc) => {
                 future::ready(Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from))
             },
-            Err(e) => future::err(e),
+            Err(e) => future::err(catch_zombie(e, self.pid)),
         }
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        // TODO: https://github.com/heim-rs/heim/issues/138
         match darwin_libproc::task_info(self.pid) {
             Ok(task_info) => future::ok(CpuTime::from(task_info)),
-            Err(e) => future::err(e.into())
+            Err(e) => future::err(catch_zombie(e, self.pid))
         }
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        // TODO: https://github.com/heim-rs/heim/issues/138
         match darwin_libproc::task_info(self.pid) {
             Ok(task_info) => future::ok(Memory::from(task_info)),
-            Err(e) => future::err(e.into())
+            Err(e) => future::err(catch_zombie(e, self.pid))
         }
     }
 }

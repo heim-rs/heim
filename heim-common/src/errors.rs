@@ -27,6 +27,8 @@ pub enum Error {
     #[doc(hidden)]
     Incompatible(Cow<'static, str>),
     #[doc(hidden)]
+    Io(io::Error),
+    #[doc(hidden)]
     Other(Box<dyn error::Error + Send + 'static>),
 
     #[doc(hidden)]
@@ -36,8 +38,15 @@ pub enum Error {
 impl Error {
     #[doc(hidden)]
     pub fn last_os_error() -> Error {
-        let e = Box::new(io::Error::last_os_error());
-        Error::Other(e)
+        Error::from(io::Error::last_os_error())
+    }
+
+    #[doc(hidden)]
+    pub fn raw_os_error(&self) -> Option<i32> {
+        match self {
+            Error::Io(e) => e.raw_os_error(),
+            _ => None,
+        }
     }
 
     #[doc(hidden)]
@@ -58,6 +67,7 @@ impl fmt::Display for Error {
                 f.write_fmt(format_args!("Expected entity `{}` is missing", name))
             }
             Error::Incompatible(reason) => f.write_str(reason),
+            Error::Io(e) => fmt::Display::fmt(e, f),
             Error::Other(e) => fmt::Display::fmt(e, f),
             _ => f.write_str("Unknown error"),
         }
@@ -67,6 +77,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
+            Error::Io(e) => Some(&*e),
             Error::Other(e) => Some(&**e),
             _ => None,
         }
@@ -75,7 +86,7 @@ impl error::Error for Error {
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error::Other(Box::new(e))
+        Error::Io(e)
     }
 }
 
