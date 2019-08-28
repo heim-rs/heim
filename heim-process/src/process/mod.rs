@@ -51,6 +51,11 @@ impl Process {
         self.as_ref().exe()
     }
 
+    /// Returns future which resolves into the process current working directory.
+    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
+        self.as_ref().cwd()
+    }
+
     /// Returns future which resolves into the current process status.
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
         self.as_ref().status()

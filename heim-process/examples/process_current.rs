@@ -15,6 +15,7 @@ async fn main() -> Result<(), process::ProcessError> {
     dbg!(process.status().await?);
     dbg!(process.name().await?);
     dbg!(process.exe().await?);
+    dbg!(process.cwd().await?);
     dbg!(process.cpu_time().await?);
     dbg!(process.memory().await?);
 

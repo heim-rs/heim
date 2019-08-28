@@ -129,6 +129,10 @@ impl Process {
         })
     }
 
+    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/105").into())
+    }
+
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
         match suspend::is_suspended(self.pid) {
             Ok(true) => future::ok(Status::Stopped),

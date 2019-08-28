@@ -7,7 +7,7 @@ use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_runtime::fs;
 
-use super::pids;
+use super::{pids, pid_exists};
 use crate::{Pid, Status, ProcessError, ProcessResult};
 use crate::os::linux::IoCounters;
 
@@ -58,14 +58,31 @@ impl Process {
         let pid = self.pid; // Hello borrow checker, my old friend
 
         fs::read_link(format!("/proc/{}/exe", self.pid)).or_else(move |_| {
-            fs::path_exists(format!("/proc/{}", pid)).then(move |exists| {
-                if exists {
-                    future::ok(PathBuf::new())
-                } else {
-                    future::err(ProcessError::ZombieProcess(pid))
-                }
-            })
+            pid_exists(pid)
+                .and_then(move |exists| {
+                    if exists {
+                        future::ok(PathBuf::new())
+                    } else {
+                        future::err(ProcessError::ZombieProcess(pid))
+                    }
+                })
         })
+    }
+
+    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
+        let pid = self.pid;
+
+        fs::read_link(format!("/proc/{}/cwd", self.pid))
+            .or_else(move |_| {
+                pid_exists(pid)
+                    .and_then(move |exists| {
+                        if exists {
+                            future::err(ProcessError::ZombieProcess(pid))
+                        } else {
+                            future::err(ProcessError::AccessDenied(pid))
+                        }
+                    })
+            })
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
