@@ -6,8 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `sensors::temperatures` implementation for Linux (#85)
+- `process::Process::current` for current process fetching (#117, #118, #119)
+- `process::Process::get` for process fetching by provided pid (#117, #118, #119)
+- `process::Process::io_counters` Linux-specific method returning process I/O counters (#127)
+- `process::Process::net_io_counters` Linux-specific method returning process network I/O counters (#124)
+- `process::Process::cpu_time` method returning CPU times for process (#107, #108, #109)
+- `process::Process::memory` method returning process memory usage (#121, #122, #123)
+- `process::Process::cpu_usage` method returning CPU usage by process (#134, #135, #136)
+
 ### Changed
 
+- `uom` crate is used for typed quantities used in API (#95)
 - Replace `glob` crate usage from `cpu::frequency` for Linux with async fs shim
 - Update to `futures-preview = "0.3.0-alpha.18"` version
 
@@ -21,38 +33,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `disk::partitions` returned inconsistent data for Windows ([#92](https://github.com/heim-rs/heim/issues/92))
-- `disk::io_counters` failed on any empty removable drive in Windows ([#94](https://github.com/heim-rs/heim/issues/94))
+- `disk::partitions` returned inconsistent data for Windows (#92)
+- `disk::io_counters` failed on any empty removable drive in Windows (#94)
 
 ### Changed
 
-- `cpu::os::linux::CpuTimeExt::steal` returns `Time` now instead of `Option<Time>` ([#81](https://github.com/heim-rs/heim/issues/81))
+- `cpu::os::linux::CpuTimeExt::steal` returns `Time` now instead of `Option<Time>` (#81)
 
 ## [0.0.5] - 2019-07-24
 
 ### Added
 
-- `host::Platform::hostname` method for *nix ([#71](https://github.com/heim-rs/heim/issues/71)) and Windows ([#72](https://github.com/heim-rs/heim/issues/72))
-- Extension traits with extra data for `host::User` for Linux ([#69](https://github.com/heim-rs/heim/issues/69)) and macOS ([#70](https://github.com/heim-rs/heim/issues/70))
-- Extension traits with extra data for `net::Nic` for Linux and macOS ([#66](https://github.com/heim-rs/heim/issues/66))
-- Support for `exFAT`, `f2fs`, `Hfs+`, `JFS`, `Reiser4`, `Btrfs`, `Minix`, `NILFS` and `XFS` filesystems for `disk::Filesystem` enum ([#61](https://github.com/heim-rs/heim/issues/61))
+- `host::Platform::hostname` method for *nix (#71) and Windows (#72)
+- Extension traits with extra data for `host::User` for Linux (#69) and macOS (#70)
+- Extension traits with extra data for `net::Nic` for Linux and macOS (#66)
+- Support for `exFAT`, `f2fs`, `Hfs+`, `JFS`, `Reiser4`, `Btrfs`, `Minix`, `NILFS` and `XFS` filesystems for `disk::Filesystem` enum (#61)
 
 ### Fixed
 
-- `cpu::CpuFreq` for Linux was reporting frequencies in KHz instead of Hz ([#68](https://github.com/heim-rs/heim/issues/68))
-- `disk::usage` was reporting `free` value incorrectly for Windows ([#73](https://github.com/heim-rs/heim/issues/73))
+- `cpu::CpuFreq` for Linux was reporting frequencies in KHz instead of Hz (#68)
+- `disk::usage` was reporting `free` value incorrectly for Windows (#73)
 
 ### Changed
 
-- `cpu::CpuStats::soft_interrupts` method was moved out into the extension traits ([#57](https://github.com/heim-rs/heim/issues/57))
-- `net::IoCounters::drop_sent` method was moved out into the extension traits ([#67](https://github.com/heim-rs/heim/issues/67))
+- `cpu::CpuStats::soft_interrupts` method was moved out into the extension traits (#57)
+- `net::IoCounters::drop_sent` method was moved out into the extension traits (#67)
 - `disk::FileSystem::Reiserfs` enum member was renamed into the `Reiser3`
 
 ### Security
 
-- Fix memory leak for `disk::usage` for *nix systems ([#77](https://github.com/heim-rs/heim/issues/77))
-- Fix possible heap buffer overflow in `cpu::times` implementation for macOS ([#78](https://github.com/heim-rs/heim/issues/78))
-- Fix possible heap buffer overflow in `net::io_counters` implementation for macOS ([#79](https://github.com/heim-rs/heim/issues/79))
+- Fix memory leak for `disk::usage` for *nix systems (#77)
+- Fix possible heap buffer overflow in `cpu::times` implementation for macOS (#78)
+- Fix possible heap buffer overflow in `net::io_counters` implementation for macOS (#79)
 
 ## [0.0.4] - 2019-07-13
 
