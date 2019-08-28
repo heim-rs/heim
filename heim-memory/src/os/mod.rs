@@ -3,7 +3,7 @@
 //! These are not cross-platform and their usage should be `cfg`-wrapped.
 
 #[cfg(not(windows))]
-use crate::Information;
+use heim_common::units::Information;
 
 cfg_if::cfg_if! {
     if #[cfg(target_os = "linux")] {

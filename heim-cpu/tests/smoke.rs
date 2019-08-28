@@ -1,6 +1,7 @@
 #![feature(test)]
 
 use heim_common::prelude::*;
+use heim_common::units::frequency;
 use heim_cpu as cpu;
 
 #[heim_derive::skip_ci(target_os = "linux")]
@@ -8,7 +9,7 @@ use heim_cpu as cpu;
 async fn smoke_frequency() {
     let freq = cpu::frequency().await.unwrap();
 
-    assert!(freq.current().get() > 0);
+    assert!(freq.current().get::<frequency::hertz>() > 0);
     let _ = freq.min();
     let _ = freq.max();
 }

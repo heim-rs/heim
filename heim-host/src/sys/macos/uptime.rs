@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::units::Time;
+use heim_common::units::{Time, time};
 
 use mach::mach_time;
 
@@ -11,5 +11,5 @@ pub fn uptime() -> impl Future<Output=Result<Time>> {
 
     let nano_secs = abs_time * *TIME_BASE;
 
-    future::ok(Time::from_nanoseconds(nano_secs))
+    future::ok(Time::new::<time::nanosecond>(nano_secs))
 }

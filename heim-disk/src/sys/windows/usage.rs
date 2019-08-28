@@ -5,7 +5,7 @@ use std::path::Path;
 use winapi::um::{fileapi, winnt};
 
 use heim_common::prelude::*;
-use heim_common::units::{Ratio, Information};
+use heim_common::units::{Ratio, Information, information, ratio};
 
 #[derive(Default)]
 pub struct Usage {
@@ -16,7 +16,7 @@ pub struct Usage {
 
 impl Usage {
     pub fn total(&self) -> Information {
-        Information::new(unsafe {
+        Information::new::<information::byte>(unsafe {
             *self.total.QuadPart()
         })
     }
@@ -26,14 +26,14 @@ impl Usage {
     }
 
     pub fn free(&self) -> Information {
-        Information::new(unsafe {
+        Information::new::<information::byte>(unsafe {
             *self.free.QuadPart()
         })
     }
 
     pub fn ratio(&self) -> Ratio {
         // TODO: Possible value truncation
-        Ratio::new((*self.used().as_ref() as f64 / *self.total().as_ref() as f64) as f32)
+        Ratio::new::<ratio::ratio>((self.used().get::<information::byte>() as f64 / self.total().get::<information::byte>() as f64) as f32)
     }
 }
 

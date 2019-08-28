@@ -1,16 +1,17 @@
 use std::fmt;
 
 use heim_common::prelude::*;
+use heim_common::units::ThermodynamicTemperature;
 
-use crate::{sys, Temperature};
+use crate::sys;
 
 /// Hardware temperature sensor.
 pub struct TemperatureSensor {
     pub(crate) unit: String,
     pub(crate) label: Option<String>,
-    pub(crate) current: Temperature,
-    pub(crate) high: Option<Temperature>,
-    pub(crate) critical: Option<Temperature>,
+    pub(crate) current: ThermodynamicTemperature,
+    pub(crate) high: Option<ThermodynamicTemperature>,
+    pub(crate) critical: Option<ThermodynamicTemperature>,
 }
 
 impl TemperatureSensor {
@@ -25,17 +26,17 @@ impl TemperatureSensor {
     }
 
     /// Returns current temperature reported by sensor.
-    pub fn current(&self) -> Temperature {
+    pub fn current(&self) -> ThermodynamicTemperature {
         self.current
     }
 
     /// Returns high trip point for sensor if available.
-    pub fn high(&self) -> Option<Temperature> {
+    pub fn high(&self) -> Option<ThermodynamicTemperature> {
         self.high
     }
 
     /// Returns critical trip point for sensor if available.
-    pub fn critical(&self) -> Option<Temperature> {
+    pub fn critical(&self) -> Option<ThermodynamicTemperature> {
         self.critical
     }
 }

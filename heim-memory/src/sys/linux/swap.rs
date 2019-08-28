@@ -2,8 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
-
-use crate::Information;
+use heim_common::units::{Information, information};
 
 static PROC_VMSTAT: &str = "/proc/vmstat";
 static PROC_MEMINFO: &str = "/proc/meminfo";
@@ -40,7 +39,7 @@ impl FromStr for VmStat {
                             // Values are expressed in 4 kilo bytes, we want bytes instead.
                             // Source: psutil
                             let value = kbytes.parse::<u64>()?;
-                            Information::from_kilobytes(4 * value)
+                            Information::new::<information::kilobyte>(4 * value)
                         },
                         None => continue,
                     };
@@ -85,8 +84,8 @@ impl Swap {
 
     pub fn parse_str(meminfo: &str, vm_stat: VmStat) -> Result<Self> {
         let mut swap = Swap {
-            total: Information::new(0),
-            free: Information::new(0),
+            total: Information::new::<information::byte>(0),
+            free: Information::new::<information::byte>(0),
             vm_stat,
         };
         let mut matched_lines = 0u8;
@@ -110,7 +109,7 @@ impl Swap {
                     let bytes = match value.trim_start().splitn(2, ' ').next() {
                         Some(kbytes) => {
                             let value = kbytes.parse::<u64>()?;
-                            Information::from_kilobytes(value)
+                            Information::new::<information::kilobyte>(value)
                         },
                         None => continue,
                     };

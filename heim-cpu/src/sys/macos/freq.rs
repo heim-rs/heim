@@ -1,25 +1,25 @@
 use heim_common::prelude::*;
+use heim_common::units::{Frequency, frequency};
 
-use crate::units;
 use super::bindings;
 
 #[derive(Debug)]
 pub struct CpuFrequency {
-    current: units::Frequency,
-    min: units::Frequency,
-    max: units::Frequency,
+    current: Frequency,
+    min: Frequency,
+    max: Frequency,
 }
 
 impl CpuFrequency {
-    pub fn current(&self) -> units::Frequency {
+    pub fn current(&self) -> Frequency {
         self.current
     }
 
-    pub fn min(&self) -> Option<units::Frequency> {
+    pub fn min(&self) -> Option<Frequency> {
         Some(self.min)
     }
 
-    pub fn max(&self) -> Option<units::Frequency> {
+    pub fn max(&self) -> Option<Frequency> {
         Some(self.max)
     }
 }
@@ -31,9 +31,9 @@ pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
         let max = bindings::cpu_frequency_max()?;
 
         Ok(CpuFrequency {
-            current: units::Frequency::new(current),
-            min: units::Frequency::new(min),
-            max: units::Frequency::new(max),
+            current: Frequency::new::<frequency::hertz>(current),
+            min: Frequency::new::<frequency::hertz>(min),
+            max: Frequency::new::<frequency::hertz>(max),
         })
     })
 }

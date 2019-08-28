@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use futures::stream::{StreamExt, TryStreamExt};
-use heim_common::units::Ratio;
+use heim_common::units::{ratio, Ratio};
 use heim_process::{self as process, Process, ProcessResult};
 
 async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
@@ -30,7 +30,7 @@ async fn main() -> ProcessResult<()> {
             "| {:6} | {:40} | {:.2} |",
             process.pid(),
             process.name().await?,
-            usage.get() * 100.0
+            usage.get::<ratio::percent>()
         );
     }
 

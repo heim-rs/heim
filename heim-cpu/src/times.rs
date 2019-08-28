@@ -1,8 +1,9 @@
 use std::fmt;
 
 use heim_common::prelude::*;
+use heim_common::units::Time;
 
-use crate::{sys, units};
+use crate::sys;
 
 /// System CPU time.
 ///
@@ -20,17 +21,17 @@ impl CpuTime {
     /// ## Compatibility
     ///
     ///  * on Linux this also includes guest time
-    pub fn user(&self) -> units::Time {
+    pub fn user(&self) -> Time {
         self.as_ref().user()
     }
 
     /// Returns time spent by processes executing in kernel mode.
-    pub fn system(&self) -> units::Time {
+    pub fn system(&self) -> Time {
         self.as_ref().system()
     }
 
     /// Returns time spent doing nothing.
-    pub fn idle(&self) -> units::Time {
+    pub fn idle(&self) -> Time {
         self.as_ref().idle()
     }
 }

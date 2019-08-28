@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
-use heim_common::units::{Time, Information};
+use heim_common::units::{Time, Information, time, information};
 use heim_common::sys::macos::iokit::{self, DictionaryProps};
 
 #[derive(Debug)]
@@ -50,7 +50,6 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     future::lazy(|_| {
         let port = iokit::IoMasterPort::new()?;
 
-        // TODO: Move `b"IOMedia\0"` to const
         let services = port.get_services(b"IOMedia\0")?;
 
         let stream = stream::iter(services).map(Ok);
@@ -84,10 +83,10 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
                     removable: disk_props.get_bool("Removable")?,
                     reads: stats.get_i64("Operations (Read)")? as u64,
                     writes: stats.get_i64("Operations (Write)")? as u64,
-                    read_bytes: Information::new(stats.get_i64("Bytes (Read)")? as u64),
-                    write_bytes: Information::new(stats.get_i64("Bytes (Write)")? as u64),
-                    read_time: Time::from_nanoseconds(stats.get_i64("Total Time (Read)")? as f64),
-                    write_time: Time::from_nanoseconds(stats.get_i64("Total Time (Write)")? as f64),
+                    read_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Read)")? as u64),
+                    write_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Write)")? as u64),
+                    read_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Read)")? as f64),
+                    write_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Write)")? as f64),
                 })
             },
             Err(e) => {

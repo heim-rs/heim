@@ -3,9 +3,8 @@
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
+use heim_common::units::information;
 use heim_disk as disk;
-
-const MEGABYTE: u64 = 1_024 * 1_024;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
@@ -24,9 +23,9 @@ async fn main() -> Result<()> {
             part.device()
                 .unwrap_or_else(|| OsStr::new("N/A"))
                 .to_string_lossy(),
-            usage.total().get() / MEGABYTE,
-            usage.used().get() / MEGABYTE,
-            usage.free().get() / MEGABYTE,
+            usage.total().get::<information::megabyte>(),
+            usage.used().get::<information::megabyte>(),
+            usage.free().get::<information::megabyte>(),
             part.file_system().as_str(),
             part.mount_point().to_string_lossy(),
         );

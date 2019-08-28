@@ -19,6 +19,7 @@ heim-derive = { version = "0.0.6", path = "../heim-derive" }
 cfg-if = "0.1.7"
 futures-preview = "0.3.0-alpha.18"
 pin-utils = "0.1.0-alpha.4"
+uom = { version = "0.25.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
 [dev-dependencies]
 version-sync = "0.8"

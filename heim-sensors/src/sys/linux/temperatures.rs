@@ -3,10 +3,10 @@ use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt;
 
 use heim_common::prelude::*;
+use heim_common::units::{ThermodynamicTemperature, thermodynamic_temperature};
 use heim_common::utils::stream::HeimStreamExt;
 use heim_runtime::fs;
 
-use crate::units::Temperature;
 use crate::TemperatureSensor;
 
 #[inline]
@@ -18,12 +18,13 @@ fn file_name(prefix: &OsStr, postfix: &[u8]) -> OsString {
     name
 }
 
-fn read_temperature(path: PathBuf) -> impl Future<Output = Result<Temperature>> {
+fn read_temperature(path: PathBuf) -> impl Future<Output = Result<ThermodynamicTemperature>> {
     fs::read_to_string(path)
         .map_err(Error::from)
         .and_then(|contents| {
-            match contents.trim_end().parse::<f64>() {
-                Ok(value) => future::ok(Temperature::from_millidegrees(value)),
+            match contents.trim_end().parse::<f32>() {
+                // Originally value is in millidegrees of Celsius
+                Ok(value) => future::ok(ThermodynamicTemperature::new::<thermodynamic_temperature::degree_celsius>(value / 1_000.0)),
                 Err(e) => future::err(e.into()),
             }
         })

@@ -29,6 +29,10 @@
 //! Note that `heim` also provides platform-specific APIs.
 //! If you are browsing this documentation via [docs.rs](https://docs.rs/heim),
 //! do not forget to use the platform selector at the page header.
+//!
+//! Also, due to Rust [bug #15823](https://github.com/rust-lang/rust/issues/15823),
+//! type aliases are not rendered properly across the sub-crates bounds,
+//! therefore documentation might look terrible in some places.
 
 #![doc(html_root_url = "https://docs.rs/heim/0.0.6")]
 #![deny(
@@ -83,4 +87,5 @@ pub use heim_virt as virt;
 #[doc(inline)]
 pub use heim_sensors as sensors;
 
+pub use heim_common::units;
 pub use heim_common::{Error, Result};

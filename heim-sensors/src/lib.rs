@@ -24,9 +24,7 @@
 )]
 
 mod sys;
-mod units;
 
 mod temperatures;
 
 pub use self::temperatures::*;
-pub use self::units::*;

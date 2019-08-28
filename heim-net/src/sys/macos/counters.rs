@@ -1,7 +1,7 @@
 use std::fmt;
 
 use heim_common::prelude::*;
-use heim_common::units::Information;
+use heim_common::units::{Information, information};
 
 use super::bindings::{net_pf_route, if_msghdr2};
 
@@ -16,11 +16,11 @@ impl IoCounters {
     }
 
     pub fn bytes_sent(&self) -> Information {
-        Information::new(self.data.ifm_data.ifi_obytes)
+        Information::new::<information::byte>(self.data.ifm_data.ifi_obytes)
     }
 
     pub fn bytes_recv(&self) -> Information {
-        Information::new(self.data.ifm_data.ifi_ibytes)
+        Information::new::<information::byte>(self.data.ifm_data.ifi_ibytes)
     }
 
     pub fn packets_sent(&self) -> u64 {

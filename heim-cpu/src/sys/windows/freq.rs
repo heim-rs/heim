@@ -5,8 +5,8 @@ use winapi::um::{powerbase, winnt};
 use winapi::shared::{ntstatus, minwindef};
 
 use heim_common::prelude::*;
+use heim_common::units::{Frequency, frequency};
 
-use crate::units;
 use super::bindings::get_system_info;
 use super::bindings::power::PROCESSOR_POWER_INFORMATION;
 
@@ -14,15 +14,15 @@ use super::bindings::power::PROCESSOR_POWER_INFORMATION;
 pub struct CpuFrequency(PROCESSOR_POWER_INFORMATION);
 
 impl CpuFrequency {
-    pub fn current(&self) -> units::Frequency {
-        units::Frequency::from_megahertzs(self.0.CurrentMhz.into())
+    pub fn current(&self) -> Frequency {
+        Frequency::new::<frequency::megahertz>(self.0.CurrentMhz.into())
     }
 
-    pub fn max(&self) -> Option<units::Frequency> {
-        Some(units::Frequency::from_megahertzs(self.0.MaxMhz.into()))
+    pub fn max(&self) -> Option<Frequency> {
+        Some(Frequency::new::<frequency::megahertz>(self.0.MaxMhz.into()))
     }
 
-    pub fn min(&self) -> Option<units::Frequency> {
+    pub fn min(&self) -> Option<Frequency> {
         None
     }
 }

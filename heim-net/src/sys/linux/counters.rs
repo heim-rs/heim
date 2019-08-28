@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_common::units::Information;
+use heim_common::units::{Information, information};
 use heim_common::utils::iter::*;
 use heim_common::Pid;
 use heim_runtime::fs;
@@ -83,7 +83,7 @@ impl FromStr for IoCounters {
             interface,
             rx_bytes: parts
                 .try_parse_next()
-                .map(|bytes: u64| Information::new(bytes))?,
+                .map(|bytes: u64| Information::new::<information::byte>(bytes))?,
             rx_packets: parts.try_parse_next()?,
             rx_errs: parts.try_parse_next()?,
             rx_drop: parts.try_parse_next()?,
@@ -93,7 +93,7 @@ impl FromStr for IoCounters {
             rx_multicast: parts.try_parse_next()?,
             tx_bytes: parts
                 .try_parse_next()
-                .map(|bytes: u64| Information::new(bytes))?,
+                .map(|bytes: u64| Information::new::<information::byte>(bytes))?,
             tx_packets: parts.try_parse_next()?,
             tx_errs: parts.try_parse_next()?,
             tx_drop: parts.try_parse_next()?,

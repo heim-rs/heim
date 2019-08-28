@@ -1,8 +1,9 @@
 use std::fmt;
 
 use heim_common::prelude::*;
+use heim_common::units::Information;
 
-use crate::{sys, Information};
+use crate::sys;
 
 /// Swap memory statistics.
 ///

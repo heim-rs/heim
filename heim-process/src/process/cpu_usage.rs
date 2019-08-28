@@ -1,7 +1,7 @@
 use std::ops;
 use std::time::Instant;
 
-use heim_common::units::Ratio;
+use heim_common::units::{ratio, time, Ratio};
 
 use super::CpuTime;
 
@@ -34,12 +34,12 @@ impl ops::Sub<CpuUsage> for CpuUsage {
         delta_time_secs *= self.cpu_count as f64;
 
         if delta_time_secs != 0.0 {
-            let overall_cpus_ratio = delta_proc.get() / delta_time_secs;
+            let overall_cpus_ratio = delta_proc.get::<time::second>() / delta_time_secs;
             let single_cpu_ratio = overall_cpus_ratio * self.cpu_count as f64;
 
-            Ratio::new(single_cpu_ratio as f32)
+            Ratio::new::<ratio::ratio>(single_cpu_ratio as f32)
         } else {
-            Ratio::new(0.0)
+            Ratio::new::<ratio::ratio>(0.0)
         }
     }
 }

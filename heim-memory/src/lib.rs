@@ -30,5 +30,3 @@ mod sys;
 
 pub use self::memory::*;
 pub use self::swap::*;
-
-pub use heim_common::units::Information;

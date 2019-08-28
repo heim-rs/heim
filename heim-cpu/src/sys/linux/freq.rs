@@ -3,9 +3,8 @@ use std::path::{Path, PathBuf};
 use std::os::unix::ffi::OsStrExt;
 
 use heim_common::prelude::*;
+use heim_common::units::{Frequency, frequency};
 use heim_runtime::fs;
-
-use crate::units::Frequency;
 
 #[derive(Debug, Default, heim_derive::Getter)]
 pub struct CpuFrequency {
@@ -115,7 +114,7 @@ fn read_freq(path: PathBuf) -> impl Future<Output = Result<Frequency>> {
     fs::read_to_string(path)
         .map_err(Error::from)
         .and_then(|value| future::ready(value.trim_end().parse::<u64>().map_err(Error::from)))
-        .map_ok(Frequency::from_kilohertzs)
+        .map_ok(Frequency::new::<frequency::kilohertz>)
 }
 
 fn current_freq(path: &Path) -> impl Future<Output = Result<Frequency>> {

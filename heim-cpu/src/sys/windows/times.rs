@@ -3,26 +3,26 @@ use winapi::um::processthreadsapi;
 
 use heim_common::prelude::*;
 use heim_common::sys::windows::IntoTime as _;
-use crate::units;
+use heim_common::units::Time;
 use super::bindings::winternl;
 
 #[derive(Debug)]
 pub struct CpuTime {
-    user: units::Time,
-    system: units::Time,
-    idle: units::Time,
+    user: Time,
+    system: Time,
+    idle: Time,
 }
 
 impl CpuTime {
-    pub fn user(&self) -> units::Time {
+    pub fn user(&self) -> Time {
         self.user
     }
 
-    pub fn system(&self) -> units::Time {
+    pub fn system(&self) -> Time {
         self.system
     }
 
-    pub fn idle(&self) -> units::Time {
+    pub fn idle(&self) -> Time {
         self.idle
     }
 }

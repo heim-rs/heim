@@ -1,31 +1,31 @@
 use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
+use heim_common::units::{Time, time};
 
-use crate::units;
 use super::bindings;
 
 #[derive(Debug)]
 pub struct CpuTime {
-    user: units::Time,
-    nice: units::Time,
-    system: units::Time,
-    idle: units::Time,
+    user: Time,
+    nice: Time,
+    system: Time,
+    idle: Time,
 }
 
 impl CpuTime {
-    pub fn user(&self) -> units::Time {
+    pub fn user(&self) -> Time {
         self.user
     }
 
-    pub fn nice(&self) -> units::Time {
+    pub fn nice(&self) -> Time {
         self.nice
     }
 
-    pub fn system(&self) -> units::Time {
+    pub fn system(&self) -> Time {
         self.system
     }
 
-    pub fn idle(&self) -> units::Time {
+    pub fn idle(&self) -> Time {
         self.idle
     }
 }
@@ -35,10 +35,10 @@ impl From<bindings::host_cpu_load_info> for CpuTime {
         let ticks = *CLOCK_TICKS;
 
         CpuTime {
-            user: units::Time::new(f64::from(info.user) / ticks),
-            nice: units::Time::new(f64::from(info.nice) / ticks),
-            system: units::Time::new(f64::from(info.system) / ticks),
-            idle: units::Time::new(f64::from(info.idle) / ticks),
+            user: Time::new::<time::second>(f64::from(info.user) / ticks),
+            nice: Time::new::<time::second>(f64::from(info.nice) / ticks),
+            system: Time::new::<time::second>(f64::from(info.system) / ticks),
+            idle: Time::new::<time::second>(f64::from(info.idle) / ticks),
         }
     }
 }
@@ -48,10 +48,10 @@ impl From<bindings::processor_cpu_load_info> for CpuTime {
         let ticks = *CLOCK_TICKS;
 
         CpuTime {
-            user: units::Time::new(f64::from(info.user) / ticks),
-            nice: units::Time::new(f64::from(info.nice) / ticks),
-            system: units::Time::new(f64::from(info.system) / ticks),
-            idle: units::Time::new(f64::from(info.idle) / ticks),
+            user: Time::new::<time::second>(f64::from(info.user) / ticks),
+            nice: Time::new::<time::second>(f64::from(info.nice) / ticks),
+            system: Time::new::<time::second>(f64::from(info.system) / ticks),
+            idle: Time::new::<time::second>(f64::from(info.idle) / ticks),
         }
     }
 }

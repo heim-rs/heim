@@ -1,8 +1,9 @@
 use std::fmt;
 
 use heim_common::prelude::*;
+use heim_common::units::Frequency;
 
-use crate::{sys, units};
+use crate::sys;
 
 /// System CPU frequency.
 #[derive(heim_derive::ImplWrap)]
@@ -15,7 +16,7 @@ impl CpuFrequency {
     ///
     /// On Linux it returns the real-time value, on all other platforms
     /// it represents the nominal "fixed" value.
-    pub fn current(&self) -> units::Frequency {
+    pub fn current(&self) -> Frequency {
         self.as_ref().current()
     }
 
@@ -24,7 +25,7 @@ impl CpuFrequency {
     /// ## Returns
     ///
     /// Returns `None` if value can't be determined.
-    pub fn min(&self) -> Option<units::Frequency> {
+    pub fn min(&self) -> Option<Frequency> {
         self.as_ref().min()
     }
 
@@ -33,7 +34,7 @@ impl CpuFrequency {
     /// ## Returns
     ///
     /// Returns `None` if value can't be determined.
-    pub fn max(&self) -> Option<units::Frequency> {
+    pub fn max(&self) -> Option<Frequency> {
         self.as_ref().max()
     }
 }

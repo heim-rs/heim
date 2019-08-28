@@ -1,7 +1,6 @@
 use heim_common::prelude::*;
+use heim_common::units::information;
 use heim_memory as memory;
-
-const MEGABYTE: u64 = 1_024 * 1_024;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
@@ -12,16 +11,16 @@ async fn main() -> Result<()> {
     println!(
         "{:>7} {:>11?} {:>11?} {:>11?}",
         "Mem:",
-        memory.total().get() * MEGABYTE,
-        memory.free().get() * MEGABYTE,
-        memory.available().get() * MEGABYTE,
+        memory.total().get::<information::megabyte>(),
+        memory.free().get::<information::megabyte>(),
+        memory.available().get::<information::megabyte>(),
     );
     println!(
         "{:>7} {:>11?} {:>11?} {:>11?}",
         "Swap:",
-        swap.total().get() * MEGABYTE,
-        swap.used().get() * MEGABYTE,
-        swap.free().get() * MEGABYTE,
+        swap.total().get::<information::megabyte>(),
+        swap.used().get::<information::megabyte>(),
+        swap.free().get::<information::megabyte>(),
     );
 
     Ok(())

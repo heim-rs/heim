@@ -3,6 +3,7 @@
 extern crate test;
 
 use heim_common::prelude::*;
+use heim_common::units::time;
 use heim_host as host;
 
 #[heim_derive::test]
@@ -19,7 +20,7 @@ async fn smoke_platform() {
 async fn smoke_uptime() {
     let uptime = host::uptime().await;
 
-    assert!(uptime.unwrap().get() > 0.0);
+    assert!(uptime.unwrap().get::<time::second>() > 0.0);
 }
 
 #[heim_derive::skip_ci(target_os = "windows")] // https://github.com/heim-rs/heim/issues/32

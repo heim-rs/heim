@@ -76,6 +76,7 @@ impl Process {
     ///
     /// ```rust
     /// # use std::time::Duration;
+    /// # use heim_common::units::ratio;
     /// # use heim_process::{Process, ProcessResult};
     /// #
     /// # #[heim_derive::main]
@@ -86,7 +87,7 @@ impl Process {
     /// futures_timer::Delay::new(Duration::from_millis(100)).await?;
     /// let measurement_2 = process.cpu_usage().await?;
     ///
-    /// println!("CPU usage: {} %", (measurement_2 - measurement_1).get() * 100.0);
+    /// println!("CPU usage: {} %", (measurement_2 - measurement_1).get::<ratio::percent>());
     /// # Ok(())
     /// # }
     /// ```

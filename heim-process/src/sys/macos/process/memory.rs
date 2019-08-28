@@ -1,4 +1,4 @@
-use heim_common::units::Information;
+use heim_common::units::{Information, information};
 
 #[derive(Debug)]
 pub struct Memory {
@@ -31,8 +31,8 @@ impl Memory {
 impl From<darwin_libproc::proc_taskinfo> for Memory {
     fn from(info: darwin_libproc::proc_taskinfo) -> Memory {
         Memory {
-            pti_resident_size: Information::new(info.pti_resident_size),
-            pti_virtual_size: Information::new(info.pti_virtual_size),
+            pti_resident_size: Information::new::<information::byte>(info.pti_resident_size),
+            pti_virtual_size: Information::new::<information::byte>(info.pti_virtual_size),
             // TODO: Is it reasonable to convert into `u64`?
             pti_faults: info.pti_faults as u64,
             pti_pageins: info.pti_pageins as u64,

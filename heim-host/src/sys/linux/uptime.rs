@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::units::Time;
+use heim_common::units::{Time, time};
 use heim_runtime::fs;
 
 #[allow(clippy::redundant_closure)]
@@ -14,5 +14,5 @@ pub fn uptime() -> impl Future<Output=Result<Time>> {
 
             future::ready(result)
         })
-        .map_ok(|seconds: f64| Time::new(seconds))
+        .map_ok(|seconds: f64| Time::new::<time::second>(seconds))
 }

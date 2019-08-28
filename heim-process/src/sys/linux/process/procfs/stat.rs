@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::convert::TryFrom;
 
 use heim_common::prelude::*;
-use heim_common::units::Time;
+use heim_common::units::{Time, time};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_runtime::fs;
@@ -99,12 +99,13 @@ impl FromStr for Stat {
             name,
             state,
             ppid,
-            create_time: Time::new(0.0),
+            // TODO: https://github.com/heim-rs/heim/issues/100
+            create_time: Time::new::<time::second>(0.0),
             // TODO: Possible values truncation during the `as f64` cast
-            utime: Time::new(utime as f64 / *CLOCK_TICKS),
-            stime: Time::new(stime as f64 / *CLOCK_TICKS),
-            cutime: Time::new(cutime as f64 / *CLOCK_TICKS),
-            cstime: Time::new(cstime as f64 / *CLOCK_TICKS),
+            utime: Time::new::<time::second>(utime as f64 / *CLOCK_TICKS),
+            stime: Time::new::<time::second>(stime as f64 / *CLOCK_TICKS),
+            cutime: Time::new::<time::second>(cutime as f64 / *CLOCK_TICKS),
+            cstime: Time::new::<time::second>(cstime as f64 / *CLOCK_TICKS),
         })
     }
 }

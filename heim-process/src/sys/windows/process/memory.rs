@@ -1,19 +1,19 @@
 use std::fmt;
 
 use winapi::um::psapi;
-use heim_common::units::Information;
+use heim_common::units::{information, Information};
 
 pub struct Memory(psapi::PROCESS_MEMORY_COUNTERS_EX);
 
 impl Memory {
     pub fn rss(&self) -> Information {
         // TODO: Possible truncation from `usize` to `u64`
-        Information::new(self.0.WorkingSetSize as u64)
+        Information::new::<information::byte>(self.0.WorkingSetSize as u64)
     }
 
     pub fn vms(&self) -> Information {
         // TODO: Possible truncation from `usize` to `u64`
-        Information::new(self.0.PagefileUsage as u64)
+        Information::new::<information::byte>(self.0.PagefileUsage as u64)
     }
 
     pub fn page_faults(&self) -> u32 {

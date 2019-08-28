@@ -1,4 +1,5 @@
 use futures::stream::StreamExt;
+use heim_common::units::ratio;
 use heim_process as process;
 
 #[heim_derive::main]
@@ -32,7 +33,10 @@ async fn main() -> Result<(), process::ProcessError> {
     }
 
     let cpu_usage_2 = process.cpu_usage().await?;
-    println!("CPU usage: {} %", (cpu_usage_2 - cpu_usage).get() * 100.0);
+    println!(
+        "CPU usage: {} %",
+        (cpu_usage_2 - cpu_usage).get::<ratio::percent>()
+    );
 
     Ok(())
 }

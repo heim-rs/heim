@@ -1,6 +1,6 @@
 use std::fmt;
 
-use heim_common::units::Information;
+use heim_common::units::{information, Information};
 
 /// Process IO statistics.
 ///
@@ -22,12 +22,12 @@ pub struct IoCounters {
 impl IoCounters {
     /// The number of bytes which this task has caused to be read from storage.
     pub fn chars_read(&self) -> Information {
-        Information::new(self.rchar)
+        Information::new::<information::byte>(self.rchar)
     }
 
     /// The number of bytes which this task has caused, or shall cause to be written to disk.
     pub fn chars_written(&self) -> Information {
-        Information::new(self.wchar)
+        Information::new::<information::byte>(self.wchar)
     }
 
     /// Attempt to count the number of read I/O operations,
@@ -45,19 +45,19 @@ impl IoCounters {
     /// Attempt to count the number of bytes which this process really did cause to
     /// be fetched from the storage layer.
     pub fn bytes_read(&self) -> Information {
-        Information::new(self.read_bytes)
+        Information::new::<information::byte>(self.read_bytes)
     }
 
     /// Attempt to count the number of bytes which this process caused to be sent to
     /// the storage layer.
     pub fn bytes_written(&self) -> Information {
-        Information::new(self.write_bytes)
+        Information::new::<information::byte>(self.write_bytes)
     }
 
     /// The number of bytes which this process caused to not happen,
     /// by truncating pagecache.
     pub fn cancelled_write_bytes(&self) -> Information {
-        Information::new(self.cancelled_write_bytes)
+        Information::new::<information::byte>(self.cancelled_write_bytes)
     }
 }
 
