@@ -7,7 +7,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const MANDLOCK = libc::ST_MANDLOCK;
 
@@ -15,7 +15,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const NOATIME = libc::ST_NOATIME;
 
@@ -23,7 +23,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const NODEV = libc::ST_NODEV;
 
@@ -31,7 +31,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const NODIRATIME = libc::ST_NODIRATIME;
 
@@ -39,7 +39,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const NOEXEC = libc::ST_NOEXEC;
 
@@ -54,8 +54,8 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
-        #[cfg(not(target_os = "macos"))]
+        /// Not available for macOS or any `musl` target environment.
+        #[cfg(not(any(target_os = "macos", target_env = "musl")))]
         const RELATIME = libc::ST_RELATIME;
 
         /// Writes are synced to the filesystem immediately
@@ -63,7 +63,7 @@ bitflags::bitflags! {
         ///
         /// ## Compatibility
         ///
-        /// macOS-only flag.
+        /// Not available for macOS.
         #[cfg(not(target_os = "macos"))]
         const SYNCHRONOUS = libc::ST_SYNCHRONOUS;
     }

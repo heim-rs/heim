@@ -4,7 +4,7 @@ use std::net::IpAddr;
 use heim_common::prelude::*;
 use heim_common::Pid;
 
-use super::super::unix::{get_users, from_ut_addr_v6};
+use crate::sys::unix::{get_users, from_ut_addr_v6};
 
 #[derive(Debug)]
 pub struct User {

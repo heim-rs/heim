@@ -28,6 +28,11 @@ impl fmt::Debug for User {
 
 /// Returns stream which yields [User]s.
 ///
+/// ## Compatibility
+///
+/// For `musl` target environment this stream always will be empty,
+/// see [#141](https://github.com/heim-rs/heim/issues/141).
+///
 /// [User]: ./struct.User.html
 pub fn users() -> impl Stream<Item = Result<User>> {
     sys::users().map_ok(Into::into)
