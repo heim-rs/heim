@@ -31,7 +31,7 @@ heim-net = { version = "0.0.6", path = "../heim-net" }
 ntapi = "0.3.3"
 
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
-version = "0.3.7"
+version = ">=0.3.8"
 default-features = false
 features = [
     "impl-default",

@@ -28,7 +28,7 @@ libc = "0.2.58"
 widestring = "0.4.0"
 
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
-version = "0.3.7"
+version = ">=0.3.8"
 features = ["std", "winnt", "ntdef", "fileapi", "handleapi",
             "ioapiset", "winioctl", "impl-default", "errhandlingapi",
             "winerror", "winbase", "ws2def"]
