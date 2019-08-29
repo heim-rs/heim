@@ -74,7 +74,10 @@ impl Process {
     }
 
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/104").into())
+        match darwin_libproc::pid_cwd(self.pid) {
+            Ok(path) => future::ok(path),
+            Err(e) => future::err(catch_zombie(e, self.pid))
+        }
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
