@@ -11,7 +11,7 @@ async fn main() -> Result<(), process::ProcessError> {
     let cpu_usage = process.cpu_usage().await?;
 
     dbg!(process.pid());
-    dbg!(process.parent_pid().await?);
+    dbg!(process.parent().await?);
     dbg!(process.status().await?);
     dbg!(process.name().await?);
     dbg!(process.exe().await?);

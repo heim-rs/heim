@@ -41,6 +41,13 @@ impl Process {
         self.as_ref().parent_pid()
     }
 
+    /// Returns future which resolves into the parent [Process].
+    ///
+    /// [Process]: ./struct.Process.html
+    pub fn parent(&self) -> impl Future<Output = ProcessResult<Process>> {
+        self.parent_pid().and_then(Process::get)
+    }
+
     /// Returns future which resolves into the process name.
     pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
         self.as_ref().name()
