@@ -18,13 +18,9 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "0.4.29"
-quote = "0.6.12"
-
-[dependencies.syn]
-version = "0.15.39"
-# TODO: Remove unused traits when crate will be stable enough to use
-features = ["derive", "full", "parsing", "printing", "clone-impls", "extra-traits", "proc-macro"]
+proc-macro2 = "~1.0"
+quote = "~1.0"
+syn = { version = "~1.0", default-features = false, features = ["derive", "full", "parsing", "printing", "proc-macro"] }
 
 [dev-dependencies]
 version-sync = "0.8"
