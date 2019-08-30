@@ -19,27 +19,6 @@ pub struct Process {
 }
 
 impl Process {
-    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        match bindings::process(pid) {
-            Ok(..) => future::ok(Process {
-                pid,
-            }),
-            Err(e) => future::err(catch_zombie(e, pid)),
-        }
-    }
-
-    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
-        future::lazy(|_| {
-            let pid = unsafe {
-                libc::getpid()
-            };
-
-            Ok(Process {
-                pid,
-            })
-        })
-    }
-
     pub fn pid(&self) -> Pid {
         self.pid
     }
@@ -110,4 +89,25 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
         .map_ok(|pid| Process {
             pid,
         })
+}
+
+pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+    match bindings::process(pid) {
+        Ok(..) => future::ok(Process {
+            pid,
+        }),
+        Err(e) => future::err(catch_zombie(e, pid)),
+    }
+}
+
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    future::lazy(|_| {
+        let pid = unsafe {
+            libc::getpid()
+        };
+
+        Ok(Process {
+            pid,
+        })
+    })
 }

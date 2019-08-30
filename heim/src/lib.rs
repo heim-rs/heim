@@ -32,9 +32,10 @@
 //!
 //! Also, due to Rust [bug #15823](https://github.com/rust-lang/rust/issues/15823),
 //! type aliases are not rendered properly across the sub-crates bounds,
-//! therefore documentation might look terrible in some places.
+//! therefore documentation might look terrible in some places,
+//! consider checking the sources or sub-crates documentation in such case.
 
-#![doc(html_root_url = "https://docs.rs/heim/0.0.6")]
+#![doc(html_root_url = "https://docs.rs/heim/0.0.7")]
 #![deny(
     unused,
     unused_imports,

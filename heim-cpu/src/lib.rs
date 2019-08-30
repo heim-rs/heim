@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `cpu` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-cpu/0.0.6")]
+#![doc(html_root_url = "https://docs.rs/heim-cpu/0.0.7")]
 #![deny(
     unused,
     unused_imports,

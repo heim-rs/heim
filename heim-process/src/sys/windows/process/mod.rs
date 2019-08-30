@@ -21,29 +21,6 @@ pub struct Process {
 }
 
 impl Process {
-    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        pid_exists(pid)
-            .and_then(move |is_exists| {
-                if is_exists {
-                    future::ok(Process {
-                        pid,
-                    })
-                } else {
-                    future::err(ProcessError::NoSuchProcess(pid))
-                }
-            })
-    }
-
-    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
-        let pid = unsafe {
-            processthreadsapi::GetCurrentProcessId()
-        };
-
-        future::ok(Process {
-            pid
-        })
-    }
-
     pub fn pid(&self) -> Pid {
         self.pid
     }
@@ -171,3 +148,27 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
             pid,
         })
 }
+
+pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+    pid_exists(pid)
+        .and_then(move |is_exists| {
+            if is_exists {
+                future::ok(Process {
+                    pid,
+                })
+            } else {
+                future::err(ProcessError::NoSuchProcess(pid))
+            }
+        })
+}
+
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    let pid = unsafe {
+        processthreadsapi::GetCurrentProcessId()
+    };
+
+    future::ok(Process {
+        pid
+    })
+}
+

@@ -4,7 +4,7 @@ use heim_process as process;
 
 #[heim_derive::main]
 async fn main() -> Result<(), process::ProcessError> {
-    let process = process::Process::current().await?;
+    let process = process::current().await?;
 
     // Let's start with a CPU usage in order to measure how much time it will take
     // to load all the things. See the end of file for a second CPU usage call.

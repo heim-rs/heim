@@ -2,7 +2,7 @@
 //!
 //! Do **NOT** use it directly.
 
-#![doc(html_root_url = "https://docs.rs/heim-common/0.0.6")]
+#![doc(html_root_url = "https://docs.rs/heim-common/0.0.7")]
 #![deny(
     unused,
     unused_imports,
@@ -24,8 +24,10 @@
 )]
 
 mod errors;
+#[doc(hidden)]
 pub mod sys;
 pub mod units;
+#[doc(hidden)]
 pub mod utils;
 
 pub use self::errors::{Error, Result};

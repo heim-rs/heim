@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `process::Process::cpu_time` method returning CPU times for process (#107, #108, #109)
 - `process::Process::memory` method returning process memory usage (#121, #122, #123)
 - `process::Process::cpu_usage` method returning CPU usage by process (#134, #135, #136)
+- `process::Process::cwd` for Linux and macOS (#103, #104)
 
 ### Changed
 

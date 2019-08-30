@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `memory` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-memory/0.0.6")]
+#![doc(html_root_url = "https://docs.rs/heim-memory/0.0.7")]
 #![deny(
     unused,
     unused_imports,

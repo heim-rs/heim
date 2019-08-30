@@ -21,16 +21,6 @@ pub use self::status::Status;
 pub struct Process(sys::Process);
 
 impl Process {
-    /// Load the process information with `pid` given.
-    pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Self>> {
-        sys::Process::get(pid).map_ok(Self)
-    }
-
-    /// Returns the `Process` matching the currently running program.
-    pub fn current() -> impl Future<Output = ProcessResult<Self>> {
-        sys::Process::current().map_ok(Self)
-    }
-
     /// Returns the process pid.
     pub fn pid(&self) -> Pid {
         self.as_ref().pid()
@@ -45,7 +35,7 @@ impl Process {
     ///
     /// [Process]: ./struct.Process.html
     pub fn parent(&self) -> impl Future<Output = ProcessResult<Process>> {
-        self.parent_pid().and_then(Process::get)
+        self.parent_pid().and_then(get)
     }
 
     /// Returns future which resolves into the process name.
@@ -59,6 +49,11 @@ impl Process {
     }
 
     /// Returns future which resolves into the process current working directory.
+    ///
+    /// ## Compatibility
+    ///
+    /// For Windows this method is not implemented yet and will always return an error,
+    /// see [#105](https://github.com/heim-rs/heim/issues/105).
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
         self.as_ref().cwd()
     }
@@ -89,11 +84,11 @@ impl Process {
     /// ```rust
     /// # use std::time::Duration;
     /// # use heim_common::units::ratio;
-    /// # use heim_process::{Process, ProcessResult};
+    /// # use heim_process::{self as process, Process, ProcessResult};
     /// #
     /// # #[heim_derive::main]
     /// # async fn main() -> ProcessResult<()> {
-    /// let process = Process::current().await?;
+    /// let process = process::current().await?;
     /// let measurement_1 = process.cpu_usage().await?;
     /// // Or any other async timer at your choice
     /// futures_timer::Delay::new(Duration::from_millis(100)).await?;
@@ -132,4 +127,14 @@ impl fmt::Debug for Process {
 /// Returns stream which yields currently running processes.
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     sys::processes().map_ok(Into::into)
+}
+
+/// Load the process information with `pid` given.
+pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+    sys::get(pid).map_ok(Into::into)
+}
+
+/// Returns the `Process` matching the currently running program.
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    sys::current().map_ok(Into::into)
 }
