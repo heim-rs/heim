@@ -1,7 +1,8 @@
-use heim_common::prelude::{future, Future, FutureExt, Stream, TryStreamExt};
+use heim_common::prelude::{future, Future, Stream, TryStreamExt};
 use heim_runtime::fs;
 
 use crate::{Pid, ProcessError};
+use crate::sys::unix;
 
 pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
     fs::read_dir("/proc")
@@ -17,7 +18,5 @@ pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
 }
 
 pub fn pid_exists(pid: Pid) -> impl Future<Output = Result<bool, ProcessError>> {
-    let path = format!("/proc/{}", pid);
-
-    fs::path_exists(path).map(Ok)
+    future::ok(unix::pid_exists(pid))
 }

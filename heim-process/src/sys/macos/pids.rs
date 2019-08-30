@@ -1,6 +1,7 @@
 use heim_common::prelude::{future, stream, Stream, Future, TryFutureExt};
 
 use crate::{ProcessError, Pid};
+use crate::sys::unix;
 use super::bindings;
 
 pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
@@ -18,11 +19,5 @@ pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
 }
 
 pub fn pid_exists(pid: Pid) -> impl Future<Output = Result<bool, ProcessError>> {
-    future::lazy(move |_| {
-        match bindings::process(pid) {
-            Ok(..) => Ok(true),
-            Err(e @ ProcessError::Load(..)) => Err(e),
-            Err(..) => Ok(false),
-        }
-    })
+    future::ok(unix::pid_exists(pid))
 }
