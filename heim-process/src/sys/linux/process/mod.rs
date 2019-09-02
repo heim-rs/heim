@@ -1,3 +1,5 @@
+use std::cmp;
+use std::hash;
 use std::path::PathBuf;
 
 use futures::future::BoxFuture;
@@ -9,6 +11,7 @@ use heim_runtime::fs;
 
 use super::{pids, pid_exists};
 use crate::{Pid, Status, ProcessError, ProcessResult};
+use crate::sys::common::UniqueId;
 use crate::os::linux::IoCounters;
 
 mod procfs;
@@ -18,7 +21,7 @@ pub use self::procfs::{Memory, CpuTime};
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
-    create_time: Time,
+    unique_id: UniqueId,
 }
 
 impl Process {
@@ -70,7 +73,7 @@ impl Process {
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::ok(self.create_time)
+        future::ok(self.unique_id.create_time())
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
@@ -92,6 +95,20 @@ impl Process {
     }
 }
 
+impl hash::Hash for Process {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.unique_id.hash(state);
+    }
+}
+
+impl cmp::PartialEq for Process {
+    fn eq(&self, other: &Self) -> bool {
+        self.unique_id == other.unique_id
+    }
+}
+
+impl cmp::Eq for Process {}
+
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids()
         .map_err(Into::into)
@@ -102,7 +119,7 @@ pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
     procfs::stat(pid)
         .map_ok(move |procfs::Stat { create_time, .. } | Process {
             pid,
-            create_time,
+            unique_id: UniqueId::new(pid, create_time),
         })
 }
 

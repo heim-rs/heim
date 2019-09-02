@@ -1,3 +1,5 @@
+use std::cmp;
+use std::hash;
 use std::path::PathBuf;
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
@@ -8,6 +10,7 @@ use winapi::um::processthreadsapi;
 
 use super::{pids, pid_exists, bindings};
 use crate::{Pid, ProcessError, ProcessResult, Status};
+use crate::sys::common::UniqueId;
 
 mod create_time;
 mod cpu_times;
@@ -20,7 +23,7 @@ pub use self::memory::Memory;
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
-    create_time: Time,
+    unique_id: UniqueId,
 }
 
 impl Process {
@@ -122,7 +125,7 @@ impl Process {
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        self::create_time::get(self.pid)
+        future::ok(self.unique_id.create_time())
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
@@ -149,13 +152,27 @@ impl Process {
     }
 }
 
+impl hash::Hash for Process {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.unique_id.hash(state);
+    }
+}
+
+impl cmp::PartialEq for Process {
+    fn eq(&self, other: &Self) -> bool {
+        self.unique_id == other.unique_id
+    }
+}
+
+impl cmp::Eq for Process {}
+
 /// Create the `Process` from `pid` without checking first if pid is alive.
 fn get_unchecked(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
     self::create_time::get(pid)
         .map_ok(move |create_time| {
             Process {
                 pid,
-                create_time
+                unique_id: UniqueId::new(pid, create_time),
             }
         })
 }

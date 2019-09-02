@@ -94,12 +94,15 @@ impl FromStr for Stat {
         let _rsslim: u64 = parts.try_parse_next()?;
         // ...
 
+        let start_time = start_time as f64 / *CLOCK_TICKS;
+        debug_assert!(!start_time.is_nan());
+
         Ok(Stat {
             pid,
             name,
             state,
             ppid,
-            create_time: Time::new::<time::second>(start_time as f64 / *CLOCK_TICKS),
+            create_time: Time::new::<time::second>(start_time),
             // TODO: Possible values truncation during the `as f64` cast
             utime: Time::new::<time::second>(utime as f64 / *CLOCK_TICKS),
             stime: Time::new::<time::second>(stime as f64 / *CLOCK_TICKS),

@@ -18,7 +18,7 @@ pub use self::memory::Memory;
 pub use self::status::Status;
 
 /// OS process.
-#[derive(heim_derive::ImplWrap)]
+#[derive(Eq, PartialEq, Hash, heim_derive::ImplWrap)]
 pub struct Process(sys::Process);
 
 impl Process {

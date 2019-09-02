@@ -1,3 +1,5 @@
+mod common;
+
 #[cfg(unix)]
 mod unix;
 

@@ -1,3 +1,5 @@
+use std::cmp;
+use std::hash;
 use std::path::PathBuf;
 use std::ffi::CStr;
 use std::convert::TryFrom;
@@ -8,6 +10,7 @@ use heim_common::sys::IntoTime;
 
 use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
+use crate::sys::common::UniqueId;
 
 mod cpu_times;
 mod memory;
@@ -18,7 +21,7 @@ pub use self::memory::Memory;
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
-    create_time: Time,
+    unique_id: UniqueId,
 }
 
 impl Process {
@@ -72,7 +75,7 @@ impl Process {
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::ok(self.create_time)
+        future::ok(self.unique_id.create_time())
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
@@ -90,6 +93,20 @@ impl Process {
     }
 }
 
+impl hash::Hash for Process {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.unique_id.hash(state);
+    }
+}
+
+impl cmp::PartialEq for Process {
+    fn eq(&self, other: &Self) -> bool {
+        self.unique_id == other.unique_id
+    }
+}
+
+impl cmp::Eq for Process {}
+
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids()
         .map_err(Into::into)
@@ -104,10 +121,12 @@ pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
                 // `p_un.p_starttime` will be filled correctly?
                 kinfo_proc.kp_proc.p_un.p_starttime
             };
+            let create_time = create_time.into_time();
+            debug_assert!(!create_time.is_nan());
 
             future::ok(Process {
                 pid,
-                create_time: create_time.into_time(),
+                unique_id: UniqueId::new(pid, create_time),
             })
         },
         Err(e) => future::err(catch_zombie(e, pid)),
