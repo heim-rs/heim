@@ -1,6 +1,6 @@
 # Comparing `heim` to other crates
 
-This page provides an opinionated comparison between `heim` and 
+This page provides an opinionated comparison between `heim` and
 other Rust crates with the similar functionality.\
 Primary goals are to understand what pieces are missing in `heim`
 and to help users choose the crate suitable for their needs.
@@ -11,9 +11,9 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
 ## Crates used
 
-* [`heim = "0.0.5"`](https://crates.io/crates/heim)
+* [`heim = "0.0.7"`](https://crates.io/crates/heim)
 * [`psutil = "1.7.0"`](https://crates.io/crates/psutil)
-* [`sysinfo = "0.9.1"`](https://crates.io/crates/sysinfo)
+* [`sysinfo = "0.9.2"`](https://crates.io/crates/sysinfo)
 * [`sys-info = "0.5.7"`](https://crates.io/crates/sys-info)
 * [`systemstat = "0.1.4"`](https://crates.io/crates/systemstat)
 
@@ -22,10 +22,8 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 |                | heim             | psutil | sysinfo | sys-info | systemstat |
 |----------------|------------------|--------|---------|----------|------------|
 | Pure Rust      | ✓                | ✓      | ✓       | ✗        | ✓          |
-| Execution flow | async *1         | sync   | sync    | sync     | sync       |
+| Execution flow | async            | sync   | sync    | sync     | sync       |
 | License        | Apache 2.0 / MIT | MIT    | MIT     | MIT      | Unlicense  |
-
-> *1: not fully implemented, ex. https://github.com/heim-rs/heim/issues/56
 
 ## Supported platforms
 
@@ -88,7 +86,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 |-------------|----------|--------|---------|----------|------------|
 | pids        | ✓        | ✓      | ✓       | ✗        | ✗          |
 | pid_exists  | ✓        | ✓      | ✓       | ✗        | ✗          |
-| processes   | ✗        | ✓      | ✓       | ✗        | ✗          |
+| processes   | ✓        | ✓      | ✓       | ✗        | ✗          |
 
 ## Sensors information
 
