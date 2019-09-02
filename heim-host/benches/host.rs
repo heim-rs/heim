@@ -16,6 +16,11 @@ async fn bench_uptime() {
 }
 
 #[heim_derive::bench]
+async fn bench_boot_time() {
+    host::boot_time().await
+}
+
+#[heim_derive::bench]
 async fn bench_users() {
     let stream = host::users().for_each(|_| future::ready(()));
 

@@ -31,11 +31,13 @@ pub use platforms::target::Arch;
 
 mod sys;
 
+mod boot_time;
 pub mod os;
 mod platform;
 mod uptime;
 mod users;
 
+pub use self::boot_time::*;
 pub use self::platform::*;
 pub use self::uptime::*;
 pub use self::users::*;
