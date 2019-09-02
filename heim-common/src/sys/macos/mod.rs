@@ -7,6 +7,9 @@ use mach::vm_types::integer_t;
 use mach::kern_return::kern_return_t;
 use mach::message::mach_msg_type_number_t;
 
+use super::IntoTime;
+use crate::units::{Time, time};
+
 pub mod iokit;
 
 /// https://developer.apple.com/documentation/kernel/host_flavor_t?language=objc
@@ -35,4 +38,12 @@ extern "C" {
         host_info_out: host_info64_t,
         host_info_outCnt: *const mach_msg_type_number_t,
     ) -> kern_return_t;
+}
+
+impl IntoTime for libc::timeval {
+    fn into_time(self) -> Time {
+        Time::new::<time::second>(self.tv_sec as f64) +
+            Time::new::<time::microsecond>(f64::from(self.tv_usec))
+    }
+
 }

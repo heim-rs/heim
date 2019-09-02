@@ -2,7 +2,7 @@ use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
 use heim_common::prelude::*;
-use heim_common::sys::windows::IntoTime as _;
+use heim_common::sys::IntoTime as _;
 use heim_common::units::Time;
 use super::bindings::winternl;
 

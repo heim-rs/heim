@@ -81,8 +81,8 @@ pub struct run_sleep_queue {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union p_un {
-    p_st1: run_sleep_queue,
-    p_starttime: libc::timeval,
+    pub p_st1: run_sleep_queue,
+    pub p_starttime: libc::timeval,
 }
 
 #[repr(C)]

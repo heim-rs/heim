@@ -8,7 +8,7 @@ use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
 use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
 use winapi::ctypes::wchar_t;
 
-use heim_common::sys::windows::IntoTime;
+use heim_common::sys::IntoTime;
 
 use super::super::process::CpuTime;
 use crate::Pid;

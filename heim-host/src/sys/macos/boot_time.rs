@@ -2,7 +2,8 @@ use std::mem;
 use std::ptr;
 
 use heim_common::prelude::*;
-use heim_common::units::{Time, time};
+use heim_common::units::Time;
+use heim_common::sys::IntoTime;
 
 pub fn boot_time() -> impl Future<Output = Result<Time>> {
     let mut name: [i32; 2] = [libc::CTL_KERN, libc::KERN_BOOTTIME];
@@ -27,8 +28,6 @@ pub fn boot_time() -> impl Future<Output = Result<Time>> {
     let info = unsafe {
         info.assume_init()
     };
-    let time = Time::new::<time::second>(info.tv_sec as f64) +
-        Time::new::<time::microsecond>(f64::from(info.tv_usec));
 
-    future::ok(time)
+    future::ok(info.into_time())
 }

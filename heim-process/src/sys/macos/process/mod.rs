@@ -4,6 +4,7 @@ use std::convert::TryFrom;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_common::sys::IntoTime;
 
 use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
@@ -17,6 +18,7 @@ pub use self::memory::Memory;
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
+    create_time: Time,
 }
 
 impl Process {
@@ -70,9 +72,7 @@ impl Process {
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::lazy(|_| {
-            unimplemented!()
-        })
+        future::ok(self.create_time)
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
@@ -93,28 +93,32 @@ impl Process {
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids()
         .map_err(Into::into)
-        .map_ok(|pid| Process {
-            pid,
-        })
+        .and_then(get)
 }
 
 pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
     match bindings::process(pid) {
-        Ok(..) => future::ok(Process {
-            pid,
-        }),
+        Ok(kinfo_proc) => {
+            let create_time = unsafe {
+                // TODO: How can it be guaranteed that in this case
+                // `p_un.p_starttime` will be filled correctly?
+                kinfo_proc.kp_proc.p_un.p_starttime
+            };
+
+            future::ok(Process {
+                pid,
+                create_time: create_time.into_time(),
+            })
+        },
         Err(e) => future::err(catch_zombie(e, pid)),
     }
 }
 
 pub fn current() -> impl Future<Output = ProcessResult<Process>> {
     future::lazy(|_| {
-        let pid = unsafe {
+        unsafe {
             libc::getpid()
-        };
-
-        Ok(Process {
-            pid,
-        })
+        }
     })
+    .then(get)
 }

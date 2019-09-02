@@ -1,15 +1,10 @@
 use winapi::shared::{minwindef, ntdef};
 
+use crate::sys::IntoTime;
 use crate::units::{Time, time};
 
 const HI_T: f64 = 429.496_729_6;
 const LO_T: f64 = 1e-7;
-
-/// Converting Windows structs into the time unit
-pub trait IntoTime {
-    /// Do the magic
-    fn into_time(self) -> Time;
-}
 
 impl IntoTime for minwindef::FILETIME {
     #[inline]

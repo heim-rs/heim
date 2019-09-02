@@ -2,6 +2,14 @@
 //!
 //! Do not use them.
 
+use crate::units::Time;
+
+/// Converting various OS structs into the `Time` unit.
+pub trait IntoTime {
+    /// Do the magic
+    fn into_time(self) -> Time;
+}
+
 #[cfg(unix)]
 pub mod unix;
 

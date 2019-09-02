@@ -5,7 +5,7 @@ use winapi::shared::minwindef;
 
 use heim_common::prelude::*;
 use heim_common::units::{Time, time};
-use heim_common::sys::windows::IntoTime;
+use heim_common::sys::IntoTime;
 
 pub fn boot_time() -> impl Future<Output = Result<Time>> {
     let mut filetime = mem::MaybeUninit::<minwindef::FILETIME>::uninit();
