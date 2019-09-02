@@ -9,6 +9,7 @@ use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
 use winapi::ctypes::wchar_t;
 
 use heim_common::sys::IntoTime;
+use heim_common::units::{Time, time};
 
 use super::super::process::CpuTime;
 use crate::Pid;
@@ -107,6 +108,26 @@ impl ProcessHandle {
     }
 
     pub fn cpu_time(&self) -> Result<CpuTime> {
+        let (_, _, kernel, user) = self.process_times()?;
+
+        Ok(CpuTime {
+            user: user.into_time(),
+            kernel: kernel.into_time(),
+        })
+    }
+
+    pub fn create_time(&self) -> Result<Time> {
+        let (creation, _, _, _) = self.process_times()?;
+        /// Seconds amount between the "Windows epoch" (January 1, 1601)
+        /// and the Unix epoch (January 1, 1970).
+        // TODO: It would be nice to make it const,
+        // as soon as `uom` will mark `Time::new` as a `const fn`
+        let unix_epoch_delta = Time::new::<time::second>(11_644_473_600.0);
+
+        Ok(creation.into_time() - unix_epoch_delta)
+    }
+
+    fn process_times(&self) -> Result<(FILETIME, FILETIME, FILETIME, FILETIME)> {
         let mut creation = FILETIME::default();
         let mut exit = FILETIME::default();
         let mut kernel = FILETIME::default();
@@ -125,10 +146,12 @@ impl ProcessHandle {
         if result == 0 {
             Err(Error::last_os_error())
         } else {
-            Ok(CpuTime {
-                user: user.into_time(),
-                kernel: kernel.into_time(),
-            })
+            Ok((
+                creation,
+                exit,
+                kernel,
+                user
+            ))
         }
     }
 }

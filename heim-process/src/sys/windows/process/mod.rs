@@ -9,6 +9,7 @@ use winapi::um::processthreadsapi;
 use super::{pids, pid_exists, bindings};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
+mod create_time;
 mod cpu_times;
 mod memory;
 mod suspend;
@@ -19,6 +20,7 @@ pub use self::memory::Memory;
 #[derive(Debug)]
 pub struct Process {
     pid: Pid,
+    create_time: Time,
 }
 
 impl Process {
@@ -120,9 +122,7 @@ impl Process {
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::lazy(|_| {
-            unimplemented!()
-        })
+        self::create_time::get(self.pid)
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
@@ -149,22 +149,31 @@ impl Process {
     }
 }
 
+/// Create the `Process` from `pid` without checking first if pid is alive.
+fn get_unchecked(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+    self::create_time::get(pid)
+        .map_ok(move |create_time| {
+            Process {
+                pid,
+                create_time
+            }
+        })
+}
+
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids()
-        .map_ok(|pid| Process {
-            pid,
-        })
+        .and_then(get_unchecked)
 }
 
 pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
     pid_exists(pid)
         .and_then(move |is_exists| {
             if is_exists {
-                future::ok(Process {
-                    pid,
-                })
+                future::Either::Left(get_unchecked(pid))
             } else {
-                future::err(ProcessError::NoSuchProcess(pid))
+                let f = future::err(ProcessError::NoSuchProcess(pid));
+
+                future::Either::Right(f)
             }
         })
 }
@@ -174,8 +183,6 @@ pub fn current() -> impl Future<Output = ProcessResult<Process>> {
         processthreadsapi::GetCurrentProcessId()
     };
 
-    future::ok(Process {
-        pid
-    })
+    get_unchecked(pid)
 }
 

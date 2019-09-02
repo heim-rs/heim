@@ -29,6 +29,7 @@ heim-net = { version = "0.0.7", path = "../heim-net" }
 heim-host = { version = "0.0.7", path = "../heim-host" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
+heim-host = { version = "0.0.7", path = "../heim-host" }
 ntapi = "0.3.3"
 
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
