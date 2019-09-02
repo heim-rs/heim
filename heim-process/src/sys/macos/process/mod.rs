@@ -3,6 +3,7 @@ use std::ffi::CStr;
 use std::convert::TryFrom;
 
 use heim_common::prelude::*;
+use heim_common::units::Time;
 
 use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
@@ -66,6 +67,12 @@ impl Process {
             },
             Err(e) => future::err(catch_zombie(e, self.pid)),
         }
+    }
+
+    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
+        future::lazy(|_| {
+            unimplemented!()
+        })
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {

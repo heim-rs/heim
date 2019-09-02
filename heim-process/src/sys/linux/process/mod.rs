@@ -95,11 +95,7 @@ impl Process {
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids()
         .map_err(Into::into)
-        .and_then(|pid| self::procfs::stat(pid).map_ok(move |stat| (pid, stat)))
-        .map_ok(|(pid, stat)| Process {
-            pid,
-            create_time: stat.create_time,
-        })
+        .and_then(get)
 }
 
 pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
@@ -108,7 +104,6 @@ pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
             pid,
             create_time,
         })
-
 }
 
 pub fn current() -> impl Future<Output = ProcessResult<Process>> {

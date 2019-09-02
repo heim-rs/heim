@@ -88,7 +88,7 @@ impl FromStr for Stat {
         let _nice: i64 = parts.try_parse_next()?;
         let _num_threads: i64 = parts.try_parse_next()?;
         let _itrealvalue: i64 = parts.try_parse_next()?;
-        let _start_time: i64 = parts.try_parse_next()?;
+        let start_time: i64 = parts.try_parse_next()?;
         let _vsize: i64 = parts.try_parse_next()?;
         let _rss: i64 = parts.try_parse_next()?;
         let _rsslim: u64 = parts.try_parse_next()?;
@@ -99,8 +99,7 @@ impl FromStr for Stat {
             name,
             state,
             ppid,
-            // TODO: https://github.com/heim-rs/heim/issues/100
-            create_time: Time::new::<time::second>(0.0),
+            create_time: Time::new::<time::second>(start_time as f64 / *CLOCK_TICKS),
             // TODO: Possible values truncation during the `as f64` cast
             utime: Time::new::<time::second>(utime as f64 / *CLOCK_TICKS),
             stime: Time::new::<time::second>(stime as f64 / *CLOCK_TICKS),
@@ -121,5 +120,14 @@ pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
         })
         .and_then(|contents| {
             future::ready(Stat::from_str(&contents).map_err(Into::into))
+        })
+        .and_then(|mut stat| {
+            heim_host::boot_time()
+                .map_err(Into::into)
+                .map_ok(move |boot_time| {
+                    stat.create_time += boot_time;
+
+                    stat
+                })
         })
 }

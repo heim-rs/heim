@@ -3,6 +3,7 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
 use heim_common::prelude::*;
+use heim_common::units::Time;
 use winapi::um::processthreadsapi;
 
 use super::{pids, pid_exists, bindings};
@@ -116,6 +117,12 @@ impl Process {
             Ok(false) => future::ok(Status::Running),
             Err(e) => future::err(e),
         }
+    }
+
+    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
+        future::lazy(|_| {
+            unimplemented!()
+        })
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {

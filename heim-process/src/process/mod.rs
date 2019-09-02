@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 
 use heim_common::prelude::*;
+use heim_common::units::Time;
 
 use crate::{sys, Pid, ProcessResult};
 
@@ -61,6 +62,14 @@ impl Process {
     /// Returns future which resolves into the current process status.
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
         self.as_ref().status()
+    }
+
+    /// Returns future which resolves into the process creation time,
+    /// expressed as a [Time] amount since the UNIX epoch.
+    ///
+    /// [Time]: ../units/type.Time.html
+    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
+        self.as_ref().create_time()
     }
 
     /// Returns future which resolves into the accumulated process time.
