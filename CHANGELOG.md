@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `host::boot_time` function (#147, #148, #149)
+- `process::Process::create_time` method (#100, #101, #102)
+- `process::Process::is_running` method (#151, #152, #153)
 
 ### Fixed
 
