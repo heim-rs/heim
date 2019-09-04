@@ -1,3 +1,4 @@
+use std::io;
 use std::cmp;
 use std::hash;
 use std::path::PathBuf;
@@ -102,12 +103,24 @@ impl Process {
     pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
         let pid = self.pid;
         future::lazy(move |_| {
+            // TODO: Move that check into the `bindings::ProcessHandle` constructors
             if pid == 0 || pid == 4 {
                 Err(ProcessError::AccessDenied(pid))
             } else {
-                let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+                let handle = bindings::ProcessHandle::query_limited_info(pid)
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
 
-                handle.exe().map_err(ProcessError::from)
+                handle.exe().map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                        _ => e.into(),
+                    }
+                })
             }
         })
     }
@@ -129,25 +142,60 @@ impl Process {
     }
 
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        let pid = self.pid;
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+        } else {
+            let pid = self.pid;
 
-        future::lazy(move |_| {
-            let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+            let f = future::lazy(move |_| {
+                let handle = bindings::ProcessHandle::query_limited_info(pid)
+                    // TODO: `query_limited_info` should return the `ProcessError`
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
 
-            handle.cpu_time()
-                .map_err(ProcessError::from)
-        })
+                handle.cpu_time()
+                    .map_err(ProcessError::from)
+            });
+
+            future::Either::Right(f)
+        }
     }
 
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        let pid = self.pid;
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+        } else {
+            let pid = self.pid;
 
-        future::lazy(move |_| {
-            let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+            let f = future::lazy(move |_| {
+                let handle = bindings::ProcessHandle::query_limited_info(pid)
+                    // TODO: `query_limited_info` should return the `ProcessError`
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
 
-            handle.memory()
-                .map(Memory::from)
-                .map_err(ProcessError::from)
+                handle.memory()
+                    .map(Memory::from)
+                    .map_err(ProcessError::from)
+            });
+
+            future::Either::Right(f)
+        }
+    }
+
+    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
+        let unique_id = self.unique_id.clone();
+        get(self.pid).map_ok(move |other| {
+            other.unique_id == unique_id
         })
     }
 }

@@ -125,6 +125,11 @@ impl Process {
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
         self.as_ref().memory().map_ok(Into::into)
     }
+
+    /// Returns future which checks if this `Process` is still running.
+    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
+        self.as_ref().is_running()
+    }
 }
 
 impl fmt::Debug for Process {

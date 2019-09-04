@@ -84,6 +84,13 @@ impl Process {
         procfs::stat_memory(self.pid)
     }
 
+    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
+        let unique_id = self.unique_id.clone();
+        get(self.pid).map_ok(move |other| {
+            other.unique_id == unique_id
+        })
+    }
+
     // Linux-specific methods
 
     pub fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>> {

@@ -1,3 +1,4 @@
+use std::io;
 use std::cmp;
 use std::hash;
 use std::path::PathBuf;
@@ -81,6 +82,7 @@ impl Process {
     pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
         match darwin_libproc::task_info(self.pid) {
             Ok(task_info) => future::ok(CpuTime::from(task_info)),
+            Err(ref e) if e.kind() == io::ErrorKind::PermissionDenied => future::err(ProcessError::AccessDenied(self.pid)),
             Err(e) => future::err(catch_zombie(e, self.pid))
         }
     }
@@ -88,8 +90,16 @@ impl Process {
     pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
         match darwin_libproc::task_info(self.pid) {
             Ok(task_info) => future::ok(Memory::from(task_info)),
+            Err(ref e) if e.kind() == io::ErrorKind::PermissionDenied => future::err(ProcessError::AccessDenied(self.pid)),
             Err(e) => future::err(catch_zombie(e, self.pid))
         }
+    }
+
+    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
+        let unique_id = self.unique_id.clone();
+        get(self.pid).map_ok(move |other| {
+            other.unique_id == unique_id
+        })
     }
 }
 

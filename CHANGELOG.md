@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `host::boot_time` function (#147, #148, #149)
 
+### Fixed
+
+- `process::Process::exe`, `process::Process::cpu_time` and `process::Process::memory` for Windows
+    are properly returning `AccessDenied` error in case of permission issues
+- `process::Process::memory` and `process::Process::cpu_time` for macOS
+    are properly returning `AccessDenied` error in case of permission issues
+
 ## [0.0.7] - 2019-08-30
 
 ### Added

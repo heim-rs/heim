@@ -15,7 +15,7 @@ use heim_common::units::{time, Time};
 /// in order to provide `Hash`, `PartialEq` and `Eq` traits.
 ///
 /// This struct is shared across multiple OS-specific implementations.
-#[derive(Debug, Hash, PartialEq, Eq)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
 pub struct UniqueId {
     pid: Pid,
     create_time: NotNan<f64>,

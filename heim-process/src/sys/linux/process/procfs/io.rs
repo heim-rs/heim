@@ -5,7 +5,7 @@ use heim_common::prelude::*;
 use heim_common::Pid;
 use heim_runtime::fs;
 
-use crate::ProcessResult;
+use crate::{ProcessResult, ProcessError};
 use crate::os::linux::IoCounters;
 
 impl FromStr for IoCounters {
@@ -34,5 +34,12 @@ impl FromStr for IoCounters {
 }
 
 pub fn io(pid: Pid) -> impl Future<Output = ProcessResult<IoCounters>> {
-    fs::read_into(format!("/proc/{}/io", pid)).map_err(Into::into)
+    fs::read_into(format!("/proc/{}/io", pid))
+        .map_err(move |e: Error| {
+            match e.raw_os_error() {
+                // TODO: It is not possible to get `::std::io::ErrorKind` from the `heim::Error`
+                Some(libc::EACCES) => ProcessError::AccessDenied(pid),
+                _ => e.into(),
+            }
+        })
 }

@@ -18,12 +18,13 @@ use crate::Pid;
 pub struct ProcessHandle(winnt::HANDLE);
 
 impl ProcessHandle {
+    // See the `Self::query_limited_info`
     pub fn query_info(pid: Pid) -> Result<ProcessHandle> {
         let handle = unsafe {
             processthreadsapi::OpenProcess(
                 winnt::PROCESS_QUERY_INFORMATION | winnt::PROCESS_VM_READ,
                 0,
-                pid
+                pid,
             )
         };
 
@@ -34,12 +35,19 @@ impl ProcessHandle {
         }
     }
 
+    // Notable error which might be returned here is
+    // `ERROR_INVALID_PARAMETER` ("The parameter is incorrect").
+    // Might mean that we are querying process with pid 0 (System Process)
+    //
+    // Same applies to `Self::query_info`.
+    //
+    // TODO: Return `ProcessError` from here directly? https://github.com/heim-rs/heim/issues/155
     pub fn query_limited_info(pid: Pid) -> Result<ProcessHandle> {
         let handle = unsafe {
             processthreadsapi::OpenProcess(
                 winnt::PROCESS_QUERY_LIMITED_INFORMATION | winnt::PROCESS_VM_READ,
                 0,
-                pid
+                pid,
             )
         };
 
