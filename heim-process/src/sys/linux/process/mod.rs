@@ -16,7 +16,7 @@ use crate::os::linux::IoCounters;
 
 mod procfs;
 
-pub use self::procfs::{Memory, CpuTime};
+pub use self::procfs::{Memory, CpuTime, Command, CommandIter};
 
 #[derive(Debug)]
 pub struct Process {
@@ -50,6 +50,12 @@ impl Process {
                     }
                 })
         })
+    }
+
+    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
+        let pid = self.pid;
+
+        self::procfs::command(pid)
     }
 
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {

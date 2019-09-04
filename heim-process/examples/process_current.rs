@@ -15,6 +15,7 @@ async fn main() -> Result<(), process::ProcessError> {
     dbg!(process.status().await?);
     dbg!(process.name().await?);
     dbg!(process.exe().await?);
+    dbg!(process.command().await?);
     #[cfg(not(target_os = "windows"))] // Not implemented yet
     dbg!(process.cwd().await?);
     dbg!(process.create_time().await?);

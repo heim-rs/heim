@@ -13,9 +13,11 @@ use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
 use crate::sys::common::UniqueId;
 
+mod command;
 mod cpu_times;
 mod memory;
 
+pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::memory::Memory;
 
@@ -57,6 +59,10 @@ impl Process {
             Err(..) if self.pid == 0 => future::err(ProcessError::AccessDenied(self.pid)),
             Err(e) => future::err(catch_zombie(e, self.pid)),
         }
+    }
+
+    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
+        self::command::command(self.pid)
     }
 
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {

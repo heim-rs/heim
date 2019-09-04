@@ -13,11 +13,13 @@ use super::{pids, pid_exists, bindings};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 use crate::sys::common::UniqueId;
 
+mod command;
 mod create_time;
 mod cpu_times;
 mod memory;
 mod suspend;
 
+pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::memory::Memory;
 
@@ -123,6 +125,10 @@ impl Process {
                 })
             }
         })
+    }
+
+    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
+        self::command::command(self.pid)
     }
 
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {

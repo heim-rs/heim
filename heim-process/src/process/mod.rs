@@ -7,11 +7,13 @@ use heim_common::units::Time;
 
 use crate::{sys, Pid, ProcessResult};
 
+mod command;
 mod cpu_times;
 mod cpu_usage;
 mod memory;
 mod status;
 
+pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::cpu_usage::CpuUsage;
 pub use self::memory::Memory;
@@ -47,6 +49,29 @@ impl Process {
     /// Returns future which resolves into the process executable as an absolute path.
     pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
         self.as_ref().exe()
+    }
+
+    /// Returns future which resolves into the process command line.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// # use heim_process::{self as process, Process, ProcessResult};
+    /// #
+    /// # #[heim_derive::main]
+    /// # async fn main() -> ProcessResult<()> {
+    /// let process = process::current().await?;
+    /// let command = process.command().await?;
+    /// println!("Command line arguments:");
+    /// for arg in &command {
+    ///     println!("{:?}", arg);
+    /// }
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
+        self.as_ref().command().map_ok(Into::into)
     }
 
     /// Returns future which resolves into the process current working directory.

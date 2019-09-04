@@ -24,6 +24,7 @@ libc = "~0.2"
 futures-preview = "0.3.0-alpha.18"
 lazy_static = "1.3.0"
 ordered-float = { version = "~1.0", default-features = false }
+memchr = "~2.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 heim-net = { version = "0.0.7", path = "../heim-net" }
