@@ -26,16 +26,13 @@ async fn smoke_pids() {
 /// that queried process will be okay during the testing.
 macro_rules! try_method {
     ($method:expr) => {
-        match $method.await {
-            Err(ProcessError::Load(e)) => {
-                assert!(
-                    false,
-                    "`{}` method returned an error: {:#?}",
-                    stringify!($method),
-                    e
-                );
-            }
-            _ => {}
+        if let Err(ProcessError::Load(e)) = $method.await {
+            assert!(
+                false,
+                "`{}` method returned an error: {:#?}",
+                stringify!($method),
+                e
+            );
         }
     };
 }
