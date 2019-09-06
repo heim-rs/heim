@@ -204,6 +204,10 @@ impl Process {
             other.unique_id == unique_id
         })
     }
+
+    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
+        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/159").into())
+    }
 }
 
 impl hash::Hash for Process {

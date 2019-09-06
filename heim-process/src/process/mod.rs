@@ -157,6 +157,24 @@ impl Process {
     pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
         self.as_ref().is_running()
     }
+
+    /// Kills the current process.
+    ///
+    /// Before the signal send, it checks whether process PID has been reused,
+    /// if it is a case, [`NoSuchProcess`] error will be returned.
+    ///
+    /// ## Compatibility
+    ///
+    /// For *nix systems it sends the `SIGKILL` signal to process.
+    ///
+    /// [`TerminateProcess`] function is used for Windows,
+    /// it initiates the termination but does not awaits for completion.
+    ///
+    /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
+    /// [`TerminateProcess`]: https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess
+    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
+        self.0.kill()
+    }
 }
 
 impl fmt::Debug for Process {

@@ -13,7 +13,7 @@ pub type ProcessResult<T> = result::Result<T, ProcessError>;
 /// Error which might happen during the process information fetching.
 #[derive(Debug)]
 pub enum ProcessError {
-    /// Process with this pis does not exists.
+    /// Process with this pid does not exists.
     NoSuchProcess(Pid),
     /// Might be returned when querying zombie process on Unix systems.
     ZombieProcess(Pid),

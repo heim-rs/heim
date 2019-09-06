@@ -96,8 +96,11 @@ impl Process {
         })
     }
 
-    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
+    // `Self::signal` needs to return `BoxFuture`,
+    // but the `Self::kill` does not
+    fn _signal(&self, signal: Signal) -> impl Future<Output = ProcessResult<()>> {
         let pid = self.pid;
+
         self.is_running()
             .and_then(move |is_running| {
                 if is_running {
@@ -106,7 +109,14 @@ impl Process {
                     future::err(ProcessError::NoSuchProcess(pid))
                 }
             })
-            .boxed()
+    }
+
+    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
+        self._signal(signal).boxed()
+    }
+
+    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
+        self._signal(Signal::Kill)
     }
 
     // Linux-specific methods
