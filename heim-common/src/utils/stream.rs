@@ -1,6 +1,6 @@
 //! `futures::Stream` extensions
 
-use futures::stream::Stream;
+use crate::prelude::Stream;
 
 mod choose_chain;
 

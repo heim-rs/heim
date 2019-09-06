@@ -38,7 +38,7 @@ mach = "0.3.2"
 core-foundation = "0.6.4"
 
 [dev-dependencies]
-futures-preview = "0.3.0-alpha.18"
+futures-executor-preview = "0.3.0-alpha.18"
 version-sync = "0.8"
 
 [features]

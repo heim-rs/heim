@@ -7,7 +7,8 @@ use std::str::FromStr;
 use std::os::windows::io::{AsRawHandle, RawHandle};
 
 use heim_common::prelude::{
-    future, stream, Future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt,
+    futures::{future, stream},
+    Future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt,
 };
 
 use super::pool::THREAD_POOL;

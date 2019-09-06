@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 use std::usize;
 
-use futures::stream::{StreamExt, TryStreamExt};
+use heim_common::prelude::{StreamExt, TryStreamExt};
 use heim_common::units::{ratio, Ratio};
 use heim_process::{self as process, Process, ProcessResult};
 

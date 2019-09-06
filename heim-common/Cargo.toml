@@ -16,12 +16,10 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
 cfg-if = "0.1.7"
-futures-preview = "0.3.0-alpha.18"
+futures-core-preview = "0.3.0-alpha.18"
+futures-util-preview = "0.3.0-alpha.18"
 pin-utils = "0.1.0-alpha.4"
 uom = { version = "0.25.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
-
-[dev-dependencies]
-version-sync = "0.8"
 
 [target.'cfg(unix)'.dependencies]
 libc = "~0.2"
@@ -34,3 +32,8 @@ winapi = { version = ">=0.3.8", features = ["winnt", "minwindef", "libloaderapi"
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.3.2"
 core-foundation = "0.6.4"
+
+[dev-dependencies]
+futures-executor-preview = "0.3.0-alpha.18"
+version-sync = "0.8"
+

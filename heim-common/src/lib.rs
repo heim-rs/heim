@@ -47,7 +47,34 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 /// and might change at any time.
 pub mod prelude {
     pub use super::errors::{Error, Result};
-    pub use futures::future::{FutureExt, TryFutureExt};
-    pub use futures::prelude::*;
-    pub use futures::stream::{StreamExt, TryStreamExt};
+
+    /// This module tries to mimic `futures-preview` crate structure
+    /// except without re-exporting unused subcrates like `executor` or `compat`.
+    pub mod futures {
+        pub use futures_util::ready;
+        pub use futures_util::task;
+
+        /// Asynchronous values.
+        pub mod future {
+            pub use futures_core::future::*;
+            pub use futures_util::future::*;
+            pub use futures_util::try_future::*;
+        }
+
+        /// Asynchronous streams.
+        pub mod stream {
+            pub use futures_core::stream::*;
+            pub use futures_util::stream::*;
+            pub use futures_util::try_stream::*;
+        }
+    }
+
+    // And these re-exports are used across the `heim-*` crates,
+    // would be bad to break them
+    pub use self::futures::future::{
+        self, BoxFuture, FusedFuture, Future, FutureExt, TryFutureExt,
+    };
+    pub use self::futures::stream::{
+        self, BoxStream, FusedStream, Stream, StreamExt, TryStreamExt,
+    };
 }

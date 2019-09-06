@@ -1,7 +1,11 @@
 use core::pin::Pin;
-use futures::stream::{FusedStream, Stream};
-use futures::task::{Context, Poll};
 use pin_utils::{unsafe_pinned, unsafe_unpinned};
+
+use crate::prelude::{
+    futures,
+    futures::task::{Context, Poll},
+    FusedStream, Stream,
+};
 
 /// Stream for the [`choose_chain`](super::HeimStreamExt::choose_chain) method.
 #[derive(Debug)]
@@ -61,7 +65,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use futures::{executor, stream};
+    use futures_executor as executor;
+
+    use crate::prelude::stream;
 
     use super::super::HeimStreamExt;
 

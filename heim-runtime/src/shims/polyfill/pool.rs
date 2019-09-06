@@ -1,8 +1,7 @@
 use std::fmt::Debug;
 use std::sync::Mutex;
 
-use futures::channel::oneshot;
-use futures::future::Future;
+use futures_channel::oneshot;
 use threadpool::ThreadPool;
 
 use heim_common::prelude::*;

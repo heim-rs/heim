@@ -1,6 +1,6 @@
 //! Unix-specific extensions.
 
-use futures::future::BoxFuture;
+use heim_common::prelude::BoxFuture;
 
 use crate::ProcessResult;
 

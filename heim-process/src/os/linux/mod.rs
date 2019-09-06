@@ -1,7 +1,6 @@
 //! Linux-specific extensions.
 
-use futures::future::BoxFuture;
-use futures::stream::BoxStream;
+use heim_common::prelude::{BoxFuture, BoxStream};
 
 use crate::ProcessResult;
 

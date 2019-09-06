@@ -2,9 +2,6 @@ use std::cmp;
 use std::hash;
 use std::path::PathBuf;
 
-use futures::future::BoxFuture;
-use futures::stream::BoxStream;
-
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_runtime::fs;

@@ -21,7 +21,6 @@ heim-runtime = { version = "0.0.3", path = "../heim-runtime" }
 heim-cpu = { version = "0.0.7", path = "../heim-cpu" }
 cfg-if = "0.1.7"
 libc = "~0.2"
-futures-preview = "0.3.0-alpha.18"
 lazy_static = "1.3.0"
 ordered-float = { version = "~1.0", default-features = false }
 memchr = "~2.2"
@@ -54,6 +53,7 @@ mach = "0.3.2"
 darwin-libproc = "0.1.1"
 
 [dev-dependencies]
+futures-executor-preview = "0.3.0-alpha.18"
 version-sync = "0.8"
 pin-utils = "0.1.0-alpha.4"
 futures-timer = "0.3.0"
