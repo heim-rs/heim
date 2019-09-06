@@ -9,10 +9,12 @@ use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_runtime::fs;
 
-use super::{pids, pid_exists};
 use crate::{Pid, Status, ProcessError, ProcessResult};
 use crate::sys::common::UniqueId;
+use crate::sys::unix::pid_kill;
 use crate::os::linux::IoCounters;
+use crate::os::unix::Signal;
+use super::{pids, pid_exists};
 
 mod procfs;
 
@@ -95,6 +97,19 @@ impl Process {
         get(self.pid).map_ok(move |other| {
             other.unique_id == unique_id
         })
+    }
+
+    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
+        let pid = self.pid;
+        self.is_running()
+            .and_then(move |is_running| {
+                if is_running {
+                    future::ready(pid_kill(pid, signal))
+                } else {
+                    future::err(ProcessError::NoSuchProcess(pid))
+                }
+            })
+            .boxed()
     }
 
     // Linux-specific methods

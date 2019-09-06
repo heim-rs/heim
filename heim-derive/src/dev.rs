@@ -1,4 +1,5 @@
 use proc_macro::TokenStream;
+use quote::ToTokens;
 use syn::parse;
 use syn::spanned::Spanned;
 
@@ -76,11 +77,24 @@ pub fn os_ext_for(attr: TokenStream, item: TokenStream) -> TokenStream {
             _ => None,
         })
         .map(|source| {
+            let sig = &source.sig;
             let name = &source.sig.ident;
-            let output = &source.sig.output;
+
+            // Collect all inputs,
+            // fetch the pattern part (as in `a: i32` we need the `a` only)
+            // and pass them into the inner function
+            let args = &source
+                .sig
+                .inputs
+                .iter()
+                .filter_map(|input| match input {
+                    syn::FnArg::Receiver(..) => None,
+                    syn::FnArg::Typed(pat_type) => Some(pat_type.pat.to_token_stream()),
+                })
+                .collect::<Vec<_>>();
             quote::quote_spanned! {source.span()=>
-                fn #name(&self) #output {
-                    self.as_ref().#name()
+                #sig {
+                    self.as_ref().#name(#(#args),*)
                 }
             }
         });

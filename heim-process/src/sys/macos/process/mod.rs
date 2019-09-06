@@ -5,6 +5,8 @@ use std::path::PathBuf;
 use std::ffi::CStr;
 use std::convert::TryFrom;
 
+use futures::future::BoxFuture;
+
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_common::sys::IntoTime;
@@ -12,6 +14,8 @@ use heim_common::sys::IntoTime;
 use super::{bindings, pids, utils::catch_zombie};
 use crate::{Pid, ProcessResult, ProcessError, Status};
 use crate::sys::common::UniqueId;
+use crate::sys::unix::pid_kill;
+use crate::os::unix::Signal;
 
 mod command;
 mod cpu_times;
@@ -106,6 +110,19 @@ impl Process {
         get(self.pid).map_ok(move |other| {
             other.unique_id == unique_id
         })
+    }
+
+    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
+        let pid = self.pid;
+        self.is_running()
+            .and_then(move |is_running| {
+                if is_running {
+                    future::ready(pid_kill(pid, signal))
+                } else {
+                    future::err(ProcessError::NoSuchProcess(pid))
+                }
+            })
+            .boxed()
     }
 }
 

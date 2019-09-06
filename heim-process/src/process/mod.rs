@@ -19,7 +19,9 @@ pub use self::cpu_usage::CpuUsage;
 pub use self::memory::Memory;
 pub use self::status::Status;
 
-/// OS process.
+/// System process.
+///
+/// Some extra methods can be found in the [OS extensions](./os/index.html)
 #[derive(Eq, PartialEq, Hash, heim_derive::ImplWrap)]
 pub struct Process(sys::Process);
 
