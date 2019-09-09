@@ -206,7 +206,27 @@ impl Process {
     }
 
     pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/159").into())
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+        } else {
+            let pid = self.pid;
+
+            let f = future::lazy(move |_| {
+                let handle = bindings::ProcessHandle::for_termination(pid)
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
+
+                handle.terminate()
+                    .map_err(ProcessError::from)
+            });
+
+            future::Either::Right(f)
+        }
     }
 }
 

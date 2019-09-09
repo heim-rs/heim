@@ -3,8 +3,10 @@ use std::io::{Result, Error};
 use std::path::PathBuf;
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
+use std::marker::PhantomData;
 
 use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
+use winapi::shared::winerror;
 use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
 use winapi::ctypes::wchar_t;
 
@@ -14,27 +16,23 @@ use heim_common::units::{Time, time};
 use super::super::process::CpuTime;
 use crate::Pid;
 
+pub trait ProcessHandlePermissions {}
+
 #[derive(Debug)]
-pub struct ProcessHandle(winnt::HANDLE);
+pub struct QueryLimitedInformation;
+impl ProcessHandlePermissions for QueryLimitedInformation {}
 
-impl ProcessHandle {
-    // See the `Self::query_limited_info`
-    pub fn query_info(pid: Pid) -> Result<ProcessHandle> {
-        let handle = unsafe {
-            processthreadsapi::OpenProcess(
-                winnt::PROCESS_QUERY_INFORMATION | winnt::PROCESS_VM_READ,
-                0,
-                pid,
-            )
-        };
+#[derive(Debug)]
+pub struct Termination;
+impl ProcessHandlePermissions for Termination {}
 
-        if handle.is_null() {
-            Err(Error::last_os_error())
-        } else {
-            Ok(ProcessHandle(handle))
-        }
-    }
+#[derive(Debug)]
+pub struct ProcessHandle<T> {
+    handle: winnt::HANDLE,
+    _type: PhantomData<T>,
+}
 
+impl ProcessHandle<QueryLimitedInformation> {
     // Notable error which might be returned here is
     // `ERROR_INVALID_PARAMETER` ("The parameter is incorrect").
     // Might mean that we are querying process with pid 0 (System Process)
@@ -42,7 +40,7 @@ impl ProcessHandle {
     // Same applies to `Self::query_info`.
     //
     // TODO: Return `ProcessError` from here directly? https://github.com/heim-rs/heim/issues/155
-    pub fn query_limited_info(pid: Pid) -> Result<ProcessHandle> {
+    pub fn query_limited_info(pid: Pid) -> Result<ProcessHandle<QueryLimitedInformation>> {
         let handle = unsafe {
             processthreadsapi::OpenProcess(
                 winnt::PROCESS_QUERY_LIMITED_INFORMATION | winnt::PROCESS_VM_READ,
@@ -54,7 +52,10 @@ impl ProcessHandle {
         if handle.is_null() {
             Err(Error::last_os_error())
         } else {
-            Ok(ProcessHandle(handle))
+            Ok(ProcessHandle {
+                handle,
+                _type: PhantomData,
+            })
         }
     }
 
@@ -62,7 +63,8 @@ impl ProcessHandle {
         let mut code: DWORD = 0;
 
         let result = unsafe {
-            processthreadsapi::GetExitCodeProcess(self.0, &mut code)
+            // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
+            processthreadsapi::GetExitCodeProcess(self.handle, &mut code)
         };
 
         if result == 0 {
@@ -78,7 +80,7 @@ impl ProcessHandle {
 
         let result = unsafe {
             winbase::QueryFullProcessImageNameW(
-                self.0,
+                self.handle,
                 0,
                 buffer.as_mut_ptr(),
                 &mut size,
@@ -97,7 +99,7 @@ impl ProcessHandle {
 
         let result = unsafe {
             psapi::GetProcessMemoryInfo(
-                self.0,
+                self.handle,
                 // Tricking the type checker,
                 // as the `winapi`' GetProcessMemoryInfo expects `PROCESS_MEMORY_COUNTERS`,
                 // not the `PROCESS_MEMORY_COUNTERS_EX`
@@ -143,7 +145,7 @@ impl ProcessHandle {
 
         let result = unsafe {
             processthreadsapi::GetProcessTimes(
-                self.0,
+                self.handle,
                 &mut creation,
                 &mut exit,
                 &mut kernel,
@@ -164,10 +166,58 @@ impl ProcessHandle {
     }
 }
 
-impl Drop for ProcessHandle {
+impl ProcessHandle<Termination> {
+    pub fn for_termination(pid: Pid) -> Result<ProcessHandle<Termination>> {
+        let handle = unsafe {
+            processthreadsapi::OpenProcess(
+                winnt::PROCESS_TERMINATE,
+                0,
+                pid,
+            )
+        };
+
+        if handle.is_null() {
+            Err(Error::last_os_error())
+        } else {
+            Ok(ProcessHandle {
+                handle,
+                _type: PhantomData,
+            })
+        }
+    }
+
+    /// ERROR_INVALID_PARAMETER should be considered as a `NoSuchProcess` later
+    pub fn terminate(&self) -> Result<()> {
+        let result = unsafe {
+            processthreadsapi::TerminateProcess(
+                self.handle,
+                // This is going to be the code with which the process will exit
+                libc::SIGTERM as u32,
+            )
+        };
+        // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess
+
+        if result == 0 {
+            let e = Error::last_os_error();
+            // TODO: `psutil` ignores permission errors and considers the target process
+            // to be dead already.
+            // See: https://github.com/giampaolo/psutil/issues/1099
+            // It seems kinda shady, so the behavior should be checked.
+            if e.raw_os_error() == Some(winerror::ERROR_ACCESS_DENIED as i32) {
+                Ok(())
+            } else {
+                Err(e)
+            }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl<T> Drop for ProcessHandle<T> {
     fn drop(&mut self) {
         let result = unsafe {
-            handleapi::CloseHandle(self.0)
+            handleapi::CloseHandle(self.handle)
         };
 
         debug_assert!(result != 0);

@@ -24,7 +24,7 @@ async fn test_kill() {
         .unwrap();
 
     let process = process::get(child.id() as process::Pid).await.unwrap();
-    let result = process.signal(Signal::Kill).await;
+    let result = process.kill().await;
     assert!(result.is_ok(), "Failed to kill the process: {:?}", result);
 
     // Technically, child process will be in a zombie status at this exact moment,

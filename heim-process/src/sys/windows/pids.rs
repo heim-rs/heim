@@ -25,7 +25,7 @@ pub fn pid_exists(pid: Pid) -> impl Future<Output = result::Result<bool, Process
             return Ok(true)
         }
 
-        let process = match bindings::ProcessHandle::query_info(pid) {
+        let process = match bindings::ProcessHandle::query_limited_info(pid) {
             Ok(process) => process,
             // Means that there is no such process
             Err(ref e) if e.raw_os_error() == Some(winerror::ERROR_INVALID_PARAMETER as i32) => {

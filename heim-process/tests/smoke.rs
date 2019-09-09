@@ -42,7 +42,11 @@ async fn smoke_processes() {
     let mut processes = process::processes();
 
     while let Some(process) = processes.next().await {
-        let process = process.unwrap();
+        let process = match process {
+            Ok(process) => process,
+            e @ Err(ProcessError::Load(..)) => panic!("{:#?}", e),
+            _ => continue,
+        };
 
         let _ = process.pid();
         try_method!(process.parent_pid());
