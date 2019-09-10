@@ -1,6 +1,7 @@
 # heim
 
 ![Project banner](./.github/readme-logo.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fheim-rs%2Fheim.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fheim-rs%2Fheim?ref=badge_shield)
 
 [![Latest Version](https://img.shields.io/crates/v/heim.svg)](https://crates.io/crates/heim)
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
@@ -85,6 +86,9 @@ or [MIT license](https://github.com/heim-rs/heim/blob/master/LICENSE-MIT) at you
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this crate by you,
 as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fheim-rs%2Fheim.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fheim-rs%2Fheim?ref=badge_large)
 
 ## Donations
 
