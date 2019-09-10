@@ -206,15 +206,51 @@ impl Process {
     }
 
     pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
-        future::lazy(|_| {
-            unimplemented!()
-        })
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+        } else {
+            let pid = self.pid;
+
+            let f = future::lazy(move |_| {
+                let handle = bindings::ProcessHandle::for_suspend_resume(pid)
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
+
+                handle.suspend()
+                    .map_err(ProcessError::from)
+            });
+
+            future::Either::Right(f)
+        }
     }
 
     pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
-        future::lazy(|_| {
-            unimplemented!()
-        })
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+        } else {
+            let pid = self.pid;
+
+            let f = future::lazy(move |_| {
+                let handle = bindings::ProcessHandle::for_suspend_resume(pid)
+                    .map_err(|e| {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+                            _ => e.into(),
+                        }
+                    })?;
+
+                handle.resume()
+                    .map_err(ProcessError::from)
+            });
+
+            future::Either::Right(f)
+        }
     }
 
     pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {

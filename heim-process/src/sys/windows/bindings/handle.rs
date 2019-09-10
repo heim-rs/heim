@@ -6,9 +6,10 @@ use std::os::windows::ffi::OsStringExt;
 use std::marker::PhantomData;
 
 use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
-use winapi::shared::winerror;
+use winapi::shared::{winerror, ntstatus};
 use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
 use winapi::ctypes::wchar_t;
+use ntapi::ntpsapi;
 
 use heim_common::sys::IntoTime;
 use heim_common::units::{Time, time};
@@ -25,6 +26,10 @@ impl ProcessHandlePermissions for QueryLimitedInformation {}
 #[derive(Debug)]
 pub struct Termination;
 impl ProcessHandlePermissions for Termination {}
+
+#[derive(Debug)]
+pub struct SuspendResume;
+impl ProcessHandlePermissions for SuspendResume {}
 
 #[derive(Debug)]
 pub struct ProcessHandle<T> {
@@ -208,6 +213,51 @@ impl ProcessHandle<Termination> {
             } else {
                 Err(e)
             }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl ProcessHandle<SuspendResume> {
+    pub fn for_suspend_resume(pid: Pid) -> Result<ProcessHandle<SuspendResume>> {
+        let handle = unsafe {
+            processthreadsapi::OpenProcess(
+                winnt::PROCESS_SUSPEND_RESUME,
+                0,
+                pid,
+            )
+        };
+
+        if handle.is_null() {
+            Err(Error::last_os_error())
+        } else {
+            Ok(ProcessHandle {
+                handle,
+                _type: PhantomData,
+            })
+        }
+    }
+
+    pub fn suspend(&self) -> Result<()> {
+        let result = unsafe {
+            ntpsapi::NtSuspendProcess(self.handle)
+        };
+
+        if result != ntstatus::STATUS_SUCCESS {
+            Err(Error::last_os_error())
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn resume(&self) -> Result<()> {
+        let result = unsafe {
+            ntpsapi::NtResumeProcess(self.handle)
+        };
+
+        if result != ntstatus::STATUS_SUCCESS {
+            Err(Error::last_os_error())
         } else {
             Ok(())
         }
