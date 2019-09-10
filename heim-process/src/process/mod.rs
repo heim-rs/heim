@@ -158,6 +158,34 @@ impl Process {
         self.as_ref().is_running()
     }
 
+    /// Suspend the current process.
+    ///
+    /// Before the signal send, it checks whether process PID has been reused,
+    /// and if it is a case, [`NoSuchProcess`] error will be returned.
+    ///
+    /// ## Compatibility
+    ///
+    /// For *nix systems it sends the `SIGSTOP` signal to process.
+    ///
+    /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
+    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
+        self.0.suspend()
+    }
+
+    /// Resume the current process.
+    ///
+    /// Before the signal send, it checks whether process PID has been reused,
+    /// and if it is a case, [`NoSuchProcess`] error will be returned.
+    ///
+    /// ## Compatibility
+    ///
+    /// For *nix systems it sends the `SIGCONT` signal to process.
+    ///
+    /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
+    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
+        self.0.resume()
+    }
+
     /// Terminate the current process.
     ///
     /// Before the signal send, it checks whether process PID has been reused,

@@ -205,6 +205,18 @@ impl Process {
         })
     }
 
+    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
+        future::lazy(|_| {
+            unimplemented!()
+        })
+    }
+
+    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
+        future::lazy(|_| {
+            unimplemented!()
+        })
+    }
+
     pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
         self.kill()
     }

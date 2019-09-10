@@ -115,6 +115,14 @@ impl Process {
         self._signal(signal).boxed()
     }
 
+    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
+        self._signal(Signal::Stop)
+    }
+
+    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
+        self._signal(Signal::Cont)
+    }
+
     pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
         self._signal(Signal::Term)
     }
