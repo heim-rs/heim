@@ -205,6 +205,10 @@ impl Process {
         })
     }
 
+    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
+        self.kill()
+    }
+
     pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
         // TODO: Move that check into the `bindings::ProcessHandle`
         if self.pid == 0 {

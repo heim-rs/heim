@@ -158,10 +158,27 @@ impl Process {
         self.as_ref().is_running()
     }
 
+    /// Terminate the current process.
+    ///
+    /// Before the signal send, it checks whether process PID has been reused,
+    /// and if it is a case, [`NoSuchProcess`] error will be returned.
+    ///
+    /// ## Compatibility
+    ///
+    /// For *nix systems it sends the `SIGTERM` signal to process.
+    ///
+    /// For Windows it is an alias for the [`Process::kill`]
+    ///
+    /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
+    /// [`Process::kill`]: #method.kill
+    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
+        self.0.terminate()
+    }
+
     /// Kills the current process.
     ///
     /// Before the signal send, it checks whether process PID has been reused,
-    /// if it is a case, [`NoSuchProcess`] error will be returned.
+    /// and if it is a case, [`NoSuchProcess`] error will be returned.
     ///
     /// ## Compatibility
     ///
