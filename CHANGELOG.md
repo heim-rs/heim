@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `host::boot_time` function (#147, #148, #149)
 - `process::Process::create_time` method (#100, #101, #102)
 - `process::Process::is_running` method (#151, #152, #153)
+- `process::Process::command` method (#97, #98)
+- `process::Process::kill` method (#158, #159)
+- `process::Process::terminate` method (#162, #163)
+- `process::Process::suspend` method (#164, #165)
+- `process::Process::resume` method (#164, #166)
 
 ### Fixed
 
