@@ -11,7 +11,7 @@ async fn main() -> Result<()> {
 
     println!("---- Physical partitions ----");
 
-    let mut partitions = disk::partitions();
+    let mut partitions = disk::partitions_physical();
     while let Some(part) = partitions.next().await {
         dbg!(part?);
     }

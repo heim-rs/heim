@@ -59,6 +59,9 @@ pub enum FileSystem {
     /// XFS (https://en.wikipedia.org/wiki/XFS)
     Xfs,
 
+    /// APFS (https://en.wikipedia.org/wiki/Apple_File_System)
+    Apfs,
+
     // TODO: Should it be considered as a physical FS?
     /// FUSE (https://en.wikipedia.org/wiki/Filesystem_in_Userspace)
     FuseBlk,
@@ -106,6 +109,7 @@ impl FileSystem {
             FileSystem::Minix => "minix",
             FileSystem::Nilfs => "nilfs",
             FileSystem::Xfs => "xfs",
+            FileSystem::Apfs => "apfs",
             FileSystem::Other(string) => string.as_str(),
             _ => unimplemented!(),
         }
@@ -134,6 +138,7 @@ impl FromStr for FileSystem {
             _ if s.eq_ignore_ascii_case("minix") => Ok(FileSystem::Minix),
             _ if s.eq_ignore_ascii_case("nilfs") => Ok(FileSystem::Nilfs),
             _ if s.eq_ignore_ascii_case("xfs") => Ok(FileSystem::Xfs),
+            _ if s.eq_ignore_ascii_case("apfs") => Ok(FileSystem::Apfs),
 
             _ if s.eq_ignore_ascii_case("fuseblk") => Ok(FileSystem::FuseBlk),
             _ => Ok(FileSystem::Other(s.to_string())),
