@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `process` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-process/0.0.7")]
+#![doc(html_root_url = "https://docs.rs/heim-process/0.0.8-alpha.1")]
 #![deny(
     unused,
     unused_imports,

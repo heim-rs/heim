@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `sensors` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-sensors/0.0.2")]
+#![doc(html_root_url = "https://docs.rs/heim-sensors/0.0.3-alpha.1")]
 #![deny(
     unused,
     unused_imports,

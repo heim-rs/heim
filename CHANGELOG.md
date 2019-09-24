@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `process::Process::terminate` method (#162, #163)
 - `process::Process::suspend` method (#164, #165)
 - `process::Process::resume` method (#164, #166)
+- `APFS` support for `heim::disk::FileSystem` (#171)
 
 ### Fixed
 
