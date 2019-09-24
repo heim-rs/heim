@@ -1,19 +1,19 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_common::units::{Information, information};
+use heim_common::units::{information, Information};
 use heim_runtime::fs;
 
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone, heim_derive::Getter)]
 pub struct Memory {
-    total: Information,  // MemTotal
-    free: Information,  // MemFree
+    total: Information,     // MemTotal
+    free: Information,      // MemFree
     available: Information, // MemAvailable
-    buffers: Information, // Buffers
-    cached: Information, // Cached
-    active: Information,  // Active
-    inactive: Information, // Inactive
-    shared: Information, // Shmem
+    buffers: Information,   // Buffers
+    cached: Information,    // Cached
+    active: Information,    // Active
+    inactive: Information,  // Inactive
+    shared: Information,    // Shmem
 }
 
 impl FromStr for Memory {
@@ -28,7 +28,7 @@ impl FromStr for Memory {
             // we do not need that key at all
             let first_bytes = &line.as_bytes()[..2];
             match first_bytes {
-                b"Me" | b"Ac" | b"In" | b"Bu" | b"Ca" | b"Sh" => {},
+                b"Me" | b"Ac" | b"In" | b"Bu" | b"Ca" | b"Sh" => {}
                 _ => continue,
             };
 
@@ -46,24 +46,26 @@ impl FromStr for Memory {
             };
 
             match parts.next() {
-                Some(value) => *field = {
-                    let bytes = match value.trim_start().splitn(2, ' ').next() {
-                        Some(kbytes) => {
-                            let value = kbytes.parse::<u64>()?;
-                            Information::new::<information::kilobyte>(value)
-                        },
-                        None => continue,
-                    };
+                Some(value) => {
+                    *field = {
+                        let bytes = match value.trim_start().splitn(2, ' ').next() {
+                            Some(kbytes) => {
+                                let value = kbytes.parse::<u64>()?;
+                                Information::new::<information::kilobyte>(value)
+                            }
+                            None => continue,
+                        };
 
-                    matched_lines += 1;
+                        matched_lines += 1;
 
-                    bytes
-                },
+                        bytes
+                    }
+                }
                 None => continue,
             }
 
             if matched_lines == 8 {
-                return Ok(memory)
+                return Ok(memory);
             }
         }
 
@@ -72,6 +74,6 @@ impl FromStr for Memory {
     }
 }
 
-pub fn memory() -> impl Future<Output=Result<Memory>> {
+pub fn memory() -> impl Future<Output = Result<Memory>> {
     fs::read_into("/proc/meminfo")
 }

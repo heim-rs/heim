@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 
-use crate::{Pid, Status, ProcessError};
 use super::bindings;
+use crate::{Pid, ProcessError, Status};
 
 pub(crate) fn catch_zombie<T: Into<ProcessError>>(e: T, pid: Pid) -> ProcessError {
     match e.into() {
@@ -16,7 +16,7 @@ pub(crate) fn catch_zombie<T: Into<ProcessError>>(e: T, pid: Pid) -> ProcessErro
                 Ok(_) => ProcessError::AccessDenied(pid),
                 Err(e) => e.into(),
             }
-        },
+        }
         other => other,
     }
 }

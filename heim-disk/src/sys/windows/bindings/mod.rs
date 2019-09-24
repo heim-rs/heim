@@ -1,11 +1,11 @@
 mod drive;
-mod drives;
-mod volumes;
-mod perf;
 mod drive_type;
+mod drives;
+mod perf;
+mod volumes;
 
-pub use crate::os::windows::DriveType;
 pub use self::drive::Drive;
 pub use self::drives::Drives;
-pub use self::volumes::Volumes;
 pub use self::perf::disk_performance;
+pub use self::volumes::Volumes;
+pub use crate::os::windows::DriveType;

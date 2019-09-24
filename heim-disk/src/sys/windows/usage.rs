@@ -1,11 +1,11 @@
-use std::io;
 use std::fmt;
+use std::io;
 use std::path::Path;
 
 use winapi::um::{fileapi, winnt};
 
 use heim_common::prelude::*;
-use heim_common::units::{Ratio, Information, information, ratio};
+use heim_common::units::{information, ratio, Information, Ratio};
 
 #[derive(Default)]
 pub struct Usage {
@@ -16,9 +16,7 @@ pub struct Usage {
 
 impl Usage {
     pub fn total(&self) -> Information {
-        Information::new::<information::byte>(unsafe {
-            *self.total.QuadPart()
-        })
+        Information::new::<information::byte>(unsafe { *self.total.QuadPart() })
     }
 
     pub fn used(&self) -> Information {
@@ -26,14 +24,15 @@ impl Usage {
     }
 
     pub fn free(&self) -> Information {
-        Information::new::<information::byte>(unsafe {
-            *self.free.QuadPart()
-        })
+        Information::new::<information::byte>(unsafe { *self.free.QuadPart() })
     }
 
     pub fn ratio(&self) -> Ratio {
         // TODO: Possible value truncation
-        Ratio::new::<ratio::ratio>((self.used().get::<information::byte>() as f64 / self.total().get::<information::byte>() as f64) as f32)
+        Ratio::new::<ratio::ratio>(
+            (self.used().get::<information::byte>() as f64
+                / self.total().get::<information::byte>() as f64) as f32,
+        )
     }
 }
 
@@ -48,11 +47,11 @@ impl fmt::Debug for Usage {
     }
 }
 
-pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
+pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output = Result<Usage>> {
     future::lazy(move |_| {
         let path = match widestring::U16CString::from_os_str(path.as_ref()) {
             Ok(path) => path,
-            Err(_) => return Err(io::Error::from(io::ErrorKind::InvalidInput).into())
+            Err(_) => return Err(io::Error::from(io::ErrorKind::InvalidInput).into()),
         };
 
         let mut usage = Usage::default();

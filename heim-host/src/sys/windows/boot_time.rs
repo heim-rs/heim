@@ -1,11 +1,11 @@
 use std::mem;
 
-use winapi::um::sysinfoapi;
 use winapi::shared::minwindef;
+use winapi::um::sysinfoapi;
 
 use heim_common::prelude::*;
-use heim_common::units::{Time, time};
 use heim_common::sys::IntoTime;
+use heim_common::units::{time, Time};
 
 pub fn boot_time() -> impl Future<Output = Result<Time>> {
     let mut filetime = mem::MaybeUninit::<minwindef::FILETIME>::uninit();

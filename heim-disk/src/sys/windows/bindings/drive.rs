@@ -1,17 +1,17 @@
-use std::ptr;
-use std::str::FromStr;
-use std::path::PathBuf;
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
+use std::path::PathBuf;
+use std::ptr;
+use std::str::FromStr;
 
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::{DWORD, MAX_PATH};
-use winapi::um::{fileapi, winbase, errhandlingapi};
+use winapi::um::{errhandlingapi, fileapi, winbase};
 
-use heim_common::prelude::{Result, Error};
 use crate::os::windows::DriveType;
 use crate::os::windows::Flags;
 use crate::FileSystem;
+use heim_common::prelude::{Error, Result};
 
 // According to winapi docs 50 is a reasonable length to accomodate the volume path
 // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumenameforvolumemountpointw
@@ -69,13 +69,10 @@ impl Drive {
         let mut old_mode: DWORD = 0;
 
         let err_mode_result = unsafe {
-            errhandlingapi::SetThreadErrorMode(
-                winbase::SEM_FAILCRITICALERRORS,
-                &mut old_mode,
-            )
+            errhandlingapi::SetThreadErrorMode(winbase::SEM_FAILCRITICALERRORS, &mut old_mode)
         };
         if err_mode_result == 0 {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
 
         let result = unsafe {
@@ -93,11 +90,10 @@ impl Drive {
             )
         };
 
-        let err_mode_result  = unsafe {
-            errhandlingapi::SetThreadErrorMode(old_mode, ptr::null_mut())
-        };
+        let err_mode_result =
+            unsafe { errhandlingapi::SetThreadErrorMode(old_mode, ptr::null_mut()) };
         if err_mode_result == 0 {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
 
         match result {
@@ -128,10 +124,12 @@ impl Drive {
             }
         }
     }
-
 }
 
-impl<T> From<T> for Drive where T: AsRef<[u16]> {
+impl<T> From<T> for Drive
+where
+    T: AsRef<[u16]>,
+{
     fn from(data: T) -> Drive {
         let buffer = data.as_ref();
         debug_assert!(buffer.len() == 4);

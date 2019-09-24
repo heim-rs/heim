@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::units::{Information, information};
+use heim_common::units::{information, Information};
 
 use super::{bindings, PAGE_SIZE};
 
@@ -44,12 +44,8 @@ pub fn swap() -> impl Future<Output = Result<Swap>> {
         let total = Information::new::<information::byte>(u64::from(xsw_usage.xsu_total));
         let used = Information::new::<information::byte>(u64::from(xsw_usage.xsu_used));
         let free = Information::new::<information::byte>(u64::from(xsw_usage.xsu_avail));
-        let sin = Information::new::<information::byte>(
-            u64::from(vm_stats.pageins) * page_size,
-        );
-        let sout = Information::new::<information::byte>(
-            u64::from(vm_stats.pageouts) * page_size,
-        );
+        let sin = Information::new::<information::byte>(u64::from(vm_stats.pageins) * page_size);
+        let sout = Information::new::<information::byte>(u64::from(vm_stats.pageouts) * page_size);
 
         Ok(Swap {
             total,

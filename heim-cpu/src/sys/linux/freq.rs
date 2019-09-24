@@ -1,9 +1,9 @@
 use std::ops;
-use std::path::{Path, PathBuf};
 use std::os::unix::ffi::OsStrExt;
+use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
-use heim_common::units::{Frequency, frequency};
+use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
 
 #[derive(Debug, Default, heim_derive::Getter)]
@@ -31,18 +31,16 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
             (None, None) => None,
         };
 
-        CpuFrequency {
-            current,
-            max,
-            min,
-        }
+        CpuFrequency { current, max, min }
     }
 }
 
 pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
     let init = CpuFrequency::default();
     frequencies()
-        .try_fold((init, 0u64), |(acc, amount), freq| future::ok((acc + freq, amount + 1)))
+        .try_fold((init, 0u64), |(acc, amount), freq| {
+            future::ok((acc + freq, amount + 1))
+        })
         .then(|result| {
             match result {
                 // Will panic here if `frequencies()` stream returns nothing,
@@ -59,7 +57,9 @@ pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
                 }),
                 // Unable to determine CPU frequencies for some reasons.
                 // Might happen for containerized environments, such as Microsoft Azure, for example.
-                Ok(_) => future::err(Error::incompatible("No CPU frequencies was found, running in VM?")),
+                Ok(_) => future::err(Error::incompatible(
+                    "No CPU frequencies was found, running in VM?",
+                )),
                 Err(e) => future::err(e),
             }
         })
@@ -81,14 +81,11 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
             if !bytes.starts_with(b"cpu") {
                 return future::ready(false);
             }
-            let all_digits = &bytes[3..].iter()
-                .all(|byte| *byte >= b'0' && *byte <= b'9');
+            let all_digits = &bytes[3..].iter().all(|byte| *byte >= b'0' && *byte <= b'9');
 
             future::ready(*all_digits)
         })
-        .map_ok(|entry| {
-            entry.path().join("cpufreq")
-        })
+        .map_ok(|entry| entry.path().join("cpufreq"))
         .try_filter(|path| {
             // TODO: Get rid of the `.clone()`
             fs::path_exists(path.clone())
@@ -100,13 +97,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
 
             future::try_join3(current, max, min)
         })
-        .and_then(|(current, max, min)| {
-            future::ok(CpuFrequency {
-                current,
-                max,
-                min,
-            })
-        })
+        .and_then(|(current, max, min)| future::ok(CpuFrequency { current, max, min }))
 }
 
 #[allow(clippy::redundant_closure)]

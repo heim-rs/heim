@@ -1,7 +1,7 @@
 use std::net::IpAddr;
 
-use heim_common::prelude::*;
 use super::wrappers::{Session, Sessions};
+use heim_common::prelude::*;
 
 #[derive(Debug)]
 pub struct User {
@@ -40,15 +40,12 @@ impl User {
     }
 }
 
-
-pub fn users() -> impl Stream<Item=Result<User>> {
+pub fn users() -> impl Stream<Item = Result<User>> {
     future::lazy(|_| {
         let sessions = Sessions::new()?;
 
         Ok(stream::iter(sessions).map(Ok))
     })
     .try_flatten_stream()
-    .try_filter_map(|session| {
-        future::ready(User::from_session(session))
-    })
+    .try_filter_map(|session| future::ready(User::from_session(session)))
 }

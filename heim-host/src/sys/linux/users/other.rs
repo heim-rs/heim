@@ -4,7 +4,7 @@ use std::net::IpAddr;
 use heim_common::prelude::*;
 use heim_common::Pid;
 
-use crate::sys::unix::{get_users, from_ut_addr_v6};
+use crate::sys::unix::{from_ut_addr_v6, get_users};
 
 #[derive(Debug)]
 pub struct User {
@@ -50,16 +50,24 @@ impl User {
 impl From<libc::utmpx> for User {
     fn from(entry: libc::utmpx) -> User {
         let username = unsafe {
-            CStr::from_ptr(entry.ut_user.as_ptr()).to_string_lossy().into_owned()
+            CStr::from_ptr(entry.ut_user.as_ptr())
+                .to_string_lossy()
+                .into_owned()
         };
         let terminal = unsafe {
-            CStr::from_ptr(entry.ut_line.as_ptr()).to_string_lossy().into_owned()
+            CStr::from_ptr(entry.ut_line.as_ptr())
+                .to_string_lossy()
+                .into_owned()
         };
         let id = unsafe {
-            CStr::from_ptr(entry.ut_id.as_ptr()).to_string_lossy().into_owned()
+            CStr::from_ptr(entry.ut_id.as_ptr())
+                .to_string_lossy()
+                .into_owned()
         };
         let hostname = unsafe {
-            CStr::from_ptr(entry.ut_host.as_ptr()).to_string_lossy().into_owned()
+            CStr::from_ptr(entry.ut_host.as_ptr())
+                .to_string_lossy()
+                .into_owned()
         };
 
         User {

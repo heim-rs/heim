@@ -1,5 +1,5 @@
-use std::ptr;
 use std::mem;
+use std::ptr;
 
 use heim_common::prelude::*;
 
@@ -18,9 +18,7 @@ impl Iterator for Routes {
                 return None;
             }
 
-            let data_ptr = unsafe {
-                self.data.as_ptr().add(self.position)
-            };
+            let data_ptr = unsafe { self.data.as_ptr().add(self.position) };
 
             // In order not to read uninitialized memory (leading to heap-buffer-overflow),
             // which might happen if the whole `libc::if_msghdr` struct would be used here,
@@ -38,7 +36,7 @@ impl Iterator for Routes {
                 ptr::copy_nonoverlapping(
                     data_ptr,
                     maybe_hdr.as_mut_ptr() as *mut u8,
-                    mem::size_of::<if_msghdr_partial>()
+                    mem::size_of::<if_msghdr_partial>(),
                 );
                 maybe_hdr.assume_init()
             };
@@ -52,7 +50,7 @@ impl Iterator for Routes {
                     ptr::copy_nonoverlapping(
                         data_ptr,
                         maybe_hdr.as_mut_ptr() as *mut u8,
-                        mem::size_of::<if_msghdr2>()
+                        mem::size_of::<if_msghdr2>(),
                     );
                     maybe_hdr.assume_init()
                 };
@@ -60,7 +58,7 @@ impl Iterator for Routes {
                 // Just in case to be sure that copying worked properly
                 debug_assert!(libc::c_int::from(hdr.ifm_type) == libc::RTM_IFINFO2);
 
-                return Some(hdr)
+                return Some(hdr);
             } else {
                 continue;
             }
@@ -120,14 +118,7 @@ pub struct if_msghdr_partial {
 }
 
 pub unsafe fn net_pf_route() -> Result<Routes> {
-    let mut name: [libc::c_int; 6] = [
-        libc::CTL_NET,
-        libc::PF_ROUTE,
-        0,
-        0,
-        libc::NET_RT_IFLIST2,
-        0,
-    ];
+    let mut name: [libc::c_int; 6] = [libc::CTL_NET, libc::PF_ROUTE, 0, 0, libc::NET_RT_IFLIST2, 0];
     let mut length: libc::size_t = 0;
 
     let result = libc::sysctl(
@@ -140,7 +131,7 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
     );
 
     if result != 0 {
-        return Err(Error::last_os_error())
+        return Err(Error::last_os_error());
     }
 
     let mut data: Vec<u8> = Vec::with_capacity(length);
@@ -155,10 +146,7 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
 
     if result == 0 {
         data.set_len(length);
-        Ok(Routes {
-            position: 0,
-            data,
-        })
+        Ok(Routes { position: 0, data })
     } else {
         Err(Error::last_os_error())
     }

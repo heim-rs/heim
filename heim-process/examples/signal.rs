@@ -10,8 +10,8 @@
 //! or in a full form:
 //! `$ cargo run -p heim-process --example signal -- resume 37520 `
 
-use std::io;
 use std::env;
+use std::io;
 
 use heim_process as process;
 
@@ -19,12 +19,11 @@ use heim_process as process;
 async fn main() -> process::ProcessResult<()> {
     let args = env::args().collect::<Vec<_>>();
     if args.len() != 3 {
-        return Err(io::Error::from(io::ErrorKind::InvalidData).into())
+        return Err(io::Error::from(io::ErrorKind::InvalidData).into());
     }
-    let pid: process::Pid = args[2].parse::<process::Pid>()
-        .map_err(|_| {
-            process::ProcessError::from(io::Error::from(io::ErrorKind::InvalidData))
-        })?;
+    let pid: process::Pid = args[2]
+        .parse::<process::Pid>()
+        .map_err(|_| process::ProcessError::from(io::Error::from(io::ErrorKind::InvalidData)))?;
     let process = process::get(pid).await?;
 
     match args[1].as_str() {
@@ -32,6 +31,6 @@ async fn main() -> process::ProcessResult<()> {
         "resume" => process.resume().await,
         "terminate" => process.terminate().await,
         "kill" => process.kill().await,
-        _ => Err(io::Error::from(io::ErrorKind::InvalidData).into())
+        _ => Err(io::Error::from(io::ErrorKind::InvalidData).into()),
     }
 }

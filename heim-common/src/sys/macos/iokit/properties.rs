@@ -1,12 +1,12 @@
 use core_foundation::base::{CFType, ToVoid};
-use core_foundation::dictionary::{CFDictionary, CFDictionaryRef, CFDictionaryGetTypeID};
-use core_foundation::string::{CFString, CFStringGetTypeID};
 use core_foundation::boolean::{CFBoolean, CFBooleanGetTypeID};
+use core_foundation::dictionary::{CFDictionary, CFDictionaryGetTypeID, CFDictionaryRef};
 use core_foundation::number::{CFNumber, CFNumberGetTypeID};
+use core_foundation::string::{CFString, CFStringGetTypeID};
 
 pub use core_foundation::base::TCFType;
 
-use crate::{Result, Error};
+use crate::{Error, Result};
 
 /// Extends `CFDictionary` with a few methods used by `heim` crates.
 pub trait DictionaryProps {
@@ -39,9 +39,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 // and it does not decrements here.
                 let ptr = value_ref.to_void() as CFDictionaryRef;
 
-                unsafe {
-                    Some(CFDictionary::wrap_under_get_rule(ptr))
-                }
+                unsafe { Some(CFDictionary::wrap_under_get_rule(ptr)) }
             })
             .ok_or_else(|| Error::missing_entity(raw_key))
     }

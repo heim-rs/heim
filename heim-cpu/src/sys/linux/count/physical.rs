@@ -55,8 +55,7 @@ struct Collector {
 }
 
 fn parse_line(line: &str) -> Result<u64> {
-    line
-        .split(':')
+    line.split(':')
         .nth(2)
         .map(|value| value.trim())
         .ok_or_else(|| Error::incompatible("Unsupported format for /proc/cpuinfo"))

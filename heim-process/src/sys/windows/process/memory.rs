@@ -1,7 +1,7 @@
 use std::fmt;
 
-use winapi::um::psapi;
 use heim_common::units::{information, Information};
+use winapi::um::psapi;
 
 pub struct Memory(psapi::PROCESS_MEMORY_COUNTERS_EX);
 

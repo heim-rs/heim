@@ -1,5 +1,5 @@
-use std::path::Path;
 use std::os::windows::ffi::OsStrExt;
+use std::path::Path;
 
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::DWORD;
@@ -16,12 +16,12 @@ impl DriveType {
     }
 
     pub(crate) fn from_slice(chars: &[wchar_t]) -> Option<DriveType> {
-        debug_assert!(chars.last() == Some(&0x0000),
-            "Path for GetDriveTypeW should be null-terminated");
+        debug_assert!(
+            chars.last() == Some(&0x0000),
+            "Path for GetDriveTypeW should be null-terminated"
+        );
 
-        let result = unsafe {
-            fileapi::GetDriveTypeW(chars.as_ptr())
-        };
+        let result = unsafe { fileapi::GetDriveTypeW(chars.as_ptr()) };
 
         Self::maybe_from(result)
     }
@@ -39,4 +39,3 @@ impl DriveType {
         }
     }
 }
-

@@ -12,4 +12,3 @@ pub unsafe fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
 
     info.assume_init()
 }
-

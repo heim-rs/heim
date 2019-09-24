@@ -1,11 +1,11 @@
-use std::str::FromStr;
-use std::path::{Path, PathBuf};
 use std::ffi::{CStr, OsStr};
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use heim_common::prelude::*;
 
-use crate::FileSystem;
 use super::bindings;
+use crate::FileSystem;
 
 #[derive(Debug)]
 pub struct Partition {
@@ -38,13 +38,15 @@ impl Partition {
 impl From<libc::statfs> for Partition {
     fn from(stat: libc::statfs) -> Partition {
         let device = unsafe {
-            CStr::from_ptr(stat.f_mntfromname.as_ptr()).to_string_lossy().to_string()
+            CStr::from_ptr(stat.f_mntfromname.as_ptr())
+                .to_string_lossy()
+                .to_string()
         };
-        let fs_type = unsafe {
-            CStr::from_ptr(stat.f_fstypename.as_ptr()).to_string_lossy()
-        };
+        let fs_type = unsafe { CStr::from_ptr(stat.f_fstypename.as_ptr()).to_string_lossy() };
         let mount_path_raw = unsafe {
-            CStr::from_ptr(stat.f_mntonname.as_ptr()).to_string_lossy().to_string()
+            CStr::from_ptr(stat.f_mntonname.as_ptr())
+                .to_string_lossy()
+                .to_string()
         };
         let mount_point = PathBuf::from(mount_path_raw);
 
@@ -60,25 +62,20 @@ impl From<libc::statfs> for Partition {
     }
 }
 
-
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     future::lazy(|_| {
-        bindings::mounts().map(|mounts| {
-            stream::iter(mounts).map(|mount| {
-                Ok(Partition::from(mount))
-            })
-        })
+        bindings::mounts()
+            .map(|mounts| stream::iter(mounts).map(|mount| Ok(Partition::from(mount))))
     })
     .try_flatten_stream()
 }
 
 pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
-    partitions()
-        .try_filter_map(|partition| {
-            if partition.file_system().is_physical() {
-                future::ok(Some(partition))
-            } else {
-                future::ok(None)
-            }
-        })
+    partitions().try_filter_map(|partition| {
+        if partition.file_system().is_physical() {
+            future::ok(Some(partition))
+        } else {
+            future::ok(None)
+        }
+    })
 }

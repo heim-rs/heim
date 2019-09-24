@@ -1,9 +1,9 @@
-use std::path::PathBuf;
 use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
 
 use heim_common::prelude::*;
-use heim_common::units::{ThermodynamicTemperature, thermodynamic_temperature};
+use heim_common::units::{thermodynamic_temperature, ThermodynamicTemperature};
 use heim_common::utils::stream::HeimStreamExt;
 use heim_runtime::fs;
 
@@ -24,7 +24,9 @@ fn read_temperature(path: PathBuf) -> impl Future<Output = Result<ThermodynamicT
         .and_then(|contents| {
             match contents.trim_end().parse::<f32>() {
                 // Originally value is in millidegrees of Celsius
-                Ok(value) => future::ok(ThermodynamicTemperature::new::<thermodynamic_temperature::degree_celsius>(value / 1_000.0)),
+                Ok(value) => future::ok(ThermodynamicTemperature::new::<
+                    thermodynamic_temperature::degree_celsius,
+                >(value / 1_000.0)),
                 Err(e) => future::err(e.into()),
             }
         })
@@ -39,8 +41,8 @@ fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor
         Some(name) => {
             let offset = name.len() - b"input".len();
             OsStr::from_bytes(&name.as_bytes()[..offset])
-        },
-        None => unreachable!()
+        }
+        None => unreachable!(),
     };
 
     let unit_name = fs::read_to_string(root.join("name"))
@@ -75,41 +77,35 @@ fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor
         });
     let current = read_temperature(input);
 
-    future::try_join5(unit_name, label, current, high, critical)
-        .map_ok(|(unit, label, current, high, critical)| {
-            TemperatureSensor {
-                unit,
-                label,
-                current,
-                high,
-                critical,
-            }
-        })
+    future::try_join5(unit_name, label, current, high, critical).map_ok(
+        |(unit, label, current, high, critical)| TemperatureSensor {
+            unit,
+            label,
+            current,
+            high,
+            critical,
+        },
+    )
 }
 
 fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
     fs::read_dir("/sys/class/hwmon/")
-        .try_filter(|entry| {
-            future::ready(entry.file_name().as_bytes().starts_with(b"hwmon"))
-        })
+        .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .and_then(|entry| {
-            let inner = fs::read_dir(entry.path())
-                .try_filter(|entry| {
-                    let name = entry.file_name();
-                    let bytes = name.as_bytes();
+            let inner = fs::read_dir(entry.path()).try_filter(|entry| {
+                let name = entry.file_name();
+                let bytes = name.as_bytes();
 
-                    future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
-                });
+                future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
+            });
 
             future::ok(inner)
         })
         .try_flatten()
         .map_err(Error::from)
-        .and_then(|entry| {
-            hwmon_sensor(entry.path())
-        })
+        .and_then(|entry| hwmon_sensor(entry.path()))
 }
 
 // CentOS has an intermediate /device directory:
@@ -119,30 +115,25 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
     fs::read_dir("/sys/class/hwmon/")
-        .try_filter(|entry| {
-            future::ready(entry.file_name().as_bytes().starts_with(b"hwmon"))
-        })
+        .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .try_filter(|entry| {
             // TODO: `entry.path()` allocates memory for `PathBuf` twice
             // here and in the next combinator
             fs::path_exists(entry.path().join("device"))
         })
         .and_then(|entry| {
-            let inner = fs::read_dir(entry.path().join("device"))
-                .try_filter(|entry| {
-                    let name = entry.file_name();
-                    let bytes = name.as_bytes();
+            let inner = fs::read_dir(entry.path().join("device")).try_filter(|entry| {
+                let name = entry.file_name();
+                let bytes = name.as_bytes();
 
-                    future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
-                });
+                future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
+            });
 
             future::ok(inner)
         })
         .try_flatten()
         .map_err(Error::from)
-        .and_then(|entry| {
-            hwmon_sensor(entry.path())
-        })
+        .and_then(|entry| hwmon_sensor(entry.path()))
 }
 
 // https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
@@ -195,36 +186,27 @@ fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
                     // Because right now it looks just terrible
                     fs::read_to_string(type_path)
                         .map_err(Error::from)
-                        .and_then(move |content| {
-                            match content.as_str() {
-                                "critical\n" => {
-                                    read_temperature(temp_path)
-                                        .and_then(move |temp| {
-                                            acc.critical = Some(temp);
-                                            future::ok(acc)
-                                        })
-                                        .boxed()
-                                },
-                                "high\n" => {
-                                    read_temperature(temp_path)
-                                        .and_then(move |temp| {
-                                            acc.high = Some(temp);
-                                            future::ok(acc)
-                                        })
-                                        .boxed()
-                                },
-                                _ => future::ok(acc).boxed()
-                            }
+                        .and_then(move |content| match content.as_str() {
+                            "critical\n" => read_temperature(temp_path)
+                                .and_then(move |temp| {
+                                    acc.critical = Some(temp);
+                                    future::ok(acc)
+                                })
+                                .boxed(),
+                            "high\n" => read_temperature(temp_path)
+                                .and_then(move |temp| {
+                                    acc.high = Some(temp);
+                                    future::ok(acc)
+                                })
+                                .boxed(),
+                            _ => future::ok(acc).boxed(),
                         })
                 })
         })
 }
 
 pub fn temperatures() -> impl Stream<Item = Result<TemperatureSensor>> {
-    let hwmon = stream::select(
-        hwmon(),
-        hwmon_device(),
-    );
+    let hwmon = stream::select(hwmon(), hwmon_device());
 
     // We need the `thermal_zone` items, only if `hwmon` stream yielded nothing
     hwmon.choose_chain(thermal_zone())

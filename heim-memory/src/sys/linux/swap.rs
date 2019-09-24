@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
+use heim_common::units::{information, Information};
 use heim_runtime::fs;
-use heim_common::units::{Information, information};
 
 static PROC_VMSTAT: &str = "/proc/vmstat";
 static PROC_MEMINFO: &str = "/proc/meminfo";
@@ -10,7 +10,7 @@ static PROC_MEMINFO: &str = "/proc/meminfo";
 #[derive(Debug, Default, Clone)]
 pub struct VmStat {
     swap_in: Option<Information>,  // pswpin
-    swap_out: Option<Information>,  // pswpout
+    swap_out: Option<Information>, // pswpout
 }
 
 impl FromStr for VmStat {
@@ -33,19 +33,21 @@ impl FromStr for VmStat {
             };
 
             match parts.next() {
-                Some(value) => *field = {
-                    let bytes = match value.trim_start().splitn(2, ' ').next() {
-                        Some(kbytes) => {
-                            // Values are expressed in 4 kilo bytes, we want bytes instead.
-                            // Source: psutil
-                            let value = kbytes.parse::<u64>()?;
-                            Information::new::<information::kilobyte>(4 * value)
-                        },
-                        None => continue,
-                    };
+                Some(value) => {
+                    *field = {
+                        let bytes = match value.trim_start().splitn(2, ' ').next() {
+                            Some(kbytes) => {
+                                // Values are expressed in 4 kilo bytes, we want bytes instead.
+                                // Source: psutil
+                                let value = kbytes.parse::<u64>()?;
+                                Information::new::<information::kilobyte>(4 * value)
+                            }
+                            None => continue,
+                        };
 
-                    Some(bytes)
-                },
+                        Some(bytes)
+                    }
+                }
                 None => continue,
             }
         }
@@ -56,7 +58,7 @@ impl FromStr for VmStat {
 
 #[derive(Debug, Clone)]
 pub struct Swap {
-    total: Information,  // SwapTotal
+    total: Information, // SwapTotal
     free: Information,  // SwapFree
     vm_stat: VmStat,
 }
@@ -94,7 +96,7 @@ impl Swap {
             // If line does not starts with "Sw" we do not need that key at all
             let first_bytes = &line.as_bytes()[..2];
             if first_bytes != b"Sw" {
-                continue
+                continue;
             }
 
             let mut parts = line.splitn(2, ':');
@@ -105,24 +107,26 @@ impl Swap {
             };
 
             match parts.next() {
-                Some(value) => *field = {
-                    let bytes = match value.trim_start().splitn(2, ' ').next() {
-                        Some(kbytes) => {
-                            let value = kbytes.parse::<u64>()?;
-                            Information::new::<information::kilobyte>(value)
-                        },
-                        None => continue,
-                    };
+                Some(value) => {
+                    *field = {
+                        let bytes = match value.trim_start().splitn(2, ' ').next() {
+                            Some(kbytes) => {
+                                let value = kbytes.parse::<u64>()?;
+                                Information::new::<information::kilobyte>(value)
+                            }
+                            None => continue,
+                        };
 
-                    matched_lines += 1;
+                        matched_lines += 1;
 
-                    bytes
-                },
+                        bytes
+                    }
+                }
                 None => continue,
             }
 
             if matched_lines == 2 {
-                return Ok(swap)
+                return Ok(swap);
             }
         }
 
@@ -130,19 +134,16 @@ impl Swap {
     }
 }
 
-fn vm_stat() -> impl Future<Output=Result<VmStat>> {
+fn vm_stat() -> impl Future<Output = Result<VmStat>> {
     fs::read_into(PROC_VMSTAT)
 }
 
-pub fn swap() -> impl Future<Output=Result<Swap>> {
+pub fn swap() -> impl Future<Output = Result<Swap>> {
     let meminfo = fs::read_to_string(PROC_MEMINFO);
     // TODO: Replace with `try_join`
-    future::join(meminfo, vm_stat())
-        .then(|result| {
-            match result {
-                (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
-                (Err(e), _) => future::err(e.into()),
-                (_, Err(e)) => future::err(e),
-            }
-        })
+    future::join(meminfo, vm_stat()).then(|result| match result {
+        (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
+        (Err(e), _) => future::err(e.into()),
+        (_, Err(e)) => future::err(e),
+    })
 }

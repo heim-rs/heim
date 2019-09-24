@@ -1,5 +1,5 @@
-mod partitions;
 mod counters;
+mod partitions;
 
-pub use self::partitions::*;
 pub use self::counters::*;
+pub use self::partitions::*;

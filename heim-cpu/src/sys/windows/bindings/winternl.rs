@@ -1,9 +1,9 @@
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
 
-use std::ptr;
 use std::mem;
+use std::ptr;
 
-use winapi::shared::{ntdef, minwindef, ntstatus};
+use winapi::shared::{minwindef, ntdef, ntstatus};
 
 use heim_common::prelude::*;
 use heim_common::sys::windows as ntdll;
@@ -117,7 +117,6 @@ pub struct SYSTEM_INTERRUPT_INFORMATION {
     pub ApcBypassCount: minwindef::ULONG,
 }
 
-
 pub trait SystemInformation: Sized {
     fn class() -> ntdll::SYSTEM_INFORMATION_CLASS;
 }
@@ -141,7 +140,10 @@ impl SystemInformation for SYSTEM_INTERRUPT_INFORMATION {
 }
 
 // Safe wrapper around the `NtQuerySystemInformation`
-pub fn query_system_information<T>() -> Result<Vec<T>> where T: SystemInformation {
+pub fn query_system_information<T>() -> Result<Vec<T>>
+where
+    T: SystemInformation,
+{
     let info = unsafe { get_system_info() };
     let proc_amount = info.dwNumberOfProcessors as usize;
     if proc_amount == 0 {
@@ -159,7 +161,7 @@ pub fn query_system_information<T>() -> Result<Vec<T>> where T: SystemInformatio
             ptr::null_mut(),
         )?;
         if result != ntstatus::STATUS_SUCCESS {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
         info.set_len(proc_amount);
     };

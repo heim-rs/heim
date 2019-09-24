@@ -4,11 +4,11 @@ use heim_common::prelude::{BoxFuture, BoxStream};
 
 use crate::ProcessResult;
 
-mod memory;
 mod io_counters;
+mod memory;
 
-pub use self::memory::MemoryExt;
 pub use self::io_counters::IoCounters;
+pub use self::memory::MemoryExt;
 
 /// Linux-specific extension to [Process]
 ///

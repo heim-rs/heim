@@ -1,14 +1,14 @@
+use std::convert::TryFrom;
 use std::io;
 use std::str::FromStr;
-use std::convert::TryFrom;
 
 use heim_common::prelude::*;
-use heim_common::units::{Time, time};
-use heim_common::utils::iter::{ParseIterator, TryIterator};
 use heim_common::sys::unix::CLOCK_TICKS;
+use heim_common::units::{time, Time};
+use heim_common::utils::iter::{ParseIterator, TryIterator};
 use heim_runtime::fs;
 
-use crate::{Pid, ProcessResult, ProcessError, Status};
+use crate::{Pid, ProcessError, ProcessResult, Status};
 
 impl TryFrom<char> for Status {
     type Error = Error;
@@ -26,7 +26,10 @@ impl TryFrom<char> for Status {
             'W' => Ok(Status::Waking),
             'P' => Ok(Status::Parked),
             'I' => Ok(Status::Idle),
-            other => Err(Error::incompatible(format!("Unknown process state {}", other))),
+            other => Err(Error::incompatible(format!(
+                "Unknown process state {}",
+                other
+            ))),
         }
     }
 }
@@ -121,9 +124,7 @@ pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
                 e.into()
             }
         })
-        .and_then(|contents| {
-            future::ready(Stat::from_str(&contents).map_err(Into::into))
-        })
+        .and_then(|contents| future::ready(Stat::from_str(&contents).map_err(Into::into)))
         .and_then(|mut stat| {
             heim_host::boot_time()
                 .map_err(Into::into)

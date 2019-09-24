@@ -1,14 +1,13 @@
 /// ## References
 ///
 /// https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/process.htm?ts=0,1346
-
 use std::slice;
 
-use heim_common::prelude::{Result, Error};
+use heim_common::prelude::{Error, Result};
 use heim_common::sys::windows as ntdll;
 
-use winapi::shared::{ntdef, minwindef, ntstatus};
 use ntapi::ntexapi;
+use winapi::shared::{minwindef, ntdef, ntstatus};
 
 #[derive(Debug)]
 pub struct NtProcesses {
@@ -32,29 +31,23 @@ impl NtProcesses {
 
             match result {
                 ntstatus::STATUS_SUCCESS => {
-                    unsafe {
-                        data.set_len(needed_size as usize)
-                    };
+                    unsafe { data.set_len(needed_size as usize) };
                     debug_assert!(data.capacity() >= data.len());
-                    break
-                },
+                    break;
+                }
                 ntstatus::STATUS_BUFFER_TOO_SMALL | ntstatus::STATUS_INFO_LENGTH_MISMATCH => {
                     data.reserve(needed_size as usize);
-                    continue
-                },
-                _ => return Err(Error::last_os_error())
+                    continue;
+                }
+                _ => return Err(Error::last_os_error()),
             }
         }
 
-        Ok(NtProcesses {
-            data,
-        })
+        Ok(NtProcesses { data })
     }
 
     pub fn iter(&self) -> NtProcessesIter {
-        NtProcessesIter {
-            data: &self.data,
-        }
+        NtProcessesIter { data: &self.data }
     }
 }
 
@@ -88,7 +81,7 @@ impl<'p> Iterator for NtProcessesIter<'p> {
         let threads = unsafe {
             slice::from_raw_parts(
                 (*process).Threads.as_ptr(),
-                (*process).NumberOfThreads as usize
+                (*process).NumberOfThreads as usize,
             )
         };
 

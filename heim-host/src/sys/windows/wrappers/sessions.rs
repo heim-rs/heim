@@ -1,8 +1,8 @@
 use std::ptr;
 use std::slice;
 
-use winapi::um::winnt::PVOID;
 use winapi::shared::minwindef::DWORD;
+use winapi::um::winnt::PVOID;
 
 use heim_common::prelude::*;
 
@@ -36,9 +36,7 @@ impl<'s> Sessions<'s> {
         if result == 0 {
             Err(Error::last_os_error())
         } else {
-            let sessions = unsafe {
-                slice::from_raw_parts_mut(info, count as usize)
-            };
+            let sessions = unsafe { slice::from_raw_parts_mut(info, count as usize) };
 
             Ok(Sessions {
                 info: sessions,
@@ -70,7 +68,9 @@ impl<'s> Iterator for Sessions<'s> {
     #[allow(trivial_casts)]
     fn next(&mut self) -> Option<Self::Item> {
         if self.current < self.count {
-            let session = self.info.get(self.current as usize)
+            let session = self
+                .info
+                .get(self.current as usize)
                 .expect("Invalid session index");
             self.current += 1;
 

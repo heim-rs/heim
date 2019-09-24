@@ -1,10 +1,10 @@
-use std::io;
-use std::ffi::{OsString, OsStr};
-use std::os::unix::ffi::{OsStringExt, OsStrExt};
 use std::convert::TryInto;
+use std::ffi::{OsStr, OsString};
+use std::io;
+use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
-use crate::Pid;
 use crate::sys::macos::bindings;
+use crate::Pid;
 
 /// Somewhat idiomatic wrapper for the data returned by a `KERN_PROCARGS2` syscall.
 ///
@@ -51,15 +51,19 @@ impl ProcArgs {
         // after the `exe_end` index there might be some more null bytes (1+),
         // we should skip them too and make this value absolute
         // (meaning it would start from the zero index of `self.0`
-        let start = self.0.iter()
+        let start = self
+            .0
+            .iter()
             .skip(exe_end)
             .position(|byte| *byte != b'\0')
-            .unwrap_or(0) + exe_end;
+            .unwrap_or(0)
+            + exe_end;
 
         // end index should be absolute too and also exclude the trailing `\0`
         let end = memchr::memchr_iter(b'\0', &self.0[start..])
             .nth(argc - 1)
-            .unwrap_or(0) + start;
+            .unwrap_or(0)
+            + start;
 
         // Converting from relative to absolute offsets
         (start, end)
@@ -101,7 +105,7 @@ impl<'a> Iterator for ProcArgsArguments<'a> {
                 self.data = &self.data[(end + 1)..];
 
                 Some(arg)
-            },
+            }
             None => {
                 // End of the arguments, popping up the last one
                 Some(&self.data)
@@ -152,7 +156,10 @@ executable_file=0x1000003,0xb66dc\0dyld_file=0x1000003,0x62a1e\0\0\0\0\0\0\0\0";
     fn test_proc_args_to_command() {
         let proc = ProcArgs(Vec::from(EXAMPLE));
 
-        assert_eq!(OsStr::from_bytes(b"./process_current -a -b --co=2"), &proc.to_command());
+        assert_eq!(
+            OsStr::from_bytes(b"./process_current -a -b --co=2"),
+            &proc.to_command()
+        );
     }
 
     #[test]
@@ -172,6 +179,5 @@ executable_file=0x1000003,0xb66dc\0dyld_file=0x1000003,0x62a1e\0\0\0\0\0\0\0\0";
         assert_eq!(Some(&b"-b"[..]), args.next());
         assert_eq!(Some(&b"--co=2"[..]), args.next());
         assert_eq!(None, args.next());
-
     }
 }

@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::units::{Information, information};
+use heim_common::units::{information, Information};
 
 use super::{bindings, PAGE_SIZE};
 
@@ -52,23 +52,20 @@ pub fn memory() -> impl Future<Output = Result<Memory>> {
 
         let total = Information::new::<information::byte>(total);
         let available = Information::new::<information::byte>(
-            u64::from(vm_stats.active_count + vm_stats.free_count) * page_size
+            u64::from(vm_stats.active_count + vm_stats.free_count) * page_size,
         );
         let free = Information::new::<information::byte>(
-            u64::from(vm_stats.free_count - vm_stats.speculative_count) * page_size
+            u64::from(vm_stats.free_count - vm_stats.speculative_count) * page_size,
         );
         let used = Information::new::<information::byte>(
-            u64::from(vm_stats.active_count + vm_stats.wire_count) * page_size
+            u64::from(vm_stats.active_count + vm_stats.wire_count) * page_size,
         );
-        let active = Information::new::<information::byte>(
-            u64::from(vm_stats.active_count) * page_size
-        );
-        let inactive = Information::new::<information::byte>(
-            u64::from(vm_stats.inactive_count) * page_size
-        );
-        let wire = Information::new::<information::byte>(
-            u64::from(vm_stats.wire_count) * page_size
-        );
+        let active =
+            Information::new::<information::byte>(u64::from(vm_stats.active_count) * page_size);
+        let inactive =
+            Information::new::<information::byte>(u64::from(vm_stats.inactive_count) * page_size);
+        let wire =
+            Information::new::<information::byte>(u64::from(vm_stats.wire_count) * page_size);
 
         Ok(Memory {
             total,

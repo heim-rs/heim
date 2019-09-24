@@ -1,11 +1,11 @@
 mod command;
 mod cpu_times;
+mod io;
 mod stat;
 mod statm;
-mod io;
 
-pub use self::command::{Command, CommandIter, command};
-pub use self::stat::{stat, Stat};
+pub use self::command::{command, Command, CommandIter};
 pub use self::cpu_times::CpuTime;
-pub use self::statm::{stat_memory, Memory};
 pub use self::io::io;
+pub use self::stat::{stat, Stat};
+pub use self::statm::{stat_memory, Memory};

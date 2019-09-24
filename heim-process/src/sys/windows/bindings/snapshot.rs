@@ -1,8 +1,8 @@
 use std::io;
 use std::mem;
 
-use winapi::um::{tlhelp32, handleapi, winnt};
-use winapi::shared::{winerror, minwindef};
+use winapi::shared::{minwindef, winerror};
+use winapi::um::{handleapi, tlhelp32, winnt};
 
 use heim_common::prelude::*;
 
@@ -14,12 +14,7 @@ pub struct Snapshot {
 
 impl Snapshot {
     pub fn new() -> Result<Snapshot> {
-        let handle = unsafe {
-            tlhelp32::CreateToolhelp32Snapshot(
-                tlhelp32::TH32CS_SNAPPROCESS,
-                0,
-            )
-        };
+        let handle = unsafe { tlhelp32::CreateToolhelp32Snapshot(tlhelp32::TH32CS_SNAPPROCESS, 0) };
         if handle == handleapi::INVALID_HANDLE_VALUE {
             Err(Error::last_os_error())
         } else {
@@ -33,9 +28,7 @@ impl Snapshot {
 
 impl Drop for Snapshot {
     fn drop(&mut self) {
-        let result = unsafe {
-            handleapi::CloseHandle(self.handle)
-        };
+        let result = unsafe { handleapi::CloseHandle(self.handle) };
         debug_assert!(result != 0);
     }
 }
@@ -53,25 +46,19 @@ impl Iterator for Snapshot {
         let result = if self.first {
             self.first = false;
 
-            unsafe {
-                tlhelp32::Process32FirstW(self.handle, entry.as_mut_ptr())
-            }
+            unsafe { tlhelp32::Process32FirstW(self.handle, entry.as_mut_ptr()) }
         } else {
-            unsafe {
-                tlhelp32::Process32NextW(self.handle, entry.as_mut_ptr())
-            }
+            unsafe { tlhelp32::Process32NextW(self.handle, entry.as_mut_ptr()) }
         };
 
         if result == 1 {
-            let entry = unsafe {
-                entry.assume_init()
-            };
+            let entry = unsafe { entry.assume_init() };
             Some(Ok(entry))
         } else {
             let e = io::Error::last_os_error();
             match e.raw_os_error() {
                 Some(code) if code as u32 == winerror::ERROR_NO_MORE_FILES => None,
-                _ => Some(Err(e.into()))
+                _ => Some(Err(e.into())),
             }
         }
     }

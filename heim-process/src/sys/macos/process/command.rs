@@ -1,10 +1,10 @@
-use std::ffi::{OsString, OsStr};
+use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt;
 
 use heim_common::prelude::*;
 
-use crate::{Pid, ProcessResult, ProcessError};
-use crate::sys::macos::{wrappers, pid_exists};
+use crate::sys::macos::{pid_exists, wrappers};
+use crate::{Pid, ProcessError, ProcessResult};
 
 #[derive(Debug)]
 pub struct Command(wrappers::ProcArgs);
@@ -41,17 +41,14 @@ impl<'a> Iterator for CommandIter<'a> {
 }
 
 pub fn command(pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
-    future::lazy(move |_| {
-        wrappers::ProcArgs::get(pid)
-    })
-    .map_ok(Command)
-    .or_else(move |e| {
-        // TODO: Will look better with `async_await`
-        match e.raw_os_error() {
-            // `KERN_PROCARGS2` syscall might return `EINVAL` in case of zombie process
-            Some(libc::EINVAL) => {
-                let f = pid_exists(pid)
-                    .and_then(move |is_exists| {
+    future::lazy(move |_| wrappers::ProcArgs::get(pid))
+        .map_ok(Command)
+        .or_else(move |e| {
+            // TODO: Will look better with `async_await`
+            match e.raw_os_error() {
+                // `KERN_PROCARGS2` syscall might return `EINVAL` in case of zombie process
+                Some(libc::EINVAL) => {
+                    let f = pid_exists(pid).and_then(move |is_exists| {
                         if is_exists {
                             future::err(ProcessError::ZombieProcess(pid))
                         } else {
@@ -59,13 +56,13 @@ pub fn command(pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
                         }
                     });
 
-                future::Either::Left(f)
-            },
-            _ => {
-                let f = future::err(e.into());
+                    future::Either::Left(f)
+                }
+                _ => {
+                    let f = future::err(e.into());
 
-                future::Either::Right(f)
-            },
-        }
-    })
+                    future::Either::Right(f)
+                }
+            }
+        })
 }

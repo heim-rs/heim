@@ -1,11 +1,11 @@
+use std::ffi::CString;
+use std::fmt;
 use std::io;
 use std::mem;
-use std::fmt;
-use std::ffi::CString;
 use std::path::Path;
 
 use heim_common::prelude::*;
-use heim_common::units::{Information, Ratio, information, ratio};
+use heim_common::units::{information, ratio, Information, Ratio};
 
 use crate::os::unix::Flags;
 
@@ -52,28 +52,25 @@ impl Usage {
 // TODO: Stub
 impl fmt::Debug for Usage {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Usage")
-            .finish()
+        f.debug_struct("Usage").finish()
     }
 }
 
-pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output=Result<Usage>> {
+pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output = Result<Usage>> {
     future::lazy(move |_| {
-        let path = path.as_ref().to_str()
+        let path = path
+            .as_ref()
+            .to_str()
             .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidInput))
             .and_then(|string| {
                 CString::new(string).map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))
             })?;
 
         let mut vfs = mem::MaybeUninit::<libc::statvfs>::uninit();
-        let result = unsafe {
-            libc::statvfs(path.as_ptr(), vfs.as_mut_ptr())
-        };
+        let result = unsafe { libc::statvfs(path.as_ptr(), vfs.as_mut_ptr()) };
 
         if result == 0 {
-            let vfs = unsafe {
-                vfs.assume_init()
-            };
+            let vfs = unsafe { vfs.assume_init() };
             Ok(Usage(vfs))
         } else {
             Err(Error::last_os_error())

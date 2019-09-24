@@ -1,6 +1,6 @@
+use std::ffi::CStr;
 use std::mem;
 use std::str::FromStr;
-use std::ffi::CStr;
 
 use heim_common::prelude::*;
 
@@ -51,13 +51,20 @@ pub fn platform() -> impl Future<Output = Result<Platform>> {
             let arch = Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown);
 
             Ok(Platform {
-                system: CStr::from_ptr(uts.sysname.as_ptr()).to_string_lossy().into_owned(),
-                release: CStr::from_ptr(uts.release.as_ptr()).to_string_lossy().into_owned(),
-                version: CStr::from_ptr(uts.version.as_ptr()).to_string_lossy().into_owned(),
-                hostname: CStr::from_ptr(uts.nodename.as_ptr()).to_string_lossy().into_owned(),
+                system: CStr::from_ptr(uts.sysname.as_ptr())
+                    .to_string_lossy()
+                    .into_owned(),
+                release: CStr::from_ptr(uts.release.as_ptr())
+                    .to_string_lossy()
+                    .into_owned(),
+                version: CStr::from_ptr(uts.version.as_ptr())
+                    .to_string_lossy()
+                    .into_owned(),
+                hostname: CStr::from_ptr(uts.nodename.as_ptr())
+                    .to_string_lossy()
+                    .into_owned(),
                 arch,
             })
-
         }
     })
 }

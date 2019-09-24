@@ -1,9 +1,9 @@
-use std::str::FromStr;
 use std::ffi::{CString, OsStr};
+use std::str::FromStr;
 
 use heim_common::prelude::*;
+use heim_common::units::{information, time, Information, Time};
 use heim_common::utils::iter::*;
-use heim_common::units::{Information, Time, information, time};
 use heim_runtime::fs;
 
 // Copied from the `psutil` sources:
@@ -19,7 +19,6 @@ use heim_runtime::fs;
 // * https://github.com/torvalds/linux/blob/4f671fe2f9523a1ea206f63fe60a7c7b3a56d5c7/include/linux/bio.h#L99
 // * https://lkml.org/lkml/2015/8/17/234
 const DISK_SECTOR_SIZE: u64 = 512;
-
 
 #[derive(Debug, Default, heim_derive::Getter)]
 pub struct IoCounters {
@@ -41,20 +40,17 @@ impl IoCounters {
 
     // Based on the sysstat code:
     // https://github.com/sysstat/sysstat/blob/1c711c1fd03ac638cfc1b25cdf700625c173fd2c/common.c#L200
-    fn is_storage_device(&self) -> impl Future<Output=bool> {
+    fn is_storage_device(&self) -> impl Future<Output = bool> {
         let path = CString::new(format!("/sys/block/{}", self.name.replace("/", "!")))
             // FIXME: propagate error
             .expect("Malformed device path");
 
         future::lazy(move |_| {
-            let result = unsafe {
-                libc::access(path.as_ptr(), libc::F_OK)
-            };
+            let result = unsafe { libc::access(path.as_ptr(), libc::F_OK) };
 
             result == 0
         })
     }
-
 }
 
 impl FromStr for IoCounters {
@@ -71,15 +67,18 @@ impl FromStr for IoCounters {
         let name: String = parts.try_from_next()?;
         let read_count = parts.try_parse_next()?;
         let read_merged_count = parts.try_parse_next()?;
-        let read_bytes = parts.try_parse_next()
+        let read_bytes = parts
+            .try_parse_next()
             .map(|bytes: u64| Information::new::<information::byte>(bytes * DISK_SECTOR_SIZE))?;
         let mut parts = parts.skip(1);
         let write_count = parts.try_parse_next()?;
         let write_merged_count = parts.try_parse_next()?;
-        let write_bytes = parts.try_parse_next()
+        let write_bytes = parts
+            .try_parse_next()
             .map(|bytes: u64| Information::new::<information::byte>(bytes * DISK_SECTOR_SIZE))?;
         let mut parts = parts.skip(2);
-        let busy_time = parts.try_parse_next()
+        let busy_time = parts
+            .try_parse_next()
             .map(|seconds: u64| Time::new::<time::second>(seconds as f64))?;
 
         Ok(IoCounters {
@@ -95,19 +94,13 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item=Result<IoCounters>> {
-    fs::read_lines_into("/proc/diskstats")
-        .into_stream()
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+    fs::read_lines_into("/proc/diskstats").into_stream()
 }
 
-pub fn io_counters_physical() -> impl Stream<Item=Result<IoCounters>> {
+pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
     io_counters()
-        .and_then(|device| {
-            device.is_storage_device()
-                .map(|flag| {
-                    Ok((flag, device))
-                })
-        })
+        .and_then(|device| device.is_storage_device().map(|flag| Ok((flag, device))))
         .try_filter(|(is_storage_device, _)| future::ready(*is_storage_device))
         .map_ok(|(_, device)| device)
 }

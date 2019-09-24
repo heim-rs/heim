@@ -1,15 +1,15 @@
-use std::mem;
 use std::convert::AsRef;
+use std::mem;
 
-use mach::kern_return;
+use core_foundation::base::kCFAllocatorDefault;
 use core_foundation::base::{CFType, TCFType};
 use core_foundation::dictionary::CFMutableDictionaryRef;
-use core_foundation::string::CFString;
-use core_foundation::base::kCFAllocatorDefault;
 use core_foundation::dictionary::{CFDictionary, CFMutableDictionary};
+use core_foundation::string::CFString;
+use mach::kern_return;
 
-use crate::{Result, Error};
 use super::ffi;
+use crate::{Error, Result};
 
 /// Safe wrapper around the IOKit `io_object_t` type.
 #[derive(Debug)]
@@ -25,7 +25,7 @@ impl IoObject {
                 self.0,
                 props.as_mut_ptr(),
                 kCFAllocatorDefault,
-                0
+                0,
             );
             if result != kern_return::KERN_SUCCESS {
                 Err(Error::last_os_error())
@@ -44,16 +44,14 @@ impl IoObject {
             ffi::IORegistryEntryGetParentEntry(
                 self.0,
                 plane.as_ref().as_ptr() as *const libc::c_char,
-                parent.as_mut_ptr()
+                parent.as_mut_ptr(),
             )
         };
 
         if result != kern_return::KERN_SUCCESS {
             Err(Error::last_os_error())
         } else {
-            let parent = unsafe {
-                parent.assume_init()
-            };
+            let parent = unsafe { parent.assume_init() };
             Ok(parent.into())
         }
     }
@@ -61,12 +59,8 @@ impl IoObject {
     /// `class_name` should look like `b"IOBlockStorageDriver\0"` --
     /// a binary string with a trailing `0x00` char
     pub fn conforms_to(&self, class_name: &[u8]) -> bool {
-        let result = unsafe {
-            ffi::IOObjectConformsTo(
-                self.0,
-                class_name.as_ptr() as *const libc::c_char
-            )
-        };
+        let result =
+            unsafe { ffi::IOObjectConformsTo(self.0, class_name.as_ptr() as *const libc::c_char) };
 
         result != 0
     }
@@ -80,9 +74,7 @@ impl From<ffi::io_object_t> for IoObject {
 
 impl Drop for IoObject {
     fn drop(&mut self) {
-        let result = unsafe {
-            ffi::IOObjectRelease(self.0)
-        };
+        let result = unsafe { ffi::IOObjectRelease(self.0) };
         assert_eq!(result, kern_return::KERN_SUCCESS);
     }
 }

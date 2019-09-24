@@ -1,4 +1,4 @@
-use std::ffi::{OsString, OsStr};
+use std::ffi::{OsStr, OsString};
 
 use heim_common::prelude::*;
 
@@ -42,5 +42,5 @@ impl<'a> Iterator for CommandIter<'a> {
 }
 
 pub fn command(_pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
-    future::ok(Command{})
+    future::ok(Command {})
 }

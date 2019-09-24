@@ -23,17 +23,15 @@ fn detect_wsl<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
 where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
-    fs::read_first_line(path)
-        .map_err(|_| ())
-        .and_then(|line| {
-            let result = match line {
-                ref probe if probe.contains("Microsoft") => Ok(Virtualization::Wsl),
-                ref probe if probe.contains("WSL") => Ok(Virtualization::Wsl),
-                _ => Err(()),
-            };
+    fs::read_first_line(path).map_err(|_| ()).and_then(|line| {
+        let result = match line {
+            ref probe if probe.contains("Microsoft") => Ok(Virtualization::Wsl),
+            ref probe if probe.contains("WSL") => Ok(Virtualization::Wsl),
+            _ => Err(()),
+        };
 
-            future::ready(result)
-        })
+        future::ready(result)
+    })
 }
 
 fn detect_systemd_container<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
@@ -74,29 +72,31 @@ fn detect_openvz() -> impl Future<Output = Result<Virtualization, ()>> {
     let f1 = fs::path_exists("/proc/vz");
     let f2 = fs::path_exists("/proc/bc");
 
-    future::join(f1, f2)
-        .map(|result| {
-            match result {
-                // `/proc/vz` exists in container and outside of the container,
-                // `/proc/bc` only outside of the container.
-                (true, false) => Ok(Virtualization::OpenVz),
-                _ => Err(())
-            }
-        })
+    future::join(f1, f2).map(|result| {
+        match result {
+            // `/proc/vz` exists in container and outside of the container,
+            // `/proc/bc` only outside of the container.
+            (true, false) => Ok(Virtualization::OpenVz),
+            _ => Err(()),
+        }
+    })
 }
 
 fn detect_init_env<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
-where T: AsRef<Path> + Send + Unpin + 'static {
+where
+    T: AsRef<Path> + Send + Unpin + 'static,
+{
     fs::read_to_string(path)
         .map_err(|_| ())
         .and_then(|contents| {
-            let matched = contents.split('\0')
+            let matched = contents
+                .split('\0')
                 .filter_map(|var| {
                     let mut parts = var.split('=');
                     // TODO: Should not it be a case-insensitive comparision?
                     if let Some("container") = parts.next() {
                         if let Some(value) = parts.next() {
-                            return try_guess_container(value).ok()
+                            return try_guess_container(value).ok();
                         }
                     }
 
@@ -106,7 +106,7 @@ where T: AsRef<Path> + Send + Unpin + 'static {
 
             match matched {
                 Some(virt) => future::ok(virt),
-                None => future::err(())
+                None => future::err(()),
             }
         })
 }
@@ -123,7 +123,7 @@ pub fn detect_container() -> impl Future<Output = Result<Virtualization, ()>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{detect_wsl, detect_init_env};
+    use super::{detect_init_env, detect_wsl};
     use std::io::Write;
 
     use crate::Virtualization;
@@ -131,7 +131,8 @@ mod tests {
     #[heim_derive::test]
     async fn test_wsl_1() {
         let mut f = tempfile::NamedTempFile::new().unwrap();
-        f.write_all(b"Microsoft Windows Subsystem for Linux").unwrap();
+        f.write_all(b"Microsoft Windows Subsystem for Linux")
+            .unwrap();
         let res = detect_wsl(f).await;
 
         assert_eq!(res, Ok(Virtualization::Wsl));

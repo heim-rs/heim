@@ -1,8 +1,8 @@
 use heim_common::prelude::{future, Future, Stream, TryStreamExt};
 use heim_runtime::fs;
 
-use crate::{Pid, ProcessError};
 use crate::sys::unix;
+use crate::{Pid, ProcessError};
 
 pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
     fs::read_dir("/proc")

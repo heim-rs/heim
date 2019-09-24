@@ -1,11 +1,11 @@
 use heim_common::prelude::*;
-use heim_common::units::{Time, time};
+use heim_common::units::{time, Time};
 
 use mach::mach_time;
 
 use super::TIME_BASE;
 
-pub fn uptime() -> impl Future<Output=Result<Time>> {
+pub fn uptime() -> impl Future<Output = Result<Time>> {
     // TODO: Possible value truncation
     let abs_time = unsafe { mach_time::mach_absolute_time() } as f64;
 

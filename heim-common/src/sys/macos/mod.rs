@@ -2,13 +2,13 @@
 
 #![allow(non_camel_case_types)]
 
-use mach::mach_types::{host_t, host_name_port_t};
-use mach::vm_types::integer_t;
 use mach::kern_return::kern_return_t;
+use mach::mach_types::{host_name_port_t, host_t};
 use mach::message::mach_msg_type_number_t;
+use mach::vm_types::integer_t;
 
 use super::IntoTime;
-use crate::units::{Time, time};
+use crate::units::{time, Time};
 
 pub mod iokit;
 
@@ -28,7 +28,7 @@ extern "C" {
         host_priv: host_t,
         flavor: host_flavor_t,
         host_info_out: host_info_t,
-        host_info_outCnt: *const mach_msg_type_number_t
+        host_info_outCnt: *const mach_msg_type_number_t,
     ) -> kern_return_t;
 
     /// https://developer.apple.com/documentation/kernel/1502863-host_statistics64?language=objc
@@ -42,8 +42,7 @@ extern "C" {
 
 impl IntoTime for libc::timeval {
     fn into_time(self) -> Time {
-        Time::new::<time::second>(self.tv_sec as f64) +
-            Time::new::<time::microsecond>(f64::from(self.tv_usec))
+        Time::new::<time::second>(self.tv_sec as f64)
+            + Time::new::<time::microsecond>(f64::from(self.tv_usec))
     }
-
 }

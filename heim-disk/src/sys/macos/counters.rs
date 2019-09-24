@@ -1,8 +1,8 @@
 use std::ffi::OsStr;
 
 use heim_common::prelude::*;
-use heim_common::units::{Time, Information, time, information};
 use heim_common::sys::macos::iokit::{self, DictionaryProps};
+use heim_common::units::{information, time, Information, Time};
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -94,12 +94,8 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
             },
         }
     })
-
 }
 
 pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
-    io_counters()
-        .try_filter(|counter| {
-            future::ready(!counter.removable)
-        })
+    io_counters().try_filter(|counter| future::ready(!counter.removable))
 }

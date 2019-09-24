@@ -7,6 +7,6 @@ use crate::{sys, CpuFrequency};
 /// Order of the stream is constant.
 ///
 /// [CPU frequencies]: ../../struct.CpuFrequency.html
-pub fn frequencies() -> impl Stream<Item=Result<CpuFrequency>> {
+pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
     sys::frequencies().map_ok(Into::into)
 }

@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
-use heim_common::units::{Time, time};
+use heim_common::units::{time, Time};
 
 use super::bindings;
 
@@ -65,9 +65,7 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
 
 pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     future::lazy(|_| {
-        let processors = unsafe {
-            bindings::processor_load_info()?
-        };
+        let processors = unsafe { bindings::processor_load_info()? };
 
         let stream = stream::iter(processors).map(Ok);
 

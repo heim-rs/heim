@@ -1,8 +1,7 @@
 //! Linux-specific extensions
 
 /// Reference: https://gitlab.com/procps-ng/procps/blob/master/proc/sysinfo.c
-
-use heim_common::units::{Information, information};
+use heim_common::units::{information, Information};
 
 use crate::Memory;
 

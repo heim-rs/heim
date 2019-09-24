@@ -1,6 +1,6 @@
+mod bindings;
 mod memory;
 mod swap;
-mod bindings;
 
 lazy_static::lazy_static! {
     static ref PAGE_SIZE: u64 = {

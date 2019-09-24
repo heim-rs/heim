@@ -1,5 +1,5 @@
 use heim_common::prelude::*;
-use heim_common::units::{Frequency, frequency};
+use heim_common::units::{frequency, Frequency};
 
 use super::bindings;
 

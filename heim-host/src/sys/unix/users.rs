@@ -1,3 +1,4 @@
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 /// While utmp handling routines are all the same,
 /// `utmpx` struct varies from platform to platform.
 ///
@@ -15,9 +16,7 @@
 ///
 /// See also:
 ///  * https://github.com/libyal/dtformats/blob/master/documentation/Utmp%20login%20records%20format.asciidoc
-
 use std::ptr;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 pub fn get_users<T: From<libc::utmpx>>() -> Vec<T> {
     // TODO: Should we try to guess the capacity?
@@ -27,7 +26,7 @@ pub fn get_users<T: From<libc::utmpx>>() -> Vec<T> {
         loop {
             let entry = libc::getutxent();
             if entry.is_null() {
-                break
+                break;
             }
 
             if (*entry).ut_type != libc::USER_PROCESS {
@@ -46,17 +45,11 @@ pub fn get_users<T: From<libc::utmpx>>() -> Vec<T> {
 pub(crate) fn from_ut_addr_v6(addr: &[i32; 4]) -> Option<IpAddr> {
     match addr {
         [0, 0, 0, 0] => None,
-        [octet, 0, 0, 0] => {
-            Some(Ipv4Addr::from(*octet as u32).into())
-        },
+        [octet, 0, 0, 0] => Some(Ipv4Addr::from(*octet as u32).into()),
         octets => {
             let mut raw_ip: u128 = 0;
             unsafe {
-                ptr::copy_nonoverlapping(
-                    octets.as_ptr(),
-                    &mut raw_ip as *mut u128 as *mut i32,
-                    16
-                );
+                ptr::copy_nonoverlapping(octets.as_ptr(), &mut raw_ip as *mut u128 as *mut i32, 16);
             }
             Some(Ipv6Addr::from(raw_ip).into())
         }

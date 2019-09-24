@@ -22,7 +22,6 @@ unsafe fn timebase_info() -> io::Result<mach_time::mach_timebase_info> {
     }
 }
 
-
 lazy_static::lazy_static! {
     // Calling `mach_timebase_info` is not cheap, so we should cache it.
     // https://github.com/joyent/libuv/pull/1325

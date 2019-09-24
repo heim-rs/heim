@@ -26,7 +26,9 @@ impl WtsInfo {
     fn from_wide(chars: &[WCHAR]) -> String {
         // TODO: Use `memchr` crate if possible?
         let first_null = chars.iter().position(|c| *c == 0x00).unwrap_or(0);
-        OsString::from_wide(&chars[..first_null]).to_string_lossy().to_string()
+        OsString::from_wide(&chars[..first_null])
+            .to_string_lossy()
+            .to_string()
     }
 }
 
@@ -54,7 +56,9 @@ impl fmt::Debug for WtsInfo {
             .field("Domain", &self.0.Domain)
             .field("UserName", &self.0.UserName)
             .field("ConnectTime", unsafe { &self.0.ConnectTime.QuadPart() })
-            .field("DisconnectTime", unsafe { &self.0.DisconnectTime.QuadPart() })
+            .field("DisconnectTime", unsafe {
+                &self.0.DisconnectTime.QuadPart()
+            })
             .field("LastInputTime", unsafe { &self.0.LastInputTime.QuadPart() })
             .field("LogonTime", unsafe { &self.0.LogonTime.QuadPart() })
             .field("CurrentTime", unsafe { &self.0.CurrentTime.QuadPart() })

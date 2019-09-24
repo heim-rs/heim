@@ -1,4 +1,4 @@
-use heim_common::units::{Information, information};
+use heim_common::units::{information, Information};
 
 #[derive(Debug)]
 pub struct Memory {

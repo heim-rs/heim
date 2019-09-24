@@ -1,11 +1,11 @@
+use std::ffi::{CStr, OsString};
+use std::fmt;
 use std::io;
 use std::mem;
-use std::fmt;
-use std::ffi::{OsString, CStr};
 use std::os::windows::ffi::OsStringExt;
 
-use winapi::um::{sysinfoapi, winnt, libloaderapi, winbase};
-use winapi::shared::{ntdef, ntstatus, minwindef};
+use winapi::shared::{minwindef, ntdef, ntstatus};
+use winapi::um::{libloaderapi, sysinfoapi, winbase, winnt};
 
 use heim_common::prelude::*;
 use heim_common::sys::windows::get_ntdll;
@@ -26,9 +26,7 @@ struct SystemInfo {
 
 impl From<sysinfoapi::SYSTEM_INFO> for SystemInfo {
     fn from(info: sysinfoapi::SYSTEM_INFO) -> SystemInfo {
-        let s = unsafe {
-            info.u.s()
-        };
+        let s = unsafe { info.u.s() };
 
         SystemInfo {
             processor_arch: s.wProcessorArchitecture,
@@ -115,7 +113,7 @@ impl fmt::Debug for Platform {
     }
 }
 
-unsafe fn get_native_system_info() -> impl Future<Output=Result<SystemInfo>> {
+unsafe fn get_native_system_info() -> impl Future<Output = Result<SystemInfo>> {
     let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
     sysinfoapi::GetNativeSystemInfo(info.as_mut_ptr());
     let info = info.assume_init();
@@ -123,7 +121,7 @@ unsafe fn get_native_system_info() -> impl Future<Output=Result<SystemInfo>> {
     future::ok(info.into())
 }
 
-unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW>> {
+unsafe fn rtl_get_version() -> impl Future<Output = Result<winnt::OSVERSIONINFOEXW>> {
     // Based on the `platform-info` crate source:
     // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
     let module = match get_ntdll() {
@@ -134,11 +132,12 @@ unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW
     let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
     let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());
     if !func.is_null() {
-        let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW)
-            -> ntdef::NTSTATUS = mem::transmute(func as *const ());
+        let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW) -> ntdef::NTSTATUS =
+            mem::transmute(func as *const ());
 
         let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
-        (*osinfo.as_mut_ptr()).dwOSVersionInfoSize = mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
+        (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
+            mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
         if func(osinfo.as_mut_ptr()) == ntstatus::STATUS_SUCCESS {
             future::ok(osinfo.assume_init())
         } else {
@@ -150,7 +149,7 @@ unsafe fn rtl_get_version() -> impl Future<Output=Result<winnt::OSVERSIONINFOEXW
     }
 }
 
-unsafe fn get_computer_name() -> impl Future<Output=Result<String>> {
+unsafe fn get_computer_name() -> impl Future<Output = Result<String>> {
     let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
     let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
 
@@ -159,23 +158,22 @@ unsafe fn get_computer_name() -> impl Future<Output=Result<String>> {
         future::err(Error::last_os_error())
     } else {
         buffer.set_len(size as usize + 1);
-        let str = OsString::from_wide(&buffer[..(size as usize)]).to_string_lossy().to_string();
+        let str = OsString::from_wide(&buffer[..(size as usize)])
+            .to_string_lossy()
+            .to_string();
         future::ok(str)
     }
 }
 
-pub fn platform() -> impl Future<Output=Result<Platform>> {
+pub fn platform() -> impl Future<Output = Result<Platform>> {
     let sysinfo = unsafe { get_native_system_info() };
     let version = unsafe { rtl_get_version() };
     let hostname = unsafe { get_computer_name() };
 
-    future::try_join3(sysinfo, version, hostname)
-        .map_ok(|(sysinfo, version, hostname)| {
-            Platform {
-                sysinfo,
-                version,
-                hostname,
-                build: format!("{}", version.dwBuildNumber),
-            }
-        })
+    future::try_join3(sysinfo, version, hostname).map_ok(|(sysinfo, version, hostname)| Platform {
+        sysinfo,
+        version,
+        hostname,
+        build: format!("{}", version.dwBuildNumber),
+    })
 }

@@ -1,12 +1,12 @@
+use std::io::{Error, Result};
 use std::mem;
-use std::io::{Result, Error};
 
-use winapi::um::psapi;
 use winapi::shared::minwindef::DWORD;
+use winapi::um::psapi;
 
 pub mod handle;
-pub mod snapshot;
 pub mod processes;
+pub mod snapshot;
 
 pub use self::handle::ProcessHandle;
 
@@ -16,16 +16,11 @@ pub fn pids() -> Result<Vec<DWORD>> {
 
     loop {
         let cb = (processes.capacity() * mem::size_of::<DWORD>()) as DWORD;
-        let result = unsafe {
-            psapi::EnumProcesses(
-                processes.as_mut_ptr(),
-                cb,
-                &mut bytes_returned,
-            )
-        };
+        let result =
+            unsafe { psapi::EnumProcesses(processes.as_mut_ptr(), cb, &mut bytes_returned) };
 
         if result == 0 {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
 
         if cb == bytes_returned {

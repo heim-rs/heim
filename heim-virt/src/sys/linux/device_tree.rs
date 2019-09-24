@@ -14,7 +14,9 @@ const HYPERVISOR_COMPAT_PATH: &str = "/proc/device-tree/hypervisor/compatible";
 
 #[allow(unused)]
 fn hypervisor<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
-where T: AsRef<Path> + Send + Unpin + 'static{
+where
+    T: AsRef<Path> + Send + Unpin + 'static,
+{
     fs::read_lines(path)
         .into_stream() // TODO: Looks dumb
         .into_future()
@@ -28,7 +30,9 @@ where T: AsRef<Path> + Send + Unpin + 'static{
 
 #[allow(unused)]
 fn device_tree<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
-where T: AsRef<Path> + Send + Unpin + 'static {
+where
+    T: AsRef<Path> + Send + Unpin + 'static,
+{
     fs::read_dir(path)
         .try_filter(|entry| {
             let matched = match entry.file_name().to_str() {
@@ -103,5 +107,4 @@ mod tests {
 
         assert_eq!(Ok(Virtualization::Unknown), result);
     }
-
 }

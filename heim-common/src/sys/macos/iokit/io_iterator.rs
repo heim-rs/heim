@@ -33,17 +33,15 @@ impl Iterator for IoIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         match unsafe { ffi::IOIteratorNext(self.0) } {
-            0 => None,  // TODO: Should not there be some `NULL` instead of `0`?
-            io_object => Some(IoObject::from(io_object))
+            0 => None, // TODO: Should not there be some `NULL` instead of `0`?
+            io_object => Some(IoObject::from(io_object)),
         }
     }
 }
 
 impl Drop for IoIterator {
     fn drop(&mut self) {
-        let result = unsafe {
-            ffi::IOObjectRelease(self.0)
-        };
+        let result = unsafe { ffi::IOObjectRelease(self.0) };
         assert_eq!(result, kern_return::KERN_SUCCESS);
     }
 }

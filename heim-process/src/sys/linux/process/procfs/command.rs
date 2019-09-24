@@ -1,11 +1,11 @@
+use std::ffi::{OsStr, OsString};
 use std::io;
-use std::ffi::{OsString, OsStr};
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
 
-use crate::{Pid, ProcessResult, ProcessError};
+use crate::{Pid, ProcessError, ProcessResult};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Delimiter {
@@ -84,7 +84,10 @@ impl Command {
     }
 }
 
-impl<T> From<T> for Command where T: Into<OsString> {
+impl<T> From<T> for Command
+where
+    T: Into<OsString>,
+{
     fn from(os_string: T) -> Command {
         let os_string = os_string.into();
 
@@ -136,7 +139,7 @@ impl<'a> Iterator for CommandIter<'a> {
                 self.position += offset + 1;
 
                 Some(OsStr::from_bytes(slice))
-            },
+            }
             None => None,
         }
     }
@@ -156,7 +159,7 @@ pub fn command(pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
 
 #[cfg(test)]
 mod tests {
-    use std::ffi::{OsString, OsStr};
+    use std::ffi::{OsStr, OsString};
 
     use super::Command;
 

@@ -4,10 +4,7 @@ use std::ptr;
 
 #[allow(trivial_casts)]
 pub fn args_max() -> io::Result<libc::c_int> {
-    let mut name: [libc::c_int; 2] = [
-        libc::CTL_KERN,
-        libc::KERN_ARGMAX,
-    ];
+    let mut name: [libc::c_int; 2] = [libc::CTL_KERN, libc::KERN_ARGMAX];
     let mut value: libc::c_int = 0;
     let mut length = mem::size_of::<libc::c_int>();
 
@@ -38,11 +35,7 @@ pub fn proc_args(pid: libc::pid_t) -> io::Result<Vec<u8>> {
     }
 
     let mut args_max = args_max()? as usize;
-    let mut name: [libc::c_int; 3] = [
-        libc::CTL_KERN,
-        libc::KERN_PROCARGS2,
-        pid,
-    ];
+    let mut name: [libc::c_int; 3] = [libc::CTL_KERN, libc::KERN_PROCARGS2, pid];
     let mut value = Vec::with_capacity(args_max);
 
     let result = unsafe {

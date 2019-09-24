@@ -8,15 +8,15 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 
-use winapi::shared::minwindef::{BOOL, DWORD, BYTE};
-use winapi::um::winnt::{HANDLE, WCHAR, LPWSTR, PVOID, PSID, LARGE_INTEGER};
+use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
+use winapi::um::winnt::{HANDLE, LARGE_INTEGER, LPWSTR, PSID, PVOID, WCHAR};
 
 pub const WTS_CURRENT_SERVER_HANDLE: HANDLE = 0 as HANDLE;
 const USERNAME_LENGTH: usize = 20;
 const WINSTATIONNAME_LENGTH: usize = 32;
 const DOMAIN_LENGTH: usize = 17;
 
-ENUM!{enum WTS_CONNECTSTATE_CLASS {
+ENUM! {enum WTS_CONNECTSTATE_CLASS {
     WTSActive,
     WTSConnected,
     WTSConnectQuery,
@@ -29,7 +29,7 @@ ENUM!{enum WTS_CONNECTSTATE_CLASS {
     WTSInit,
 }}
 
-ENUM!{enum WTS_INFO_CLASS {
+ENUM! {enum WTS_INFO_CLASS {
     WTSInitialProgram,
     WTSApplicationName,
     WTSWorkingDirectory,
@@ -62,14 +62,14 @@ ENUM!{enum WTS_INFO_CLASS {
     WTSIsRemoteSession,
 }}
 
-STRUCT!{struct WTS_SESSION_INFOW {
+STRUCT! {struct WTS_SESSION_INFOW {
     SessionId: DWORD,
     pWinStationName: LPWSTR,
     State: WTS_CONNECTSTATE_CLASS,
 }}
 pub type PWTS_SESSION_INFOW = *mut WTS_SESSION_INFOW;
 
-STRUCT!{struct WTS_PROCESS_INFOW {
+STRUCT! {struct WTS_PROCESS_INFOW {
     SessionId: DWORD,
     ProcessId: DWORD,
     pProcessName: LPWSTR,
@@ -77,13 +77,13 @@ STRUCT!{struct WTS_PROCESS_INFOW {
 }}
 //pub type PWTS_PROCESS_INFOW = *mut WTS_PROCESS_INFOW;
 
-STRUCT!{struct WTS_CLIENT_ADDRESS {
+STRUCT! {struct WTS_CLIENT_ADDRESS {
     AddressFamily: DWORD,
     Address: [BYTE; 20],
 }}
 pub type PWTS_CLIENT_ADDRESS = *mut WTS_CLIENT_ADDRESS;
 
-STRUCT!{struct WTSINFOW {
+STRUCT! {struct WTSINFOW {
     State: WTS_CONNECTSTATE_CLASS,
     SessionId: DWORD,
     IncomingBytes: DWORD,
@@ -109,7 +109,7 @@ extern "system" {
         Reserved: DWORD,
         Version: DWORD,
         ppSessionInfo: *mut PWTS_SESSION_INFOW,
-        pCount: *mut DWORD
+        pCount: *mut DWORD,
     ) -> BOOL;
     pub fn WTSQuerySessionInformationW(
         hServer: HANDLE,
@@ -118,7 +118,5 @@ extern "system" {
         ppBuffer: *mut LPWSTR,
         pBytesReturned: *mut DWORD,
     ) -> BOOL;
-    pub fn WTSFreeMemory(
-        pMemory: PVOID
-    );
+    pub fn WTSFreeMemory(pMemory: PVOID);
 }

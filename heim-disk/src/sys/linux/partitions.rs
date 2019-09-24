@@ -1,8 +1,8 @@
 use std::collections::HashSet;
+use std::ffi::OsStr;
 use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::ffi::OsStr;
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
@@ -19,7 +19,9 @@ pub struct Partition {
 
 impl Partition {
     pub fn device(&self) -> Option<&OsStr> {
-        self.device.as_ref().map(|device| OsStr::new(device.as_str()))
+        self.device
+            .as_ref()
+            .map(|device| OsStr::new(device.as_str()))
     }
 
     pub fn mount_point(&self) -> &Path {
@@ -105,16 +107,11 @@ pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
         .try_collect::<HashSet<_>>()
         .map_ok(HashSet::from_iter)
         .map_ok(|fs: HashSet<FileSystem>| {
-            partitions()
-                .try_filter_map(move |part| match part {
-                    Partition {
-                        device: None, ..
-                    } => future::ok(None),
-                    Partition {
-                        ref fs_type, ..
-                    } if !fs.contains(fs_type) => future::ok(None),
-                    partition => future::ok(Some(partition)),
-                })
+            partitions().try_filter_map(move |part| match part {
+                Partition { device: None, .. } => future::ok(None),
+                Partition { ref fs_type, .. } if !fs.contains(fs_type) => future::ok(None),
+                partition => future::ok(Some(partition)),
+            })
         })
         .try_flatten_stream()
 }

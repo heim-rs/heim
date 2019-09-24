@@ -1,11 +1,11 @@
 use std::io;
-use std::ptr;
 use std::mem;
-use std::path::Path;
 use std::os::windows::ffi::OsStrExt;
+use std::path::Path;
+use std::ptr;
 
-use winapi::um::{winnt, winioctl, ioapiset, fileapi, handleapi};
 use winapi::shared::{minwindef, winerror};
+use winapi::um::{fileapi, handleapi, ioapiset, winioctl, winnt};
 
 use heim_common::prelude::*;
 
@@ -42,7 +42,7 @@ pub fn disk_performance(volume_path: &Path) -> Result<Option<winioctl::DISK_PERF
         )
     };
     if handle == handleapi::INVALID_HANDLE_VALUE {
-        return Err(Error::last_os_error())
+        return Err(Error::last_os_error());
     }
 
     let mut perf = winioctl::DISK_PERFORMANCE::default();
@@ -61,11 +61,9 @@ pub fn disk_performance(volume_path: &Path) -> Result<Option<winioctl::DISK_PERF
         )
     };
 
-    let handle_result = unsafe {
-        handleapi::CloseHandle(handle)
-    };
+    let handle_result = unsafe { handleapi::CloseHandle(handle) };
     if handle_result == 0 {
-        return Err(Error::last_os_error())
+        return Err(Error::last_os_error());
     }
 
     if result == 0 {

@@ -1,4 +1,4 @@
-use heim_common::units::{Time, time};
+use heim_common::units::{time, Time};
 
 #[derive(Debug)]
 pub struct CpuTime {

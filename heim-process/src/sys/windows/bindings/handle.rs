@@ -1,18 +1,18 @@
-use std::mem;
-use std::io::{Result, Error};
-use std::path::PathBuf;
 use std::ffi::OsString;
-use std::os::windows::ffi::OsStringExt;
+use std::io::{Error, Result};
 use std::marker::PhantomData;
+use std::mem;
+use std::os::windows::ffi::OsStringExt;
+use std::path::PathBuf;
 
-use winapi::um::{winnt, processthreadsapi, handleapi, winbase, psapi};
-use winapi::shared::{winerror, ntstatus};
-use winapi::shared::minwindef::{DWORD, MAX_PATH, FILETIME};
-use winapi::ctypes::wchar_t;
 use ntapi::ntpsapi;
+use winapi::ctypes::wchar_t;
+use winapi::shared::minwindef::{DWORD, FILETIME, MAX_PATH};
+use winapi::shared::{ntstatus, winerror};
+use winapi::um::{handleapi, processthreadsapi, psapi, winbase, winnt};
 
 use heim_common::sys::IntoTime;
-use heim_common::units::{Time, time};
+use heim_common::units::{time, Time};
 
 use super::super::process::CpuTime;
 use crate::Pid;
@@ -84,12 +84,7 @@ impl ProcessHandle<QueryLimitedInformation> {
         let mut size = MAX_PATH as DWORD;
 
         let result = unsafe {
-            winbase::QueryFullProcessImageNameW(
-                self.handle,
-                0,
-                buffer.as_mut_ptr(),
-                &mut size,
-            )
+            winbase::QueryFullProcessImageNameW(self.handle, 0, buffer.as_mut_ptr(), &mut size)
         };
 
         if result == 0 {
@@ -116,9 +111,7 @@ impl ProcessHandle<QueryLimitedInformation> {
         if result == 0 {
             Err(Error::last_os_error())
         } else {
-            unsafe {
-                Ok(counters.assume_init())
-            }
+            unsafe { Ok(counters.assume_init()) }
         }
     }
 
@@ -161,25 +154,14 @@ impl ProcessHandle<QueryLimitedInformation> {
         if result == 0 {
             Err(Error::last_os_error())
         } else {
-            Ok((
-                creation,
-                exit,
-                kernel,
-                user
-            ))
+            Ok((creation, exit, kernel, user))
         }
     }
 }
 
 impl ProcessHandle<Termination> {
     pub fn for_termination(pid: Pid) -> Result<ProcessHandle<Termination>> {
-        let handle = unsafe {
-            processthreadsapi::OpenProcess(
-                winnt::PROCESS_TERMINATE,
-                0,
-                pid,
-            )
-        };
+        let handle = unsafe { processthreadsapi::OpenProcess(winnt::PROCESS_TERMINATE, 0, pid) };
 
         if handle.is_null() {
             Err(Error::last_os_error())
@@ -221,13 +203,8 @@ impl ProcessHandle<Termination> {
 
 impl ProcessHandle<SuspendResume> {
     pub fn for_suspend_resume(pid: Pid) -> Result<ProcessHandle<SuspendResume>> {
-        let handle = unsafe {
-            processthreadsapi::OpenProcess(
-                winnt::PROCESS_SUSPEND_RESUME,
-                0,
-                pid,
-            )
-        };
+        let handle =
+            unsafe { processthreadsapi::OpenProcess(winnt::PROCESS_SUSPEND_RESUME, 0, pid) };
 
         if handle.is_null() {
             Err(Error::last_os_error())
@@ -240,9 +217,7 @@ impl ProcessHandle<SuspendResume> {
     }
 
     pub fn suspend(&self) -> Result<()> {
-        let result = unsafe {
-            ntpsapi::NtSuspendProcess(self.handle)
-        };
+        let result = unsafe { ntpsapi::NtSuspendProcess(self.handle) };
 
         if result != ntstatus::STATUS_SUCCESS {
             Err(Error::last_os_error())
@@ -252,9 +227,7 @@ impl ProcessHandle<SuspendResume> {
     }
 
     pub fn resume(&self) -> Result<()> {
-        let result = unsafe {
-            ntpsapi::NtResumeProcess(self.handle)
-        };
+        let result = unsafe { ntpsapi::NtResumeProcess(self.handle) };
 
         if result != ntstatus::STATUS_SUCCESS {
             Err(Error::last_os_error())
@@ -266,9 +239,7 @@ impl ProcessHandle<SuspendResume> {
 
 impl<T> Drop for ProcessHandle<T> {
     fn drop(&mut self) {
-        let result = unsafe {
-            handleapi::CloseHandle(self.handle)
-        };
+        let result = unsafe { handleapi::CloseHandle(self.handle) };
 
         debug_assert!(result != 0);
     }

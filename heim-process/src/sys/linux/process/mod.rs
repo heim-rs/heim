@@ -6,16 +6,16 @@ use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_runtime::fs;
 
-use crate::{Pid, Status, ProcessError, ProcessResult};
-use crate::sys::common::UniqueId;
-use crate::sys::unix::pid_kill;
+use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;
 use crate::os::unix::Signal;
-use super::{pids, pid_exists};
+use crate::sys::common::UniqueId;
+use crate::sys::unix::pid_kill;
+use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
 
-pub use self::procfs::{Memory, CpuTime, Command, CommandIter};
+pub use self::procfs::{Command, CommandIter, CpuTime, Memory};
 
 #[derive(Debug)]
 pub struct Process {
@@ -40,14 +40,13 @@ impl Process {
         let pid = self.pid; // Hello borrow checker, my old friend
 
         fs::read_link(format!("/proc/{}/exe", self.pid)).or_else(move |_| {
-            pid_exists(pid)
-                .and_then(move |exists| {
-                    if exists {
-                        future::ok(PathBuf::new())
-                    } else {
-                        future::err(ProcessError::ZombieProcess(pid))
-                    }
-                })
+            pid_exists(pid).and_then(move |exists| {
+                if exists {
+                    future::ok(PathBuf::new())
+                } else {
+                    future::err(ProcessError::ZombieProcess(pid))
+                }
+            })
         })
     }
 
@@ -60,21 +59,19 @@ impl Process {
     pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
         let pid = self.pid;
 
-        fs::read_link(format!("/proc/{}/cwd", self.pid))
-            .or_else(move |_| {
-                pid_exists(pid)
-                    .and_then(move |exists| {
-                        if exists {
-                            future::err(ProcessError::ZombieProcess(pid))
-                        } else {
-                            future::err(ProcessError::AccessDenied(pid))
-                        }
-                    })
+        fs::read_link(format!("/proc/{}/cwd", self.pid)).or_else(move |_| {
+            pid_exists(pid).and_then(move |exists| {
+                if exists {
+                    future::err(ProcessError::ZombieProcess(pid))
+                } else {
+                    future::err(ProcessError::AccessDenied(pid))
+                }
             })
+        })
     }
 
     pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        procfs::stat(self.pid).map_ok(|procfs::Stat { state, .. } | state)
+        procfs::stat(self.pid).map_ok(|procfs::Stat { state, .. }| state)
     }
 
     pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
@@ -91,9 +88,7 @@ impl Process {
 
     pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
         let unique_id = self.unique_id.clone();
-        get(self.pid).map_ok(move |other| {
-            other.unique_id == unique_id
-        })
+        get(self.pid).map_ok(move |other| other.unique_id == unique_id)
     }
 
     // `Self::signal` needs to return `BoxFuture`,
@@ -101,14 +96,13 @@ impl Process {
     fn _signal(&self, signal: Signal) -> impl Future<Output = ProcessResult<()>> {
         let pid = self.pid;
 
-        self.is_running()
-            .and_then(move |is_running| {
-                if is_running {
-                    future::ready(pid_kill(pid, signal))
-                } else {
-                    future::err(ProcessError::NoSuchProcess(pid))
-                }
-            })
+        self.is_running().and_then(move |is_running| {
+            if is_running {
+                future::ready(pid_kill(pid, signal))
+            } else {
+                future::err(ProcessError::NoSuchProcess(pid))
+            }
+        })
     }
 
     pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
@@ -138,7 +132,9 @@ impl Process {
     }
 
     pub fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
-        heim_net::os::linux::io_counters_for_pid(self.pid()).map_err(Into::into).boxed()
+        heim_net::os::linux::io_counters_for_pid(self.pid())
+            .map_err(Into::into)
+            .boxed()
     }
 }
 
@@ -157,25 +153,16 @@ impl cmp::PartialEq for Process {
 impl cmp::Eq for Process {}
 
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
-    pids()
-        .map_err(Into::into)
-        .and_then(get)
+    pids().map_err(Into::into).and_then(get)
 }
 
 pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
-    procfs::stat(pid)
-        .map_ok(move |procfs::Stat { create_time, .. } | Process {
-            pid,
-            unique_id: UniqueId::new(pid, create_time),
-        })
+    procfs::stat(pid).map_ok(move |procfs::Stat { create_time, .. }| Process {
+        pid,
+        unique_id: UniqueId::new(pid, create_time),
+    })
 }
 
 pub fn current() -> impl Future<Output = ProcessResult<Process>> {
-    future::lazy(|_| {
-        unsafe {
-            libc::getpid()
-        }
-    })
-    .then(get)
+    future::lazy(|_| unsafe { libc::getpid() }).then(get)
 }
-

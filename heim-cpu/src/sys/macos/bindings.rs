@@ -1,19 +1,19 @@
 #![allow(non_camel_case_types)]
 
+use std::ffi::CStr;
 use std::mem;
 use std::ptr;
-use std::ffi::CStr;
 use std::slice;
 
 use mach::kern_return::{self, kern_return_t};
-use mach::traps::mach_task_self;
 use mach::mach_port;
-use mach::vm_types::{natural_t, integer_t, vm_map_t, vm_address_t, vm_size_t};
-use mach::message::mach_msg_type_number_t;
 use mach::mach_types::host_t;
+use mach::message::mach_msg_type_number_t;
+use mach::traps::mach_task_self;
+use mach::vm_types::{integer_t, natural_t, vm_address_t, vm_map_t, vm_size_t};
 
-use heim_common::sys::macos;
 use heim_common::prelude::*;
+use heim_common::sys::macos;
 
 const PROCESSOR_CPU_LOAD_INFO: libc::c_int = 2;
 const HOST_CPU_LOAD_INFO: libc::c_int = 3;
@@ -147,7 +147,7 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
 
     let port_result = mach_port::mach_port_deallocate(mach_task_self(), port);
     if port_result != kern_return::KERN_SUCCESS {
-        return Err(Error::last_os_error())
+        return Err(Error::last_os_error());
     }
 
     if result != kern_return::KERN_SUCCESS {
@@ -171,7 +171,7 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
             cpu_info_count as vm_size_t * std::mem::size_of::<natural_t>(),
         );
         if result != kern_return::KERN_SUCCESS {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
 
         Ok(stats)
@@ -229,21 +229,15 @@ unsafe fn frequency(key: &[u8]) -> Result<u64> {
 
 // Returns hertz
 pub fn cpu_frequency() -> Result<u64> {
-    unsafe {
-        frequency(b"hw.cpufrequency\0")
-    }
+    unsafe { frequency(b"hw.cpufrequency\0") }
 }
 
 // Returns hertz
 pub fn cpu_frequency_max() -> Result<u64> {
-    unsafe {
-        frequency(b"hw.cpufrequency_max\0")
-    }
+    unsafe { frequency(b"hw.cpufrequency_max\0") }
 }
 
 // Returns hertz
 pub fn cpu_frequency_min() -> Result<u64> {
-    unsafe {
-        frequency(b"hw.cpufrequency_min\0")
-    }
+    unsafe { frequency(b"hw.cpufrequency_min\0") }
 }

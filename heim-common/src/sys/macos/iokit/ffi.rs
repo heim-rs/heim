@@ -1,9 +1,9 @@
 #![allow(non_camel_case_types, dead_code, unused)]
 
-use libc::c_char;
-use core_foundation::base::{CFAllocatorRef, mach_port_t};
+use core_foundation::base::{mach_port_t, CFAllocatorRef};
 use core_foundation::dictionary::{CFDictionaryRef, CFMutableDictionaryRef};
-use mach::{kern_return, boolean};
+use libc::c_char;
+use mach::{boolean, kern_return};
 
 pub type io_object_t = mach_port_t;
 pub type io_registry_entry_t = io_object_t;
@@ -18,7 +18,10 @@ extern "C" {
 
     // https://developer.apple.com/documentation/iokit/1514652-iomasterport
     // Should be deallocated with `mach_port_deallocate(mach_task_self(), masterPort)`
-    pub fn IOMasterPort(bootstrapPort: mach_port_t, masterPort: *mut mach_port_t) -> kern_return::kern_return_t;
+    pub fn IOMasterPort(
+        bootstrapPort: mach_port_t,
+        masterPort: *mut mach_port_t,
+    ) -> kern_return::kern_return_t;
 
     // https://developer.apple.com/documentation/iokit/1514687-ioservicematching
     // The dictionary is commonly passed to IOServiceGetMatchingServices or IOServiceAddNotification
@@ -28,8 +31,11 @@ extern "C" {
     // https://developer.apple.com/documentation/iokit/1514494-ioservicegetmatchingservices?language=objc
     // An `existing` iterator handle is returned on success, and should be released by the caller
     // when the iteration is finished.
-    pub fn IOServiceGetMatchingServices(masterPort: mach_port_t, matching: CFDictionaryRef,
-        existing: *mut io_iterator_t) -> kern_return::kern_return_t;
+    pub fn IOServiceGetMatchingServices(
+        masterPort: mach_port_t,
+        matching: CFDictionaryRef,
+        existing: *mut io_iterator_t,
+    ) -> kern_return::kern_return_t;
 
     // https://developer.apple.com/documentation/iokit/1514454-ioregistryentrygetparententry?language=objc
     // The caller should release `parent` with `IOObjectRelease`
@@ -47,9 +53,12 @@ extern "C" {
 
     // https://developer.apple.com/documentation/iokit/1514310-ioregistryentrycreatecfpropertie
     // The caller should release `properties` with `CFRelease`.
-    pub fn IORegistryEntryCreateCFProperties(entry: io_registry_entry_t,
-        properties: *mut CFMutableDictionaryRef, allocator: CFAllocatorRef,
-        options: IOOptionBits) -> kern_return::kern_return_t;
+    pub fn IORegistryEntryCreateCFProperties(
+        entry: io_registry_entry_t,
+        properties: *mut CFMutableDictionaryRef,
+        allocator: CFAllocatorRef,
+        options: IOOptionBits,
+    ) -> kern_return::kern_return_t;
 
     // https://developer.apple.com/documentation/iokit/1514741-ioiteratornext
     // The element should be released by the caller when it is finished.

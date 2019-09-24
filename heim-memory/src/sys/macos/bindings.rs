@@ -6,10 +6,10 @@
 use std::mem;
 use std::ptr;
 
-use mach::vm_types::natural_t;
 use mach::kern_return;
-use mach::traps::mach_task_self;
 use mach::mach_port;
+use mach::traps::mach_task_self;
+use mach::vm_types::natural_t;
 
 use heim_common::prelude::*;
 use heim_common::sys::macos;
@@ -123,5 +123,4 @@ pub unsafe fn vm_swapusage() -> Result<libc::xsw_usage> {
     } else {
         Err(Error::last_os_error())
     }
-
 }

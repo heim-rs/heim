@@ -1,8 +1,8 @@
-use std::ptr;
-use std::mem;
 use std::convert::TryFrom;
+use std::mem;
+use std::ptr;
 
-use mach::{vm_types, boolean};
+use mach::{boolean, vm_types};
 
 use heim_common::prelude::Error;
 
@@ -33,7 +33,10 @@ impl TryFrom<libc::c_char> for Status {
             SSLEEP => Ok(Status::Sleeping),
             SSTOP => Ok(Status::Stopped),
             SZOMB => Ok(Status::Zombie),
-            other => Err(Error::incompatible(format!("Unnknown process p_stat {:?}", other))),
+            other => Err(Error::incompatible(format!(
+                "Unnknown process p_stat {:?}",
+                other
+            ))),
         }
     }
 }
@@ -177,11 +180,11 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
                 ptr::null_mut(),
                 &mut size,
                 ptr::null_mut(),
-                0
+                0,
             )
         };
         if result < 0 {
-            return Err(Error::last_os_error())
+            return Err(Error::last_os_error());
         }
 
         processes.reserve(size);
@@ -224,29 +227,27 @@ pub fn process(pid: Pid) -> Result<kinfo_proc, ProcessError> {
             info.as_mut_ptr() as *mut libc::c_void,
             &mut size,
             ptr::null_mut(),
-            0
+            0,
         )
     };
 
     if result < 0 {
-        return Err(Error::last_os_error().into())
+        return Err(Error::last_os_error().into());
     }
 
     // sysctl succeeds but size is zero, happens when process has gone away
     if size == 0 {
-        return Err(ProcessError::NoSuchProcess(pid))
+        return Err(ProcessError::NoSuchProcess(pid));
     }
 
-    unsafe {
-        Ok(info.assume_init())
-    }
+    unsafe { Ok(info.assume_init()) }
 }
 
 #[cfg(test)]
 mod tests {
     use std::mem;
 
-    use super::{vmspace, pcred, kinfo_proc, kinfo_proc_eproc};
+    use super::{kinfo_proc, kinfo_proc_eproc, pcred, vmspace};
 
     #[test]
     fn test_layout() {

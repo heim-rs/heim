@@ -1,11 +1,11 @@
-use std::ptr;
 use std::mem;
+use std::ptr;
 
+use winapi::shared::{minwindef, ntstatus};
 use winapi::um::{powerbase, winnt};
-use winapi::shared::{ntstatus, minwindef};
 
 use heim_common::prelude::*;
-use heim_common::units::{Frequency, frequency};
+use heim_common::units::{frequency, Frequency};
 
 use super::bindings::get_system_info;
 use super::bindings::power::PROCESSOR_POWER_INFORMATION;
@@ -57,12 +57,14 @@ unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
 pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
     match unsafe { get_processors() } {
         Ok(processors) => {
-            let freq = processors.into_iter().next()
+            let freq = processors
+                .into_iter()
+                .next()
                 .map(CpuFrequency)
                 .ok_or_else(|| Error::incompatible("No processors was found"));
 
             future::ready(freq)
-        },
-        Err(e) => future::err(e)
+        }
+        Err(e) => future::err(e),
     }
 }

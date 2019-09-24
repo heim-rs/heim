@@ -1,8 +1,8 @@
 use std::ptr;
 
+use heim_common::{Error, Result};
 use winapi::ctypes::wchar_t;
 use winapi::um::fileapi;
-use heim_common::{Result, Error};
 
 use super::Drive;
 
@@ -14,24 +14,15 @@ pub struct Drives {
 
 impl Drives {
     pub fn new() -> Result<Drives> {
-        let expected_size = unsafe {
-            fileapi::GetLogicalDriveStringsW(
-                0,
-                ptr::null_mut(),
-            )
-        };
+        let expected_size = unsafe { fileapi::GetLogicalDriveStringsW(0, ptr::null_mut()) };
 
         if expected_size == 0 {
             return Err(Error::last_os_error());
         }
 
         let mut buffer = Vec::with_capacity(expected_size as usize);
-        let result = unsafe {
-            fileapi::GetLogicalDriveStringsW(
-                expected_size,
-                buffer.as_mut_ptr()
-            )
-        };
+        let result =
+            unsafe { fileapi::GetLogicalDriveStringsW(expected_size, buffer.as_mut_ptr()) };
 
         if result == 0 {
             return Err(Error::last_os_error());
@@ -57,14 +48,19 @@ impl Iterator for Drives {
     fn next(&mut self) -> Option<Self::Item> {
         let position = self.position;
 
-        match self.buffer.iter().skip(position).position(|chr| *chr == 0x00) {
+        match self
+            .buffer
+            .iter()
+            .skip(position)
+            .position(|chr| *chr == 0x00)
+        {
             Some(offset) if offset > 0 => {
                 // We are going to include trailing \0 too
                 let end = position + offset + 1;
 
                 self.position = end;
                 Some(Drive::from(&self.buffer[position..end]))
-            },
+            }
             _ => None,
         }
     }
