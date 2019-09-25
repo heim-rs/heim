@@ -11,8 +11,7 @@
 ![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
 [![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 ![Platforms supported](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-brightgreen)
-[![Backers on Open Collective](https://opencollective.com/heim-rs/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/heim-rs/sponsors/badge.svg)](#sponsors)
+[![Financial Contributors on Open Collective](https://opencollective.com/heim-rs/all/badge.svg?label=financial+contributors)](https://opencollective.com/heim-rs)
 
 > Cross-platform library for system information fetching
 
@@ -94,15 +93,19 @@ support this project at [Open Collective](https://opencollective.com/heim-rs).
 
 ## Contributors
 
-This project exists thanks to all the people who contribute.
-[![Contributors](https://opencollective.com/heim-rs/contributors.svg?width=890&button=false)](https://github.com/heim-rs/heim/graphs/contributors)
+### Code Contributors
 
-## Backers
+This project exists thanks to all the people who [contribute](CONTRIBUTE.md).
+<a href="https://github.com/heim-rs/heim/graphs/contributors"><img src="https://opencollective.com/heim-rs/contributors.svg?width=890&button=false" /></a>
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/heim-rs#backer)]
+### Financial Contributors
 
-[![Backers](https://opencollective.com/heim-rs/backers.svg?width=890)](https://opencollective.com/heim-rs#backers)
+[Become](https://opencollective.com/heim-rs/contribute) a financial contributor and help us sustain our community.
 
-## Sponsors
+#### Individuals
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/heim-rs#sponsor)]
+<a href="https://opencollective.com/heim-rs"><img src="https://opencollective.com/heim-rs/individuals.svg?width=890"></a>
+
+#### Organizations
+
+[Support this project](https://opencollective.com/heim-rs/contribute) with your organization. Your logo will show up here with a link to your website.
