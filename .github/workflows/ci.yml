@@ -1,0 +1,147 @@
+on: [push, pull_request]
+
+name: Continuous integration
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        toolchain:
+          - 1.36.0  # MSRV
+          - stable
+          - nightly
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --all-features
+
+      - name: Run tests (nightly only)
+        if: matrix.toolchain == 'nightly'
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features
+
+  clippy:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Searching for clippy
+        id: clippy
+        uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ steps.clippy.outputs.toolchain }}
+          override: true
+      - run: rustup component add clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features -- -D warnings
+
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Searching for rustfmt
+        id: rustfmt
+        uses: actions-rs/components-nightly@v1
+        with:
+          component: rustfmt
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ steps.rustfmt.outputs.toolchain }}
+          override: true
+      - run: rustup component add rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+  code_coverage:
+    runs-on: ${{ matrix.os }}
+    needs: ci
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        toolchain:
+          - nightly
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Execute tests (not macOS)
+        if: startsWith(matrix.os, 'macOS') == false
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all --all-features
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+
+      - name: Execute tests (macOS)
+        if: startsWith(matrix.os, 'macOS') == true
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all --all-features --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
+
+      - name: Gather coverage data
+        id: coverage
+        uses: actions-rs/grcov@v0.1
+        with:
+          coveralls-token: ${{ secrets.COVERALLS_TOKEN }}
+
+      - name: Coveralls upload
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          path-to-lcov: ${{ steps.coverage.outputs.report }}
+
+  code_coverage_finalize:
+    runs-on: ubuntu-latest
+    needs: code_coverage
+    steps:
+      - name: Coveralls finalization
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true

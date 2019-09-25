@@ -22,6 +22,7 @@
     unused_import_braces,
     unused_results
 )]
+#![allow(clippy::missing_safety_doc)]
 
 #[cfg(target_os = "windows")]
 #[macro_use]
