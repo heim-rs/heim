@@ -1,6 +1,7 @@
 use std::cmp;
 use std::hash;
-use std::path::PathBuf;
+use std::os::unix::ffi::OsStrExt;
+use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
@@ -33,7 +34,41 @@ impl Process {
     }
 
     pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
-        procfs::stat(self.pid).map_ok(|procfs::Stat { name, .. }| name)
+        let pid = self.pid;
+
+        // TODO: that mess asks for a `async_await`
+        procfs::stat(pid)
+            .map_ok(|procfs::Stat { name, .. }| name)
+            .and_then(move |name| {
+                // TODO: Move `15` to the const
+                if name.len() >= 15 {
+                    // TODO: Get rid of the clone during the `async_await` rewrite
+                    let orig_name = name.clone();
+                    let f = procfs::command(pid)
+                        .and_then(move |command| {
+                            // There might be an absolute path to executable
+                            let path = command
+                                .into_iter()
+                                .next()
+                                .map(Path::new)
+                                .and_then(Path::file_name);
+                            match path {
+                                // We can assume that on Linux paths and filenames are UTF-8,
+                                // and since OsStr does not has the `starts_with` method,
+                                // we could compare raw bytes
+                                Some(exe) if exe.as_bytes().starts_with(name.as_bytes()) => {
+                                    future::ok(exe.to_string_lossy().into_owned())
+                                }
+                                _ => future::ok(name),
+                            }
+                        })
+                        .or_else(move |_| future::ok(orig_name));
+
+                    future::Either::Left(f)
+                } else {
+                    future::Either::Right(future::ok(name))
+                }
+            })
     }
 
     pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
