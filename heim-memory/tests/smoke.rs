@@ -35,6 +35,7 @@ async fn smoke_memory() {
 }
 
 #[heim_derive::test]
+#[allow(unused_variables)]
 async fn smoke_swap() {
     let swap = memory::swap().await;
 

@@ -20,7 +20,10 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
             let in_ci = ::std::env::vars()
                 .any(|(key, _)| {
                     match key.as_str() {
+                        // Azure Pipelines
                         "TF_BUILD" => true,
+                        // Github Actions
+                        "GITHUB_ACTIONS" => true,
                         _ => false
                     }
                 });

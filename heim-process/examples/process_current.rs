@@ -1,4 +1,3 @@
-use heim_common::prelude::StreamExt;
 use heim_common::units::ratio;
 use heim_process as process;
 
@@ -25,6 +24,7 @@ async fn main() -> Result<(), process::ProcessError> {
     #[cfg(target_os = "linux")]
     {
         println!("# Linux specifics");
+        use heim_common::prelude::StreamExt;
         use heim_process::os::linux::ProcessExt;
 
         dbg!(process.io_counters().await?);
