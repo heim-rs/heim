@@ -18,8 +18,16 @@ fn cpuinfo() -> impl Future<Output = Result<u64>> {
         .try_fold(0, |acc, _| future::ok(acc + 1))
 }
 
+fn stat() -> impl Future<Output = Result<u64>> {
+    fs::read_lines("/proc/stat")
+        .try_filter(|line| future::ready(line.starts_with("cpu")))
+        .map_err(Error::from)
+        // the first "cpu" line aggregates the numbers in all
+        // of the other "cpuN" lines, hence skip the first item
+        .skip(1)
+        .try_fold(0, |acc, _| future::ok(acc + 1))
+}
+
 pub fn logical_count() -> impl Future<Output = Result<u64>> {
-    sysconf().or_else(|_| cpuinfo())
-    // TODO: Parse the `/proc/stat` to support old systems
-    // See https://github.com/giampaolo/psutil/issues/200
+    sysconf().or_else(|_| cpuinfo()).or_else(|_| stat())
 }
