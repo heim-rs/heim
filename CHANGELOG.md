@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.8] - 2019-10-03
 
 ### Added
 
@@ -16,7 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `process::Process::terminate` method (#162, #163)
 - `process::Process::suspend` method (#164, #165)
 - `process::Process::resume` method (#164, #166)
-- `APFS` support for `heim::disk::FileSystem` (#171)
+- `APFS` support for `disk::FileSystem` (#171)
+- Legacy systems support for `cpu::logical_count` for Linux (#58)
+
+### Changed
+
+- Truncated `process::Process::name` results are expanded for Linux (#154)
 
 ### Fixed
 
