@@ -16,8 +16,8 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
 cfg-if = "0.1.7"
-futures-core-preview = "0.3.0-alpha.18"
-futures-util-preview = "0.3.0-alpha.18"
+futures-core-preview = "0.3.0-alpha.19"
+futures-util-preview = "0.3.0-alpha.19"
 pin-utils = "0.1.0-alpha.4"
 uom = { version = "0.25.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
@@ -34,6 +34,6 @@ mach = "0.3.2"
 core-foundation = "0.6.4"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.18"
+futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
 

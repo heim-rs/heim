@@ -21,7 +21,7 @@ heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
 cfg-if = "0.1.9"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.18"
+futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
 
 [features]

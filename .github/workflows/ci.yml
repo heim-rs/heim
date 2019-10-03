@@ -12,8 +12,9 @@ jobs:
           - macOS-latest
           - windows-latest
         toolchain:
-          - 1.36.0  # MSRV
-          - stable
+#          TODO:
+#          - 1.39.0  # MSRV
+#          - stable
           - nightly
 
     steps:
