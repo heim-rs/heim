@@ -52,7 +52,7 @@ impl From<Error> for Error2 {
             Error::Incompatible(message) => io::Error::new(io::ErrorKind::Other, message).into(),
             Error::Io(e) => e.into(),
             Error::Other(_e) => io::Error::from(io::ErrorKind::Other).into(),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }
