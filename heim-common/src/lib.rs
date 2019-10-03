@@ -13,7 +13,7 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-    deprecated
+//    deprecated
 )]
 #![warn(
     trivial_casts,
@@ -31,7 +31,7 @@ pub mod units;
 #[doc(hidden)]
 pub mod utils;
 
-pub use self::errors::{Error, Result};
+pub use self::errors::{Error, Error2, Result, Result2};
 
 /// Process identifier type.
 #[cfg(unix)]
@@ -47,7 +47,7 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 /// Consider not to use it in your code, because it is kinda internal
 /// and might change at any time.
 pub mod prelude {
-    pub use super::errors::{Error, Result};
+    pub use super::errors::{Error, Error2, Result, Result2};
 
     /// This module tries to mimic `futures-preview` crate structure
     /// except without re-exporting unused subcrates like `executor` or `compat`.

@@ -1,3 +1,5 @@
+#![allow(deprecated)] // TODO: Temporary, while switching from `Error` to `Error2`
+
 use std::borrow::Cow;
 use std::error;
 use std::ffi;
@@ -9,7 +11,51 @@ use std::result;
 use std::string;
 
 /// Type alias for types returned by `heim` functions.
+#[deprecated]
 pub type Result<T> = result::Result<T, Error>;
+
+/// NG: Type alias for types returned by `heim` functions.
+pub type Result2<T> = result::Result<T, Error2>;
+
+/// NG: Any error which may happen during the data fetching.
+#[derive(Debug)]
+pub struct Error2(io::Error);
+
+impl Error2 {
+    #[doc(hidden)]
+    pub fn last_os_error() -> Error2 {
+        Error2::from(io::Error::last_os_error())
+    }
+
+    #[doc(hidden)]
+    pub fn raw_os_error(&self) -> Option<i32> {
+        self.0.raw_os_error()
+    }
+}
+
+impl From<io::Error> for Error2 {
+    fn from(e: io::Error) -> Error2 {
+        Error2(e)
+    }
+}
+
+impl From<Error2> for io::Error {
+    fn from(e: Error2) -> io::Error {
+        e.0
+    }
+}
+
+impl From<Error> for Error2 {
+    fn from(e: Error) -> Error2 {
+        match e {
+            Error::MissingEntity(name) => io::Error::new(io::ErrorKind::InvalidInput, name).into(),
+            Error::Incompatible(message) => io::Error::new(io::ErrorKind::Other, message).into(),
+            Error::Io(e) => e.into(),
+            Error::Other(_e) => io::Error::from(io::ErrorKind::Other).into(),
+            _ => unreachable!()
+        }
+    }
+}
 
 /// Any error which may happen during the data fetch.
 ///
@@ -21,6 +67,7 @@ pub type Result<T> = result::Result<T, Error>;
 /// Contents of this enum are not stable and may
 /// change without any warning.
 #[derive(Debug)]
+#[deprecated]
 pub enum Error {
     #[doc(hidden)]
     MissingEntity(Cow<'static, str>),
@@ -71,6 +118,12 @@ impl fmt::Display for Error {
             Error::Other(e) => fmt::Display::fmt(e, f),
             _ => f.write_str("Unknown error"),
         }
+    }
+}
+
+impl From<Error2> for Error {
+    fn from(e: Error2) -> Error {
+        Error::Io(e.into())
     }
 }
 
