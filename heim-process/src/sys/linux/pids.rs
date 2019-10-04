@@ -1,10 +1,10 @@
-use heim_common::prelude::{future, Future, Stream, TryStreamExt};
+use heim_common::prelude::{future, Stream, TryStreamExt};
 use heim_runtime::fs;
 
 use crate::sys::unix;
-use crate::{Pid, ProcessError};
+use crate::{Pid, ProcessResult};
 
-pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
+pub fn pids() -> impl Stream<Item = ProcessResult<Pid>> {
     fs::read_dir("/proc")
         .map_err(From::from)
         .try_filter_map(|entry| {
@@ -17,6 +17,6 @@ pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
         })
 }
 
-pub fn pid_exists(pid: Pid) -> impl Future<Output = Result<bool, ProcessError>> {
-    future::ok(unix::pid_exists(pid))
+pub async fn pid_exists(pid: Pid) -> ProcessResult<bool> {
+    Ok(unix::pid_exists(pid))
 }

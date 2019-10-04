@@ -2,7 +2,6 @@ use std::ffi::{OsStr, OsString};
 use std::io;
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
-use heim_common::prelude::*;
 use heim_runtime::fs;
 
 use crate::{Pid, ProcessError, ProcessResult};
@@ -145,16 +144,12 @@ impl<'a> Iterator for CommandIter<'a> {
     }
 }
 
-pub fn command(pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
-    fs::read_to_string(format!("/proc/{}/cmdline", pid))
-        .map_ok(Command::from)
-        .map_err(move |e| {
-            if e.kind() == io::ErrorKind::NotFound {
-                ProcessError::NoSuchProcess(pid)
-            } else {
-                e.into()
-            }
-        })
+pub async fn command(pid: Pid) -> ProcessResult<Command> {
+    match fs::read_to_string(format!("/proc/{}/cmdline", pid)).await {
+        Ok(contents) => Ok(Command::from(contents)),
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Err(ProcessError::NoSuchProcess(pid)),
+        Err(e) => Err(e.into()),
+    }
 }
 
 #[cfg(test)]

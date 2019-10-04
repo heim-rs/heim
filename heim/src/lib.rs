@@ -46,7 +46,7 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-    deprecated
+//    deprecated
 )]
 #![warn(
     trivial_casts,
@@ -89,4 +89,4 @@ pub use heim_virt as virt;
 pub use heim_sensors as sensors;
 
 pub use heim_common::units;
-pub use heim_common::{Error, Result};
+pub use heim_common::{Error, Error2, Result, Result2};

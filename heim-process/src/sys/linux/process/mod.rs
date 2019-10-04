@@ -16,7 +16,7 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
 
-pub use self::procfs::{Command, CommandIter, CpuTime, Memory};
+pub use self::procfs::{Command, CommandIter, CpuTime, Memory, Stat};
 
 #[derive(Debug)]
 pub struct Process {
@@ -29,135 +29,118 @@ impl Process {
         self.pid
     }
 
-    pub fn parent_pid(&self) -> impl Future<Output = ProcessResult<Pid>> {
-        procfs::stat(self.pid).map_ok(|procfs::Stat { ppid, .. }| ppid)
+    pub async fn parent_pid(&self) -> ProcessResult<Pid> {
+        let Stat { ppid, .. } = procfs::stat(self.pid).await?;
+
+        Ok(ppid)
     }
 
-    pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
-        let pid = self.pid;
+    pub async fn name(&self) -> ProcessResult<String> {
+        let Stat { name, .. } = procfs::stat(self.pid).await?;
 
-        // TODO: that mess asks for a `async_await`
-        procfs::stat(pid)
-            .map_ok(|procfs::Stat { name, .. }| name)
-            .and_then(move |name| {
-                // TODO: Move `15` to the const
-                if name.len() >= 15 {
-                    // TODO: Get rid of the clone during the `async_await` rewrite
-                    let orig_name = name.clone();
-                    let f = procfs::command(pid)
-                        .and_then(move |command| {
-                            // There might be an absolute path to executable
-                            let path = command
-                                .into_iter()
-                                .next()
-                                .map(Path::new)
-                                .and_then(Path::file_name);
-                            match path {
-                                // We can assume that on Linux paths and filenames are UTF-8,
-                                // and since OsStr does not has the `starts_with` method,
-                                // we could compare raw bytes
-                                Some(exe) if exe.as_bytes().starts_with(name.as_bytes()) => {
-                                    future::ok(exe.to_string_lossy().into_owned())
-                                }
-                                _ => future::ok(name),
-                            }
-                        })
-                        .or_else(move |_| future::ok(orig_name));
+        // Process name is truncated for Linux,
+        // so we are using command line to fetch the full process name
 
-                    future::Either::Left(f)
-                } else {
-                    future::Either::Right(future::ok(name))
-                }
-            })
+        // TODO: Move `15` to the const
+        if name.len() < 15 {
+            return Ok(name);
+        }
+
+        let command = procfs::command(self.pid).await?;
+        // There might be an absolute path to executable
+        let path = command
+            .into_iter()
+            .next()
+            .map(Path::new)
+            .and_then(Path::file_name);
+
+        match path {
+            // We can assume that on Linux paths and filenames are UTF-8,
+            // and since OsStr does not has the `starts_with` method,
+            // we could compare raw bytes
+            Some(exe) if exe.as_bytes().starts_with(name.as_bytes()) => {
+                Ok(exe.to_string_lossy().into_owned())
+            }
+            _ => Ok(name),
+        }
     }
 
-    pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        let pid = self.pid; // Hello borrow checker, my old friend
-
-        fs::read_link(format!("/proc/{}/exe", self.pid)).or_else(move |_| {
-            pid_exists(pid).and_then(move |exists| {
-                if exists {
-                    future::ok(PathBuf::new())
-                } else {
-                    future::err(ProcessError::ZombieProcess(pid))
-                }
-            })
-        })
+    pub async fn exe(&self) -> ProcessResult<PathBuf> {
+        match fs::read_link(format!("/proc/{}/exe", self.pid)).await {
+            Ok(path) => Ok(path),
+            Err(..) => match pid_exists(self.pid).await {
+                Ok(true) => Ok(PathBuf::new()),
+                _ => Err(ProcessError::ZombieProcess(self.pid)),
+            },
+        }
     }
 
-    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
-        let pid = self.pid;
-
-        self::procfs::command(pid)
+    pub async fn command(&self) -> ProcessResult<Command> {
+        self::procfs::command(self.pid).await
     }
 
-    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        let pid = self.pid;
-
-        fs::read_link(format!("/proc/{}/cwd", self.pid)).or_else(move |_| {
-            pid_exists(pid).and_then(move |exists| {
-                if exists {
-                    future::err(ProcessError::ZombieProcess(pid))
-                } else {
-                    future::err(ProcessError::AccessDenied(pid))
-                }
-            })
-        })
+    pub async fn cwd(&self) -> ProcessResult<PathBuf> {
+        match fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
+            Ok(path) => Ok(path),
+            Err(..) => match pid_exists(self.pid).await {
+                Ok(true) => Err(ProcessError::ZombieProcess(self.pid)),
+                _ => Err(ProcessError::AccessDenied(self.pid)),
+            },
+        }
     }
 
-    pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        procfs::stat(self.pid).map_ok(|procfs::Stat { state, .. }| state)
+    pub async fn status(&self) -> ProcessResult<Status> {
+        let Stat { state, .. } = procfs::stat(self.pid).await?;
+
+        Ok(state)
     }
 
-    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::ok(self.unique_id.create_time())
+    pub async fn create_time(&self) -> ProcessResult<Time> {
+        Ok(self.unique_id.create_time())
     }
 
-    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        procfs::stat(self.pid).map_ok(Into::into)
+    pub async fn cpu_time(&self) -> ProcessResult<CpuTime> {
+        Ok(procfs::stat(self.pid).await?.into())
     }
 
-    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        procfs::stat_memory(self.pid)
+    pub async fn memory(&self) -> ProcessResult<Memory> {
+        procfs::stat_memory(self.pid).await
     }
 
-    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
-        let unique_id = self.unique_id.clone();
-        get(self.pid).map_ok(move |other| other.unique_id == unique_id)
+    pub async fn is_running(&self) -> ProcessResult<bool> {
+        let other = get(self.pid).await?;
+
+        Ok(other.unique_id == self.unique_id)
     }
 
     // `Self::signal` needs to return `BoxFuture`,
     // but the `Self::kill` does not
-    fn _signal(&self, signal: Signal) -> impl Future<Output = ProcessResult<()>> {
-        let pid = self.pid;
-
-        self.is_running().and_then(move |is_running| {
-            if is_running {
-                future::ready(pid_kill(pid, signal))
-            } else {
-                future::err(ProcessError::NoSuchProcess(pid))
-            }
-        })
+    async fn _signal(&self, signal: Signal) -> ProcessResult<()> {
+        if self.is_running().await? {
+            pid_kill(self.pid, signal)
+        } else {
+            Err(ProcessError::NoSuchProcess(self.pid))
+        }
     }
 
     pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
         self._signal(signal).boxed()
     }
 
-    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Stop)
+    pub async fn suspend(&self) -> ProcessResult<()> {
+        self._signal(Signal::Stop).await
     }
 
-    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Cont)
+    pub async fn resume(&self) -> ProcessResult<()> {
+        self._signal(Signal::Cont).await
     }
 
-    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Term)
+    pub async fn terminate(&self) -> ProcessResult<()> {
+        self._signal(Signal::Term).await
     }
 
-    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Kill)
+    pub async fn kill(&self) -> ProcessResult<()> {
+        self._signal(Signal::Kill).await
     }
 
     // Linux-specific methods
@@ -191,13 +174,17 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids().map_err(Into::into).and_then(get)
 }
 
-pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
-    procfs::stat(pid).map_ok(move |procfs::Stat { create_time, .. }| Process {
+pub async fn get(pid: Pid) -> ProcessResult<Process> {
+    let Stat { create_time, .. } = procfs::stat(pid).await?;
+
+    Ok(Process {
         pid,
         unique_id: UniqueId::new(pid, create_time),
     })
 }
 
-pub fn current() -> impl Future<Output = ProcessResult<Process>> {
-    future::lazy(|_| unsafe { libc::getpid() }).then(get)
+pub async fn current() -> ProcessResult<Process> {
+    let pid = unsafe { libc::getpid() };
+
+    get(pid).await
 }
