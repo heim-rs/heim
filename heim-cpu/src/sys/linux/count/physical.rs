@@ -1,114 +1,124 @@
+use std::path::Path;
+use std::marker::Unpin;
 use std::collections::HashSet;
+use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 use std::str;
+use std::io;
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
 
-fn topology() -> impl Future<Output = Result<u64>> {
-    let acc = HashSet::<u64>::new();
-    fs::read_dir("/sys/devices/system/cpu/")
-        .try_filter_map(|entry| {
-            let matched = match entry.path().file_name() {
-                Some(name) if name.as_bytes().starts_with(b"cpu") => {
-                    // Safety: since it will be used with Linux only,
-                    // it is okay to assume that /sys files will has the UTF-8 names
-                    let core_id = unsafe { str::from_utf8_unchecked(&name.as_bytes()[3..]) };
+// Check if file name matches the `cpu[0-9]+` pattern
+fn match_cpu_n(file_name: Option<&OsStr>) -> bool {
+    match file_name {
+        // We want to match all `cpu[0-9]+` folders
+        Some(name) if name.as_bytes().starts_with(b"cpu") && name.len() > 3 => {
+            // Safety: since it will be used with Linux only,
+            // it is okay to assume that /sys files will has the UTF-8 names.
+            // In additional, we already had checked that `name` is larger than 3 bytes
+            let core_id = unsafe { str::from_utf8_unchecked(&name.as_bytes()[3..]) };
 
-                    match core_id.parse::<u64>() {
-                        Ok(..) => Some(entry),
-                        _ => None,
-                    }
-                }
-                _ => None,
-            };
-
-            future::ok(matched)
-        })
-        .and_then(|entry| {
-            let path = entry.path().join("topology/core_id");
-
-            fs::read_to_string(path)
-        })
-        .map_err(Error::from)
-        .and_then(|contents| future::ready(contents.trim().parse::<u64>().map_err(Error::from)))
-        .try_fold(acc, |mut acc, cpu_id| {
-            let _ = acc.insert(cpu_id);
-
-            future::ok(acc)
-        })
-        .and_then(|acc| {
-            if !acc.is_empty() {
-                future::ok(acc.len() as u64)
-            } else {
-                // This error will not be propagated to caller,
-                // since `physical_count` will call `or_else()` on it
-                future::err(Error::incompatible("Unable to fetch CPU topology"))
-            }
-        })
+            core_id.parse::<u64>().is_ok()
+        },
+        _ => false,
+    }
 }
 
-#[derive(Default)]
-struct Collector {
-    physical_id: Option<u64>,
-    group: HashSet<(u64, u64)>,
+async fn topology() -> Result2<u64> {
+    let mut acc = HashSet::<u64>::new();
+    let mut cpu_entries = fs::read_dir("/sys/devices/system/cpu");
+    while let Some(entry) = cpu_entries.next().await {
+        let entry = entry?;
+        if !match_cpu_n(entry.path().file_name()) {
+            continue
+        }
+
+        let core_id_path = entry.path().join("topology/core_id");
+        let contents = fs::read_to_string(core_id_path).await?;
+        let core_id = contents.trim().parse::<u64>()?;
+        let _ = acc.insert(core_id);
+    }
+
+    if !acc.is_empty() {
+        Ok(acc.len() as u64)
+    } else {
+        Err(io::Error::from(io::ErrorKind::InvalidData).into())
+    }
 }
 
-fn parse_line(line: &str) -> Result<u64> {
+/// Parse value from the `/proc/cpuinfo` line.
+///
+/// Line is usually looks like `"physical id\t: 0"`
+fn parse_line(line: &str) -> Result2<u64> {
     line.split(':')
-        .nth(2)
+        .nth(1)
         .map(|value| value.trim())
-        .ok_or_else(|| Error::incompatible("Unsupported format for /proc/cpuinfo"))
-        .and_then(|value| value.parse::<u64>().map_err(Error::from))
+        .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData).into())
+        .and_then(|value| value.parse::<u64>().map_err(Into::into))
 }
 
-fn cpu_info() -> impl Future<Output = Result<Option<u64>>> {
-    let acc = Collector::default();
+/// What happens here: we are parsing the `/proc/cpuinfo` file line by line
+/// and grouping consequent `"physical id: *"` and `"core id: *"` lines.
+async fn cpu_info<T>(path: T) -> Result<Option<u64>> where T: AsRef<Path> + Send + Unpin + 'static {
+    let mut physical_id: Option<u64> = None;
+    let mut group: HashSet<(u64, u64)> = HashSet::new();
 
-    fs::read_lines("/proc/cpuinfo")
-        .map_err(Error::from)
-        .try_fold(acc, |mut acc, line| {
-            let result = match &line {
-                l if l.starts_with("physical id") => match parse_line(l.as_str()) {
-                    Ok(physical_id) if acc.physical_id.is_none() => {
-                        acc.physical_id = Some(physical_id);
+    let mut lines = fs::read_lines(path);
+    while let Some(try_line) = lines.next().await {
+        match &try_line? {
+            line if line.starts_with("physical id") => {
+                let core_id = parse_line(line)?;
+                if physical_id.is_none() {
+                    physical_id = Some(core_id);
+                } else {
+                    // TODO: Attach context data for error
+                    return Err(io::Error::from(io::ErrorKind::InvalidData).into())
+                }
+            },
+            line if line.starts_with("core id") => {
+                let core_id = parse_line(line)?;
+                if physical_id.is_some() {
+                    let phys_id = physical_id.take().expect("Unreachable, match guard covers this");
+                    let _ = group.insert((phys_id, core_id));
+                } else {
+                    // TODO: Attach context data for error
+                    return Err(io::Error::from(io::ErrorKind::InvalidData).into())
+                }
+            },
+            _ => continue,
+        }
+    }
 
-                        Ok(acc)
-                    }
-                    Ok(..) => {
-                        panic!("Missed the core id value in the /proc/cpuinfo!");
-                    }
-                    Err(e) => Err(e),
-                },
-                l if l.starts_with("core id") => match parse_line(l.as_str()) {
-                    Ok(core_id) if acc.physical_id.is_some() => {
-                        let physical_id = acc
-                            .physical_id
-                            .take()
-                            .expect("Will not happen, match guard covers that");
-                        let _ = acc.group.insert((physical_id, core_id));
-
-                        Ok(acc)
-                    }
-                    Ok(..) => {
-                        panic!("Missed the physical id value in the /proc/cpuinfo!");
-                    }
-                    Err(e) => Err(e),
-                },
-                _ => Ok(acc),
-            };
-
-            future::ready(result)
-        })
-        .map_ok(|acc| {
-            if !acc.group.is_empty() {
-                Some(acc.group.len() as u64)
-            } else {
-                None
-            }
-        })
+    if !group.is_empty() {
+        Ok(Some(group.len() as u64))
+    } else {
+        Ok(None)
+    }
 }
 
-pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
-    topology().map_ok(Some).or_else(|_| cpu_info())
+pub async fn physical_count() -> Result<Option<u64>> {
+    match topology().await {
+        Ok(value) => Ok(Some(value)),
+        Err(..) => cpu_info("/proc/cpuinfo").await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write;
+
+    use super::cpu_info;
+
+    #[heim_derive::test]
+    async fn test_cpuinfo_parse() {
+        let mut f = tempfile::NamedTempFile::new().unwrap();
+        f.write_all(PROC_CPUINFO.as_bytes()).unwrap();
+
+        let result = cpu_info(f).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Some(2));
+    }
+
+    static PROC_CPUINFO: &str = include_str!("../../../../assets/linux_proc_cpuinfo.txt");
 }

@@ -19,10 +19,10 @@ cfg-if = "0.1.7"
 futures-core-preview = "0.3.0-alpha.19"
 futures-util-preview = "0.3.0-alpha.19"
 pin-utils = "0.1.0-alpha.4"
+libc = "~0.2"
 uom = { version = "0.25.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
 [target.'cfg(unix)'.dependencies]
-libc = "~0.2"
 nix = "0.15.0"
 lazy_static = "1.3.0"
 

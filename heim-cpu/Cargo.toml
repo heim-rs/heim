@@ -9,6 +9,7 @@ categories = ["asynchronous", "os", "api-bindings"]
 repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
+exclude = ["/assets/"]
 
 [badges]
 maintenance = { status = "experimental" }

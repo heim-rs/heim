@@ -19,7 +19,9 @@ pub type Result2<T> = result::Result<T, Error2>;
 
 /// NG: Any error which may happen during the data fetching.
 #[derive(Debug)]
-pub struct Error2(io::Error);
+pub struct Error2 {
+    source: io::Error,
+}
 
 impl Error2 {
     #[doc(hidden)]
@@ -29,19 +31,21 @@ impl Error2 {
 
     #[doc(hidden)]
     pub fn raw_os_error(&self) -> Option<i32> {
-        self.0.raw_os_error()
+        self.source.raw_os_error()
     }
 }
 
 impl From<io::Error> for Error2 {
     fn from(e: io::Error) -> Error2 {
-        Error2(e)
+        Error2 {
+            source: e,
+        }
     }
 }
 
 impl From<Error2> for io::Error {
     fn from(e: Error2) -> io::Error {
-        e.0
+        e.source
     }
 }
 
@@ -54,6 +58,12 @@ impl From<Error> for Error2 {
             Error::Other(_e) => io::Error::from(io::ErrorKind::Other).into(),
             _ => unreachable!(),
         }
+    }
+}
+
+impl From<num::ParseIntError> for Error2 {
+    fn from(e: num::ParseIntError) -> Error2 {
+        io::Error::new(io::ErrorKind::InvalidData, e).into()
     }
 }
 
