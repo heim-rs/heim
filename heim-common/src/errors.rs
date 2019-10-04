@@ -37,9 +37,7 @@ impl Error2 {
 
 impl From<io::Error> for Error2 {
     fn from(e: io::Error) -> Error2 {
-        Error2 {
-            source: e,
-        }
+        Error2 { source: e }
     }
 }
 

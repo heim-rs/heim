@@ -1,10 +1,10 @@
-use std::path::Path;
-use std::marker::Unpin;
 use std::collections::HashSet;
 use std::ffi::OsStr;
-use std::os::unix::ffi::OsStrExt;
-use std::str;
 use std::io;
+use std::marker::Unpin;
+use std::os::unix::ffi::OsStrExt;
+use std::path::Path;
+use std::str;
 
 use heim_common::prelude::*;
 use heim_runtime::fs;
@@ -20,7 +20,7 @@ fn match_cpu_n(file_name: Option<&OsStr>) -> bool {
             let core_id = unsafe { str::from_utf8_unchecked(&name.as_bytes()[3..]) };
 
             core_id.parse::<u64>().is_ok()
-        },
+        }
         _ => false,
     }
 }
@@ -31,7 +31,7 @@ async fn topology() -> Result2<u64> {
     while let Some(entry) = cpu_entries.next().await {
         let entry = entry?;
         if !match_cpu_n(entry.path().file_name()) {
-            continue
+            continue;
         }
 
         let core_id_path = entry.path().join("topology/core_id");
@@ -60,7 +60,10 @@ fn parse_line(line: &str) -> Result2<u64> {
 
 /// What happens here: we are parsing the `/proc/cpuinfo` file line by line
 /// and grouping consequent `"physical id: *"` and `"core id: *"` lines.
-async fn cpu_info<T>(path: T) -> Result<Option<u64>> where T: AsRef<Path> + Send + Unpin + 'static {
+async fn cpu_info<T>(path: T) -> Result<Option<u64>>
+where
+    T: AsRef<Path> + Send + Unpin + 'static,
+{
     let mut physical_id: Option<u64> = None;
     let mut group: HashSet<(u64, u64)> = HashSet::new();
 
@@ -73,19 +76,21 @@ async fn cpu_info<T>(path: T) -> Result<Option<u64>> where T: AsRef<Path> + Send
                     physical_id = Some(core_id);
                 } else {
                     // TODO: Attach context data for error
-                    return Err(io::Error::from(io::ErrorKind::InvalidData).into())
+                    return Err(io::Error::from(io::ErrorKind::InvalidData).into());
                 }
-            },
+            }
             line if line.starts_with("core id") => {
                 let core_id = parse_line(line)?;
                 if physical_id.is_some() {
-                    let phys_id = physical_id.take().expect("Unreachable, match guard covers this");
+                    let phys_id = physical_id
+                        .take()
+                        .expect("Unreachable, match guard covers this");
                     let _ = group.insert((phys_id, core_id));
                 } else {
                     // TODO: Attach context data for error
-                    return Err(io::Error::from(io::ErrorKind::InvalidData).into())
+                    return Err(io::Error::from(io::ErrorKind::InvalidData).into());
                 }
-            },
+            }
             _ => continue,
         }
     }
@@ -100,7 +105,7 @@ async fn cpu_info<T>(path: T) -> Result<Option<u64>> where T: AsRef<Path> + Send
 pub async fn physical_count() -> Result<Option<u64>> {
     match topology().await {
         Ok(value) => Ok(Some(value)),
-        Err(..) => cpu_info("/proc/cpuinfo").await
+        Err(..) => cpu_info("/proc/cpuinfo").await,
     }
 }
 
