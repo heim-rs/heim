@@ -39,7 +39,8 @@ macro_rules! try_method {
 
 #[heim_derive::test]
 async fn smoke_processes() {
-    let mut processes = process::processes();
+    let processes = process::processes();
+    pin_utils::pin_mut!(processes);
 
     while let Some(process) = processes.next().await {
         let process = match process {
