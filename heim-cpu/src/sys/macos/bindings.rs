@@ -102,6 +102,8 @@ extern "C" {
     ) -> kern_return_t;
 }
 
+// TODO: Fn itself is not `unsafe`
+// TODO: Return `io::Result` instead
 #[allow(trivial_casts)]
 pub unsafe fn cpu_load_info() -> Result<host_cpu_load_info> {
     let port = macos::mach_host_self();
@@ -130,6 +132,8 @@ pub unsafe fn cpu_load_info() -> Result<host_cpu_load_info> {
     }
 }
 
+// TODO: Fn itself is not `unsafe`
+// TODO: Return `io::Result` instead
 #[allow(trivial_casts)]
 pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     let port = macos::mach_host_self();
@@ -178,6 +182,8 @@ pub unsafe fn processor_load_info() -> Result<Vec<processor_cpu_load_info>> {
     }
 }
 
+// TODO: Fn itself is not `unsafe`
+// TODO: Return `io::Result` instead
 #[allow(trivial_casts)]
 pub unsafe fn vm_meter() -> Result<vmmeter> {
     let port = macos::mach_host_self();
@@ -206,6 +212,7 @@ pub unsafe fn vm_meter() -> Result<vmmeter> {
     }
 }
 
+// TODO: Return `io::Result` instead
 #[allow(trivial_casts)]
 unsafe fn frequency(key: &[u8]) -> Result<u64> {
     let str = CStr::from_bytes_with_nul_unchecked(key);

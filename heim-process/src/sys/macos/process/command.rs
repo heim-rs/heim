@@ -48,7 +48,7 @@ pub async fn command(pid: Pid) -> ProcessResult<Command> {
             } else {
                 Err(e.into())
             }
-        },
+        }
         Err(e) => Err(e.into()),
     }
 }

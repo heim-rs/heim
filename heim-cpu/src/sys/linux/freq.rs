@@ -1,3 +1,4 @@
+use std::io;
 use std::ops;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
@@ -35,84 +36,72 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
     }
 }
 
-pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
-    let init = CpuFrequency::default();
-    frequencies()
-        .try_fold((init, 0u64), |(acc, amount), freq| {
-            future::ok((acc + freq, amount + 1))
+pub async fn frequency() -> Result2<CpuFrequency> {
+    let mut acc = CpuFrequency::default();
+    let mut amount = 0;
+    let frequencies = frequencies();
+    pin_utils::pin_mut!(frequencies);
+
+    while let Some(frequency) = frequencies.next().await {
+        acc = acc + frequency?;
+        amount += 1;
+    }
+
+    // Amount could be 0 if there is an implementation bug or we are in the virtualized environment
+    // and should fetch the information from some other place.
+
+    if amount > 0 {
+        Ok(CpuFrequency {
+            current: acc.current / amount,
+            min: acc.min.map(|value| value / amount),
+            max: acc.max.map(|value| value / amount),
         })
-        .then(|result| {
-            match result {
-                // Will panic here if `frequencies()` stream returns nothing,
-                // which is either a bug in implementation or we are in container
-                // and should fetch information from the another place.
-                //
-                // Also, `bind_by_move_pattern_guards` feature
-                // would simplify the following code a little,
-                // `freq` can be modified and returned in place
-                Ok((ref freq, amount)) if amount > 0 => future::ok(CpuFrequency {
-                    current: freq.current / amount,
-                    min: freq.min.map(|value| value / amount),
-                    max: freq.max.map(|value| value / amount),
-                }),
-                // Unable to determine CPU frequencies for some reasons.
-                // Might happen for containerized environments, such as Microsoft Azure, for example.
-                Ok(_) => future::err(Error::incompatible(
-                    "No CPU frequencies was found, running in VM?",
-                )),
-                Err(e) => future::err(e),
-            }
-        })
+    } else {
+        // TODO: Attach error context
+        Err(io::Error::from(io::ErrorKind::InvalidData).into())
+    }
 }
 
-pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
+pub fn frequencies() -> impl Stream<Item = Result2<CpuFrequency>> {
     // TODO: psutil looks into `/sys/devices/system/cpu/cpufreq/policy*` at first
-    // But at my machine with Linux 5.0 `./cpu/cpu*/cpufreq` are symlinks to the `policy*`,
+    // But on my machine with Linux 5.0 `./cpu/cpu*/cpufreq` are symlinks to the `policy*`,
     // so at least we will cover most cases in first iteration and will fix weird values
     // later with the thoughts and patches
 
     // TODO: https://github.com/giampaolo/psutil/issues/1269
 
     fs::read_dir("/sys/devices/system/cpu/")
-        .map_err(Error::from)
-        .try_filter(|entry| {
-            let name = entry.file_name();
-            let bytes = name.as_bytes();
-            if !bytes.starts_with(b"cpu") {
-                return future::ready(false);
-            }
-            let all_digits = &bytes[3..].iter().all(|byte| *byte >= b'0' && *byte <= b'9');
-
-            future::ready(*all_digits)
-        })
-        .map_ok(|entry| entry.path().join("cpufreq"))
-        .try_filter(|path| {
-            // TODO: Get rid of the `.clone()`
-            fs::path_exists(path.clone())
-        })
-        .and_then(|path| {
-            let current = current_freq(&path);
-            let max = max_freq(&path);
-            let min = min_freq(&path);
-
-            future::try_join3(current, max, min)
-        })
-        .and_then(|(current, max, min)| future::ok(CpuFrequency { current, max, min }))
+        .map_err(Error2::from)
+        .try_filter_map(read_frequencies)
 }
 
-#[allow(clippy::redundant_closure)]
-fn read_freq(path: PathBuf) -> impl Future<Output = Result<Frequency>> {
-    fs::read_to_string(path)
-        .map_err(Error::from)
-        .and_then(|value| future::ready(value.trim_end().parse::<u64>().map_err(Error::from)))
-        .map_ok(Frequency::new::<frequency::kilohertz>)
+/// Digging through the `/sys/devices/system/cpu/(cpu[0-9]+)/` folder
+/// and searching for a frequency files, Indiana Jones style.
+async fn read_frequencies(entry: fs::DirEntry) -> Result2<Option<CpuFrequency>> {
+    let name = entry.file_name();
+    let bytes = name.as_bytes();
+
+    // Filtering out folders not matching the `cpu[0-9]+` pattern first
+    if !bytes.starts_with(b"cpu") {
+        return Ok(None);
+    }
+    if !&bytes[3..].iter().all(|byte| *byte >= b'0' && *byte <= b'9') {
+        return Ok(None);
+    }
+
+    let root = entry.path().join("cpufreq");
+
+    let (current, max, min) =
+        future::try_join3(current_freq(&root), max_freq(&root), min_freq(&root)).await?;
+
+    Ok(Some(CpuFrequency { current, max, min }))
 }
 
-fn current_freq(path: &Path) -> impl Future<Output = Result<Frequency>> {
+async fn current_freq(path: &Path) -> Result2<Frequency> {
     // TODO: Wait for Future' `try_select_all` and uncomment the block below
     // Ref: https://github.com/rust-lang-nursery/futures-rs/pull/1557
 
-    read_freq(path.join("scaling_cur_freq"))
+    read_freq_value(path.join("scaling_cur_freq")).await
 
     //    let one = read_freq(path.join("scaling_cur_freq"))
     //        .into_future().fuse();
@@ -127,14 +116,23 @@ fn current_freq(path: &Path) -> impl Future<Output = Result<Frequency>> {
     //    future::ready(result)
 }
 
-fn max_freq(path: &Path) -> impl Future<Output = Result<Option<Frequency>>> {
-    read_freq(path.join("scaling_max_freq"))
-        .into_future()
-        .map(|value| Ok(value.ok()))
+async fn max_freq(path: &Path) -> Result2<Option<Frequency>> {
+    let res = read_freq_value(path.join("scaling_max_freq")).await;
+
+    // We are effectively do not care about any errors here
+    Ok(res.ok())
 }
 
-fn min_freq(path: &Path) -> impl Future<Output = Result<Option<Frequency>>> {
-    read_freq(path.join("scaling_min_freq"))
-        .into_future()
-        .map(|value| Ok(value.ok()))
+async fn min_freq(path: &Path) -> Result2<Option<Frequency>> {
+    let res = read_freq_value(path.join("scaling_min_freq")).await;
+
+    // We are effectively do not care about any errors here
+    Ok(res.ok())
+}
+
+async fn read_freq_value(path: PathBuf) -> Result2<Frequency> {
+    let content = fs::read_to_string(path).await?;
+    let khz = content.trim_end().parse::<u64>()?;
+
+    Ok(Frequency::new::<frequency::kilohertz>(khz))
 }

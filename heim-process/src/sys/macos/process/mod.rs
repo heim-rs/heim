@@ -76,9 +76,7 @@ impl Process {
 
     pub async fn status(&self) -> ProcessResult<Status> {
         match bindings::process(self.pid) {
-            Ok(kinfo_proc) => {
-                Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from)
-            }
+            Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
@@ -183,9 +181,7 @@ pub async fn get(pid: Pid) -> ProcessResult<Process> {
 }
 
 pub async fn current() -> ProcessResult<Process> {
-    let pid = unsafe {
-        libc::getpid()
-    };
+    let pid = unsafe { libc::getpid() };
 
     get(pid).await
 }

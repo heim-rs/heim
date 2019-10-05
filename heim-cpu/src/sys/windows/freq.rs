@@ -27,6 +27,8 @@ impl CpuFrequency {
     }
 }
 
+// TODO: Fn itself is not `unsafe`
+// TODO: Return `io::Result` instead
 unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
     let info = get_system_info();
     if info.dwNumberOfProcessors == 0 {
@@ -54,17 +56,12 @@ unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
     }
 }
 
-pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
-    match unsafe { get_processors() } {
-        Ok(processors) => {
-            let freq = processors
-                .into_iter()
-                .next()
-                .map(CpuFrequency)
-                .ok_or_else(|| Error::incompatible("No processors was found"));
+pub async fn frequency() -> Result2<CpuFrequency> {
+    let processors = unsafe { get_processors()? };
 
-            future::ready(freq)
-        }
-        Err(e) => future::err(e),
-    }
+    processors
+        .into_iter()
+        .next()
+        .map(CpuFrequency)
+        .ok_or_else(|| Error::incompatible("No processors was found").into())
 }

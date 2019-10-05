@@ -12,6 +12,7 @@ use std::os::windows::io::RawHandle;
 use heim_common::prelude::{Future, Stream, TryFutureExt};
 
 use crate::shims;
+pub use std::fs::DirEntry; // TODO: Temporary re-export
 
 /// A reference to an open file in filesystem.
 #[derive(Debug)]
