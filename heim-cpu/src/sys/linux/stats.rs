@@ -20,7 +20,7 @@ impl FromStr for CpuStats {
 
         for line in s.lines() {
             let mut parts = line.split(' ');
-            let (_name, field) = match parts.next() {
+            let (name, field) = match parts.next() {
                 Some(name) if name == "ctxt" => ("ctxt", &mut stats.ctx_switches),
                 Some(name) if name == "intr" => ("intr", &mut stats.interrupts),
                 Some(name) if name == "softirq" => ("softirq", &mut stats.soft_interrupts),
@@ -33,8 +33,12 @@ impl FromStr for CpuStats {
                     matched_lines += 1;
                     *field = value;
                 }
-                // TODO: Add error context
-                None => return Err(io::Error::from(io::ErrorKind::InvalidData).into()),
+                None => {
+                    let e = Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+                        .with_message(format!("Field {} has no value", name));
+
+                    return Err(e);
+                }
             }
 
             if matched_lines == 3 {

@@ -13,6 +13,8 @@ use ntapi::ntpoapi::PROCESSOR_POWER_INFORMATION;
 use winapi::shared::{minwindef, ntstatus};
 use winapi::um::{powerbase, sysinfoapi, winnt};
 
+use heim_common::prelude::{Error2 as Error, Result2 as Result};
+
 pub trait SystemInformation: Sized {
     fn class() -> SYSTEM_INFORMATION_CLASS;
 }
@@ -47,15 +49,16 @@ pub fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
 }
 
 // Safe wrapper around the `NtQuerySystemInformation`
-pub fn query_system_information<T>() -> io::Result<Vec<T>>
+pub fn query_system_information<T>() -> Result<Vec<T>>
 where
     T: SystemInformation,
 {
     let info = get_system_info();
     let proc_amount = info.dwNumberOfProcessors as usize;
     if proc_amount == 0 {
-        // TODO: Attach error context
-        return Err(io::Error::from(io::ErrorKind::NotFound));
+        let e = Error::from(io::Error::from(io::ErrorKind::NotFound))
+            .with_message("GetSystemInfo returned zero CPUs");
+        return Err(e);
     }
 
     let mut info = Vec::<T>::with_capacity(proc_amount);
@@ -69,7 +72,7 @@ where
             ptr::null_mut(),
         );
         if result != ntstatus::STATUS_SUCCESS {
-            return Err(io::Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("NtQuerySystemInformation"));
         }
         info.set_len(proc_amount);
     };
@@ -79,11 +82,12 @@ where
     Ok(info)
 }
 
-pub fn get_processors() -> io::Result<Vec<PROCESSOR_POWER_INFORMATION>> {
+pub fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
     let info = get_system_info();
     if info.dwNumberOfProcessors == 0 {
-        // TODO: Attach error context
-        return Err(io::Error::from(io::ErrorKind::NotFound));
+        let e = Error::from(io::Error::from(io::ErrorKind::NotFound))
+            .with_message("GetSystemInfo returned zero CPUs");
+        return Err(e);
     }
 
     let proc_amount = info.dwNumberOfProcessors as usize;
@@ -105,6 +109,6 @@ pub fn get_processors() -> io::Result<Vec<PROCESSOR_POWER_INFORMATION>> {
 
         Ok(processors)
     } else {
-        Err(io::Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("CallNtPowerInformation"))
     }
 }

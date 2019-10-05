@@ -17,13 +17,30 @@ pub type Result<T> = result::Result<T, Error>;
 /// NG: Type alias for types returned by `heim` functions.
 pub type Result2<T> = result::Result<T, Error2>;
 
-/// NG: Any error which may happen during the data fetching.
 #[derive(Debug)]
+#[allow(missing_docs)]
+pub enum ErrorContext {
+    Message(Cow<'static, str>),
+    NamedSyscall { name: Cow<'static, str> },
+    Syscall { num: libc::c_int },
+    Ffi { func: Cow<'static, str> },
+}
+
+/// NG: Any error which may happen during the data fetching.
 pub struct Error2 {
     source: io::Error,
+    context: Option<ErrorContext>,
 }
 
 impl Error2 {
+    #[doc(hidden)]
+    pub fn new(source: io::Error, ctx: ErrorContext) -> Self {
+        Error2 {
+            source,
+            context: Some(ctx),
+        }
+    }
+
     #[doc(hidden)]
     pub fn last_os_error() -> Error2 {
         Error2::from(io::Error::last_os_error())
@@ -33,11 +50,87 @@ impl Error2 {
     pub fn raw_os_error(&self) -> Option<i32> {
         self.source.raw_os_error()
     }
+
+    #[doc(hidden)]
+    pub fn context(mut self, ctx: ErrorContext) -> Self {
+        self.context = Some(ctx);
+
+        self
+    }
+
+    #[doc(hidden)]
+    pub fn with_message(self, msg: impl Into<Cow<'static, str>>) -> Self {
+        self.context(ErrorContext::Message(msg.into()))
+    }
+
+    #[doc(hidden)]
+    pub fn with_syscall(self, num: impl Into<libc::c_int>) -> Self {
+        self.context(ErrorContext::Syscall { num: num.into() })
+    }
+
+    #[doc(hidden)]
+    pub fn with_named_syscall(self, name: impl Into<Cow<'static, str>>) -> Self {
+        self.context(ErrorContext::NamedSyscall { name: name.into() })
+    }
+
+    #[doc(hidden)]
+    pub fn with_ffi(self, func: impl Into<Cow<'static, str>>) -> Self {
+        self.context(ErrorContext::Ffi { func: func.into() })
+    }
+}
+
+impl fmt::Debug for Error2 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut fmt = f.debug_struct("Error");
+
+        match &self.context {
+            None => {}
+            Some(ErrorContext::Message(..)) => {}
+            Some(ErrorContext::Syscall { num }) => {
+                let _ = fmt.field("syscall", &num);
+            }
+            Some(ErrorContext::NamedSyscall { name }) => {
+                let _ = fmt.field("syscall", &name);
+            }
+            Some(ErrorContext::Ffi { func }) => {
+                let _ = fmt.field("ffi_function", &func);
+            }
+        };
+
+        fmt.field("source", &self.source).finish()
+    }
+}
+
+impl fmt::Display for Error2 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.context {
+            None => fmt::Display::fmt(&self.source, f),
+            Some(ErrorContext::Message(msg)) => f.write_str(&msg),
+            Some(ErrorContext::Syscall { num }) => {
+                f.write_fmt(format_args!("Failed to invoke the `{}` syscall", num,))
+            }
+            Some(ErrorContext::NamedSyscall { name }) => {
+                f.write_fmt(format_args!("Failed to invoke the `{}` syscall", name,))
+            }
+            Some(ErrorContext::Ffi { func }) => {
+                f.write_fmt(format_args!("Failed to call a FFI function `{}`", func))
+            }
+        }
+    }
+}
+
+impl error::Error for Error2 {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        Some(&self.source)
+    }
 }
 
 impl From<io::Error> for Error2 {
     fn from(e: io::Error) -> Error2 {
-        Error2 { source: e }
+        Error2 {
+            source: e,
+            context: None,
+        }
     }
 }
 

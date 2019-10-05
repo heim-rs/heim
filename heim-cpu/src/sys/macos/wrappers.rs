@@ -1,4 +1,3 @@
-use std::io;
 use std::mem;
 use std::ptr;
 use std::slice;
@@ -8,13 +7,13 @@ use mach::message::mach_msg_type_number_t;
 use mach::traps::mach_task_self;
 use mach::vm_types::{integer_t, natural_t, vm_address_t, vm_size_t};
 
-//use heim_common::prelude::*;
+use heim_common::prelude::{Error2 as Error, Result2 as Result};
 use heim_common::sys::macos::{self, host_port::HostPort, sysctl};
 
 use super::bindings::{self, host_cpu_load_info, host_processor_info};
 
 #[allow(trivial_casts)]
-pub fn cpu_load_info() -> io::Result<host_cpu_load_info> {
+pub fn cpu_load_info() -> Result<host_cpu_load_info> {
     let port = HostPort::get();
     let mut stats = host_cpu_load_info::default();
     // TODO: Move to const
@@ -30,14 +29,14 @@ pub fn cpu_load_info() -> io::Result<host_cpu_load_info> {
     };
 
     if result != kern_return::KERN_SUCCESS {
-        Err(io::Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("host_statistics64"))
     } else {
         Ok(stats)
     }
 }
 
 #[allow(trivial_casts)]
-pub fn processor_load_info() -> io::Result<Vec<bindings::processor_cpu_load_info>> {
+pub fn processor_load_info() -> Result<Vec<bindings::processor_cpu_load_info>> {
     let port = HostPort::get();
     let mut cpu_count = 0;
     let mut processor_info: bindings::processor_info_array_t = ptr::null_mut();
@@ -54,7 +53,7 @@ pub fn processor_load_info() -> io::Result<Vec<bindings::processor_cpu_load_info
     };
 
     if result != kern_return::KERN_SUCCESS {
-        Err(io::Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("host_processor_info"))
     } else {
         let cpu_info = unsafe { slice::from_raw_parts(processor_info, cpu_info_count as usize) };
 
@@ -77,7 +76,7 @@ pub fn processor_load_info() -> io::Result<Vec<bindings::processor_cpu_load_info
             )
         };
         if result != kern_return::KERN_SUCCESS {
-            return Err(io::Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("vm_deallocate"));
         }
 
         Ok(stats)
@@ -85,7 +84,7 @@ pub fn processor_load_info() -> io::Result<Vec<bindings::processor_cpu_load_info
 }
 
 #[allow(trivial_casts)]
-pub fn vm_meter() -> io::Result<bindings::vmmeter> {
+pub fn vm_meter() -> Result<bindings::vmmeter> {
     let port = HostPort::get();
     let mut stats = bindings::vmmeter::default();
     // TODO: Move to const
@@ -101,23 +100,26 @@ pub fn vm_meter() -> io::Result<bindings::vmmeter> {
     };
 
     if result != kern_return::KERN_SUCCESS {
-        Err(io::Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("host_statistics"))
     } else {
         Ok(stats)
     }
 }
 
 // Returns hertz
-pub fn cpu_frequency() -> io::Result<u64> {
+pub fn cpu_frequency() -> Result<u64> {
     unsafe { sysctl::sysctlbyname(b"hw.cpufrequency\0") }
+        .map_err(|e| Error::from(e).with_named_syscall("hw.cpufrequency"))
 }
 
 // Returns hertz
-pub fn cpu_frequency_max() -> io::Result<u64> {
-    unsafe { sysctl::sysctlbyname(b"hw.cpufrequency_max\0")? }
+pub fn cpu_frequency_max() -> Result<u64> {
+    unsafe { sysctl::sysctlbyname(b"hw.cpufrequency_max\0") }
+        .map_err(|e| Error::from(e).with_named_syscall("hw.cpufrequency_max"))
 }
 
 // Returns hertz
-pub fn cpu_frequency_min() -> io::Result<u64> {
-    unsafe { sysctl::sysctlbyname(b"hw.cpufrequency_min\0")? }
+pub fn cpu_frequency_min() -> Result<u64> {
+    unsafe { sysctl::sysctlbyname(b"hw.cpufrequency_min\0") }
+        .map_err(|e| Error::from(e).with_named_syscall("hw.cpufrequency_min"))
 }

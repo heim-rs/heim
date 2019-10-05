@@ -1,4 +1,3 @@
-use std::io;
 use std::mem;
 use std::ptr;
 
@@ -13,7 +12,7 @@ pub async fn logical_count() -> Result2<u64> {
     if result > 0 {
         Ok(u64::from(result))
     } else {
-        Err(Error2::last_os_error())
+        Err(Error2::last_os_error().with_ffi("GetActiveProcessorCount"))
     }
 }
 
@@ -42,7 +41,7 @@ pub async fn physical_count() -> Result2<Option<u64>> {
     };
 
     if result == 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(Error2::last_os_error().with_ffi("GetLogicalProcessorInformationEx"));
     } else {
         unsafe {
             buf.set_len(length as usize);

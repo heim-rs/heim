@@ -8,7 +8,7 @@ fn sysconf() -> Result2<u64> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
 
     if result < 0 {
-        Err(Error2::last_os_error())
+        Err(Error2::last_os_error().with_syscall(libc::_SC_NPROCESSORS_ONLN))
     } else {
         Ok(result as u64)
     }

@@ -1,5 +1,3 @@
-use std::io;
-
 use ntapi::ntexapi::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION;
 use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
@@ -40,8 +38,7 @@ pub async fn time() -> Result2<CpuTime> {
     let result = unsafe { processthreadsapi::GetSystemTimes(&mut idle, &mut kernel, &mut user) };
 
     if result == 0 {
-        // TODO: Attach error context
-        Err(io::Error::last_os_error().into())
+        Err(Error2::last_os_error().with_ffi("GetSystemTimes"))
     } else {
         let user = user.into_time();
         let idle = idle.into_time();

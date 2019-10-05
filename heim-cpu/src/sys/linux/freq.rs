@@ -3,7 +3,9 @@ use std::ops;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
-use heim_common::prelude::*;
+use heim_common::prelude::{
+    future, Error2 as Error, Result2 as Result, Stream, StreamExt, TryStreamExt,
+};
 use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
 
@@ -36,7 +38,7 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
     }
 }
 
-pub async fn frequency() -> Result2<CpuFrequency> {
+pub async fn frequency() -> Result<CpuFrequency> {
     let mut acc = CpuFrequency::default();
     let mut amount = 0;
     let frequencies = frequencies();
@@ -57,12 +59,13 @@ pub async fn frequency() -> Result2<CpuFrequency> {
             max: acc.max.map(|value| value / amount),
         })
     } else {
-        // TODO: Attach error context
-        Err(io::Error::from(io::ErrorKind::InvalidData).into())
+        let e = Error::from(io::Error::from(io::ErrorKind::InvalidData))
+            .with_message("Unable to find frequencies information");
+        Err(e)
     }
 }
 
-pub fn frequencies() -> impl Stream<Item = Result2<CpuFrequency>> {
+pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
     // TODO: psutil looks into `/sys/devices/system/cpu/cpufreq/policy*` at first
     // But on my machine with Linux 5.0 `./cpu/cpu*/cpufreq` are symlinks to the `policy*`,
     // so at least we will cover most cases in first iteration and will fix weird values
@@ -71,13 +74,13 @@ pub fn frequencies() -> impl Stream<Item = Result2<CpuFrequency>> {
     // TODO: https://github.com/giampaolo/psutil/issues/1269
 
     fs::read_dir("/sys/devices/system/cpu/")
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .try_filter_map(read_frequencies)
 }
 
 /// Digging through the `/sys/devices/system/cpu/(cpu[0-9]+)/` folder
 /// and searching for a frequency files, Indiana Jones style.
-async fn read_frequencies(entry: fs::DirEntry) -> Result2<Option<CpuFrequency>> {
+async fn read_frequencies(entry: fs::DirEntry) -> Result<Option<CpuFrequency>> {
     let name = entry.file_name();
     let bytes = name.as_bytes();
 
@@ -97,7 +100,7 @@ async fn read_frequencies(entry: fs::DirEntry) -> Result2<Option<CpuFrequency>> 
     Ok(Some(CpuFrequency { current, max, min }))
 }
 
-async fn current_freq(path: &Path) -> Result2<Frequency> {
+async fn current_freq(path: &Path) -> Result<Frequency> {
     // TODO: Wait for Future' `try_select_all` and uncomment the block below
     // Ref: https://github.com/rust-lang-nursery/futures-rs/pull/1557
 
@@ -116,21 +119,21 @@ async fn current_freq(path: &Path) -> Result2<Frequency> {
     //    future::ready(result)
 }
 
-async fn max_freq(path: &Path) -> Result2<Option<Frequency>> {
+async fn max_freq(path: &Path) -> Result<Option<Frequency>> {
     let res = read_freq_value(path.join("scaling_max_freq")).await;
 
     // We are effectively do not care about any errors here
     Ok(res.ok())
 }
 
-async fn min_freq(path: &Path) -> Result2<Option<Frequency>> {
+async fn min_freq(path: &Path) -> Result<Option<Frequency>> {
     let res = read_freq_value(path.join("scaling_min_freq")).await;
 
     // We are effectively do not care about any errors here
     Ok(res.ok())
 }
 
-async fn read_freq_value(path: PathBuf) -> Result2<Frequency> {
+async fn read_freq_value(path: PathBuf) -> Result<Frequency> {
     let content = fs::read_to_string(path).await?;
     let khz = content.trim_end().parse::<u64>()?;
 
