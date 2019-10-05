@@ -1,7 +1,7 @@
 use heim_common::prelude::*;
 use heim_common::units::{frequency, Frequency};
 
-use super::bindings;
+use super::wrappers;
 
 #[derive(Debug)]
 pub struct CpuFrequency {
@@ -25,9 +25,9 @@ impl CpuFrequency {
 }
 
 pub async fn frequency() -> Result2<CpuFrequency> {
-    let current = bindings::cpu_frequency()?;
-    let min = bindings::cpu_frequency_min()?;
-    let max = bindings::cpu_frequency_max()?;
+    let current = wrappers::cpu_frequency()?;
+    let min = wrappers::cpu_frequency_min()?;
+    let max = wrappers::cpu_frequency_max()?;
 
     Ok(CpuFrequency {
         current: Frequency::new::<frequency::hertz>(current),

@@ -23,7 +23,7 @@
     unused_results
 )]
 #![allow(clippy::missing_safety_doc)]
-
+#![allow(deprecated)]
 mod errors;
 #[doc(hidden)]
 pub mod sys;

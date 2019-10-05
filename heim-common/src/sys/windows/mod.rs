@@ -16,15 +16,20 @@ use crate::prelude::*;
 mod time;
 
 #[allow(missing_docs)]
+#[deprecated(note = "Use ntapi crate instead")]
 pub type SYSTEM_INFORMATION_CLASS = minwindef::DWORD;
 
 #[allow(missing_docs)]
+#[deprecated(note = "Use ntapi crate instead")]
 pub const SystemPerformanceInformation: SYSTEM_INFORMATION_CLASS = 2;
 #[allow(missing_docs)]
+#[deprecated(note = "Use ntapi crate instead")]
 pub const SystemProcessInformation: SYSTEM_INFORMATION_CLASS = 5;
 #[allow(missing_docs)]
+#[deprecated(note = "Use ntapi crate instead")]
 pub const SystemProcessorPerformanceInformation: SYSTEM_INFORMATION_CLASS = 8;
 #[allow(missing_docs)]
+#[deprecated(note = "Use ntapi crate instead")]
 pub const SystemInterruptInformation: SYSTEM_INFORMATION_CLASS = 23;
 
 //typedef enum _SYSTEM_INFORMATION_CLASS {
@@ -49,6 +54,7 @@ pub const SystemInterruptInformation: SYSTEM_INFORMATION_CLASS = 23;
 /// ## Returns
 ///
 /// *Pointer* to the loaded `ntdll.dll` library
+#[deprecated(note = "Use ntapi crate instead")]
 pub unsafe fn get_ntdll() -> Result<minwindef::HMODULE> {
     let dll_wide: Vec<winnt::WCHAR> = OsStr::new("ntdll.dll")
         .encode_wide()
@@ -64,6 +70,7 @@ pub unsafe fn get_ntdll() -> Result<minwindef::HMODULE> {
 }
 
 /// Querying some shady and undocumented Windows APIs, what could even go wrong?
+#[deprecated(note = "Use ntapi crate instead")]
 pub unsafe fn NtQuerySystemInformation(
     SystemInformationClass: SYSTEM_INFORMATION_CLASS,
     SystemInformation: ntdef::PVOID,

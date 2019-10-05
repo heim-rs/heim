@@ -60,7 +60,7 @@ fn parse_line(line: &str) -> Result2<u64> {
 
 /// What happens here: we are parsing the `/proc/cpuinfo` file line by line
 /// and grouping consequent `"physical id: *"` and `"core id: *"` lines.
-async fn cpu_info<T>(path: T) -> Result<Option<u64>>
+async fn cpu_info<T>(path: T) -> Result2<Option<u64>>
 where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
@@ -102,7 +102,7 @@ where
     }
 }
 
-pub async fn physical_count() -> Result<Option<u64>> {
+pub async fn physical_count() -> Result2<Option<u64>> {
     match topology().await {
         Ok(value) => Ok(Some(value)),
         Err(..) => cpu_info("/proc/cpuinfo").await,

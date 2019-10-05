@@ -1,3 +1,4 @@
+use std::io;
 use std::mem;
 use std::ptr;
 
@@ -6,7 +7,6 @@ use winapi::um::{sysinfoapi, winbase, winnt};
 use heim_common::prelude::*;
 
 pub async fn logical_count() -> Result2<u64> {
-    // Safety: seems to be a very straightforward function.
     // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getactiveprocessorcount
     let result = unsafe { winbase::GetActiveProcessorCount(winnt::ALL_PROCESSOR_GROUPS) };
 
@@ -17,10 +17,11 @@ pub async fn logical_count() -> Result2<u64> {
     }
 }
 
-pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
+pub async fn physical_count() -> Result2<Option<u64>> {
     let mut buffer_size = 0;
 
     let _ = unsafe {
+        // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformationex
         sysinfoapi::GetLogicalProcessorInformationEx(
             winnt::RelationProcessorCore,
             ptr::null_mut(),
@@ -41,7 +42,7 @@ pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
     };
 
     if result == 0 {
-        return future::err(Error::last_os_error());
+        return Err(io::Error::last_os_error().into());
     } else {
         unsafe {
             buf.set_len(length as usize);
@@ -49,8 +50,8 @@ pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
     }
 
     if !buf.is_empty() {
-        future::ok(Some(buf.len() as u64))
+        Ok(Some(buf.len() as u64))
     } else {
-        future::ok(None)
+        Ok(None)
     }
 }

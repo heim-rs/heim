@@ -59,7 +59,7 @@ pub async fn time() -> Result2<CpuTime> {
     // cumulative time is always the first line
     match lines.next().await {
         Some(Ok(time)) => Ok(time),
-        Some(Err(e)) => Err(e.into()),
+        Some(Err(e)) => Err(e),
         // TODO: Attach error context
         None => Err(io::Error::from(io::ErrorKind::InvalidData).into()),
     }

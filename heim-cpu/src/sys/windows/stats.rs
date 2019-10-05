@@ -1,6 +1,13 @@
+use std::io;
+
 use heim_common::prelude::*;
 
-use super::bindings::winternl;
+use ntapi::ntexapi::{
+    SYSTEM_INTERRUPT_INFORMATION, SYSTEM_PERFORMANCE_INFORMATION,
+    SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION,
+};
+
+use super::wrappers;
 
 #[derive(Debug)]
 pub struct CpuStats {
@@ -28,9 +35,8 @@ impl CpuStats {
     }
 }
 
-fn system_performance_info() -> Result<(u64, u64)> {
-    let perf_info: Vec<winternl::SYSTEM_PERFORMANCE_INFORMATION> =
-        winternl::query_system_information()?;
+fn system_performance_info() -> io::Result<(u64, u64)> {
+    let perf_info: Vec<SYSTEM_PERFORMANCE_INFORMATION> = wrappers::query_system_information()?;
 
     match perf_info.iter().next() {
         Some(sys_info) => Ok((
@@ -41,17 +47,16 @@ fn system_performance_info() -> Result<(u64, u64)> {
     }
 }
 
-fn dpc_count() -> Result<u64> {
-    let info: Vec<winternl::SYSTEM_INTERRUPT_INFORMATION> = winternl::query_system_information()?;
+fn dpc_count() -> io::Result<u64> {
+    let info: Vec<SYSTEM_INTERRUPT_INFORMATION> = wrappers::query_system_information()?;
 
     let count = info.into_iter().fold(0, |acc, item| acc + item.DpcCount);
 
     Ok(count.into())
 }
 
-fn interrupts() -> Result<u64> {
-    let info: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
-        winternl::query_system_information()?;
+fn interrupts() -> io::Result<u64> {
+    let info: Vec<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> = wrappers::query_system_information()?;
 
     let count = info
         .into_iter()

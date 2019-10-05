@@ -2,7 +2,7 @@ use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
 
-use super::bindings;
+use super::{bindings, wrappers};
 
 #[derive(Debug)]
 pub struct CpuTime {
@@ -57,14 +57,14 @@ impl From<bindings::processor_cpu_load_info> for CpuTime {
 }
 
 pub async fn time() -> Result2<CpuTime> {
-    let info = unsafe { bindings::cpu_load_info()? };
+    let info = wrappers::cpu_load_info()?;
 
     Ok(info.into())
 }
 
 pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
     future::lazy(|_| {
-        let processors = unsafe { bindings::processor_load_info()? };
+        let processors = wrappers::processor_load_info()?;
 
         let stream = stream::iter(processors).map(Ok);
 

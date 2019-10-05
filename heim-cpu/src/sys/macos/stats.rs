@@ -1,6 +1,6 @@
 use heim_common::prelude::*;
 
-use super::bindings;
+use super::{bindings, wrappers};
 
 #[derive(Debug)]
 pub struct CpuStats {
@@ -46,7 +46,7 @@ impl From<bindings::vmmeter> for CpuStats {
 }
 
 pub async fn stats() -> Result2<CpuStats> {
-    let vm = unsafe { bindings::vm_meter()? };
+    let vm = wrappers::vm_meter()?;
 
     Ok(vm.into())
 }

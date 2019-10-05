@@ -1,16 +1,13 @@
-use std::mem;
-use std::ptr;
-
-use winapi::shared::{minwindef, ntstatus};
-use winapi::um::{powerbase, winnt};
+use std::fmt;
+use std::io;
 
 use heim_common::prelude::*;
 use heim_common::units::{frequency, Frequency};
 
-use super::bindings::get_system_info;
-use super::bindings::power::PROCESSOR_POWER_INFORMATION;
+use ntapi::ntpoapi::PROCESSOR_POWER_INFORMATION;
 
-#[derive(Debug)]
+use super::wrappers;
+
 pub struct CpuFrequency(PROCESSOR_POWER_INFORMATION);
 
 impl CpuFrequency {
@@ -27,41 +24,25 @@ impl CpuFrequency {
     }
 }
 
-// TODO: Fn itself is not `unsafe`
-// TODO: Return `io::Result` instead
-unsafe fn get_processors() -> Result<Vec<PROCESSOR_POWER_INFORMATION>> {
-    let info = get_system_info();
-    if info.dwNumberOfProcessors == 0 {
-        return Err(Error::incompatible("No processors was found"));
-    }
-
-    let proc_amount = info.dwNumberOfProcessors as usize;
-    let mut processors = Vec::<PROCESSOR_POWER_INFORMATION>::with_capacity(proc_amount);
-    let buffer_length = proc_amount * mem::size_of::<PROCESSOR_POWER_INFORMATION>();
-
-    let result = powerbase::CallNtPowerInformation(
-        winnt::ProcessorInformation,
-        ptr::null_mut(),
-        0,
-        processors.as_mut_ptr() as *mut _,
-        buffer_length as minwindef::ULONG,
-    );
-
-    if result == ntstatus::STATUS_SUCCESS {
-        processors.set_len(proc_amount);
-
-        Ok(processors)
-    } else {
-        Err(Error::last_os_error())
+impl fmt::Debug for CpuFrequency {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("CpuFrequency")
+            .field("number", &self.0.Number)
+            .field("max_mhz", &self.0.MaxMhz)
+            .field("current_mhz", &self.0.CurrentMhz)
+            .field("mhz_limit", &self.0.MhzLimit)
+            .field("max_idle_state", &self.0.MaxIdleState)
+            .field("current_idle_state", &self.0.CurrentIdleState)
+            .finish()
     }
 }
 
 pub async fn frequency() -> Result2<CpuFrequency> {
-    let processors = unsafe { get_processors()? };
+    let processors = wrappers::get_processors()?;
 
     processors
         .into_iter()
         .next()
         .map(CpuFrequency)
-        .ok_or_else(|| Error::incompatible("No processors was found").into())
+        .ok_or_else(|| io::Error::from(io::ErrorKind::NotFound).into())
 }
