@@ -93,11 +93,18 @@ async fn read_frequencies(entry: fs::DirEntry) -> Result<Option<CpuFrequency>> {
     }
 
     let root = entry.path().join("cpufreq");
+    let frequencies =
+        future::try_join3(current_freq(&root), max_freq(&root), min_freq(&root)).await;
 
-    let (current, max, min) =
-        future::try_join3(current_freq(&root), max_freq(&root), min_freq(&root)).await?;
-
-    Ok(Some(CpuFrequency { current, max, min }))
+    match frequencies {
+        Ok((current, max, min)) => Ok(Some(CpuFrequency { current, max, min })),
+        // `Not found` error can happen for a `current_freq` branch,
+        // which effectively means that it is not a folder we are looking for.
+        // This might happen in some virtualized environments,
+        // so we should just skip such errors.
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(e) => Err(e),
+    }
 }
 
 async fn current_freq(path: &Path) -> Result<Frequency> {

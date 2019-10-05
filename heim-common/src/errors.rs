@@ -52,6 +52,11 @@ impl Error2 {
     }
 
     #[doc(hidden)]
+    pub fn kind(&self) -> io::ErrorKind {
+        self.source.kind()
+    }
+
+    #[doc(hidden)]
     pub fn context(mut self, ctx: ErrorContext) -> Self {
         self.context = Some(ctx);
 
