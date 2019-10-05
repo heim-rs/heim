@@ -33,8 +33,6 @@ pub async fn boot_time() -> Result2<Time> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
-
     use super::parse;
 
     #[heim_derive::test]

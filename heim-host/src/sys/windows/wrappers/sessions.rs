@@ -18,7 +18,7 @@ pub struct Sessions<'s> {
 
 impl<'s> Sessions<'s> {
     #[allow(trivial_casts)]
-    pub fn new() -> Result<Sessions<'s>> {
+    pub fn new() -> Result2<Sessions<'s>> {
         let mut info = ptr::null_mut();
         let mut count: DWORD = 0;
 
@@ -34,7 +34,7 @@ impl<'s> Sessions<'s> {
         };
 
         if result == 0 {
-            Err(Error::last_os_error())
+            Err(Error2::last_os_error().with_ffi("WTSEnumerateSessionsW"))
         } else {
             let sessions = unsafe { slice::from_raw_parts_mut(info, count as usize) };
 

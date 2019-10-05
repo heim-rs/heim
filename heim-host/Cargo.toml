@@ -35,6 +35,7 @@ mach = "0.3.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = ">=0.3.8", features = ["sysinfoapi", "libloaderapi", "ws2def", "winbase", "minwindef", "winnt", "ntdef"] }
+ntapi = "0.3.3"
 
 [features]
 runtime-polyfill = ["heim-runtime/runtime-polyfill"]

@@ -1,5 +1,6 @@
 mod session;
 mod sessions;
+pub mod sysinfo;
 mod wts_info;
 
 pub use self::session::Session;

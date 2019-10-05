@@ -82,7 +82,7 @@ impl From<libc::utmpx> for User {
     }
 }
 
-pub fn users() -> impl Stream<Item = Result<User>> {
+pub fn users() -> impl Stream<Item = Result2<User>> {
     future::lazy(|_| {
         let users = get_users::<User>();
 

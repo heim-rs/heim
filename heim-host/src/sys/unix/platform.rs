@@ -38,33 +38,42 @@ impl Platform {
 }
 
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
-pub fn platform() -> impl Future<Output = Result<Platform>> {
-    future::lazy(|_| unsafe {
-        let mut uts = mem::MaybeUninit::<libc::utsname>::uninit();
-        let result = libc::uname(uts.as_mut_ptr());
+pub async fn platform() -> Result2<Platform> {
+    let mut uts = mem::MaybeUninit::<libc::utsname>::uninit();
+    let result = unsafe { libc::uname(uts.as_mut_ptr()) };
 
-        if result != 0 {
-            Err(Error::last_os_error())
-        } else {
-            let uts = uts.assume_init();
-            let raw_arch = CStr::from_ptr(uts.machine.as_ptr()).to_string_lossy();
-            let arch = Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown);
+    if result != 0 {
+        return Err(Error2::last_os_error().with_ffi("uname"));
+    }
 
-            Ok(Platform {
-                system: CStr::from_ptr(uts.sysname.as_ptr())
-                    .to_string_lossy()
-                    .into_owned(),
-                release: CStr::from_ptr(uts.release.as_ptr())
-                    .to_string_lossy()
-                    .into_owned(),
-                version: CStr::from_ptr(uts.version.as_ptr())
-                    .to_string_lossy()
-                    .into_owned(),
-                hostname: CStr::from_ptr(uts.nodename.as_ptr())
-                    .to_string_lossy()
-                    .into_owned(),
-                arch,
-            })
-        }
+    let uts = unsafe { uts.assume_init() };
+    let raw_arch = unsafe { CStr::from_ptr(uts.machine.as_ptr()).to_string_lossy() };
+    let system = unsafe {
+        CStr::from_ptr(uts.sysname.as_ptr())
+            .to_string_lossy()
+            .into_owned()
+    };
+    let release = unsafe {
+        CStr::from_ptr(uts.release.as_ptr())
+            .to_string_lossy()
+            .into_owned()
+    };
+    let version = unsafe {
+        CStr::from_ptr(uts.version.as_ptr())
+            .to_string_lossy()
+            .into_owned()
+    };
+    let hostname = unsafe {
+        CStr::from_ptr(uts.nodename.as_ptr())
+            .to_string_lossy()
+            .into_owned()
+    };
+
+    Ok(Platform {
+        system,
+        release,
+        version,
+        hostname,
+        arch: Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown),
     })
 }
