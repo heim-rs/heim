@@ -90,6 +90,6 @@ mod tests {
         assert_eq!(result.unwrap(), 4);
     }
 
-    static PROC_STAT: &str = include_str!("../../../../assets/linux_proc_stat.txt");
-    static PROC_CPUINFO: &str = include_str!("../../../../assets/linux_proc_cpuinfo.txt");
+    const PROC_STAT: &str = include_str!("../../../../assets/linux_proc_stat.txt");
+    const PROC_CPUINFO: &str = include_str!("../../../../assets/linux_proc_cpuinfo.txt");
 }

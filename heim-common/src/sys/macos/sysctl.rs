@@ -29,3 +29,26 @@ pub unsafe fn sysctlbyname<T>(key: &[u8]) -> io::Result<T> {
         Err(io::Error::last_os_error())
     }
 }
+
+/// Safer wrapper for `libc::syscall`.
+pub fn sysctl<T>(name: &mut [i32]) -> io::Result<T> {
+    let mut size: libc::size_t = mem::size_of::<T>();
+    let mut value = mem::MaybeUninit::<T>::uninit();
+
+    let result = unsafe {
+        libc::sysctl(
+            name.as_mut_ptr(),
+            name.len() as libc::c_uint,
+            value.as_mut_ptr() as *mut libc::c_void,
+            &mut size,
+            ptr::null_mut(),
+            0,
+        )
+    };
+
+    if result < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        unsafe { Ok(value.assume_init()) }
+    }
+}

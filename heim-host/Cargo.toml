@@ -10,6 +10,7 @@ repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
 build = "build.rs"
+exclude = ["assets/"]
 
 [badges]
 maintenance = { status = "experimental" }
@@ -26,6 +27,7 @@ libc = "~0.2"
 [dev-dependencies]
 futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
+tempfile = "3.1.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 lazy_static = "1.3.0"

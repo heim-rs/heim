@@ -10,7 +10,7 @@ cfg_if::cfg_if! {
 
 cfg_if::cfg_if! {
     if #[cfg(target_os = "linux")] {
-        mod linux;
+        pub mod linux;
 
         pub use self::linux::*;
     } else if #[cfg(target_os = "macos")] {

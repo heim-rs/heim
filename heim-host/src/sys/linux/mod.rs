@@ -1,4 +1,4 @@
-mod boot_time;
+pub mod boot_time;
 mod uptime;
 mod users;
 

@@ -125,5 +125,5 @@ mod tests {
         assert_eq!(result.unwrap(), Some(2));
     }
 
-    static PROC_CPUINFO: &str = include_str!("../../../../assets/linux_proc_cpuinfo.txt");
+    const PROC_CPUINFO: &str = include_str!("../../../../assets/linux_proc_cpuinfo.txt");
 }

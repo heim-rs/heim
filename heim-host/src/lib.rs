@@ -3,7 +3,7 @@
 //! This module is enabled with the `host` feature flag (enabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-host/0.0.8")]
-#![deny(
+#![cfg_attr(not(fuzzing), deny(
     unused,
     unused_imports,
     unused_features,
@@ -14,7 +14,7 @@
     nonstandard_style,
     dead_code,
 //    deprecated
-)]
+))]
 #![warn(
     trivial_casts,
     trivial_numeric_casts,
@@ -30,7 +30,10 @@ extern crate winapi;
 
 pub use platforms::target::Arch;
 
+#[cfg(not(fuzzing))]
 mod sys;
+#[cfg(fuzzing)]
+pub mod sys;
 
 mod boot_time;
 pub mod os;

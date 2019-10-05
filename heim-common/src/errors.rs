@@ -23,6 +23,7 @@ pub enum ErrorContext {
     Message(Cow<'static, str>),
     NamedSyscall { name: Cow<'static, str> },
     Syscall { num: libc::c_int },
+    SysCtl { name: Vec<libc::c_int> },
     Ffi { func: Cow<'static, str> },
 }
 
@@ -82,6 +83,13 @@ impl Error2 {
     pub fn with_ffi(self, func: impl Into<Cow<'static, str>>) -> Self {
         self.context(ErrorContext::Ffi { func: func.into() })
     }
+
+    #[doc(hidden)]
+    pub fn with_sysctl(self, name: &[libc::c_int]) -> Self {
+        self.context(ErrorContext::SysCtl {
+            name: Vec::from(name),
+        })
+    }
 }
 
 impl fmt::Debug for Error2 {
@@ -100,6 +108,9 @@ impl fmt::Debug for Error2 {
             Some(ErrorContext::Ffi { func }) => {
                 let _ = fmt.field("ffi_function", &func);
             }
+            Some(ErrorContext::SysCtl { name }) => {
+                let _ = fmt.field("sysctl", &name);
+            }
         };
 
         fmt.field("source", &self.source).finish()
@@ -116,6 +127,9 @@ impl fmt::Display for Error2 {
             }
             Some(ErrorContext::NamedSyscall { name }) => {
                 f.write_fmt(format_args!("Failed to invoke the `{}` syscall", name,))
+            }
+            Some(ErrorContext::SysCtl { name }) => {
+                f.write_fmt(format_args!("Failed to invoke the `{:?}` sysctl", name))
             }
             Some(ErrorContext::Ffi { func }) => {
                 f.write_fmt(format_args!("Failed to call a FFI function `{}`", func))
@@ -136,6 +150,12 @@ impl From<io::Error> for Error2 {
             source: e,
             context: None,
         }
+    }
+}
+
+impl From<num::ParseFloatError> for Error2 {
+    fn from(e: num::ParseFloatError) -> Error2 {
+        io::Error::new(io::ErrorKind::InvalidData, e).into()
     }
 }
 
