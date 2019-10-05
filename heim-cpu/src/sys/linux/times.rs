@@ -1,3 +1,4 @@
+use std::io;
 use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
@@ -20,11 +21,11 @@ pub struct CpuTime {
 }
 
 impl FromStr for CpuTime {
-    type Err = Error;
+    type Err = Error2;
 
     // Parse one line from the /proc/stat, ex.
     // "cpu1 317865 456 71065 3101075 8645 14938 10567 0 0 0"
-    fn from_str(value: &str) -> Result<CpuTime> {
+    fn from_str(value: &str) -> Result2<CpuTime> {
         let mut times = CpuTime::default();
 
         let parts = value.split_whitespace().skip(1);
@@ -53,23 +54,21 @@ impl FromStr for CpuTime {
     }
 }
 
-pub fn time() -> impl Future<Output = Result<CpuTime>> {
+pub async fn time() -> Result2<CpuTime> {
+    let mut lines = fs::read_lines_into::<_, CpuTime, _>("/proc/stat");
     // cumulative time is always the first line
-    fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
-        .into_stream()
-        .take(1)
-        .into_future()
-        .then(|res| match res {
-            (Some(Ok(time)), _) => future::ok(time),
-            (Some(Err(e)), _) => future::err(e),
-            (None, _) => future::err(Error::missing_entity("cumulative time line")),
-        })
+    match lines.next().await {
+        Some(Ok(time)) => Ok(time),
+        Some(Err(e)) => Err(e.into()),
+        // TODO: Attach error context
+        None => Err(io::Error::from(io::ErrorKind::InvalidData).into()),
+    }
 }
 
-pub fn times() -> impl Stream<Item = Result<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
     fs::read_lines("/proc/stat")
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))
-        .map_err(Error::from)
+        .map_err(Error2::from)
         .and_then(|line| future::ready(CpuTime::from_str(&line)))
 }

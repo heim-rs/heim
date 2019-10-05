@@ -45,10 +45,8 @@ impl From<bindings::vmmeter> for CpuStats {
     }
 }
 
-pub fn stats() -> impl Future<Output = Result<CpuStats>> {
-    future::lazy(|_| {
-        let vm = unsafe { bindings::vm_meter()? };
+pub async fn stats() -> Result2<CpuStats> {
+    let vm = unsafe { bindings::vm_meter()? };
 
-        Ok(vm.into())
-    })
+    Ok(vm.into())
 }

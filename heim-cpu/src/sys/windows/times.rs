@@ -1,3 +1,5 @@
+use std::io;
+
 use winapi::shared::minwindef;
 use winapi::um::processthreadsapi;
 
@@ -28,7 +30,7 @@ impl CpuTime {
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
-pub fn time() -> impl Future<Output = Result<CpuTime>> {
+pub async fn time() -> Result2<CpuTime> {
     let mut user = minwindef::FILETIME::default();
     let mut kernel = minwindef::FILETIME::default();
     let mut idle = minwindef::FILETIME::default();
@@ -36,7 +38,8 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
     let result = unsafe { processthreadsapi::GetSystemTimes(&mut idle, &mut kernel, &mut user) };
 
     if result == 0 {
-        future::err(Error::last_os_error())
+        // TODO: Attach error context
+        Err(io::Error::last_os_error().into())
     } else {
         let user = user.into_time();
         let idle = idle.into_time();
@@ -44,11 +47,11 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
         // and leaving only busy kernel time
         let system = kernel.into_time() - idle;
 
-        future::ok(CpuTime { user, system, idle })
+        Ok(CpuTime { user, system, idle })
     }
 }
 
-pub fn times() -> impl Stream<Item = Result<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
     future::lazy(|_| {
         let processors: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
             winternl::query_system_information()?;

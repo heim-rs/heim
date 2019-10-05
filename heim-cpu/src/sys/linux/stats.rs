@@ -44,6 +44,6 @@ impl FromStr for CpuStats {
     }
 }
 
-pub fn stats() -> impl Future<Output = Result<CpuStats>> {
-    fs::read_into("/proc/stat")
+pub async fn stats() -> Result2<CpuStats> {
+    fs::read_into("/proc/stat").map_err(Into::into).await
 }
