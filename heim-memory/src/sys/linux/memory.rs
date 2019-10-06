@@ -1,3 +1,4 @@
+use std::io;
 use std::str::FromStr;
 
 use heim_common::prelude::*;
@@ -17,9 +18,9 @@ pub struct Memory {
 }
 
 impl FromStr for Memory {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(meminfo: &str) -> Result<Self> {
+    fn from_str(meminfo: &str) -> Result2<Self> {
         let mut memory = Memory::default();
         let mut matched_lines = 0u8;
 
@@ -61,6 +62,7 @@ impl FromStr for Memory {
                         bytes
                     }
                 }
+                // TODO: Return an error
                 None => continue,
             }
 
@@ -69,11 +71,11 @@ impl FromStr for Memory {
             }
         }
 
-        // TODO: Kinda bad to name it like this
-        Err(Error::missing_entity("<unknown>"))
+        Err(Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+            .with_message("Unknown /proc/meminfo format"))
     }
 }
 
-pub fn memory() -> impl Future<Output = Result<Memory>> {
-    fs::read_into("/proc/meminfo")
+pub async fn memory() -> Result2<Memory> {
+    fs::read_into("/proc/meminfo").await
 }

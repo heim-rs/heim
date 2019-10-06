@@ -62,25 +62,27 @@ impl fmt::Debug for Swap {
     }
 }
 
-fn memory_status() -> impl Future<Output = Result<sysinfoapi::MEMORYSTATUSEX>> {
-    future::lazy(|_| unsafe {
-        let mut mem_status = mem::MaybeUninit::<sysinfoapi::MEMORYSTATUSEX>::uninit();
-        let length = mem::size_of::<sysinfoapi::MEMORYSTATUSEX>() as minwindef::DWORD;
+fn memory_status() -> Result2<sysinfoapi::MEMORYSTATUSEX> {
+    let mut mem_status = mem::MaybeUninit::<sysinfoapi::MEMORYSTATUSEX>::uninit();
+    let length = mem::size_of::<sysinfoapi::MEMORYSTATUSEX>() as minwindef::DWORD;
+
+    let result = unsafe {
         (*mem_status.as_mut_ptr()).dwLength = length;
 
-        let result = sysinfoapi::GlobalMemoryStatusEx(mem_status.as_mut_ptr());
-        if result == 0 {
-            Err(Error::last_os_error())
-        } else {
-            Ok(mem_status.assume_init())
-        }
-    })
+        sysinfoapi::GlobalMemoryStatusEx(mem_status.as_mut_ptr())
+    };
+
+    if result == 0 {
+        Err(Error2::last_os_error().with_ffi("GlobalMemoryStatusEx"))
+    } else {
+        unsafe { Ok(mem_status.assume_init()) }
+    }
 }
 
-pub fn swap() -> impl Future<Output = Result<Swap>> {
-    memory_status().map_ok(Swap)
+pub async fn swap() -> Result2<Swap> {
+    memory_status().map(Swap)
 }
 
-pub fn memory() -> impl Future<Output = Result<Memory>> {
-    memory_status().map_ok(Memory)
+pub async fn memory() -> Result2<Memory> {
+    memory_status().map(Memory)
 }

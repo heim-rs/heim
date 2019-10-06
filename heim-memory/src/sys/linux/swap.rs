@@ -1,3 +1,4 @@
+use std::io;
 use std::str::FromStr;
 
 use heim_common::prelude::*;
@@ -14,9 +15,9 @@ pub struct VmStat {
 }
 
 impl FromStr for VmStat {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(vmstat: &str) -> Result<Self> {
+    fn from_str(vmstat: &str) -> Result2<Self> {
         let mut stat = VmStat::default();
 
         for line in vmstat.lines() {
@@ -84,7 +85,7 @@ impl Swap {
         self.vm_stat.swap_out
     }
 
-    pub fn parse_str(meminfo: &str, vm_stat: VmStat) -> Result<Self> {
+    pub fn parse_str(meminfo: &str, vm_stat: VmStat) -> Result2<Self> {
         let mut swap = Swap {
             total: Information::new::<information::byte>(0),
             free: Information::new::<information::byte>(0),
@@ -122,6 +123,7 @@ impl Swap {
                         bytes
                     }
                 }
+                // TODO: Return an error
                 None => continue,
             }
 
@@ -130,20 +132,21 @@ impl Swap {
             }
         }
 
-        Err(Error::missing_entity("<unknown>"))
+        Err(Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+            .with_message("Unknown /proc/meminfo format"))
     }
 }
 
-fn vm_stat() -> impl Future<Output = Result<VmStat>> {
-    fs::read_into(PROC_VMSTAT)
+async fn vm_stat() -> Result2<VmStat> {
+    fs::read_into(PROC_VMSTAT).await
 }
 
-pub fn swap() -> impl Future<Output = Result<Swap>> {
-    let meminfo = fs::read_to_string(PROC_MEMINFO);
-    // TODO: Replace with `try_join`
-    future::join(meminfo, vm_stat()).then(|result| match result {
-        (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
-        (Err(e), _) => future::err(e.into()),
-        (_, Err(e)) => future::err(e),
-    })
+pub async fn swap() -> Result2<Swap> {
+    let (meminfo, vm_stat) = future::try_join(
+        fs::read_to_string(PROC_MEMINFO).map_err(Error2::from),
+        vm_stat(),
+    )
+    .await?;
+
+    Swap::parse_str(&meminfo, vm_stat)
 }
