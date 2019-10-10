@@ -1,7 +1,5 @@
 use std::ffi::{OsStr, OsString};
 
-use heim_common::prelude::*;
-
 use crate::{Pid, ProcessResult};
 
 #[derive(Debug)]
@@ -41,6 +39,6 @@ impl<'a> Iterator for CommandIter<'a> {
     }
 }
 
-pub fn command(_pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
-    future::ok(Command {})
+pub async fn command(_pid: Pid) -> ProcessResult<Command> {
+    unimplemented!("https://github.com/heim-rs/heim/issues/105")
 }

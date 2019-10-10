@@ -1,12 +1,12 @@
 use std::convert::TryFrom;
 
-use super::bindings;
+use super::wrappers;
 use crate::{Pid, ProcessError, Status};
 
 pub(crate) fn catch_zombie<T: Into<ProcessError>>(e: T, pid: Pid) -> ProcessError {
     match e.into() {
         ProcessError::Load(ref e) if e.raw_os_error() == Some(libc::ESRCH) => {
-            let kinfo_proc = match bindings::process(pid) {
+            let kinfo_proc = match wrappers::process(pid) {
                 Ok(info) => info,
                 Err(e) => return e,
             };

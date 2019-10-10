@@ -1,12 +1,4 @@
-use std::convert::TryFrom;
-use std::mem;
-use std::ptr;
-
 use mach::{boolean, vm_types};
-
-use heim_common::prelude::Error;
-
-use crate::{Pid, ProcessError, Status};
 
 // Process status values, declared at `bsd/sys/proc.h`
 // ex. http://fxr.watson.org/fxr/source/bsd/sys/proc.h?v=xnu-792.6.70#L149
@@ -22,24 +14,6 @@ pub const SSLEEP: libc::c_char = 3;
 pub const SSTOP: libc::c_char = 4;
 /// Awaiting collection by parent.
 pub const SZOMB: libc::c_char = 5;
-
-impl TryFrom<libc::c_char> for Status {
-    type Error = Error;
-
-    fn try_from(value: libc::c_char) -> Result<Status, Self::Error> {
-        match value {
-            SIDL => Ok(Status::Idle),
-            SRUN => Ok(Status::Running),
-            SSLEEP => Ok(Status::Sleeping),
-            SSTOP => Ok(Status::Stopped),
-            SZOMB => Ok(Status::Zombie),
-            other => Err(Error::incompatible(format!(
-                "Unnknown process p_stat {:?}",
-                other
-            ))),
-        }
-    }
-}
 
 #[allow(non_camel_case_types)]
 type caddr_t = *const libc::c_char;
@@ -165,82 +139,6 @@ pub struct kinfo_proc_eproc {
     pub e_flag: i32,
     pub e_login: [libc::c_char; 12],
     pub e_spare: [i32; 4],
-}
-
-pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
-    let mut name: [i32; 3] = [libc::CTL_KERN, libc::KERN_PROC, libc::KERN_PROC_ALL];
-    let mut size: libc::size_t = 0;
-    let mut processes: Vec<kinfo_proc> = vec![];
-
-    loop {
-        let result = unsafe {
-            libc::sysctl(
-                name.as_mut_ptr(),
-                3,
-                ptr::null_mut(),
-                &mut size,
-                ptr::null_mut(),
-                0,
-            )
-        };
-        if result < 0 {
-            return Err(Error::last_os_error());
-        }
-
-        processes.reserve(size);
-
-        let result = unsafe {
-            libc::sysctl(
-                name.as_mut_ptr(),
-                3,
-                processes.as_mut_ptr() as *mut libc::c_void,
-                &mut size,
-                ptr::null_mut(),
-                0,
-            )
-        };
-        match result {
-            libc::ENOMEM => continue,
-            code if code < 0 => return Err(Error::last_os_error()),
-            _ => {
-                let length = size / mem::size_of::<kinfo_proc>();
-                unsafe {
-                    processes.set_len(length);
-                }
-                debug_assert!(!processes.is_empty());
-
-                return Ok(processes);
-            }
-        }
-    }
-}
-
-pub fn process(pid: Pid) -> Result<kinfo_proc, ProcessError> {
-    let mut name: [i32; 4] = [libc::CTL_KERN, libc::KERN_PROC, libc::KERN_PROC_PID, pid];
-    let mut size: libc::size_t = mem::size_of::<kinfo_proc>();
-    let mut info = mem::MaybeUninit::<kinfo_proc>::uninit();
-
-    let result = unsafe {
-        libc::sysctl(
-            name.as_mut_ptr(),
-            4,
-            info.as_mut_ptr() as *mut libc::c_void,
-            &mut size,
-            ptr::null_mut(),
-            0,
-        )
-    };
-
-    if result < 0 {
-        return Err(Error::last_os_error().into());
-    }
-
-    // sysctl succeeds but size is zero, happens when process has gone away
-    if size == 0 {
-        return Err(ProcessError::NoSuchProcess(pid));
-    }
-
-    unsafe { Ok(info.assume_init()) }
 }
 
 #[cfg(test)]

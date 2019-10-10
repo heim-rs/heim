@@ -3,8 +3,7 @@
 /// https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/process.htm?ts=0,1346
 use std::slice;
 
-use heim_common::prelude::{Error, Result};
-use heim_common::sys::windows as ntdll;
+use heim_common::prelude::{Error2 as Error, Result2 as Result};
 
 use ntapi::ntexapi;
 use winapi::shared::{minwindef, ntdef, ntstatus};
@@ -21,12 +20,12 @@ impl NtProcesses {
 
         loop {
             let result = unsafe {
-                ntdll::NtQuerySystemInformation(
-                    ntdll::SystemProcessInformation,
+                ntexapi::NtQuerySystemInformation(
+                    ntexapi::SystemProcessInformation,
                     data.as_mut_ptr() as ntdef::PVOID,
                     data.capacity() as minwindef::ULONG,
                     &mut needed_size,
-                )?
+                )
             };
 
             match result {

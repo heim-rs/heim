@@ -48,9 +48,9 @@ impl Memory {
 }
 
 impl FromStr for Memory {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(value: &str) -> Result<Memory> {
+    fn from_str(value: &str) -> Result2<Memory> {
         let mut parts = value.split_ascii_whitespace();
         let size = parts
             .try_parse_next::<u64, _>()
@@ -79,6 +79,8 @@ impl FromStr for Memory {
     }
 }
 
-pub fn stat_memory(pid: Pid) -> impl Future<Output = ProcessResult<Memory>> {
-    fs::read_into(format!("/proc/{}/statm", pid)).map_err(Into::into)
+pub async fn stat_memory(pid: Pid) -> ProcessResult<Memory> {
+    fs::read_into(format!("/proc/{}/statm", pid))
+        .map_err(Into::into)
+        .await
 }

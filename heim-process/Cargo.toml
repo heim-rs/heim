@@ -29,6 +29,9 @@ memchr = "~2.2"
 heim-net = { version = "0.0.8", path = "../heim-net" }
 heim-host = { version = "0.0.8", path = "../heim-host" }
 
+[target.'cfg(unix)'.dependencies]
+async-trait = "0.1.13"
+
 [target.'cfg(target_os = "windows")'.dependencies]
 heim-host = { version = "0.0.8", path = "../heim-host" }
 ntapi = "0.3.3"

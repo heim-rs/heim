@@ -11,9 +11,9 @@ use heim_runtime::fs;
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 impl TryFrom<char> for Status {
-    type Error = Error;
+    type Error = Error2;
 
-    fn try_from(value: char) -> Result<Status> {
+    fn try_from(value: char) -> Result2<Status> {
         match value {
             'R' => Ok(Status::Running),
             'S' => Ok(Status::Sleeping),
@@ -26,18 +26,18 @@ impl TryFrom<char> for Status {
             'W' => Ok(Status::Waking),
             'P' => Ok(Status::Parked),
             'I' => Ok(Status::Idle),
-            other => Err(Error::incompatible(format!(
-                "Unknown process state {}",
-                other
-            ))),
+            other => {
+                let inner = io::Error::from(io::ErrorKind::InvalidInput);
+                Err(Error2::from(inner).with_message(format!("Unknown process state {}", other)))
+            }
         }
     }
 }
 
 impl FromStr for Status {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(value: &str) -> Result<Status> {
+    fn from_str(value: &str) -> Result2<Status> {
         match value.chars().next() {
             Some(chr) => Status::try_from(chr),
             // Can only mean a bug in implementation
@@ -60,9 +60,9 @@ pub struct Stat {
 }
 
 impl FromStr for Stat {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result2<Self> {
         let mut parts = s.splitn(2, ' ');
         let pid: Pid = parts.try_parse_next()?;
         let leftover = parts.try_next()?;
@@ -115,23 +115,21 @@ impl FromStr for Stat {
     }
 }
 
-pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
-    fs::read_to_string(format!("/proc/{}/stat", pid))
-        .map_err(move |e| {
-            if e.kind() == io::ErrorKind::NotFound {
-                ProcessError::NoSuchProcess(pid)
-            } else {
-                e.into()
-            }
-        })
-        .and_then(|contents| future::ready(Stat::from_str(&contents).map_err(Into::into)))
-        .and_then(|mut stat| {
-            heim_host::boot_time()
-                .map_err(Into::into)
-                .map_ok(move |boot_time| {
-                    stat.create_time += boot_time;
+pub async fn stat(pid: Pid) -> ProcessResult<Stat> {
+    // TODO: load `/proc/{pid}/stat` and `heim_host::boot_time` in parallel
+    // TODO: Create a benchmark first and check if it will be faster
+    let path = format!("/proc/{}/stat", pid);
 
-                    stat
-                })
-        })
+    let mut stat = match fs::read_to_string(path).await {
+        Ok(ref contents) => Stat::from_str(contents)?,
+        Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
+            return Err(ProcessError::NoSuchProcess(pid))
+        }
+        Err(e) => return Err(e.into()),
+    };
+
+    let boot_time = heim_host::boot_time().await?;
+    stat.create_time += boot_time;
+
+    Ok(stat)
 }

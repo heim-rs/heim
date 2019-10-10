@@ -15,6 +15,7 @@ pub fn pid_exists(pid: Pid) -> bool {
     } else {
         let e = io::Error::last_os_error();
         match e.raw_os_error() {
+            // TODO: Check if these are mapped to the `io::ErrorKind`
             Some(libc::ESRCH) => false,
             Some(libc::EPERM) => true,
             _ => true,
@@ -30,6 +31,7 @@ pub fn pid_kill(pid: Pid, signal: Signal) -> ProcessResult<()> {
     } else {
         let e = io::Error::last_os_error();
         match e.raw_os_error() {
+            // TODO: Check if these are mapped to the `io::ErrorKind`
             Some(libc::ESRCH) => Err(ProcessError::NoSuchProcess(pid)),
             Some(libc::EPERM) => Err(ProcessError::AccessDenied(pid)),
             _ => Err(e.into()),

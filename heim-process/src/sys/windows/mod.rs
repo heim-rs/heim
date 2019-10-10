@@ -1,4 +1,4 @@
-mod bindings;
+mod wrappers;
 
 mod pids;
 mod process;

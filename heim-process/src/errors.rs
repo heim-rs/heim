@@ -3,7 +3,7 @@ use std::fmt;
 use std::io;
 use std::result;
 
-use heim_common::{Error, Error2};
+use heim_common::Error2;
 
 use crate::Pid;
 
@@ -20,9 +20,7 @@ pub enum ProcessError {
     /// Not enough permissions to query the process information.
     AccessDenied(Pid),
     /// Data loading failure.
-    Load(Error),
-    /// NG: Data loading failure.
-    Load2(Error2),
+    Load(Error2),
 
     #[doc(hidden)]
     __Nonexhaustive,
@@ -55,20 +53,14 @@ impl error::Error for ProcessError {
     }
 }
 
-impl From<Error> for ProcessError {
-    fn from(e: Error) -> Self {
-        ProcessError::Load(e)
-    }
-}
-
 impl From<Error2> for ProcessError {
     fn from(e: Error2) -> Self {
-        ProcessError::Load2(e)
+        ProcessError::Load(e)
     }
 }
 
 impl From<io::Error> for ProcessError {
     fn from(e: io::Error) -> Self {
-        ProcessError::from(Error::from(e))
+        ProcessError::from(Error2::from(e))
     }
 }

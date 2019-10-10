@@ -113,9 +113,7 @@ impl Process {
         Ok(other.unique_id == self.unique_id)
     }
 
-    // `Self::signal` needs to return `BoxFuture`,
-    // but the `Self::kill` does not
-    async fn _signal(&self, signal: Signal) -> ProcessResult<()> {
+    pub async fn signal(&self, signal: Signal) -> ProcessResult<()> {
         if self.is_running().await? {
             pid_kill(self.pid, signal)
         } else {
@@ -123,35 +121,32 @@ impl Process {
         }
     }
 
-    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
-        self._signal(signal).boxed()
-    }
-
     pub async fn suspend(&self) -> ProcessResult<()> {
-        self._signal(Signal::Stop).await
+        self.signal(Signal::Stop).await
     }
 
     pub async fn resume(&self) -> ProcessResult<()> {
-        self._signal(Signal::Cont).await
+        self.signal(Signal::Cont).await
     }
 
     pub async fn terminate(&self) -> ProcessResult<()> {
-        self._signal(Signal::Term).await
+        self.signal(Signal::Term).await
     }
 
     pub async fn kill(&self) -> ProcessResult<()> {
-        self._signal(Signal::Kill).await
+        self.signal(Signal::Kill).await
     }
 
     // Linux-specific methods
 
-    pub fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>> {
-        procfs::io(self.pid).boxed()
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        procfs::io(self.pid).await
     }
 
     pub fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
         heim_net::os::linux::io_counters_for_pid(self.pid())
-            .map_err(Into::into)
+            .map_err(Error2::from)  // TODO: TEMPORARY
+            .map_err(ProcessError::from)
             .boxed()
     }
 }

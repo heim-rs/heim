@@ -5,13 +5,11 @@ use std::hash;
 use std::io;
 use std::path::PathBuf;
 
-use futures::future::BoxFuture;
-
 use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::Time;
 
-use super::{bindings, pids, utils::catch_zombie};
+use super::{pids, utils::catch_zombie, wrappers};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::pid_kill;
@@ -37,14 +35,14 @@ impl Process {
     }
 
     pub async fn parent_pid(&self) -> ProcessResult<Pid> {
-        match bindings::process(self.pid) {
+        match wrappers::process(self.pid) {
             Ok(kinfo_proc) => Ok(kinfo_proc.kp_eproc.e_ppid),
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
     pub async fn name(&self) -> ProcessResult<String> {
-        match bindings::process(self.pid) {
+        match wrappers::process(self.pid) {
             Ok(kinfo_proc) => {
                 let raw_str = unsafe { CStr::from_ptr(kinfo_proc.kp_proc.p_comm.as_ptr()) };
                 let name = raw_str.to_string_lossy().into_owned();
@@ -75,7 +73,7 @@ impl Process {
     }
 
     pub async fn status(&self) -> ProcessResult<Status> {
-        match bindings::process(self.pid) {
+        match wrappers::process(self.pid) {
             Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
@@ -111,9 +109,7 @@ impl Process {
         Ok(self == &other)
     }
 
-    // `Self::signal` needs to return `BoxFuture`,
-    // but the `Self::kill` does not
-    async fn _signal(&self, signal: Signal) -> ProcessResult<()> {
+    pub async fn signal(&self, signal: Signal) -> ProcessResult<()> {
         if self.is_running().await? {
             pid_kill(self.pid, signal)
         } else {
@@ -121,24 +117,20 @@ impl Process {
         }
     }
 
-    pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
-        self._signal(signal).boxed()
-    }
-
     pub async fn suspend(&self) -> ProcessResult<()> {
-        self._signal(Signal::Stop).await
+        self.signal(Signal::Stop).await
     }
 
     pub async fn resume(&self) -> ProcessResult<()> {
-        self._signal(Signal::Cont).await
+        self.signal(Signal::Cont).await
     }
 
     pub async fn terminate(&self) -> ProcessResult<()> {
-        self._signal(Signal::Term).await
+        self.signal(Signal::Term).await
     }
 
     pub async fn kill(&self) -> ProcessResult<()> {
-        self._signal(Signal::Kill).await
+        self.signal(Signal::Kill).await
     }
 }
 
@@ -161,7 +153,7 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
 }
 
 pub async fn get(pid: Pid) -> ProcessResult<Process> {
-    match bindings::process(pid) {
+    match wrappers::process(pid) {
         Ok(kinfo_proc) => {
             let create_time = unsafe {
                 // TODO: How can it be guaranteed that in this case

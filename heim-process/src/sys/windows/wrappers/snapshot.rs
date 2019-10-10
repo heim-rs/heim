@@ -4,7 +4,7 @@ use std::mem;
 use winapi::shared::{minwindef, winerror};
 use winapi::um::{handleapi, tlhelp32, winnt};
 
-use heim_common::prelude::*;
+use heim_common::prelude::{Error2 as Error, Result2 as Result};
 
 /// Processes snapshot.
 pub struct Snapshot {

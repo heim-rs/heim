@@ -1,3 +1,4 @@
+use std::io;
 use std::str::FromStr;
 
 use heim_common::prelude::*;
@@ -9,9 +10,9 @@ use crate::os::linux::IoCounters;
 use crate::{ProcessError, ProcessResult};
 
 impl FromStr for IoCounters {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result2<Self> {
         let mut counters = IoCounters::default();
         for line in s.lines() {
             let mut parts = line.split_ascii_whitespace();
@@ -23,7 +24,13 @@ impl FromStr for IoCounters {
                 "read_bytes:" => &mut counters.read_bytes,
                 "write_bytes:" => &mut counters.write_bytes,
                 "cancelled_write_bytes:" => &mut counters.cancelled_write_bytes,
-                other => return Err(Error::incompatible(format!("Unknown field {}", other))),
+                other => {
+                    let inner = io::Error::from(io::ErrorKind::InvalidData);
+
+                    return Err(
+                        Error2::from(inner).with_message(format!("Unknown field {}", other))
+                    );
+                }
             };
 
             *field = parts.try_next()?.parse::<u64>()?;
@@ -35,7 +42,7 @@ impl FromStr for IoCounters {
 
 pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
     let path = format!("/proc/{}/io", pid);
-    match fs::read_into::<_, _, Error>(path).await {
+    match fs::read_into::<_, _, Error2>(path).await {
         Ok(counters) => Ok(counters),
         // TODO: Use error kind instead
         Err(e) if e.raw_os_error() == Some(libc::EACCES) => Err(ProcessError::AccessDenied(pid)),
