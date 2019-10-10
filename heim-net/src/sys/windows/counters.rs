@@ -42,6 +42,6 @@ impl IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     stream::iter(vec![])
 }

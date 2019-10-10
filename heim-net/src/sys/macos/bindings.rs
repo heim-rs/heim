@@ -117,10 +117,11 @@ pub struct if_msghdr_partial {
     pub ifm_type: libc::c_uchar,
 }
 
-pub unsafe fn net_pf_route() -> Result<Routes> {
+pub unsafe fn net_pf_route() -> Result2<Routes> {
     let mut name: [libc::c_int; 6] = [libc::CTL_NET, libc::PF_ROUTE, 0, 0, libc::NET_RT_IFLIST2, 0];
     let mut length: libc::size_t = 0;
 
+    // TODO: Use `heim_common::sys::macos::sysctl`
     let result = libc::sysctl(
         name.as_mut_ptr(),
         6,
@@ -131,7 +132,7 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
     );
 
     if result != 0 {
-        return Err(Error::last_os_error());
+        return Err(Error2::last_os_error().with_sysctl(&name));
     }
 
     let mut data: Vec<u8> = Vec::with_capacity(length);
@@ -148,6 +149,6 @@ pub unsafe fn net_pf_route() -> Result<Routes> {
         data.set_len(length);
         Ok(Routes { position: 0, data })
     } else {
-        Err(Error::last_os_error())
+        Err(Error2::last_os_error().with_sysctl(&name))
     }
 }

@@ -52,7 +52,7 @@ impl fmt::Debug for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     future::lazy(|_| unsafe { net_pf_route() })
         .map_ok(|interfaces| stream::iter(interfaces).map(Ok))
         .try_flatten_stream()
@@ -62,7 +62,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
                 libc::if_indextoname(msg.ifm_index.into(), name.as_mut_ptr() as *mut libc::c_char)
             };
             if result.is_null() {
-                return future::err(Error::last_os_error());
+                return future::err(Error2::last_os_error().with_ffi("if_indextoname"));
             }
             let first_nul = name.iter().position(|c| *c == b'\0').unwrap_or(0);
             let name = String::from_utf8_lossy(&name[..first_nul]).to_string();

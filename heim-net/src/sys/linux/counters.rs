@@ -66,18 +66,15 @@ impl IoCounters {
 }
 
 impl FromStr for IoCounters {
-    type Err = Error;
+    type Err = Error2;
 
     // Example:
     // wlp3s0: 550608563  390526    0    0    0 61962          0         0 14822919  103337    0    0    0     0       0
     // 0
     #[allow(clippy::redundant_closure)]
-    fn from_str(s: &str) -> Result<IoCounters> {
+    fn from_str(s: &str) -> Result2<IoCounters> {
         let mut parts = s.split_whitespace();
-        let interface = match parts.next() {
-            Some(str) => str.trim_end_matches(':').to_string(),
-            None => return Err(Error::incompatible("Unable to parse interface name")),
-        };
+        let interface = parts.try_next()?.trim_end_matches(':').to_string();
 
         Ok(IoCounters {
             interface,
@@ -105,16 +102,16 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     fs::read_lines("/proc/net/dev")
         .skip(2)
-        .map_err(Error::from)
+        .map_err(Error2::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))
 }
 
-pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result2<IoCounters>> {
     fs::read_lines(format!("/proc/{}/net/dev", pid))
         .skip(2)
-        .map_err(Error::from)
+        .map_err(Error2::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))
 }
