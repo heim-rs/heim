@@ -39,7 +39,7 @@ impl Partition {
     }
 }
 
-pub fn partitions() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
     future::lazy(|_| {
         let disks = bindings::Drives::new()?;
 
@@ -62,7 +62,7 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     .try_filter_map(future::ok)
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions_physical() -> impl Stream<Item = Result2<Partition>> {
     partitions().try_filter(|drive| {
         let result = match drive.drive_type {
             Some(DriveType::NoRootDir) => false,

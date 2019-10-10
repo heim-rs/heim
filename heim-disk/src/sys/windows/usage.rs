@@ -47,27 +47,30 @@ impl fmt::Debug for Usage {
     }
 }
 
-pub fn usage<T: AsRef<Path>>(path: T) -> impl Future<Output = Result<Usage>> {
-    future::lazy(move |_| {
-        let path = match widestring::U16CString::from_os_str(path.as_ref()) {
-            Ok(path) => path,
-            Err(_) => return Err(io::Error::from(io::ErrorKind::InvalidInput).into()),
-        };
-
-        let mut usage = Usage::default();
-        let result = unsafe {
-            fileapi::GetDiskFreeSpaceExW(
-                path.as_ptr(),
-                &mut usage.available,
-                &mut usage.total,
-                &mut usage.free,
-            )
-        };
-
-        if result != 0 {
-            Ok(usage)
-        } else {
-            Err(Error::last_os_error())
+pub async fn usage(path: &Path) -> Result2<Usage> {
+    let path = match widestring::U16CString::from_os_str(path) {
+        Ok(path) => path,
+        Err(_) => {
+            let inner = io::Error::from(io::ErrorKind::InvalidInput);
+            return Err(
+                Error2::from(inner).with_message("Can't convert path into the UTF-16 string")
+            );
         }
-    })
+    };
+
+    let mut usage = Usage::default();
+    let result = unsafe {
+        fileapi::GetDiskFreeSpaceExW(
+            path.as_ptr(),
+            &mut usage.available,
+            &mut usage.total,
+            &mut usage.free,
+        )
+    };
+
+    if result != 0 {
+        Ok(usage)
+    } else {
+        Err(Error2::last_os_error().with_ffi("GetDiskFreeSpaceExW"))
+    }
 }

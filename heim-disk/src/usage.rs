@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use heim_common::prelude::*;
+use heim_common::prelude::Result2 as Result;
 use heim_common::units::{Information, Ratio};
 
 use crate::sys;
@@ -52,9 +52,14 @@ impl fmt::Debug for Usage {
 /// Returns disk [Usage] statistics about the partition which contains the given `path`.
 ///
 /// [Usage]: ./struct.Usage.html
-pub fn usage<T>(path: T) -> impl Future<Output = Result<Usage>>
+pub async fn usage<T>(path: T) -> Result<Usage>
 where
     T: AsRef<Path>,
 {
-    sys::usage(path).map(|res| res.map(Into::into))
+    usage_inner(path.as_ref()).await
+}
+
+// Monomorphizing it
+async fn usage_inner(path: &Path) -> Result<Usage> {
+    sys::usage(path).await.map(Into::into)
 }

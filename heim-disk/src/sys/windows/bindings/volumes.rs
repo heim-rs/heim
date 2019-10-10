@@ -25,7 +25,7 @@ impl Volumes {
         }
     }
 
-    fn find_first_volume(&mut self) -> Result<PathBuf> {
+    fn find_first_volume(&mut self) -> Result2<PathBuf> {
         let handle = unsafe {
             fileapi::FindFirstVolumeW(
                 self.buffer.as_mut_ptr(),
@@ -34,7 +34,7 @@ impl Volumes {
         };
 
         if handle == handleapi::INVALID_HANDLE_VALUE {
-            Err(Error::last_os_error())
+            Err(Error2::last_os_error().with_ffi("FindFirstVolumeW"))
         } else {
             let first_null = self
                 .buffer
@@ -50,7 +50,7 @@ impl Volumes {
         }
     }
 
-    fn find_next_volume(&mut self, handle: winnt::HANDLE) -> Result<Option<PathBuf>> {
+    fn find_next_volume(&mut self, handle: winnt::HANDLE) -> Result2<Option<PathBuf>> {
         let result = unsafe {
             fileapi::FindNextVolumeW(
                 handle,
@@ -77,7 +77,7 @@ impl Volumes {
                 // Iteration ended
                 Some(ERROR_NO_MORE_FILES) => Ok(None),
                 // Some error
-                _ => Err(error.into()),
+                _ => Err(Error2::from(error).with_ffi("FindNextVolumeW")),
             }
         }
     }
@@ -100,7 +100,7 @@ impl Drop for Volumes {
 }
 
 impl Iterator for Volumes {
-    type Item = Result<PathBuf>;
+    type Item = Result2<PathBuf>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.handle {

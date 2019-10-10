@@ -49,13 +49,13 @@ impl fmt::Debug for Partition {
 /// See [partitions_physical] for physical partitions stream.
 ///
 /// [Partitions]: struct.Partition.html
-pub fn partitions() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
     sys::partitions().map_ok(Into::into)
 }
 
 /// Returns stream which yields physical only mounted disk [Partitions].
 ///
 /// [Partitions]: struct.Partition.html
-pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions_physical() -> impl Stream<Item = Result2<Partition>> {
     sys::partitions_physical().map_ok(Into::into)
 }

@@ -37,30 +37,37 @@ impl IoObject {
     }
 
     /// Gets the parent `io_object_t` for this `io_object_t` if there is one.
-    pub fn parent(&self, plane: &[u8]) -> Result<IoObject> {
+    ///
+    /// ## Safety
+    ///
+    /// It is up to caller to provide proper `plane` value,
+    /// it should be a properly formed null-terminated C string,
+    /// ex. `b"IOService\0"`
+    pub unsafe fn parent(&self, plane: &[u8]) -> Result<IoObject> {
         let mut parent = mem::MaybeUninit::<ffi::io_object_t>::uninit();
 
-        let result = unsafe {
-            ffi::IORegistryEntryGetParentEntry(
-                self.0,
-                plane.as_ref().as_ptr() as *const libc::c_char,
-                parent.as_mut_ptr(),
-            )
-        };
+        let result = ffi::IORegistryEntryGetParentEntry(
+            self.0,
+            plane.as_ref().as_ptr() as *const libc::c_char,
+            parent.as_mut_ptr(),
+        );
 
         if result != kern_return::KERN_SUCCESS {
             Err(Error::last_os_error())
         } else {
-            let parent = unsafe { parent.assume_init() };
+            let parent = parent.assume_init();
             Ok(parent.into())
         }
     }
 
     /// `class_name` should look like `b"IOBlockStorageDriver\0"` --
-    /// a binary string with a trailing `0x00` char
-    pub fn conforms_to(&self, class_name: &[u8]) -> bool {
-        let result =
-            unsafe { ffi::IOObjectConformsTo(self.0, class_name.as_ptr() as *const libc::c_char) };
+    /// a binary string with a trailing `0x00` char.
+    ///
+    /// ## Safety
+    ///
+    /// It is up to caller to provide proper null-terminated C string
+    pub unsafe fn conforms_to(&self, class_name: &[u8]) -> bool {
+        let result = ffi::IOObjectConformsTo(self.0, class_name.as_ptr() as *const libc::c_char);
 
         result != 0
     }

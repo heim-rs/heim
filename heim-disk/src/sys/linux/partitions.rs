@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::ffi::OsStr;
-use std::iter::FromIterator;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -38,27 +38,39 @@ impl Partition {
 }
 
 impl FromStr for Partition {
-    type Err = Error;
+    type Err = Error2;
 
-    fn from_str(line: &str) -> Result<Partition> {
+    fn from_str(line: &str) -> Result2<Partition> {
         // Example: `/dev/sda3 /home ext4 rw,relatime,data=ordered 0 0`
         let mut parts = line.splitn(5, ' ');
         let device = match parts.next() {
             Some(device) if device == "none" => None,
             Some(device) => Some(device.to_string()),
-            None => return Err(Error::missing_entity("device")),
+            None => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+                return Err(Error2::from(inner).with_message("Missing device"));
+            }
         };
         let mount_point = match parts.next() {
             Some(point) => PathBuf::from(point),
-            None => return Err(Error::missing_entity("mount point")),
+            None => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+                return Err(Error2::from(inner).with_message("Missing mount point"));
+            }
         };
         let fs_type = match parts.next() {
             Some(fs) => FileSystem::from_str(fs)?,
-            _ => return Err(Error::missing_entity("file-system type")),
+            None => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+                return Err(Error2::from(inner).with_message("Missing fs type"));
+            }
         };
         let options = match parts.next() {
             Some(opts) => opts.to_string(),
-            None => return Err(Error::missing_entity("options")),
+            None => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+                return Err(Error2::from(inner).with_message("Missing mount options"));
+            }
         };
 
         Ok(Partition {
@@ -71,29 +83,35 @@ impl FromStr for Partition {
 }
 
 // Returns stream with known physical (only!) partitions
-fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
-    fs::read_lines("/proc/filesystems")
-        .map_err(Error::from)
-        .try_filter_map(|line| {
-            let mut parts = line.splitn(2, '\t');
-            let nodev = match parts.next() {
-                Some("nodev") => true,
-                _ => false,
-            };
+async fn known_filesystems() -> Result2<HashSet<FileSystem>> {
+    let mut acc = HashSet::with_capacity(10);
 
-            let fs = match parts.next() {
-                Some("zfs") if nodev => FileSystem::from_str("zfs"),
-                Some(filesystem) if !nodev => FileSystem::from_str(filesystem),
-                _ => return future::ok(None),
-            };
+    let mut lines = fs::read_lines("/proc/filesystems");
+    while let Some(line) = lines.next().await {
+        let line = line?;
+        let mut parts = line.splitn(2, '\t');
+        let nodev = match parts.next() {
+            Some("nodev") => true,
+            _ => false,
+        };
 
-            future::ready(fs.map(Some))
-        })
+        let result = match parts.next() {
+            Some("zfs") if nodev => FileSystem::from_str("zfs"),
+            Some(filesystem) if !nodev => FileSystem::from_str(filesystem),
+            _ => continue,
+        };
+
+        if let Ok(fs) = result {
+            let _ = acc.insert(fs);
+        }
+    }
+
+    Ok(acc)
 }
 
-pub fn partitions() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
     fs::read_lines("/proc/mounts")
-        .map_err(Error::from)
+        .map_err(Error2::from)
         .try_filter_map(|line| {
             let result = Partition::from_str(&line).ok();
 
@@ -101,12 +119,9 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
         })
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
+pub fn partitions_physical() -> impl Stream<Item = Result2<Partition>> {
     known_filesystems()
-        .into_stream()
-        .try_collect::<HashSet<_>>()
-        .map_ok(HashSet::from_iter)
-        .map_ok(|fs: HashSet<FileSystem>| {
+        .map_ok(|fs| {
             partitions().try_filter_map(move |part| match part {
                 Partition { device: None, .. } => future::ok(None),
                 Partition { ref fs_type, .. } if !fs.contains(fs_type) => future::ok(None),

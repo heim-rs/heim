@@ -47,7 +47,7 @@ impl IoCounters {
     }
 }
 
-fn inner_stream<F>(mut filter: F) -> impl Stream<Item = Result<IoCounters>>
+fn inner_stream<F>(mut filter: F) -> impl Stream<Item = Result2<IoCounters>>
 where
     F: FnMut(&Path) -> bool + 'static,
 {
@@ -82,11 +82,11 @@ where
         .try_filter_map(future::ok)
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     inner_stream(|_| true)
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters_physical() -> impl Stream<Item = Result2<IoCounters>> {
     inner_stream(|path: &Path| {
         bindings::DriveType::from_path(path) == Some(bindings::DriveType::Fixed)
     })

@@ -1,7 +1,6 @@
+use std::io;
 use std::mem;
 use std::ptr;
-
-use heim_common::prelude::*;
 
 #[allow(unused)]
 pub const MNT_WAIT: libc::c_int = 1;
@@ -16,7 +15,7 @@ extern "C" {
 // it might be a good idea (maybe?) to wrap it into a `blocking` call
 // and switch to the `MNT_WAIT` mode?
 // Should be considered later.
-pub fn mounts() -> Result<Vec<libc::statfs>> {
+pub fn mounts() -> io::Result<Vec<libc::statfs>> {
     let expected_len = unsafe { getfsstat64(ptr::null_mut(), 0, MNT_NOWAIT) };
     let mut mounts: Vec<libc::statfs> = Vec::with_capacity(expected_len as usize);
     let result = unsafe {
@@ -27,7 +26,7 @@ pub fn mounts() -> Result<Vec<libc::statfs>> {
         )
     };
     if result == -1 {
-        return Err(Error::last_os_error());
+        return Err(io::Error::last_os_error());
     } else {
         debug_assert!(
             expected_len == result,

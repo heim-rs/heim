@@ -54,14 +54,14 @@ impl IoCounters {
 }
 
 impl FromStr for IoCounters {
-    type Err = Error;
+    type Err = Error2;
 
     // At the moment supports format used in Linux 2.6+,
     // except ignoring discard values introduced in Linux 4.18.
     //
     // https://www.kernel.org/doc/Documentation/iostats.txt
     // https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats
-    fn from_str(s: &str) -> Result<IoCounters> {
+    fn from_str(s: &str) -> Result2<IoCounters> {
         let mut parts = s.split_whitespace().skip(2);
 
         let name: String = parts.try_from_next()?;
@@ -94,11 +94,11 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     fs::read_lines_into("/proc/diskstats").into_stream()
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
+pub fn io_counters_physical() -> impl Stream<Item = Result2<IoCounters>> {
     io_counters()
         .and_then(|device| device.is_storage_device().map(|flag| Ok((flag, device))))
         .try_filter(|(is_storage_device, _)| future::ready(*is_storage_device))
