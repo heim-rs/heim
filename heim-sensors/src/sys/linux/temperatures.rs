@@ -18,21 +18,17 @@ fn file_name(prefix: &OsStr, postfix: &[u8]) -> OsString {
     name
 }
 
-fn read_temperature(path: PathBuf) -> impl Future<Output = Result<ThermodynamicTemperature>> {
-    fs::read_to_string(path)
-        .map_err(Error::from)
-        .and_then(|contents| {
-            match contents.trim_end().parse::<f32>() {
-                // Originally value is in millidegrees of Celsius
-                Ok(value) => future::ok(ThermodynamicTemperature::new::<
-                    thermodynamic_temperature::degree_celsius,
-                >(value / 1_000.0)),
-                Err(e) => future::err(e.into()),
-            }
-        })
+async fn read_temperature(path: PathBuf) -> Result2<ThermodynamicTemperature> {
+    let contents = fs::read_to_string(path)?;
+    let temperature = contents.trim_end().parse::<f32>()?;
+
+    // Originally value is in millidegrees of Celsius
+    Ok(ThermodynamicTemperature::new::<
+        thermodynamic_temperature::degree_celsius,
+    >(value / 1_000.0))
 }
 
-fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor>> {
+async fn hwmon_sensor(input: PathBuf) -> Result<TemperatureSensor> {
     // It is guaranteed by `hwmon` and `hwmon_sensor` directory traversals,
     // that it is not a root directory and it points to a file.
     // Otherwise it is an implementation bug.

@@ -7,13 +7,14 @@ use heim_common::units::information;
 use heim_disk as disk;
 
 #[heim_derive::main]
-async fn main() -> Result<()> {
+async fn main() -> Result2<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} Mount",
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type"
     );
 
-    let mut partitions = disk::partitions_physical();
+    let partitions = disk::partitions_physical();
+    pin_utils::pin_mut!(partitions);
     while let Some(part) = partitions.next().await {
         let part = part?;
         let usage = disk::usage(part.mount_point().to_path_buf()).await?;
