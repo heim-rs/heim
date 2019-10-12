@@ -104,6 +104,7 @@ impl FromStr for IoCounters {
 
 pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     fs::read_lines("/proc/net/dev")
+        .try_flatten_stream()
         .skip(2)
         .map_err(Error2::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))
@@ -111,6 +112,7 @@ pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
 
 pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result2<IoCounters>> {
     fs::read_lines(format!("/proc/{}/net/dev", pid))
+        .try_flatten_stream()
         .skip(2)
         .map_err(Error2::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))

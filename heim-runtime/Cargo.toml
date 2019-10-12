@@ -10,17 +10,20 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-heim-common = { version = "0.0.8", path = "../heim-common" }
 cfg-if = "0.1.9"
+futures-util-preview = "0.3.0-alpha.19"
 
-# `runtime-polyfill` feature dependencies
-threadpool = { version = "1.7.1", optional = true }
-lazy_static = { version = "1.3.0", optional = true }
-futures-channel-preview = { version = "0.3.0-alpha.19", optional = true }
+# `runtime-tokio` feature dependencies
+tokio = { version = "0.2.0-alpha.6", optional = true, default-features = false, features = ["fs", "io"] }
+tokio-fs = { version = "0.2.0-alpha.6", optional = true }
+
+# `runtime-async-std` feature dependencies
+async-std = { version = "^0.99", optional = true }
 
 [dev-dependencies]
 version-sync = "0.8"
 
 [features]
-default = ["runtime-polyfill"]
-runtime-polyfill = ["threadpool", "lazy_static", "futures-channel-preview"]
+default = ["runtime-async-std"]
+runtime-tokio = ["tokio", "tokio-fs"]
+runtime-async-std = ["async-std"]

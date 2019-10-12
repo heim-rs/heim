@@ -84,7 +84,8 @@ async fn smoke_time() {
 
 #[heim_derive::test]
 async fn smoke_times() {
-    let mut times = cpu::times();
+    let times = cpu::times();
+    pin_utils::pin_mut!(times);
     while let Some(time) = times.next().await {
         let time = time.unwrap();
 

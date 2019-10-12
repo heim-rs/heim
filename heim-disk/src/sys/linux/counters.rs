@@ -95,7 +95,9 @@ impl FromStr for IoCounters {
 }
 
 pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
-    fs::read_lines_into("/proc/diskstats").into_stream()
+    fs::read_lines_into("/proc/diskstats")
+        .map_err(Error2::from)
+        .try_flatten_stream()
 }
 
 pub fn io_counters_physical() -> impl Stream<Item = Result2<IoCounters>> {

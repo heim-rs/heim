@@ -1,7 +1,6 @@
-use std::marker::Unpin;
 use std::path::Path;
 
-use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryFutureExt, TryStreamExt};
+use heim_common::prelude::{future, StreamExt, TryFutureExt};
 use heim_runtime::fs;
 
 use crate::Virtualization;
@@ -19,99 +18,79 @@ fn try_guess_container(value: &str) -> Result<Virtualization, ()> {
     }
 }
 
-fn detect_wsl<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn detect_wsl<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
-    fs::read_first_line(path).map_err(|_| ()).and_then(|line| {
-        let result = match line {
-            ref probe if probe.contains("Microsoft") => Ok(Virtualization::Wsl),
-            ref probe if probe.contains("WSL") => Ok(Virtualization::Wsl),
-            _ => Err(()),
-        };
-
-        future::ready(result)
-    })
+    let line = fs::read_first_line(path).map_err(|_| ()).await?;
+    match &line {
+        probe if probe.contains("Microsoft") => Ok(Virtualization::Wsl),
+        probe if probe.contains("WSL") => Ok(Virtualization::Wsl),
+        _ => Err(()),
+    }
 }
 
-fn detect_systemd_container<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn detect_systemd_container<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
     // systemd PID 1 might have dropped this information into a file in `/run`.
     // This is better than accessing `/proc/1/environ`,
     // since we don't need `CAP_SYS_PTRACE` for that.
-    fs::read_first_line(path)
-        .map_err(|_| ())
-        .and_then(|line| future::ready(try_guess_container(&line)))
+    let line = fs::read_first_line(path).map_err(|_| ()).await?;
+
+    try_guess_container(&line)
 }
 
-fn detect_cgroups<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn detect_cgroups<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
-    fs::read_lines(path)
-        .map_err(|_| ())
-        .try_filter_map(|line| {
-            match () {
-                // TODO: Is it `lxc` or `lxc-libvirt` here?
-                _ if line.contains("lxc") => future::ok(Some(Virtualization::Lxc)),
-                _ if line.contains("docker") => future::ok(Some(Virtualization::Docker)),
-                _ if line.contains("machine-rkt") => future::ok(Some(Virtualization::Rkt)),
-                _ => future::err(()),
-            }
-        })
-        .into_future()
-        .map(|(value, _)| match value {
-            Some(Ok(virt)) => Ok(virt),
-            _ => Err(()),
-        })
+    let mut lines = fs::read_lines(path).map_err(|_| ()).await?;
+    while let Some(try_line) = lines.next().await {
+        match try_line {
+            Ok(line) if line.contains("lxc") => return Ok(Virtualization::Lxc),
+            Ok(line) if line.contains("docker") => return Ok(Virtualization::Docker),
+            Ok(line) if line.contains("machine-rkt") => return Ok(Virtualization::Rkt),
+            _ => continue,
+        }
+    }
+
+    Err(())
 }
 
-fn detect_openvz() -> impl Future<Output = Result<Virtualization, ()>> {
+async fn detect_openvz() -> Result<Virtualization, ()> {
     let f1 = fs::path_exists("/proc/vz");
     let f2 = fs::path_exists("/proc/bc");
 
-    future::join(f1, f2).map(|result| {
-        match result {
-            // `/proc/vz` exists in container and outside of the container,
-            // `/proc/bc` only outside of the container.
-            (true, false) => Ok(Virtualization::OpenVz),
-            _ => Err(()),
-        }
-    })
+    let (vz, bc) = future::join(f1, f2).await;
+    match (vz, bc) {
+        // `/proc/vz` exists in container and outside of the container,
+        // `/proc/bc` only outside of the container.
+        (true, false) => Ok(Virtualization::OpenVz),
+        _ => Err(()),
+    }
 }
 
-fn detect_init_env<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn detect_init_env<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
-    fs::read_to_string(path)
-        .map_err(|_| ())
-        .and_then(|contents| {
-            let matched = contents
-                .split('\0')
-                .filter_map(|var| {
-                    let mut parts = var.split('=');
-                    // TODO: Should not it be a case-insensitive comparision?
-                    if let Some("container") = parts.next() {
-                        if let Some(value) = parts.next() {
-                            return try_guess_container(value).ok();
-                        }
-                    }
-
-                    None
-                })
-                .next();
-
-            match matched {
-                Some(virt) => future::ok(virt),
-                None => future::err(()),
+    let contents = fs::read_to_string(path).map_err(|_| ()).await?;
+    for part in contents.split('\0') {
+        let mut parts = part.split('=');
+        // TODO: Should not it be a case-insensitive comparision?
+        if let Some("container") = parts.next() {
+            if let Some(value) = parts.next() {
+                return try_guess_container(value);
             }
-        })
+        }
+    }
+
+    Err(())
 }
 
-pub fn detect_container() -> impl Future<Output = Result<Virtualization, ()>> {
+pub async fn detect_container() -> Result<Virtualization, ()> {
     future::err(())
         .or_else(|_| detect_openvz())
         .or_else(|_| detect_wsl("/proc/sys/kernel/osrelease"))
@@ -119,6 +98,7 @@ pub fn detect_container() -> impl Future<Output = Result<Virtualization, ()>> {
         .or_else(|_| detect_init_env("/proc/1/environ"))
         // TODO: Check for a `/proc/1/environ` if there is `container` env var exists
         .or_else(|_| detect_cgroups("/proc/self/cgroup"))
+        .await
 }
 
 #[cfg(test)]

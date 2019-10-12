@@ -38,4 +38,5 @@ winapi = { version = ">=0.3.8", features = ["sysinfoapi", "libloaderapi", "ws2de
 ntapi = "0.3.3"
 
 [features]
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]

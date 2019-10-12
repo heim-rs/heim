@@ -26,6 +26,7 @@ libc = "~0.2"
 [dev-dependencies]
 futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
+pin-utils = "0.1.0-alpha.4"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.15.0"
@@ -34,4 +35,5 @@ nix = "0.15.0"
 hex = "0.4.0"
 
 [features]
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]

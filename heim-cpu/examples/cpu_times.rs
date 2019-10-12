@@ -5,7 +5,8 @@ use heim_cpu as cpu;
 async fn main() -> Result2<()> {
     dbg!(cpu::time().await?);
 
-    let mut times = cpu::times();
+    let times = cpu::times();
+    pin_utils::pin_mut!(times);
     while let Some(time) = times.next().await {
         dbg!(time?);
     }

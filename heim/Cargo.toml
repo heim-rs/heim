@@ -31,7 +31,7 @@ heim-sensors = { version = "0.0.3", path = "../heim-sensors", optional = true }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-polyfill"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-async-std"]
 
 # Modules
 host = ["heim-host"]
@@ -44,15 +44,27 @@ virt = ["heim-virt"]
 sensors = ["heim-sensors"]
 
 # Reactors
-runtime-polyfill = [
-    "heim-runtime/runtime-polyfill",
-    "heim-cpu/runtime-polyfill",
-    "heim-cpu/runtime-polyfill",
-    "heim-disk/runtime-polyfill",
-    "heim-host/runtime-polyfill",
-    "heim-memory/runtime-polyfill",
-    "heim-net/runtime-polyfill",
-    "heim-process/runtime-polyfill",
-    "heim-virt/runtime-polyfill",
-    "heim-sensors/runtime-polyfill",
+runtime-async-std = [
+    "heim-runtime/runtime-async-std",
+    "heim-cpu/runtime-async-std",
+    "heim-cpu/runtime-async-std",
+    "heim-disk/runtime-async-std",
+    "heim-host/runtime-async-std",
+    "heim-memory/runtime-async-std",
+    "heim-net/runtime-async-std",
+    "heim-process/runtime-async-std",
+    "heim-virt/runtime-async-std",
+    "heim-sensors/runtime-async-std",
+]
+runtime-tokio = [
+    "heim-runtime/runtime-tokio",
+    "heim-cpu/runtime-tokio",
+    "heim-cpu/runtime-tokio",
+    "heim-disk/runtime-tokio",
+    "heim-host/runtime-tokio",
+    "heim-memory/runtime-tokio",
+    "heim-net/runtime-tokio",
+    "heim-process/runtime-tokio",
+    "heim-virt/runtime-tokio",
+    "heim-sensors/runtime-tokio",
 ]

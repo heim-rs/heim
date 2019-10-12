@@ -19,7 +19,7 @@ where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
     let mut result = 0;
-    let mut lines = fs::read_lines(path);
+    let mut lines = fs::read_lines(path).await?;
     while let Some(line) = lines.next().await {
         if line?.starts_with("processor") {
             result += 1;
@@ -34,7 +34,7 @@ where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
     let mut result = 0;
-    let mut lines = fs::read_lines(path);
+    let mut lines = fs::read_lines(path).await?;
     // the first "cpu" line aggregates the numbers in all
     // of the other "cpuN" lines, hence skip the first item
     let mut first_skipped = false;

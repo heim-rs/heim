@@ -86,7 +86,7 @@ impl FromStr for Partition {
 async fn known_filesystems() -> Result2<HashSet<FileSystem>> {
     let mut acc = HashSet::with_capacity(10);
 
-    let mut lines = fs::read_lines("/proc/filesystems");
+    let mut lines = fs::read_lines("/proc/filesystems").await?;
     while let Some(line) = lines.next().await {
         let line = line?;
         let mut parts = line.splitn(2, '\t');
@@ -111,6 +111,7 @@ async fn known_filesystems() -> Result2<HashSet<FileSystem>> {
 
 pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
     fs::read_lines("/proc/mounts")
+        .try_flatten_stream()
         .map_err(Error2::from)
         .try_filter_map(|line| {
             let result = Partition::from_str(&line).ok();

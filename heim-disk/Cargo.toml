@@ -43,4 +43,5 @@ version-sync = "0.8"
 pin-utils = "0.1.0-alpha.4"
 
 [features]
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]

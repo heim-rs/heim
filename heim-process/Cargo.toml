@@ -63,4 +63,5 @@ futures-timer = "0.4.0"
 which = "~3.0"
 
 [features]
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]

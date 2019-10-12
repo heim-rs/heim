@@ -1,7 +1,6 @@
-use std::marker::Unpin;
 use std::path::Path;
 
-use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryStreamExt};
+use heim_common::prelude::{StreamExt, TryFutureExt};
 use heim_runtime::fs;
 
 use crate::Virtualization;
@@ -13,40 +12,33 @@ const DEVICE_TREE_ROOT: &str = "/proc/device-tree";
 const HYPERVISOR_COMPAT_PATH: &str = "/proc/device-tree/hypervisor/compatible";
 
 #[allow(unused)]
-fn hypervisor<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn hypervisor<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
-    fs::read_lines(path)
-        .into_stream() // TODO: Looks dumb
-        .into_future()
-        .map(|(try_line, _)| match try_line {
-            Some(Ok(ref line)) if line == "linux,kvm" => Ok(Virtualization::Kvm),
-            Some(Ok(ref line)) if line.contains("xen") => Ok(Virtualization::Xen),
-            Some(Ok(..)) => Ok(Virtualization::Unknown),
-            _ => Err(()),
-        })
+    let line = fs::read_first_line(path).map_err(|_| ()).await?;
+    match line.trim_end() {
+        marker if marker == "linux,kvm" => Ok(Virtualization::Kvm),
+        marker if marker.contains("xen") => Ok(Virtualization::Xen),
+        _ => Ok(Virtualization::Unknown),
+    }
 }
 
 #[allow(unused)]
-fn device_tree<T>(path: T) -> impl Future<Output = Result<Virtualization, ()>>
+async fn device_tree<T>(path: T) -> Result<Virtualization, ()>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
-    fs::read_dir(path)
-        .try_filter(|entry| {
-            let matched = match entry.file_name().to_str() {
-                Some(file_name) if file_name.contains("fw-cfg") => true,
-                _ => false,
-            };
-            future::ready(matched)
-        })
-        .into_stream()
-        .into_future()
-        .map(|(res, _)| match res {
-            Some(..) => Ok(Virtualization::Qemu),
-            None => Err(()),
-        })
+    let mut dir = fs::read_dir(path).map_err(|_| ()).await?;
+    while let Some(entry) = dir.next().await {
+        let entry = entry.map_err(|_| ())?;
+        match entry.file_name().to_str() {
+            Some(file_name) if file_name.contains("fw-cfg") => return Ok(Virtualization::Qemu),
+            _ => continue,
+        }
+    }
+
+    Err(())
 }
 
 #[cfg(any(
@@ -55,8 +47,10 @@ where
     target_arch = "powerpc",
     target_arch = "powerpc64"
 ))]
-pub fn detect_vm_device_tree() -> impl Future<Output = Result<Virtualization, ()>> {
-    hypervisor(HYPERVISOR_COMPAT_PATH).or_else(|_| device_tree(DEVICE_TREE_ROOT))
+pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
+    hypervisor(HYPERVISOR_COMPAT_PATH)
+        .or_else(|_| device_tree(DEVICE_TREE_ROOT))
+        .await
 }
 
 #[cfg(not(any(
@@ -65,8 +59,8 @@ pub fn detect_vm_device_tree() -> impl Future<Output = Result<Virtualization, ()
     target_arch = "powerpc",
     target_arch = "powerpc64"
 )))]
-pub fn detect_vm_device_tree() -> impl Future<Output = Result<Virtualization, ()>> {
-    future::err(())
+pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
+    Err(())
 }
 
 #[cfg(test)]

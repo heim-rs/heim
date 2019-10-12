@@ -1,11 +1,13 @@
-mod polyfill;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "runtime-tokio")] {
+        mod tokio;
 
-pub use self::polyfill::*;
+        pub use self::tokio::*;
+    } else if #[cfg(feature = "runtime-async-std")] {
+        mod async_std;
 
-//cfg_if::cfg_if! {
-//    if #[cfg(feature = "runtime-polyfill")] {
-//        mod polyfill;
-//
-//        pub use self::polyfill::*;
-//    }
-//}
+        pub use self::async_std::*;
+    } else {
+        compile_error!("You need to select the runtime");
+    }
+}

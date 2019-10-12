@@ -1,4 +1,3 @@
-use std::io;
 use std::str::{self, FromStr};
 
 use heim_common::prelude::*;
@@ -55,18 +54,12 @@ impl FromStr for CpuTime {
 }
 
 pub async fn time() -> Result2<CpuTime> {
-    let mut lines = fs::read_lines_into::<_, CpuTime, _>("/proc/stat");
-    // cumulative time is always the first line
-    match lines.next().await {
-        Some(Ok(time)) => Ok(time),
-        Some(Err(e)) => Err(e),
-        // TODO: Attach error context
-        None => Err(io::Error::from(io::ErrorKind::InvalidData).into()),
-    }
+    fs::read_first_line_into("/proc/stat").await
 }
 
 pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
     fs::read_lines("/proc/stat")
+        .try_flatten_stream()
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))
         .map_err(Error2::from)

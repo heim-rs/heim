@@ -4,7 +4,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
 use heim_common::prelude::{
-    future, Error2 as Error, Result2 as Result, Stream, StreamExt, TryStreamExt,
+    future, Error2 as Error, Result2 as Result, Stream, StreamExt, TryFutureExt, TryStreamExt,
 };
 use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
@@ -74,6 +74,7 @@ pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
     // TODO: https://github.com/giampaolo/psutil/issues/1269
 
     fs::read_dir("/sys/devices/system/cpu/")
+        .try_flatten_stream()
         .map_err(Error::from)
         .try_filter_map(read_frequencies)
 }

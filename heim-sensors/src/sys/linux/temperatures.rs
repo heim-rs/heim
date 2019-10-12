@@ -92,14 +92,17 @@ fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
     fs::read_dir("/sys/class/hwmon/")
+        .try_flatten_stream()
         .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .and_then(|entry| {
-            let inner = fs::read_dir(entry.path()).try_filter(|entry| {
-                let name = entry.file_name();
-                let bytes = name.as_bytes();
+            let inner = fs::read_dir(entry.path())
+                .try_flatten_stream()
+                .try_filter(|entry| {
+                    let name = entry.file_name();
+                    let bytes = name.as_bytes();
 
-                future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
-            });
+                    future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
+                });
 
             future::ok(inner)
         })
@@ -115,6 +118,7 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
     fs::read_dir("/sys/class/hwmon/")
+        .try_flatten_stream()
         .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .try_filter(|entry| {
             // TODO: `entry.path()` allocates memory for `PathBuf` twice
@@ -122,12 +126,14 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
             fs::path_exists(entry.path().join("device"))
         })
         .and_then(|entry| {
-            let inner = fs::read_dir(entry.path().join("device")).try_filter(|entry| {
-                let name = entry.file_name();
-                let bytes = name.as_bytes();
+            let inner = fs::read_dir(entry.path().join("device"))
+                .try_flatten_stream()
+                .try_filter(|entry| {
+                    let name = entry.file_name();
+                    let bytes = name.as_bytes();
 
-                future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
-            });
+                    future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
+                });
 
             future::ok(inner)
         })
@@ -139,6 +145,7 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
 // https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
 fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
     fs::read_dir("/sys/class/thermal/")
+        .try_flatten_stream()
         .try_filter(|entry| {
             future::ready(entry.file_name().as_bytes().starts_with(b"thermal_zone"))
         })
@@ -166,6 +173,7 @@ fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
             };
 
             fs::read_dir(root)
+                .try_flatten_stream()
                 .try_filter(|entry| {
                     let name = entry.file_name();
                     let bytes = name.as_bytes();

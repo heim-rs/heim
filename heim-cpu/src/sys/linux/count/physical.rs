@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::io;
-use std::marker::Unpin;
 use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::str;
@@ -27,7 +26,7 @@ fn match_cpu_n(file_name: Option<&OsStr>) -> bool {
 
 async fn topology() -> Result2<u64> {
     let mut acc = HashSet::<u64>::new();
-    let mut cpu_entries = fs::read_dir("/sys/devices/system/cpu");
+    let mut cpu_entries = fs::read_dir("/sys/devices/system/cpu").await?;
     while let Some(entry) = cpu_entries.next().await {
         let entry = entry?;
         if !match_cpu_n(entry.path().file_name()) {
@@ -62,12 +61,12 @@ fn parse_line(line: &str) -> Result2<u64> {
 /// and grouping consequent `"physical id: *"` and `"core id: *"` lines.
 async fn cpu_info<T>(path: T) -> Result2<Option<u64>>
 where
-    T: AsRef<Path> + Send + Unpin + 'static,
+    T: AsRef<Path>,
 {
     let mut physical_id: Option<u64> = None;
     let mut group: HashSet<(u64, u64)> = HashSet::new();
 
-    let mut lines = fs::read_lines(path);
+    let mut lines = fs::read_lines(path).await?;
     while let Some(try_line) = lines.next().await {
         match &try_line? {
             line if line.starts_with("physical id") => {

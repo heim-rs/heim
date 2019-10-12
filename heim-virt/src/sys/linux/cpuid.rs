@@ -24,8 +24,8 @@ pub fn detect_vm_cpuid() -> Result<Virtualization, ()> {
         Hypervisor::Unknown(0x5158_4e51, 0x5342_4d56, 0x0000_4751) => Ok(Virtualization::Qnx),
         // ACRNACRNACRN
         Hypervisor::Unknown(0x4e52_4341, 0x4e52_4341, 0x4e52_4341) => Ok(Virtualization::Acrn),
-        Hypervisor::Unknown(b, c, d) => {
-            dbg!((b, c, d));
+        Hypervisor::Unknown(_b, _c, _d) => {
+            //            dbg!((b, c, d));
             Err(())
         }
     }
