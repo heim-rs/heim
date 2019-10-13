@@ -2,7 +2,7 @@ use heim_common::prelude::*;
 use heim_disk as disk;
 
 #[heim_derive::main]
-async fn main() -> Result2<()> {
+async fn main() -> Result<()> {
     let counters = disk::io_counters();
     pin_utils::pin_mut!(counters);
     while let Some(counter) = counters.next().await {

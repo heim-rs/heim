@@ -23,7 +23,7 @@ pub fn replace_postfix(path: &Path, old: &[u8], new: &[u8]) -> PathBuf {
     PathBuf::from(buffer)
 }
 
-pub async fn read_temperature(path: PathBuf) -> Result2<ThermodynamicTemperature> {
+pub async fn read_temperature(path: PathBuf) -> Result<ThermodynamicTemperature> {
     let contents = fs::read_to_string(path).await?;
     // Originally value is in millidegrees of Celsius
     let value = contents.trim_end().parse::<f32>()? / 1_000.0;
@@ -33,7 +33,7 @@ pub async fn read_temperature(path: PathBuf) -> Result2<ThermodynamicTemperature
     >(value))
 }
 
-pub async fn read_string(path: PathBuf) -> Result2<String> {
+pub async fn read_string(path: PathBuf) -> Result<String> {
     let mut contents = fs::read_to_string(path).await?;
     // In-place trimming, as we know that it ends with `\n`
     let _ = contents.pop();

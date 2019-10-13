@@ -56,13 +56,13 @@ impl From<bindings::processor_cpu_load_info> for CpuTime {
     }
 }
 
-pub async fn time() -> Result2<CpuTime> {
+pub async fn time() -> Result<CpuTime> {
     let info = wrappers::cpu_load_info()?;
 
     Ok(info.into())
 }
 
-pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     future::lazy(|_| {
         let processors = wrappers::processor_load_info()?;
 

@@ -11,7 +11,8 @@ async fn smoke_pid_exists() {
 
 #[heim_derive::test]
 async fn smoke_pids() {
-    let mut pids = process::pids();
+    let pids = process::pids();
+    pin_utils::pin_mut!(pids);
 
     while let Some(pid) = pids.next().await {
         assert!(pid.is_ok());

@@ -117,9 +117,9 @@ impl FileSystem {
 }
 
 impl FromStr for FileSystem {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result2<Self> {
+    fn from_str(s: &str) -> Result<Self> {
         match () {
             _ if s.eq_ignore_ascii_case("ext2") => Ok(FileSystem::Ext2),
             _ if s.eq_ignore_ascii_case("ext3") => Ok(FileSystem::Ext3),

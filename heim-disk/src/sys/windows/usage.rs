@@ -47,13 +47,13 @@ impl fmt::Debug for Usage {
     }
 }
 
-pub async fn usage(path: &Path) -> Result2<Usage> {
+pub async fn usage(path: &Path) -> Result<Usage> {
     let path = match widestring::U16CString::from_os_str(path) {
         Ok(path) => path,
         Err(_) => {
             let inner = io::Error::from(io::ErrorKind::InvalidInput);
             return Err(
-                Error2::from(inner).with_message("Can't convert path into the UTF-16 string")
+                Error::from(inner).with_message("Can't convert path into the UTF-16 string")
             );
         }
     };
@@ -71,6 +71,6 @@ pub async fn usage(path: &Path) -> Result2<Usage> {
     if result != 0 {
         Ok(usage)
     } else {
-        Err(Error2::last_os_error().with_ffi("GetDiskFreeSpaceExW"))
+        Err(Error::last_os_error().with_ffi("GetDiskFreeSpaceExW"))
     }
 }

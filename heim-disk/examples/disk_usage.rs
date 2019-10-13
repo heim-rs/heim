@@ -7,7 +7,7 @@ use heim_common::units::information;
 use heim_disk as disk;
 
 #[heim_derive::main]
-async fn main() -> Result2<()> {
+async fn main() -> Result<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} Mount",
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type"

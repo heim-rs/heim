@@ -5,7 +5,7 @@ use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::{LPWSTR, PVOID};
 use winapi::shared::ws2def::{AF_INET, AF_INET6, AF_IPX, AF_NETBIOS, AF_UNSPEC};
 
-use heim_common::prelude::{Error2, Result2};
+use heim_common::prelude::{Error, Result};
 
 use super::super::bindings::wtsapi32;
 use super::WtsInfo;
@@ -22,7 +22,7 @@ impl Session {
 
     // https://docs.microsoft.com/ru-ru/windows/desktop/api/wtsapi32/ns-wtsapi32-_wtsinfow
     #[allow(trivial_casts)]
-    pub fn info(&self) -> Result2<WtsInfo> {
+    pub fn info(&self) -> Result<WtsInfo> {
         let mut buffer: wtsapi32::PWTSINFOW = ptr::null_mut();
         let mut bytes: DWORD = 0;
         let result = unsafe {
@@ -36,14 +36,14 @@ impl Session {
         };
 
         if result == 0 {
-            return Err(Error2::last_os_error().with_ffi("WTSQuerySessionInformationW"));
+            return Err(Error::last_os_error().with_ffi("WTSQuerySessionInformationW"));
         }
 
         unsafe { Ok(WtsInfo(*buffer)) }
     }
 
     #[allow(trivial_casts)]
-    pub fn address(&self) -> Result2<Option<IpAddr>> {
+    pub fn address(&self) -> Result<Option<IpAddr>> {
         let mut address_ptr: wtsapi32::PWTS_CLIENT_ADDRESS = ptr::null_mut();
         let mut address_bytes: DWORD = 0;
         let result = unsafe {
@@ -57,7 +57,7 @@ impl Session {
         };
 
         if result == 0 {
-            return Err(Error2::last_os_error().with_ffi("WTSQuerySessionInformationW"));
+            return Err(Error::last_os_error().with_ffi("WTSQuerySessionInformationW"));
         }
 
         let address = match unsafe { (*address_ptr).AddressFamily as i32 } {

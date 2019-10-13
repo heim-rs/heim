@@ -47,7 +47,7 @@ impl Nic {
     }
 }
 
-pub fn nic() -> impl Stream<Item = Result2<Nic>> {
+pub fn nic() -> impl Stream<Item = Result<Nic>> {
     // TODO: Stub
     stream::iter(vec![])
 }

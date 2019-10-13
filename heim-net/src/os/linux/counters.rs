@@ -24,6 +24,6 @@ pub trait IoCountersExt {
 ///
 /// Implemented only for Linux for now. For other platforms will return an empty stream.
 #[doc(hidden)]
-pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result2<IoCounters>> {
+pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters_for_pid(pid).map_ok(Into::into)
 }

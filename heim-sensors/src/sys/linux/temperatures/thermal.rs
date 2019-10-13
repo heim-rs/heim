@@ -19,7 +19,7 @@ enum TripPoint {
 
 /// For received `/sys/class/thermal/*/trip_point_0_type` dir entry
 /// returns its path and the `*/trip_point_0_temp` path.
-fn trip_point_paths(entry: fs::DirEntry) -> Result2<Option<(PathBuf, PathBuf)>> {
+fn trip_point_paths(entry: fs::DirEntry) -> Result<Option<(PathBuf, PathBuf)>> {
     let file_name = entry.file_name();
     let bytes = file_name.as_bytes();
     if !(bytes.starts_with(b"trip_point_") && bytes.ends_with(b"_type")) {
@@ -44,7 +44,7 @@ fn trip_point_paths(entry: fs::DirEntry) -> Result2<Option<(PathBuf, PathBuf)>> 
     Ok(Some((temp_path, path)))
 }
 
-async fn read_trip_point(entry: fs::DirEntry) -> Result2<Option<TripPoint>> {
+async fn read_trip_point(entry: fs::DirEntry) -> Result<Option<TripPoint>> {
     let (temp_path, type_path) = match trip_point_paths(entry)? {
         Some(paths) => paths,
         None => return Ok(None),
@@ -60,7 +60,7 @@ async fn read_trip_point(entry: fs::DirEntry) -> Result2<Option<TripPoint>> {
     }
 }
 
-async fn read_sensor(entry: fs::DirEntry) -> Result2<TemperatureSensor> {
+async fn read_sensor(entry: fs::DirEntry) -> Result<TemperatureSensor> {
     let root = entry.path();
     let temperature = sysfs::read_temperature(root.join("temp")).await?;
     let unit_name = sysfs::read_string(root.join("type")).await?;
@@ -92,7 +92,7 @@ async fn read_sensor(entry: fs::DirEntry) -> Result2<TemperatureSensor> {
 }
 
 // https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
-pub fn thermal_zone<T>(root: T) -> impl Stream<Item = Result2<TemperatureSensor>>
+pub fn thermal_zone<T>(root: T) -> impl Stream<Item = Result<TemperatureSensor>>
 where
     T: AsRef<Path>,
 {
@@ -101,6 +101,6 @@ where
         .try_filter(|entry| {
             future::ready(entry.file_name().as_bytes().starts_with(b"thermal_zone"))
         })
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .and_then(read_sensor)
 }

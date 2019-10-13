@@ -3,9 +3,7 @@ use std::ops;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
-use heim_common::prelude::{
-    future, Error2 as Error, Result2 as Result, Stream, StreamExt, TryFutureExt, TryStreamExt,
-};
+use heim_common::prelude::{future, Error, Result, Stream, StreamExt, TryFutureExt, TryStreamExt};
 use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
 

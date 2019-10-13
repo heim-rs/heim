@@ -44,6 +44,6 @@ impl fmt::Debug for Swap {
 /// Returns future which will resolve into [Swap] struct.
 ///
 /// [Swap]: ./struct.Swap.html
-pub async fn swap() -> Result2<Swap> {
+pub async fn swap() -> Result<Swap> {
     sys::swap().map(|res| res.map(Into::into)).await
 }

@@ -18,9 +18,9 @@ pub struct Memory {
 }
 
 impl FromStr for Memory {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(meminfo: &str) -> Result2<Self> {
+    fn from_str(meminfo: &str) -> Result<Self> {
         let mut memory = Memory::default();
         let mut matched_lines = 0u8;
 
@@ -71,11 +71,11 @@ impl FromStr for Memory {
             }
         }
 
-        Err(Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+        Err(Error::from(io::Error::from(io::ErrorKind::InvalidData))
             .with_message("Unknown /proc/meminfo format"))
     }
 }
 
-pub async fn memory() -> Result2<Memory> {
+pub async fn memory() -> Result<Memory> {
     fs::read_into("/proc/meminfo").await
 }

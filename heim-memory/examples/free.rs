@@ -3,7 +3,7 @@ use heim_common::units::information;
 use heim_memory as memory;
 
 #[heim_derive::main]
-async fn main() -> Result2<()> {
+async fn main() -> Result<()> {
     let memory = memory::memory().await?;
     let swap = memory::swap().await?;
 

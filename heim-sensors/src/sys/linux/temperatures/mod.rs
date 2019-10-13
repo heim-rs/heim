@@ -8,7 +8,7 @@ mod sysfs;
 // TODO: See `temperatures()` inner comment
 //mod thermal;
 
-pub fn temperatures() -> impl Stream<Item = Result2<TemperatureSensor>> {
+pub fn temperatures() -> impl Stream<Item = Result<TemperatureSensor>> {
     hwmon::hwmon("/sys/class/hwmon/")
 
     // TODO: Combined stream generates huge type which overflows the Rust type size limit

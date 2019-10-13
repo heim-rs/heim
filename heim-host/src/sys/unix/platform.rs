@@ -38,12 +38,12 @@ impl Platform {
 }
 
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
-pub async fn platform() -> Result2<Platform> {
+pub async fn platform() -> Result<Platform> {
     let mut uts = mem::MaybeUninit::<libc::utsname>::uninit();
     let result = unsafe { libc::uname(uts.as_mut_ptr()) };
 
     if result != 0 {
-        return Err(Error2::last_os_error().with_ffi("uname"));
+        return Err(Error::last_os_error().with_ffi("uname"));
     }
 
     let uts = unsafe { uts.assume_init() };

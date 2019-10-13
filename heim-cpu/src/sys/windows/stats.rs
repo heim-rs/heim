@@ -65,7 +65,7 @@ fn interrupts() -> io::Result<u64> {
     Ok(count.into())
 }
 
-pub async fn stats() -> Result2<CpuStats> {
+pub async fn stats() -> Result<CpuStats> {
     let (ctx_switches, system_calls) = system_performance_info()?;
     let dpc = dpc_count()?;
     let interrupts = interrupts()?;

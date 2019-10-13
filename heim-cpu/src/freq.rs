@@ -58,6 +58,6 @@ impl fmt::Debug for CpuFrequency {
 ///
 /// [CpuFrequency]: ./struct.CpuFrequency.html
 /// [frequencies]: ./os/linux/fn.frequencies.html
-pub async fn frequency() -> Result2<CpuFrequency> {
+pub async fn frequency() -> Result<CpuFrequency> {
     sys::frequency().map_ok(Into::into).await
 }

@@ -45,7 +45,7 @@ impl From<bindings::vmmeter> for CpuStats {
     }
 }
 
-pub async fn stats() -> Result2<CpuStats> {
+pub async fn stats() -> Result<CpuStats> {
     let vm = wrappers::vm_meter()?;
 
     Ok(vm.into())

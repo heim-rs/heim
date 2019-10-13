@@ -4,7 +4,7 @@ use std::io;
 use std::mem;
 use std::path::Path;
 
-use heim_common::prelude::{Error2 as Error, Result2 as Result};
+use heim_common::prelude::{Error, Result};
 use heim_common::units::{information, ratio, Information, Ratio};
 
 use crate::os::unix::Flags;

@@ -3,7 +3,7 @@
 /// https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/process.htm?ts=0,1346
 use std::slice;
 
-use heim_common::prelude::{Error2 as Error, Result2 as Result};
+use heim_common::prelude::{Error, Result};
 
 use ntapi::ntexapi;
 use winapi::shared::{minwindef, ntdef, ntstatus};

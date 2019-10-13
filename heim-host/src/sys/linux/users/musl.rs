@@ -36,6 +36,6 @@ impl User {
     }
 }
 
-pub fn users() -> impl Stream<Item = Result2<User>> {
+pub fn users() -> impl Stream<Item = Result<User>> {
     stream::iter(vec![])
 }

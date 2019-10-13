@@ -3,15 +3,15 @@ use std::io;
 use std::mem;
 use std::ptr;
 
-use heim_common::prelude::{Error2, Result2};
+use heim_common::prelude::{Error, Result};
 
 use super::super::bindings::{self, kinfo_proc};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 impl TryFrom<libc::c_char> for Status {
-    type Error = Error2;
+    type Error = Error;
 
-    fn try_from(value: libc::c_char) -> Result2<Status> {
+    fn try_from(value: libc::c_char) -> Result<Status> {
         match value {
             bindings::SIDL => Ok(Status::Idle),
             bindings::SRUN => Ok(Status::Running),
@@ -20,14 +20,13 @@ impl TryFrom<libc::c_char> for Status {
             bindings::SZOMB => Ok(Status::Zombie),
             other => {
                 let inner = io::Error::from(io::ErrorKind::InvalidData);
-                Err(Error2::from(inner)
-                    .with_message(format!("Unnknown process p_stat {:?}", other)))
+                Err(Error::from(inner).with_message(format!("Unnknown process p_stat {:?}", other)))
             }
         }
     }
 }
 
-pub fn processes() -> Result2<Vec<kinfo_proc>> {
+pub fn processes() -> Result<Vec<kinfo_proc>> {
     let mut name: [i32; 3] = [libc::CTL_KERN, libc::KERN_PROC, libc::KERN_PROC_ALL];
     let mut size: libc::size_t = 0;
     let mut processes: Vec<kinfo_proc> = vec![];
@@ -44,7 +43,7 @@ pub fn processes() -> Result2<Vec<kinfo_proc>> {
             )
         };
         if result < 0 {
-            return Err(Error2::last_os_error());
+            return Err(Error::last_os_error());
         }
 
         processes.reserve(size);
@@ -61,7 +60,7 @@ pub fn processes() -> Result2<Vec<kinfo_proc>> {
         };
         match result {
             libc::ENOMEM => continue,
-            code if code < 0 => return Err(Error2::last_os_error()),
+            code if code < 0 => return Err(Error::last_os_error()),
             _ => {
                 let length = size / mem::size_of::<kinfo_proc>();
                 unsafe {
@@ -92,7 +91,7 @@ pub fn process(pid: Pid) -> ProcessResult<kinfo_proc> {
     };
 
     if result < 0 {
-        return Err(Error2::last_os_error().into());
+        return Err(Error::last_os_error().into());
     }
 
     // TODO: Re-use the `heim_common::sys::macos::sysctl` routines

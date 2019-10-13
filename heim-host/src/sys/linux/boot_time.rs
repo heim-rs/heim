@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::{time, Time};
 use heim_runtime::fs;
 
-pub fn parse(stat: &str) -> Result2<Time> {
+pub fn parse(stat: &str) -> Result<Time> {
     for line in stat.lines() {
         if line.starts_with("btime ") {
             let mut parts = line.splitn(2, ' ');
@@ -21,11 +21,11 @@ pub fn parse(stat: &str) -> Result2<Time> {
         }
     }
 
-    Err(Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+    Err(Error::from(io::Error::from(io::ErrorKind::InvalidData))
         .with_message("Unable to find `btime` value"))
 }
 
-pub async fn boot_time() -> Result2<Time> {
+pub async fn boot_time() -> Result<Time> {
     let stat = fs::read_to_string("/proc/stat").await?;
 
     parse(&stat)

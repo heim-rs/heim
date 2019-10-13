@@ -46,7 +46,7 @@ impl IoCounters {
     }
 }
 
-async fn get_io_counter(disk: iokit::IoObject) -> Result2<Option<IoCounters>> {
+async fn get_io_counter(disk: iokit::IoObject) -> Result<Option<IoCounters>> {
     let parent = unsafe { disk.parent(b"IOService\0") }?;
     let is_block_storage = unsafe { parent.conforms_to(b"IOBlockStorageDriver\0") };
     // It is not a disk, apparently, ignoring it
@@ -72,7 +72,7 @@ async fn get_io_counter(disk: iokit::IoObject) -> Result2<Option<IoCounters>> {
     }))
 }
 
-pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     future::lazy(|_| {
         let port = iokit::IoMasterPort::new()?;
 
@@ -86,6 +86,6 @@ pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
     .try_filter_map(get_io_counter)
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = Result2<IoCounters>> {
+pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
     io_counters().try_filter(|counter| future::ready(!counter.removable))
 }

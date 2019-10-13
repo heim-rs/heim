@@ -80,6 +80,6 @@ impl fmt::Debug for Platform {
 /// Returns `Future` which resolves into [Platform] struct.
 ///
 /// [Platform]: ./struct.Platform.html
-pub async fn platform() -> Result2<Platform> {
+pub async fn platform() -> Result<Platform> {
     sys::platform().map_ok(Into::into).await
 }

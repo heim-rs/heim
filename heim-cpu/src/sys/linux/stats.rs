@@ -12,9 +12,9 @@ pub struct CpuStats {
 }
 
 impl FromStr for CpuStats {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result2<CpuStats> {
+    fn from_str(s: &str) -> Result<CpuStats> {
         let mut stats = CpuStats::default();
         let mut matched_lines = 0u8;
 
@@ -34,7 +34,7 @@ impl FromStr for CpuStats {
                     *field = value;
                 }
                 None => {
-                    let e = Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+                    let e = Error::from(io::Error::from(io::ErrorKind::InvalidData))
                         .with_message(format!("Field {} has no value", name));
 
                     return Err(e);
@@ -50,6 +50,6 @@ impl FromStr for CpuStats {
     }
 }
 
-pub async fn stats() -> Result2<CpuStats> {
+pub async fn stats() -> Result<CpuStats> {
     fs::read_into("/proc/stat").map_err(Into::into).await
 }

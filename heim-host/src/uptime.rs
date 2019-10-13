@@ -5,6 +5,6 @@ use crate::{sys, Time};
 /// Returns future which resolves into [Time] amount from the system boot.
 ///
 /// [Time]: ./struct.Time.html
-pub async fn uptime() -> Result2<Time> {
+pub async fn uptime() -> Result<Time> {
     sys::uptime().await
 }

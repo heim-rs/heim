@@ -1,6 +1,6 @@
 use std::ptr;
 
-use heim_common::{Error2 as Error, Result2 as Result};
+use heim_common::{Error, Result};
 use winapi::ctypes::wchar_t;
 use winapi::um::fileapi;
 

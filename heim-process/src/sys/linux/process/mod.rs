@@ -145,7 +145,7 @@ impl Process {
 
     pub fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
         heim_net::os::linux::io_counters_for_pid(self.pid())
-            .map_err(Error2::from)  // TODO: TEMPORARY
+            .map_err(Error::from)  // TODO: TEMPORARY
             .map_err(ProcessError::from)
             .boxed()
     }

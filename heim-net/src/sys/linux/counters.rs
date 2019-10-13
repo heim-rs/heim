@@ -66,13 +66,13 @@ impl IoCounters {
 }
 
 impl FromStr for IoCounters {
-    type Err = Error2;
+    type Err = Error;
 
     // Example:
     // wlp3s0: 550608563  390526    0    0    0 61962          0         0 14822919  103337    0    0    0     0       0
     // 0
     #[allow(clippy::redundant_closure)]
-    fn from_str(s: &str) -> Result2<IoCounters> {
+    fn from_str(s: &str) -> Result<IoCounters> {
         let mut parts = s.split_whitespace();
         let interface = parts.try_next()?.trim_end_matches(':').to_string();
 
@@ -102,18 +102,18 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result2<IoCounters>> {
+pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     fs::read_lines("/proc/net/dev")
         .try_flatten_stream()
         .skip(2)
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))
 }
 
-pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result2<IoCounters>> {
+pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
     fs::read_lines(format!("/proc/{}/net/dev", pid))
         .try_flatten_stream()
         .skip(2)
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .and_then(|line| future::ready(IoCounters::from_str(&line)))
 }

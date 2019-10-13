@@ -4,17 +4,17 @@ use std::path::Path;
 use heim_common::prelude::*;
 use heim_runtime::fs;
 
-fn sysconf() -> Result2<u64> {
+fn sysconf() -> Result<u64> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
 
     if result < 0 {
-        Err(Error2::last_os_error().with_syscall(libc::_SC_NPROCESSORS_ONLN))
+        Err(Error::last_os_error().with_syscall(libc::_SC_NPROCESSORS_ONLN))
     } else {
         Ok(result as u64)
     }
 }
 
-async fn cpuinfo<T>(path: T) -> Result2<u64>
+async fn cpuinfo<T>(path: T) -> Result<u64>
 where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
@@ -29,7 +29,7 @@ where
     Ok(result)
 }
 
-async fn stat<T>(path: T) -> Result2<u64>
+async fn stat<T>(path: T) -> Result<u64>
 where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
@@ -52,7 +52,7 @@ where
     Ok(result)
 }
 
-pub async fn logical_count() -> Result2<u64> {
+pub async fn logical_count() -> Result<u64> {
     if let result @ Ok(..) = sysconf() {
         return result;
     }

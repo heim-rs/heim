@@ -24,7 +24,7 @@ impl CpuFrequency {
     }
 }
 
-pub async fn frequency() -> Result2<CpuFrequency> {
+pub async fn frequency() -> Result<CpuFrequency> {
     let current = wrappers::cpu_frequency()?;
     let min = wrappers::cpu_frequency_min()?;
     let max = wrappers::cpu_frequency_max()?;

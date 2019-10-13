@@ -24,7 +24,7 @@ fn match_cpu_n(file_name: Option<&OsStr>) -> bool {
     }
 }
 
-async fn topology() -> Result2<u64> {
+async fn topology() -> Result<u64> {
     let mut acc = HashSet::<u64>::new();
     let mut cpu_entries = fs::read_dir("/sys/devices/system/cpu").await?;
     while let Some(entry) = cpu_entries.next().await {
@@ -49,7 +49,7 @@ async fn topology() -> Result2<u64> {
 /// Parse value from the `/proc/cpuinfo` line.
 ///
 /// Line is usually looks like `"physical id\t: 0"`
-fn parse_line(line: &str) -> Result2<u64> {
+fn parse_line(line: &str) -> Result<u64> {
     line.split(':')
         .nth(1)
         .map(|value| value.trim())
@@ -59,7 +59,7 @@ fn parse_line(line: &str) -> Result2<u64> {
 
 /// What happens here: we are parsing the `/proc/cpuinfo` file line by line
 /// and grouping consequent `"physical id: *"` and `"core id: *"` lines.
-async fn cpu_info<T>(path: T) -> Result2<Option<u64>>
+async fn cpu_info<T>(path: T) -> Result<Option<u64>>
 where
     T: AsRef<Path>,
 {
@@ -101,7 +101,7 @@ where
     }
 }
 
-pub async fn physical_count() -> Result2<Option<u64>> {
+pub async fn physical_count() -> Result<Option<u64>> {
     match topology().await {
         Ok(value) => Ok(Some(value)),
         Err(..) => cpu_info("/proc/cpuinfo").await,

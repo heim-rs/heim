@@ -87,7 +87,7 @@ impl fmt::Debug for Platform {
     }
 }
 
-pub async fn platform() -> Result2<Platform> {
+pub async fn platform() -> Result<Platform> {
     let sysinfo = sysinfo::get_native_system_info();
     let version = sysinfo::rtl_get_version()?;
     let hostname = sysinfo::get_computer_name()?;

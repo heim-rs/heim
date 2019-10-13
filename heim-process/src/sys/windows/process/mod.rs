@@ -110,7 +110,7 @@ impl Process {
     // TODO: https://github.com/heim-rs/heim/issues/105
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         let inner = io::Error::from(io::ErrorKind::Other);
-        Err(Error2::from(inner)
+        Err(Error::from(inner)
             .with_message("https://github.com/heim-rs/heim/issues/105")
             .into())
     }

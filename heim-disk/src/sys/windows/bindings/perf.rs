@@ -20,7 +20,7 @@ const ERROR_NOT_SUPPORTED: i32 = winerror::ERROR_NOT_SUPPORTED as i32;
 /// For reference: https://github.com/giampaolo/psutil/blob/5a398984d709d750da1fc0e450d72c771e18f393/psutil/_psutil_windows.c#L2262-L2277
 #[allow(trivial_casts)]
 #[allow(clippy::trivially_copy_pass_by_ref)]
-pub fn disk_performance(volume_path: &Path) -> Result2<Option<winioctl::DISK_PERFORMANCE>> {
+pub fn disk_performance(volume_path: &Path) -> Result<Option<winioctl::DISK_PERFORMANCE>> {
     let os_str = volume_path.as_os_str();
     let mut path = os_str.encode_wide().collect::<Vec<_>>();
     // Dropping out trailing backslash and replacing it with a \0
@@ -42,7 +42,7 @@ pub fn disk_performance(volume_path: &Path) -> Result2<Option<winioctl::DISK_PER
         )
     };
     if handle == handleapi::INVALID_HANDLE_VALUE {
-        return Err(Error2::last_os_error().with_ffi("CreateFileW"));
+        return Err(Error::last_os_error().with_ffi("CreateFileW"));
     }
 
     let mut perf = winioctl::DISK_PERFORMANCE::default();
@@ -63,7 +63,7 @@ pub fn disk_performance(volume_path: &Path) -> Result2<Option<winioctl::DISK_PER
 
     let handle_result = unsafe { handleapi::CloseHandle(handle) };
     if handle_result == 0 {
-        return Err(Error2::last_os_error().with_ffi("CloseHandle"));
+        return Err(Error::last_os_error().with_ffi("CloseHandle"));
     }
 
     if result == 0 {
@@ -72,7 +72,7 @@ pub fn disk_performance(volume_path: &Path) -> Result2<Option<winioctl::DISK_PER
             // See function doc
             Some(ERROR_INVALID_FUNCTION) => Ok(None),
             Some(ERROR_NOT_SUPPORTED) => Ok(None),
-            _ => Err(Error2::from(e).with_ffi("DeviceIoControl")),
+            _ => Err(Error::from(e).with_ffi("DeviceIoControl")),
         }
     } else {
         Ok(Some(perf))

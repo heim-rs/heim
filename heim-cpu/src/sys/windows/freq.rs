@@ -37,7 +37,7 @@ impl fmt::Debug for CpuFrequency {
     }
 }
 
-pub async fn frequency() -> Result2<CpuFrequency> {
+pub async fn frequency() -> Result<CpuFrequency> {
     let processors = wrappers::get_processors()?;
 
     processors

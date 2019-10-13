@@ -20,11 +20,11 @@ pub struct CpuTime {
 }
 
 impl FromStr for CpuTime {
-    type Err = Error2;
+    type Err = Error;
 
     // Parse one line from the /proc/stat, ex.
     // "cpu1 317865 456 71065 3101075 8645 14938 10567 0 0 0"
-    fn from_str(value: &str) -> Result2<CpuTime> {
+    fn from_str(value: &str) -> Result<CpuTime> {
         let mut times = CpuTime::default();
 
         let parts = value.split_whitespace().skip(1);
@@ -53,15 +53,15 @@ impl FromStr for CpuTime {
     }
 }
 
-pub async fn time() -> Result2<CpuTime> {
+pub async fn time() -> Result<CpuTime> {
     fs::read_first_line_into("/proc/stat").await
 }
 
-pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     fs::read_lines("/proc/stat")
         .try_flatten_stream()
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .and_then(|line| future::ready(CpuTime::from_str(&line)))
 }

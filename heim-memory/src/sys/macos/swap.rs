@@ -35,7 +35,7 @@ impl Swap {
 }
 
 #[allow(clippy::identity_conversion)]
-pub async fn swap() -> Result2<Swap> {
+pub async fn swap() -> Result<Swap> {
     let xsw_usage = wrappers::vm_swapusage()?;
     let vm_stats = wrappers::host_vm_info()?;
     let page_size = *PAGE_SIZE;

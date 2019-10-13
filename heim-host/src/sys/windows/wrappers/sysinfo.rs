@@ -5,7 +5,7 @@ use std::os::windows::ffi::OsStringExt;
 use winapi::shared::{minwindef, ntstatus};
 use winapi::um::{sysinfoapi, winbase, winnt};
 
-use heim_common::prelude::{Error2, Result2};
+use heim_common::prelude::{Error, Result};
 
 use super::super::bindings::MAX_COMPUTERNAME_LENGTH;
 
@@ -38,13 +38,13 @@ pub fn get_native_system_info() -> SystemInfo {
     }
 }
 
-pub fn get_computer_name() -> Result2<String> {
+pub fn get_computer_name() -> Result<String> {
     let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
     let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
 
     let result = unsafe { winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size) };
     if result == 0 {
-        Err(Error2::last_os_error().with_ffi("GetComputerName"))
+        Err(Error::last_os_error().with_ffi("GetComputerName"))
     } else {
         unsafe {
             buffer.set_len(size as usize + 1);
@@ -57,7 +57,7 @@ pub fn get_computer_name() -> Result2<String> {
     }
 }
 
-pub fn rtl_get_version() -> Result2<winnt::OSVERSIONINFOEXW> {
+pub fn rtl_get_version() -> Result<winnt::OSVERSIONINFOEXW> {
     let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
     let result = unsafe {
         (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
@@ -68,6 +68,6 @@ pub fn rtl_get_version() -> Result2<winnt::OSVERSIONINFOEXW> {
     if result == ntstatus::STATUS_SUCCESS {
         unsafe { Ok(osinfo.assume_init()) }
     } else {
-        Err(Error2::last_os_error().with_ffi("RtlGetVersion"))
+        Err(Error::last_os_error().with_ffi("RtlGetVersion"))
     }
 }

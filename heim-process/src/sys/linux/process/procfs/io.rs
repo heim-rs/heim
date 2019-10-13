@@ -10,9 +10,9 @@ use crate::os::linux::IoCounters;
 use crate::{ProcessError, ProcessResult};
 
 impl FromStr for IoCounters {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result2<Self> {
+    fn from_str(s: &str) -> Result<Self> {
         let mut counters = IoCounters::default();
         for line in s.lines() {
             let mut parts = line.split_ascii_whitespace();
@@ -27,9 +27,7 @@ impl FromStr for IoCounters {
                 other => {
                     let inner = io::Error::from(io::ErrorKind::InvalidData);
 
-                    return Err(
-                        Error2::from(inner).with_message(format!("Unknown field {}", other))
-                    );
+                    return Err(Error::from(inner).with_message(format!("Unknown field {}", other)));
                 }
             };
 
@@ -42,7 +40,7 @@ impl FromStr for IoCounters {
 
 pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
     let path = format!("/proc/{}/io", pid);
-    match fs::read_into::<_, _, Error2>(path).await {
+    match fs::read_into::<_, _, Error>(path).await {
         Ok(counters) => Ok(counters),
         // TODO: Use error kind instead
         Err(e) if e.raw_os_error() == Some(libc::EACCES) => Err(ProcessError::AccessDenied(pid)),

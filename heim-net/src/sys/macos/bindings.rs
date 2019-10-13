@@ -117,7 +117,7 @@ pub struct if_msghdr_partial {
     pub ifm_type: libc::c_uchar,
 }
 
-pub unsafe fn net_pf_route() -> Result2<Routes> {
+pub unsafe fn net_pf_route() -> Result<Routes> {
     let mut name: [libc::c_int; 6] = [libc::CTL_NET, libc::PF_ROUTE, 0, 0, libc::NET_RT_IFLIST2, 0];
     let mut length: libc::size_t = 0;
 
@@ -132,7 +132,7 @@ pub unsafe fn net_pf_route() -> Result2<Routes> {
     );
 
     if result != 0 {
-        return Err(Error2::last_os_error().with_sysctl(&name));
+        return Err(Error::last_os_error().with_sysctl(&name));
     }
 
     let mut data: Vec<u8> = Vec::with_capacity(length);
@@ -149,6 +149,6 @@ pub unsafe fn net_pf_route() -> Result2<Routes> {
         data.set_len(length);
         Ok(Routes { position: 0, data })
     } else {
-        Err(Error2::last_os_error().with_sysctl(&name))
+        Err(Error::last_os_error().with_sysctl(&name))
     }
 }

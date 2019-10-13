@@ -8,7 +8,7 @@ use heim_runtime::fs;
 use super::sysfs;
 use crate::TemperatureSensor;
 
-pub fn hwmon<T>(path: T) -> impl Stream<Item = Result2<TemperatureSensor>>
+pub fn hwmon<T>(path: T) -> impl Stream<Item = Result<TemperatureSensor>>
 where
     T: AsRef<Path>,
 {
@@ -25,7 +25,7 @@ where
 
             future::ready(bytes.starts_with(b"temp") && bytes.ends_with(b"_input"))
         })
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .and_then(read_sensor)
 }
 
@@ -57,7 +57,7 @@ async fn read_subfolder(
 /// Read whole data for the temperature sensor.
 ///
 /// `entry` is pointing to the `temp*_input` file.
-async fn read_sensor(entry: fs::DirEntry) -> Result2<TemperatureSensor> {
+async fn read_sensor(entry: fs::DirEntry) -> Result<TemperatureSensor> {
     let input_path = entry.path();
     // Safety: directory traversal guarantees that there will be a parent directory
     let root = input_path.parent().unwrap_or_else(|| unreachable!());

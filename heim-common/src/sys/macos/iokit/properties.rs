@@ -1,3 +1,5 @@
+use std::io;
+
 use core_foundation::base::{CFType, ToVoid};
 use core_foundation::boolean::{CFBoolean, CFBooleanGetTypeID};
 use core_foundation::dictionary::{CFDictionary, CFDictionaryGetTypeID, CFDictionaryRef};
@@ -41,7 +43,10 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
 
                 unsafe { Some(CFDictionary::wrap_under_get_rule(ptr)) }
             })
-            .ok_or_else(|| Error::missing_entity(raw_key))
+            .ok_or_else(|| {
+                let inner = io::Error::from(io::ErrorKind::NotFound);
+                Error::from(inner).with_message(raw_key)
+            })
     }
 
     fn get_bool(&self, raw_key: &'static str) -> Result<bool> {
@@ -56,7 +61,10 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFBoolean>()
             })
             .map(Into::into)
-            .ok_or_else(|| Error::missing_entity(raw_key))
+            .ok_or_else(|| {
+                let inner = io::Error::from(io::ErrorKind::NotFound);
+                Error::from(inner).with_message(raw_key)
+            })
     }
 
     fn get_i64(&self, raw_key: &'static str) -> Result<i64> {
@@ -71,7 +79,10 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFNumber>()
             })
             .and_then(|number| number.to_i64())
-            .ok_or_else(|| Error::missing_entity(raw_key))
+            .ok_or_else(|| {
+                let inner = io::Error::from(io::ErrorKind::NotFound);
+                Error::from(inner).with_message(raw_key)
+            })
     }
 
     fn get_string(&self, raw_key: &'static str) -> Result<String> {
@@ -86,6 +97,9 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 value_ref.downcast::<CFString>()
             })
             .map(|cf_string| cf_string.to_string())
-            .ok_or_else(|| Error::missing_entity(raw_key))
+            .ok_or_else(|| {
+                let inner = io::Error::from(io::ErrorKind::NotFound);
+                Error::from(inner).with_message(raw_key)
+            })
     }
 }

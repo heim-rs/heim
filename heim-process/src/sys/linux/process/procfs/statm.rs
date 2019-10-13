@@ -48,9 +48,9 @@ impl Memory {
 }
 
 impl FromStr for Memory {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(value: &str) -> Result2<Memory> {
+    fn from_str(value: &str) -> Result<Memory> {
         let mut parts = value.split_ascii_whitespace();
         let size = parts
             .try_parse_next::<u64, _>()

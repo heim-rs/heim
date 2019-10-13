@@ -15,9 +15,9 @@ pub struct VmStat {
 }
 
 impl FromStr for VmStat {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(vmstat: &str) -> Result2<Self> {
+    fn from_str(vmstat: &str) -> Result<Self> {
         let mut stat = VmStat::default();
 
         for line in vmstat.lines() {
@@ -85,7 +85,7 @@ impl Swap {
         self.vm_stat.swap_out
     }
 
-    pub fn parse_str(meminfo: &str, vm_stat: VmStat) -> Result2<Self> {
+    pub fn parse_str(meminfo: &str, vm_stat: VmStat) -> Result<Self> {
         let mut swap = Swap {
             total: Information::new::<information::byte>(0),
             free: Information::new::<information::byte>(0),
@@ -132,18 +132,18 @@ impl Swap {
             }
         }
 
-        Err(Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+        Err(Error::from(io::Error::from(io::ErrorKind::InvalidData))
             .with_message("Unknown /proc/meminfo format"))
     }
 }
 
-async fn vm_stat() -> Result2<VmStat> {
+async fn vm_stat() -> Result<VmStat> {
     fs::read_into(PROC_VMSTAT).await
 }
 
-pub async fn swap() -> Result2<Swap> {
+pub async fn swap() -> Result<Swap> {
     let (meminfo, vm_stat) = future::try_join(
-        fs::read_to_string(PROC_MEMINFO).map_err(Error2::from),
+        fs::read_to_string(PROC_MEMINFO).map_err(Error::from),
         vm_stat(),
     )
     .await?;

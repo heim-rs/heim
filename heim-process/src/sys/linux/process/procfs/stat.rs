@@ -11,9 +11,9 @@ use heim_runtime::fs;
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 impl TryFrom<char> for Status {
-    type Error = Error2;
+    type Error = Error;
 
-    fn try_from(value: char) -> Result2<Status> {
+    fn try_from(value: char) -> Result<Status> {
         match value {
             'R' => Ok(Status::Running),
             'S' => Ok(Status::Sleeping),
@@ -28,16 +28,16 @@ impl TryFrom<char> for Status {
             'I' => Ok(Status::Idle),
             other => {
                 let inner = io::Error::from(io::ErrorKind::InvalidInput);
-                Err(Error2::from(inner).with_message(format!("Unknown process state {}", other)))
+                Err(Error::from(inner).with_message(format!("Unknown process state {}", other)))
             }
         }
     }
 }
 
 impl FromStr for Status {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(value: &str) -> Result2<Status> {
+    fn from_str(value: &str) -> Result<Status> {
         match value.chars().next() {
             Some(chr) => Status::try_from(chr),
             // Can only mean a bug in implementation
@@ -60,9 +60,9 @@ pub struct Stat {
 }
 
 impl FromStr for Stat {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result2<Self> {
+    fn from_str(s: &str) -> Result<Self> {
         let mut parts = s.splitn(2, ' ');
         let pid: Pid = parts.try_parse_next()?;
         let leftover = parts.try_next()?;

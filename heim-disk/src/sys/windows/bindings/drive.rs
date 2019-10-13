@@ -11,7 +11,7 @@ use winapi::um::{errhandlingapi, fileapi, winbase};
 use crate::os::windows::DriveType;
 use crate::os::windows::Flags;
 use crate::FileSystem;
-use heim_common::prelude::{Error2 as Error, Result2 as Result};
+use heim_common::prelude::{Error, Result};
 
 // According to winapi docs 50 is a reasonable length to accommodate the volume path
 // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumenameforvolumemountpointw

@@ -7,7 +7,7 @@ use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::{time, Time};
 
-pub async fn boot_time() -> Result2<Time> {
+pub async fn boot_time() -> Result<Time> {
     let mut filetime = mem::MaybeUninit::<minwindef::FILETIME>::uninit();
 
     // `time` value is now a time amount from the January 1, 1601

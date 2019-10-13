@@ -7,7 +7,7 @@ use mach::message::mach_msg_type_number_t;
 use mach::traps::mach_task_self;
 use mach::vm_types::{integer_t, natural_t, vm_address_t, vm_size_t};
 
-use heim_common::prelude::{Error2 as Error, Result2 as Result};
+use heim_common::prelude::{Error, Result};
 use heim_common::sys::macos::{self, host_port::HostPort, sysctl};
 
 use super::bindings::{self, host_cpu_load_info, host_processor_info};

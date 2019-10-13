@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::{time, Time};
 use heim_runtime::fs;
 
-pub async fn uptime() -> Result2<Time> {
+pub async fn uptime() -> Result<Time> {
     let contents = fs::read_to_string("/proc/uptime").await?;
 
     match contents.splitn(2, ' ').next() {
@@ -14,7 +14,7 @@ pub async fn uptime() -> Result2<Time> {
             Ok(Time::new::<time::second>(seconds))
         }
         None => {
-            let e = Error2::from(io::Error::from(io::ErrorKind::InvalidData))
+            let e = Error::from(io::Error::from(io::ErrorKind::InvalidData))
                 .with_message("Unable to parse /proc/uptime");
 
             Err(e)

@@ -44,7 +44,7 @@ impl Memory {
     }
 }
 
-pub async fn memory() -> Result2<Memory> {
+pub async fn memory() -> Result<Memory> {
     let total = wrappers::hw_memsize()?;
     let vm_stats = wrappers::host_vm_info()?;
     let page_size = *PAGE_SIZE;

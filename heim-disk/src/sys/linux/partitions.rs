@@ -38,9 +38,9 @@ impl Partition {
 }
 
 impl FromStr for Partition {
-    type Err = Error2;
+    type Err = Error;
 
-    fn from_str(line: &str) -> Result2<Partition> {
+    fn from_str(line: &str) -> Result<Partition> {
         // Example: `/dev/sda3 /home ext4 rw,relatime,data=ordered 0 0`
         let mut parts = line.splitn(5, ' ');
         let device = match parts.next() {
@@ -48,28 +48,28 @@ impl FromStr for Partition {
             Some(device) => Some(device.to_string()),
             None => {
                 let inner = io::Error::from(io::ErrorKind::InvalidData);
-                return Err(Error2::from(inner).with_message("Missing device"));
+                return Err(Error::from(inner).with_message("Missing device"));
             }
         };
         let mount_point = match parts.next() {
             Some(point) => PathBuf::from(point),
             None => {
                 let inner = io::Error::from(io::ErrorKind::InvalidData);
-                return Err(Error2::from(inner).with_message("Missing mount point"));
+                return Err(Error::from(inner).with_message("Missing mount point"));
             }
         };
         let fs_type = match parts.next() {
             Some(fs) => FileSystem::from_str(fs)?,
             None => {
                 let inner = io::Error::from(io::ErrorKind::InvalidData);
-                return Err(Error2::from(inner).with_message("Missing fs type"));
+                return Err(Error::from(inner).with_message("Missing fs type"));
             }
         };
         let options = match parts.next() {
             Some(opts) => opts.to_string(),
             None => {
                 let inner = io::Error::from(io::ErrorKind::InvalidData);
-                return Err(Error2::from(inner).with_message("Missing mount options"));
+                return Err(Error::from(inner).with_message("Missing mount options"));
             }
         };
 
@@ -83,7 +83,7 @@ impl FromStr for Partition {
 }
 
 // Returns stream with known physical (only!) partitions
-async fn known_filesystems() -> Result2<HashSet<FileSystem>> {
+async fn known_filesystems() -> Result<HashSet<FileSystem>> {
     let mut acc = HashSet::with_capacity(10);
 
     let mut lines = fs::read_lines("/proc/filesystems").await?;
@@ -109,10 +109,10 @@ async fn known_filesystems() -> Result2<HashSet<FileSystem>> {
     Ok(acc)
 }
 
-pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
+pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     fs::read_lines("/proc/mounts")
         .try_flatten_stream()
-        .map_err(Error2::from)
+        .map_err(Error::from)
         .try_filter_map(|line| {
             let result = Partition::from_str(&line).ok();
 
@@ -120,7 +120,7 @@ pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
         })
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Result2<Partition>> {
+pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
     known_filesystems()
         .map_ok(|fs| {
             partitions().try_filter_map(move |part| match part {

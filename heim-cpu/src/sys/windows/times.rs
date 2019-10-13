@@ -30,7 +30,7 @@ impl CpuTime {
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
-pub async fn time() -> Result2<CpuTime> {
+pub async fn time() -> Result<CpuTime> {
     let mut user = minwindef::FILETIME::default();
     let mut kernel = minwindef::FILETIME::default();
     let mut idle = minwindef::FILETIME::default();
@@ -38,7 +38,7 @@ pub async fn time() -> Result2<CpuTime> {
     let result = unsafe { processthreadsapi::GetSystemTimes(&mut idle, &mut kernel, &mut user) };
 
     if result == 0 {
-        Err(Error2::last_os_error().with_ffi("GetSystemTimes"))
+        Err(Error::last_os_error().with_ffi("GetSystemTimes"))
     } else {
         let user = user.into_time();
         let idle = idle.into_time();
@@ -50,7 +50,7 @@ pub async fn time() -> Result2<CpuTime> {
     }
 }
 
-pub fn times() -> impl Stream<Item = Result2<CpuTime>> {
+pub fn times() -> impl Stream<Item = Result<CpuTime>> {
     future::lazy(|_| {
         let processors: Vec<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
             wrappers::query_system_information()?;

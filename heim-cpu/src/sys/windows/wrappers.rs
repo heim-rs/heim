@@ -13,7 +13,7 @@ use ntapi::ntpoapi::PROCESSOR_POWER_INFORMATION;
 use winapi::shared::{minwindef, ntstatus};
 use winapi::um::{powerbase, sysinfoapi, winnt};
 
-use heim_common::prelude::{Error2 as Error, Result2 as Result};
+use heim_common::prelude::{Error, Result};
 
 pub trait SystemInformation: Sized {
     fn class() -> SYSTEM_INFORMATION_CLASS;

@@ -5,7 +5,7 @@ use mach::mach_time;
 
 use super::TIME_BASE;
 
-pub async fn uptime() -> Result2<Time> {
+pub async fn uptime() -> Result<Time> {
     // TODO: Possible value truncation
     let abs_time = unsafe { mach_time::mach_absolute_time() } as f64;
 

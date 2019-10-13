@@ -62,7 +62,7 @@ impl From<libc::statfs> for Partition {
     }
 }
 
-pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
+pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     future::lazy(|_| {
         let mounts = bindings::mounts()?;
         let stream = stream::iter(mounts).map(|mount| Ok(Partition::from(mount)));
@@ -72,7 +72,7 @@ pub fn partitions() -> impl Stream<Item = Result2<Partition>> {
     .try_flatten_stream()
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Result2<Partition>> {
+pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
     partitions().try_filter_map(|partition| {
         if partition.file_system().is_physical() {
             future::ok(Some(partition))

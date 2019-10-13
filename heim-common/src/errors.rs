@@ -1,21 +1,14 @@
-#![allow(deprecated)] // TODO: Temporary, while switching from `Error` to `Error2`
+#![allow(deprecated)] // TODO: Temporary, while switching from `Error` to `Error`
 
 use std::borrow::Cow;
 use std::error;
-use std::ffi;
 use std::fmt;
 use std::io;
-use std::net;
 use std::num;
 use std::result;
-use std::string;
 
 /// Type alias for types returned by `heim` functions.
-#[deprecated]
 pub type Result<T> = result::Result<T, Error>;
-
-/// NG: Type alias for types returned by `heim` functions.
-pub type Result2<T> = result::Result<T, Error2>;
 
 #[derive(Debug)]
 #[allow(missing_docs)]
@@ -27,24 +20,32 @@ pub enum ErrorContext {
     Ffi { func: Cow<'static, str> },
 }
 
-/// NG: Any error which may happen during the data fetching.
-pub struct Error2 {
+/// Any error which may happen during the data fetch.
+///
+/// Usually means that `heim` is not compatible
+/// with a system it's running on.
+///
+/// Users should consider this enum as opaque type (kinda like with `Box<dyn Error>`)
+/// and use the data in it only for debugging reasons.
+/// Contents of this enum are not stable and may
+/// change without any warning.
+pub struct Error {
     source: io::Error,
     context: Option<ErrorContext>,
 }
 
-impl Error2 {
+impl Error {
     #[doc(hidden)]
     pub fn new(source: io::Error, ctx: ErrorContext) -> Self {
-        Error2 {
+        Error {
             source,
             context: Some(ctx),
         }
     }
 
     #[doc(hidden)]
-    pub fn last_os_error() -> Error2 {
-        Error2::from(io::Error::last_os_error())
+    pub fn last_os_error() -> Error {
+        Error::from(io::Error::last_os_error())
     }
 
     #[doc(hidden)]
@@ -92,7 +93,7 @@ impl Error2 {
     }
 }
 
-impl fmt::Debug for Error2 {
+impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut fmt = f.debug_struct("Error");
 
@@ -117,7 +118,7 @@ impl fmt::Debug for Error2 {
     }
 }
 
-impl fmt::Display for Error2 {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.context {
             None => fmt::Display::fmt(&self.source, f),
@@ -138,191 +139,35 @@ impl fmt::Display for Error2 {
     }
 }
 
-impl error::Error for Error2 {
+impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         Some(&self.source)
     }
 }
 
-impl From<io::Error> for Error2 {
-    fn from(e: io::Error) -> Error2 {
-        Error2 {
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Error {
+        Error {
             source: e,
             context: None,
         }
     }
 }
 
-impl From<num::ParseFloatError> for Error2 {
-    fn from(e: num::ParseFloatError) -> Error2 {
+impl From<num::ParseFloatError> for Error {
+    fn from(e: num::ParseFloatError) -> Error {
         io::Error::new(io::ErrorKind::InvalidData, e).into()
     }
 }
 
-impl From<Error2> for io::Error {
-    fn from(e: Error2) -> io::Error {
+impl From<Error> for io::Error {
+    fn from(e: Error) -> io::Error {
         e.source
     }
 }
 
-impl From<Error> for Error2 {
-    fn from(e: Error) -> Error2 {
-        match e {
-            Error::MissingEntity(name) => io::Error::new(io::ErrorKind::InvalidInput, name).into(),
-            Error::Incompatible(message) => io::Error::new(io::ErrorKind::Other, message).into(),
-            Error::Io(e) => e.into(),
-            Error::Other(_e) => io::Error::from(io::ErrorKind::Other).into(),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl From<num::ParseIntError> for Error2 {
-    fn from(e: num::ParseIntError) -> Error2 {
-        io::Error::new(io::ErrorKind::InvalidData, e).into()
-    }
-}
-
-/// Any error which may happen during the data fetch.
-///
-/// Usually means that `heim` is not compatible
-/// with a system it's running on.
-///
-/// Users should consider this enum as opaque type (kinda like with `Box<dyn Error>`)
-/// and use the data in it only for debugging reasons.
-/// Contents of this enum are not stable and may
-/// change without any warning.
-#[derive(Debug)]
-#[deprecated]
-pub enum Error {
-    #[doc(hidden)]
-    MissingEntity(Cow<'static, str>),
-    #[doc(hidden)]
-    Incompatible(Cow<'static, str>),
-    #[doc(hidden)]
-    Io(io::Error),
-    #[doc(hidden)]
-    Other(Box<dyn error::Error + Send + 'static>),
-
-    #[doc(hidden)]
-    __Nonexhaustive,
-}
-
-impl Error {
-    #[doc(hidden)]
-    pub fn last_os_error() -> Error {
-        Error::from(io::Error::last_os_error())
-    }
-
-    #[doc(hidden)]
-    pub fn raw_os_error(&self) -> Option<i32> {
-        match self {
-            Error::Io(e) => e.raw_os_error(),
-            _ => None,
-        }
-    }
-
-    #[doc(hidden)]
-    pub fn missing_entity<T: Into<Cow<'static, str>>>(name: T) -> Error {
-        Error::MissingEntity(name.into())
-    }
-
-    #[doc(hidden)]
-    pub fn incompatible<T: Into<Cow<'static, str>>>(desc: T) -> Error {
-        Error::Incompatible(desc.into())
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Error::MissingEntity(name) => {
-                f.write_fmt(format_args!("Expected entity `{}` is missing", name))
-            }
-            Error::Incompatible(reason) => f.write_str(reason),
-            Error::Io(e) => fmt::Display::fmt(e, f),
-            Error::Other(e) => fmt::Display::fmt(e, f),
-            _ => f.write_str("Unknown error"),
-        }
-    }
-}
-
-impl From<Error2> for Error {
-    fn from(e: Error2) -> Error {
-        Error::Io(e.into())
-    }
-}
-
-impl error::Error for Error {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        match self {
-            Error::Io(e) => Some(&*e),
-            Error::Other(e) => Some(&**e),
-            _ => None,
-        }
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self {
-        Error::Io(e)
-    }
-}
-
 impl From<num::ParseIntError> for Error {
-    fn from(e: num::ParseIntError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<num::ParseFloatError> for Error {
-    fn from(e: num::ParseFloatError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<ffi::NulError> for Error {
-    fn from(e: ffi::NulError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<ffi::IntoStringError> for Error {
-    fn from(e: ffi::IntoStringError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<string::ParseError> for Error {
-    fn from(e: string::ParseError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<string::FromUtf8Error> for Error {
-    fn from(e: string::FromUtf8Error) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl From<net::AddrParseError> for Error {
-    fn from(e: net::AddrParseError) -> Self {
-        Error::Other(Box::new(e))
-    }
-}
-
-impl<T> From<Box<T>> for Error
-where
-    T: error::Error + Send + 'static,
-{
-    fn from(e: Box<T>) -> Self {
-        Error::Other(e)
-    }
-}
-
-#[cfg(unix)]
-impl From<nix::Error> for Error {
-    fn from(e: nix::Error) -> Self {
-        Error::Other(Box::new(e))
+    fn from(e: num::ParseIntError) -> Error {
+        io::Error::new(io::ErrorKind::InvalidData, e).into()
     }
 }

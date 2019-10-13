@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use heim_common::prelude::Result2 as Result;
+use heim_common::prelude::Result;
 use heim_common::units::{Information, Ratio};
 
 use crate::sys;

@@ -11,7 +11,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn from_session(session: Session) -> Result2<Option<User>> {
+    pub fn from_session(session: Session) -> Result<Option<User>> {
         let info = session.info()?;
 
         let username = match info.username() {
@@ -40,7 +40,7 @@ impl User {
     }
 }
 
-pub fn users() -> impl Stream<Item = Result2<User>> {
+pub fn users() -> impl Stream<Item = Result<User>> {
     future::lazy(|_| {
         let sessions = Sessions::new()?;
 

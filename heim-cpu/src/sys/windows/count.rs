@@ -5,18 +5,18 @@ use winapi::um::{sysinfoapi, winbase, winnt};
 
 use heim_common::prelude::*;
 
-pub async fn logical_count() -> Result2<u64> {
+pub async fn logical_count() -> Result<u64> {
     // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getactiveprocessorcount
     let result = unsafe { winbase::GetActiveProcessorCount(winnt::ALL_PROCESSOR_GROUPS) };
 
     if result > 0 {
         Ok(u64::from(result))
     } else {
-        Err(Error2::last_os_error().with_ffi("GetActiveProcessorCount"))
+        Err(Error::last_os_error().with_ffi("GetActiveProcessorCount"))
     }
 }
 
-pub async fn physical_count() -> Result2<Option<u64>> {
+pub async fn physical_count() -> Result<Option<u64>> {
     let mut buffer_size = 0;
 
     let _ = unsafe {
@@ -41,7 +41,7 @@ pub async fn physical_count() -> Result2<Option<u64>> {
     };
 
     if result == 0 {
-        return Err(Error2::last_os_error().with_ffi("GetLogicalProcessorInformationEx"));
+        return Err(Error::last_os_error().with_ffi("GetLogicalProcessorInformationEx"));
     } else {
         unsafe {
             buf.set_len(length as usize);
