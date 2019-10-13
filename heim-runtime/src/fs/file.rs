@@ -2,7 +2,7 @@ use std::io;
 use std::path::Path;
 
 #[cfg(target_os = "windows")]
-use std::os::windows::io::RawHandle;
+use std::os::windows::io::{AsRawHandle, RawHandle};
 
 use futures_util::TryFutureExt;
 
