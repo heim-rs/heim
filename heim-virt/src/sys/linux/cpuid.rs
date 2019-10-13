@@ -1,3 +1,4 @@
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use raw_cpuid::{CpuId, Hypervisor};
 
 use crate::Virtualization;
