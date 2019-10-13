@@ -19,7 +19,7 @@ heim-common = { version = "0.0.8", path = "../heim-common" }
 heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
 cfg-if = "0.1.9"
 
-[target.'cfg(target_os = "linux")'.dependencies]
+[target.'cfg(all(target_os = "linux", any(target_arch="x86", target_arch="x86_64")))'.dependencies]
 raw-cpuid = "7.0.3"
 
 [dev-dependencies]
