@@ -24,7 +24,7 @@ raw-cpuid = "7.0.3"
 
 [dev-dependencies]
 heim-derive = { version = "0.0.8", path = "../heim-derive" }
-futures-executor-preview = "0.3.0-alpha.19"
+async-std = "0.99.9"
 version-sync = "0.8"
 tempfile = "3.0"
 

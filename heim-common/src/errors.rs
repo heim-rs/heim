@@ -1,5 +1,3 @@
-#![allow(deprecated)] // TODO: Temporary, while switching from `Error` to `Error`
-
 use std::borrow::Cow;
 use std::error;
 use std::fmt;
@@ -11,13 +9,30 @@ use std::result;
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
-#[allow(missing_docs)]
+/// Extra context for an error.
 pub enum ErrorContext {
+    /// Some random message about it.
     Message(Cow<'static, str>),
-    NamedSyscall { name: Cow<'static, str> },
-    Syscall { num: libc::c_int },
-    SysCtl { name: Vec<libc::c_int> },
-    Ffi { func: Cow<'static, str> },
+    /// Details about the named syscall failure.
+    NamedSyscall {
+        /// Syscall name.
+        name: Cow<'static, str>,
+    },
+    /// Details about the syscall failure.
+    Syscall {
+        /// Syscall number.
+        num: libc::c_int,
+    },
+    /// sysctl failed.
+    SysCtl {
+        /// Sysctl number.
+        name: Vec<libc::c_int>,
+    },
+    /// FFI function call failed.
+    Ffi {
+        /// Function name.
+        func: Cow<'static, str>,
+    },
 }
 
 /// Any error which may happen during the data fetch.

@@ -1,3 +1,5 @@
+#![type_length_limit = "3825948"]
+
 use heim_common::prelude::*;
 use heim_cpu as cpu;
 

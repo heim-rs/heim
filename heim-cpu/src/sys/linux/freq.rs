@@ -92,6 +92,7 @@ async fn read_frequencies(entry: fs::DirEntry) -> Result<Option<CpuFrequency>> {
     }
 
     let root = entry.path().join("cpufreq");
+    dbg!(&root);
     let frequencies =
         future::try_join3(current_freq(&root), max_freq(&root), min_freq(&root)).await;
 

@@ -45,10 +45,11 @@ libc = "~ 0.2"
 mach = "0.3.2"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.19"
+async-std = "0.99.9"
 version-sync = "0.8"
 tempfile = "~3.1"
 
 [features]
+
 runtime-async-std = ["heim-runtime/runtime-async-std"]
 runtime-tokio = ["heim-runtime/runtime-tokio"]
