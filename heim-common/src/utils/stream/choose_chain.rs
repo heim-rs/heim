@@ -65,9 +65,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use futures_executor as executor;
+    use async_std::task;
 
-    use crate::prelude::stream;
+    use crate::prelude::{stream, StreamExt};
 
     use super::super::HeimStreamExt;
 
@@ -76,8 +76,8 @@ mod tests {
         let s1 = stream::iter(Vec::<i32>::new());
         let s2 = stream::iter(Vec::<i32>::new());
 
-        let chain = s1.choose_chain(s2);
-        let results = executor::block_on_stream(chain).collect::<Vec<_>>();
+        let f = s1.choose_chain(s2).collect::<Vec<_>>();
+        let results = task::block_on(f);
 
         assert!(results.is_empty());
     }
@@ -87,8 +87,8 @@ mod tests {
         let s1 = stream::iter(Vec::<i32>::new());
         let s2 = stream::iter(vec![4, 5, 6]);
 
-        let chain = s1.choose_chain(s2);
-        let results = executor::block_on_stream(chain).collect::<Vec<_>>();
+        let chain = s1.choose_chain(s2).collect::<Vec<_>>();
+        let results = task::block_on(chain);
 
         assert_eq!(results, vec![4, 5, 6]);
     }
@@ -98,8 +98,8 @@ mod tests {
         let s1 = stream::iter(vec![1, 2, 3]);
         let s2 = stream::iter(Vec::<i32>::new());
 
-        let chain = s1.choose_chain(s2);
-        let results = executor::block_on_stream(chain).collect::<Vec<_>>();
+        let chain = s1.choose_chain(s2).collect::<Vec<_>>();
+        let results = task::block_on(chain);
 
         assert_eq!(results, vec![1, 2, 3]);
     }
@@ -109,8 +109,8 @@ mod tests {
         let s1 = stream::iter(vec![1, 2, 3]);
         let s2 = stream::iter(vec![4, 5, 6]);
 
-        let chain = s1.choose_chain(s2);
-        let results = executor::block_on_stream(chain).collect::<Vec<_>>();
+        let chain = s1.choose_chain(s2).collect::<Vec<_>>();
+        let results = task::block_on(chain);
 
         assert_eq!(results, vec![1, 2, 3]);
     }

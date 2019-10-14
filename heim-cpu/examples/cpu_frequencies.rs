@@ -5,8 +5,7 @@ use heim_cpu as cpu;
 
 #[cfg(target_os = "linux")]
 async fn linux_frequencies() -> Result<()> {
-    let frequencies = cpu::os::linux::frequencies();
-    pin_utils::pin_mut!(frequencies);
+    let mut frequencies = cpu::os::linux::frequencies().boxed();
     while let Some(freq) = frequencies.next().await {
         dbg!(freq?);
     }

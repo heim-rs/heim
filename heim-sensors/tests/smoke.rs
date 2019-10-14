@@ -3,8 +3,7 @@ use heim_sensors as sensors;
 
 #[heim_derive::test]
 async fn smoke_temperatures() {
-    let temperatures = sensors::temperatures();
-    pin_utils::pin_mut!(temperatures);
+    let mut temperatures = sensors::temperatures().boxed();
     while let Some(sensor) = temperatures.next().await {
         let sensor = sensor.unwrap();
 

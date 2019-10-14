@@ -3,8 +3,7 @@ use heim_disk as disk;
 
 #[heim_derive::test]
 async fn smoke_partitions() {
-    let partitions = disk::partitions();
-    pin_utils::pin_mut!(partitions);
+    let mut partitions = disk::partitions().boxed();
     while let Some(part) = partitions.next().await {
         let part = part.unwrap();
 
@@ -31,8 +30,7 @@ async fn smoke_partitions() {
 
 #[heim_derive::test]
 async fn smoke_partitions_physical() {
-    let partitions = disk::partitions_physical();
-    pin_utils::pin_mut!(partitions);
+    let mut partitions = disk::partitions_physical().boxed();
     while let Some(part) = partitions.next().await {
         let part = part.unwrap();
 
@@ -85,8 +83,7 @@ async fn smoke_io_counters() {
         let _ = Command::new("diskperf").arg("-y").status();
     }
 
-    let counters = disk::io_counters();
-    pin_utils::pin_mut!(counters);
+    let mut counters = disk::io_counters().boxed();
     while let Some(count) = counters.next().await {
         let count = count.unwrap();
 
@@ -107,8 +104,7 @@ async fn smoke_io_counters_physical() {
         let _ = Command::new("diskperf").arg("-y").status();
     }
 
-    let counters = disk::io_counters_physical();
-    pin_utils::pin_mut!(counters);
+    let mut counters = disk::io_counters_physical().boxed();
     while let Some(count) = counters.next().await {
         let count = count.unwrap();
 

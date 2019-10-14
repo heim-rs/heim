@@ -5,8 +5,7 @@ use heim_process as process;
 
 #[heim_derive::main]
 async fn main() -> Result<(), process::ProcessError> {
-    let processes = process::processes();
-    pin_utils::pin_mut!(processes);
+    let mut processes = process::processes().boxed();
     println!(
         "| {:6} | {:6} | {:10} | {:40} | {:50} |",
         "pid", "ppid", "status", "name", "exe"

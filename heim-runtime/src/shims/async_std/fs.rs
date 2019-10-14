@@ -9,6 +9,7 @@ use futures_util::stream::Stream;
 // Re-exports
 pub use async_std::fs::{read_dir, read_link, read_to_string, DirEntry, File};
 
+/// Returns future which checks if `path` exists
 pub async fn path_exists<T>(path: T) -> bool
 where
     T: AsRef<Path>,
@@ -19,6 +20,7 @@ where
     }
 }
 
+/// Returns stream with the file lines
 pub async fn read_lines<T>(path: T) -> io::Result<impl Stream<Item = io::Result<String>>>
 where
     T: AsRef<Path>,
@@ -29,7 +31,7 @@ where
     Ok(reader.lines())
 }
 
-/// Returns future which tries to read the first line from file.
+/// Returns the file first line
 pub async fn read_first_line<T>(path: T) -> io::Result<String>
 where
     T: AsRef<Path>,

@@ -9,8 +9,7 @@ use heim_net::os::windows::IoCountersExt;
 
 #[heim_derive::test]
 async fn smoke_io_counters() {
-    let counters = net::io_counters();
-    pin_utils::pin_mut!(counters);
+    let mut counters = net::io_counters().boxed();
     while let Some(counter) = counters.next().await {
         let counter = counter.unwrap();
 

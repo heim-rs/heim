@@ -17,15 +17,15 @@ async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
 async fn main() -> ProcessResult<()> {
     let start = Instant::now();
 
-    let processes = process::processes()
+    let mut processes = process::processes()
         .map_ok(|process| {
             // Note that there is no `.await` here,
             // as we want to pass the returned future
             // into the `.try_buffer_unordered`.
             usage(process)
         })
-        .try_buffer_unordered(usize::MAX);
-    pin_utils::pin_mut!(processes);
+        .try_buffer_unordered(usize::MAX)
+        .boxed();
 
     println!("| {:6} | {:40} | {:4} % |", "pid", "name", "CPU");
     while let Some(res) = processes.next().await {

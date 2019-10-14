@@ -11,8 +11,7 @@ async fn smoke_pid_exists() {
 
 #[heim_derive::test]
 async fn smoke_pids() {
-    let pids = process::pids();
-    pin_utils::pin_mut!(pids);
+    let mut pids = process::pids().boxed();
 
     while let Some(pid) = pids.next().await {
         assert!(pid.is_ok());
@@ -40,8 +39,7 @@ macro_rules! try_method {
 
 #[heim_derive::test]
 async fn smoke_processes() {
-    let processes = process::processes();
-    pin_utils::pin_mut!(processes);
+    let mut processes = process::processes().boxed();
 
     while let Some(process) = processes.next().await {
         let process = match process {

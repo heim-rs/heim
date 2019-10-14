@@ -3,16 +3,14 @@ use heim_disk as disk;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
-    let counters = disk::io_counters();
-    pin_utils::pin_mut!(counters);
+    let mut counters = disk::io_counters().boxed();
     while let Some(counter) = counters.next().await {
         dbg!(counter?);
     }
 
     println!("\n\n--- Per physical disk ---\n");
 
-    let counters = disk::io_counters_physical();
-    pin_utils::pin_mut!(counters);
+    let mut counters = disk::io_counters_physical().boxed();
     while let Some(counter) = counters.next().await {
         dbg!(counter?);
     }

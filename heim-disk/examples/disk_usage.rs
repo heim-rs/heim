@@ -13,8 +13,7 @@ async fn main() -> Result<()> {
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type"
     );
 
-    let partitions = disk::partitions_physical();
-    pin_utils::pin_mut!(partitions);
+    let mut partitions = disk::partitions_physical().boxed();
     while let Some(part) = partitions.next().await {
         let part = part?;
         let usage = disk::usage(part.mount_point().to_path_buf()).await?;

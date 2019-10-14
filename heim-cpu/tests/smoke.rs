@@ -17,8 +17,7 @@ async fn smoke_frequency() {
 #[heim_derive::test]
 #[cfg(target_os = "linux")]
 async fn smoke_frequencies() {
-    let frequencies = cpu::os::linux::frequencies();
-    pin_utils::pin_mut!(frequencies);
+    let mut frequencies = cpu::os::linux::frequencies().boxed();
     while let Some(freq) = frequencies.next().await {
         let f = freq.unwrap();
 
@@ -84,8 +83,7 @@ async fn smoke_time() {
 
 #[heim_derive::test]
 async fn smoke_times() {
-    let times = cpu::times();
-    pin_utils::pin_mut!(times);
+    let mut times = cpu::times().boxed();
     while let Some(time) = times.next().await {
         let time = time.unwrap();
 

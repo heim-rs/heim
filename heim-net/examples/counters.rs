@@ -3,8 +3,7 @@ use heim_net as net;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
-    let counters = net::io_counters();
-    pin_utils::pin_mut!(counters);
+    let mut counters = net::io_counters().boxed();
     while let Some(counter) = counters.next().await {
         dbg!(counter?);
     }

@@ -10,7 +10,7 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-cfg-if = "0.1.9"
+cfg-if = "0.1.10"
 futures-util-preview = "0.3.0-alpha.19"
 
 # `runtime-tokio` feature dependencies

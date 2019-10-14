@@ -3,8 +3,7 @@ use heim_process as process;
 
 #[heim_derive::main]
 async fn main() -> Result<(), process::ProcessError> {
-    let pids = process::pids();
-    pin_utils::pin_mut!(pids);
+    let mut pids = process::pids().boxed();
     while let Some(pid) = pids.next().await {
         let pid = pid?;
         dbg!(pid);

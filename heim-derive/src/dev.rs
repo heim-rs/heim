@@ -203,9 +203,6 @@ pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[bench]
         #(#attrs)*
         fn #name(b: &mut test::Bencher) {
-            let mut pool = futures_executor::ThreadPool::new()
-                .expect("Failed to create futures threadpool");
-
             b.iter(|| {
                 let _ = async_std::task::block_on(async {
                     #body
