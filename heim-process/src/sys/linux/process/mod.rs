@@ -178,8 +178,8 @@ pub async fn get(pid: Pid) -> ProcessResult<Process> {
     })
 }
 
-pub async fn current() -> ProcessResult<Process> {
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
     let pid = unsafe { libc::getpid() };
 
-    get(pid).await
+    get(pid)
 }

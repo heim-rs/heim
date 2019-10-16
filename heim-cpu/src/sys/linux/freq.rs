@@ -3,7 +3,7 @@ use std::ops;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
-use heim_common::prelude::{future, Error, Result, Stream, StreamExt, TryFutureExt, TryStreamExt};
+use heim_common::prelude::{future, Error, Result, Stream, TryFutureExt, TryStreamExt};
 use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
 
@@ -37,15 +37,11 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
 }
 
 pub async fn frequency() -> Result<CpuFrequency> {
-    let mut acc = CpuFrequency::default();
-    let mut amount = 0;
-    let frequencies = frequencies();
-    pin_utils::pin_mut!(frequencies);
-
-    while let Some(frequency) = frequencies.next().await {
-        acc = acc + frequency?;
-        amount += 1;
-    }
+    let (acc, amount) = frequencies()
+        .try_fold((CpuFrequency::default(), 0), |(acc, amount), frequency| {
+            future::ok((acc + frequency, amount + 1))
+        })
+        .await?;
 
     // Amount could be 0 if there is an implementation bug or we are in the virtualized environment
     // and should fetch the information from some other place.
@@ -92,7 +88,6 @@ async fn read_frequencies(entry: fs::DirEntry) -> Result<Option<CpuFrequency>> {
     }
 
     let root = entry.path().join("cpufreq");
-    dbg!(&root);
     let frequencies =
         future::try_join3(current_freq(&root), max_freq(&root), min_freq(&root)).await;
 

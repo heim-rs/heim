@@ -235,6 +235,6 @@ pub async fn get(pid: Pid) -> ProcessResult<Process> {
 }
 
 /// Returns the `Process` matching the currently running program.
-pub async fn current() -> ProcessResult<Process> {
-    sys::current().map_ok(Into::into).await
+pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+    sys::current().map_ok(Into::into)
 }

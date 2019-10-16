@@ -29,7 +29,7 @@ async fn main() -> Result<(), process::ProcessError> {
 
         dbg!(process.io_counters().await?);
 
-        let mut net_io_counters = process.net_io_counters();
+        let mut net_io_counters = process.net_io_counters().boxed();
         while let Some(counter) = net_io_counters.next().await {
             let counter = counter?;
             dbg!(counter);

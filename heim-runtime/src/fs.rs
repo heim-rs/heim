@@ -19,7 +19,7 @@ where
     R: FromStr<Err = E>,
     E: From<io::Error>,
 {
-    let contents = read_to_string(path).await?;
+    let contents = read_to_string(path.as_ref()).await?;
 
     R::from_str(&contents)
 }
