@@ -31,7 +31,7 @@ heim-sensors = { version = "0.0.3", path = "../heim-sensors", optional = true }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-async-std"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-polyfill"]
 
 # Modules
 host = ["heim-host"]

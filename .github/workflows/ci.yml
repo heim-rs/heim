@@ -30,14 +30,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --all-features
 
       - name: Run tests (nightly only)
         if: matrix.toolchain == 'nightly'
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features
 
   clippy:
     runs-on: ${{ matrix.os }}
@@ -62,7 +60,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets --all-features -- -D warnings
+          args: --all-targets -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -109,7 +107,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features
+          args: --all --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
@@ -119,7 +117,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features --no-fail-fast
+          args: --all --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
