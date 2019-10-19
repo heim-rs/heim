@@ -38,10 +38,11 @@ mach = "0.3.2"
 core-foundation = "0.6.4"
 
 [dev-dependencies]
-async-std = "0.99.9"
+futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
 pin-utils = "0.1.0-alpha.4"
 
 [features]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]
 runtime-async-std = ["heim-runtime/runtime-async-std"]
 runtime-tokio = ["heim-runtime/runtime-tokio"]

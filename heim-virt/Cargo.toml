@@ -24,10 +24,11 @@ raw-cpuid = "7.0.3"
 
 [dev-dependencies]
 heim-derive = { version = "0.0.8", path = "../heim-derive" }
-async-std = "0.99.9"
+futures-executor-preview = "0.3.0-alpha.19"
 version-sync = "0.8"
 tempfile = "3.0"
 
 [features]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]
 runtime-async-std = ["heim-runtime/runtime-async-std"]
 runtime-tokio = ["heim-runtime/runtime-tokio"]

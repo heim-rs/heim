@@ -44,6 +44,18 @@ virt = ["heim-virt"]
 sensors = ["heim-sensors"]
 
 # Reactors
+runtime-polyfill = [
+    "heim-runtime/runtime-polyfill",
+    "heim-cpu/runtime-polyfill",
+    "heim-cpu/runtime-polyfill",
+    "heim-disk/runtime-polyfill",
+    "heim-host/runtime-polyfill",
+    "heim-memory/runtime-polyfill",
+    "heim-net/runtime-polyfill",
+    "heim-process/runtime-polyfill",
+    "heim-virt/runtime-polyfill",
+    "heim-sensors/runtime-polyfill",
+]
 runtime-async-std = [
     "heim-runtime/runtime-async-std",
     "heim-cpu/runtime-async-std",

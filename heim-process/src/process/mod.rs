@@ -230,8 +230,8 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
 }
 
 /// Load the process information with `pid` given.
-pub async fn get(pid: Pid) -> ProcessResult<Process> {
-    sys::get(pid).map_ok(Into::into).await
+pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+    sys::get(pid).map_ok(Into::into)
 }
 
 /// Returns the `Process` matching the currently running program.

@@ -7,7 +7,7 @@ use std::str::FromStr;
 use futures_util::{future::ready, stream::Stream, TryStreamExt};
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "runtime-async-std")] {
+    if #[cfg(feature = "runtime-polyfill")] {
         pub use crate::shims::fs::*;
     }
 }
