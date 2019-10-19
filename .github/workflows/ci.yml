@@ -23,14 +23,13 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-
       - name: Run tests (nightly only)
         if: matrix.toolchain == 'nightly'
         uses: actions-rs/cargo@v1
@@ -45,18 +44,13 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
-    steps:
       - uses: actions/checkout@v1
-      - name: Searching for clippy
-        id: clippy
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: clippy
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ steps.clippy.outputs.toolchain }}
+          profile: minimal
+          toolchain: nightly
           override: true
-      - run: rustup component add clippy
+          components: clippy
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
@@ -66,16 +60,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Searching for rustfmt
-        id: rustfmt
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: rustfmt
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ steps.rustfmt.outputs.toolchain }}
+          profile: minimal
+          toolchain: nightly
           override: true
-      - run: rustup component add rustfmt
+          components: clippy
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
@@ -99,6 +89,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
 
