@@ -44,6 +44,7 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
+    steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
@@ -65,7 +66,7 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
-          components: clippy
+          components: rustfmt
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
