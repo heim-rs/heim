@@ -57,8 +57,7 @@ impl Process {
     ///
     /// ## Example
     ///
-    /// ```rust
-    /// # #![cfg(not(target_os = "windows"))]
+    /// ```rust,no_run
     /// # use heim_process::{self as process, Process, ProcessResult};
     /// #
     /// # #[heim_derive::main]
