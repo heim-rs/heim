@@ -22,7 +22,7 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-//    deprecated
+    deprecated
 )]
 #![warn(
     trivial_casts,

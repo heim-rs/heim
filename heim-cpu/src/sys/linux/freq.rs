@@ -103,10 +103,9 @@ async fn read_frequencies(entry: fs::DirEntry) -> Result<Option<CpuFrequency>> {
 }
 
 async fn current_freq(path: &Path) -> Result<Frequency> {
-    // TODO: Wait for Future' `try_select_all` and uncomment the block below
-    // Ref: https://github.com/rust-lang-nursery/futures-rs/pull/1557
-
     read_freq_value(path.join("scaling_cur_freq")).await
+
+    // TODO: Add support for `cpuinfo_cur_freq` file too
 
     //    let one = read_freq(path.join("scaling_cur_freq"))
     //        .into_future().fuse();

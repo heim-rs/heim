@@ -113,8 +113,6 @@ async fn smoke_cpu_logical_count() {
     assert!(count > 0);
 }
 
-// TODO: Crashes for some reasons in Azure VM, should be investigated
-#[heim_derive::skip_ci(target_os = "windows")]
 #[heim_derive::test]
 async fn smoke_cpu_physical_count() {
     let count = cpu::physical_count().await;

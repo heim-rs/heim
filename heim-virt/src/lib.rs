@@ -19,7 +19,7 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-//    deprecated
+    deprecated
 )]
 #![warn(
     trivial_casts,
@@ -28,8 +28,6 @@
     unused_import_braces,
     unused_results
 )]
-
-use heim_common::prelude::*;
 
 mod sys;
 
@@ -177,6 +175,6 @@ impl Virtualization {
 ///
 /// At the moment this function works only for Linux (partially)
 /// and always returns `None` for macOS and Windows.
-pub fn detect() -> impl Future<Output = Option<Virtualization>> {
-    self::sys::detect()
+pub async fn detect() -> Option<Virtualization> {
+    self::sys::detect().await
 }

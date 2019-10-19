@@ -13,7 +13,7 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-//    deprecated
+    deprecated
 )]
 #![warn(
     trivial_casts,
@@ -22,7 +22,6 @@
     unused_import_braces,
     unused_results
 )]
-#![allow(clippy::missing_safety_doc)]
 
 mod errors;
 pub mod os;
