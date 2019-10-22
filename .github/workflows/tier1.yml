@@ -1,9 +1,10 @@
 on: [push, pull_request]
 
-name: Continuous integration
+name: Tier 1 CI
 
 jobs:
-  ci:
+  tier1_ci:
+    name: CI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,21 +23,18 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --all-features
-
       - name: Run tests (nightly only)
         if: matrix.toolchain == 'nightly'
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features
 
   clippy:
     runs-on: ${{ matrix.os }}
@@ -48,35 +46,27 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Searching for clippy
-        id: clippy
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: clippy
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ steps.clippy.outputs.toolchain }}
+          profile: minimal
+          toolchain: nightly
           override: true
-      - run: rustup component add clippy
+          components: clippy
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets --all-features -- -D warnings
+          args: --all-targets -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Searching for rustfmt
-        id: rustfmt
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: rustfmt
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ steps.rustfmt.outputs.toolchain }}
+          profile: minimal
+          toolchain: nightly
           override: true
-      - run: rustup component add rustfmt
+          components: rustfmt
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
@@ -84,7 +74,7 @@ jobs:
 
   code_coverage:
     runs-on: ${{ matrix.os }}
-    needs: ci
+    needs: tier1_ci
     strategy:
       matrix:
         os:
@@ -100,6 +90,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
 
@@ -108,7 +99,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features
+          args: --all
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
@@ -118,7 +109,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features --no-fail-fast
+          args: --all --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"

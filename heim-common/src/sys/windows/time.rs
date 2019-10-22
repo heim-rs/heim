@@ -9,8 +9,8 @@ const LO_T: f64 = 1e-7;
 impl IntoTime for minwindef::FILETIME {
     #[inline]
     fn into_time(self) -> Time {
-        let value =
-            (HI_T * f64::from(self.dwHighDateTime)) + (LO_T * f64::from(self.dwLowDateTime));
+        let low = LO_T * f64::from(self.dwLowDateTime);
+        let value = HI_T.mul_add(f64::from(self.dwHighDateTime), low);
 
         Time::new::<time::second>(value)
     }
@@ -20,7 +20,8 @@ impl IntoTime for ntdef::LARGE_INTEGER {
     #[inline]
     fn into_time(self) -> Time {
         let s = unsafe { self.s() };
-        let value = (HI_T * f64::from(s.HighPart)) + (LO_T * f64::from(s.LowPart));
+        let low = LO_T * f64::from(s.LowPart);
+        let value = HI_T.mul_add(f64::from(s.HighPart), low);
 
         Time::new::<time::second>(value)
     }
