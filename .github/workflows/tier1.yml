@@ -1,9 +1,10 @@
 on: [push, pull_request]
 
-name: Continuous integration
+name: Tier 1 CI
 
 jobs:
-  ci:
+  tier1_ci:
+    name: CI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -74,7 +75,7 @@ jobs:
 
   code_coverage:
     runs-on: ${{ matrix.os }}
-    needs: ci
+    needs: tier1_ci
     strategy:
       matrix:
         os:
