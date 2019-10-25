@@ -19,7 +19,7 @@ heim-derive = { version = "0.0.8", path = "../heim-derive" }
 heim-common = { version = "0.0.8", path = "../heim-common" }
 heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
 heim-cpu = { version = "0.0.8", path = "../heim-cpu" }
-cfg-if = "0.1.7"
+cfg-if = "0.1.10"
 libc = "~0.2"
 lazy_static = "1.4.0"
 ordered-float = { version = "~1.0", default-features = false }

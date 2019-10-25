@@ -18,7 +18,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 heim-derive = { version = "0.0.8", path = "../heim-derive" }
 heim-common = { version = "0.0.8", path = "../heim-common" }
 heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
-cfg-if = "0.1.7"
+cfg-if = "0.1.10"
 bitflags = "1.0.4"
 
 [target.'cfg(unix)'.dependencies]

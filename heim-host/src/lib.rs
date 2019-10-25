@@ -3,18 +3,21 @@
 //! This module is enabled with the `host` feature flag (enabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-host/0.0.8")]
-#![cfg_attr(not(fuzzing), deny(
-    unused,
-    unused_imports,
-    unused_features,
-    bare_trait_objects,
-    future_incompatible,
-    missing_debug_implementations,
-    missing_docs,
-    nonstandard_style,
-    dead_code,
-    deprecated
-))]
+#![cfg_attr(
+    not(fuzzing),
+    deny(
+        unused,
+        unused_imports,
+        unused_features,
+        bare_trait_objects,
+        future_incompatible,
+        missing_debug_implementations,
+        missing_docs,
+        nonstandard_style,
+        dead_code,
+        deprecated
+    )
+)]
 #![warn(
     trivial_casts,
     trivial_numeric_casts,
