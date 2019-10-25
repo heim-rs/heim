@@ -33,7 +33,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           use-cross: true
-          toolchain: stable
+          toolchain: nightly
           override: true
 
       - name: Build
