@@ -24,7 +24,7 @@ pub trait UserExt {
     fn address(&self) -> Option<&IpAddr>;
 }
 
-#[cfg(target_os = "window")]
+#[cfg(target_os = "windows")]
 impl UserExt for crate::User {
     fn domain(&self) -> &str {
         self.as_ref().domain()
