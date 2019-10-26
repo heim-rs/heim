@@ -23,6 +23,7 @@
     unused_results
 )]
 mod errors;
+pub mod macros;
 #[doc(hidden)]
 pub mod sys;
 pub mod units;

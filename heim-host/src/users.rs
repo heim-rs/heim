@@ -8,7 +8,6 @@ use heim_common::prelude::*;
 /// See [os] module for OS-specific extensions.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct User(sys::User);
 
 impl User {
@@ -25,6 +24,8 @@ impl fmt::Debug for User {
             .finish()
     }
 }
+
+heim_common::wrap!(User, sys::User);
 
 /// Returns stream which yields [User]s.
 ///

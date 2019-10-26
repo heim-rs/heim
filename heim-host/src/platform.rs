@@ -35,7 +35,6 @@ use crate::{sys, Arch};
 ///     architecture: X86_64,
 /// }
 /// ```
-#[derive(heim_derive::ImplWrap)]
 pub struct Platform(sys::Platform);
 
 impl Platform {
@@ -76,6 +75,8 @@ impl fmt::Debug for Platform {
             .finish()
     }
 }
+
+heim_common::wrap!(Platform, sys::Platform);
 
 /// Returns `Future` which resolves into [Platform] struct.
 ///

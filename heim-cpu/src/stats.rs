@@ -7,7 +7,6 @@ use crate::sys;
 /// CPU statistics.
 ///
 /// See [OS-specific extensions](./os/index.html) for more statistics.
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuStats(sys::CpuStats);
 
 impl CpuStats {
@@ -30,6 +29,8 @@ impl fmt::Debug for CpuStats {
             .finish()
     }
 }
+
+heim_common::wrap!(CpuStats, sys::CpuStats);
 
 /// Returns future which will resolve into [CpuStats].
 ///

@@ -11,7 +11,6 @@ use crate::sys;
 /// for other metrics see `MemoryExt` traits in the [os] submodules.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
 
 impl Memory {
@@ -42,6 +41,8 @@ impl fmt::Debug for Memory {
             .finish()
     }
 }
+
+heim_common::wrap!(Memory, sys::Memory);
 
 /// Returns future which will resolve into [Memory] struct.
 ///

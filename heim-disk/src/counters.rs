@@ -17,7 +17,6 @@ use crate::sys;
 /// handle these cases and returned values might wrap.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct IoCounters(sys::IoCounters);
 
 impl IoCounters {
@@ -58,6 +57,8 @@ impl fmt::Debug for IoCounters {
             .finish()
     }
 }
+
+heim_common::wrap!(IoCounters, sys::IoCounters);
 
 /// Returns stream which will yield [IO counters] for all disks available in system.
 ///

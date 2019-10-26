@@ -22,7 +22,7 @@ pub use self::status::Status;
 /// System process.
 ///
 /// Some extra methods can be found in the [OS extensions](./os/index.html)
-#[derive(Eq, PartialEq, Hash, heim_derive::ImplWrap)]
+#[derive(Eq, PartialEq, Hash)]
 pub struct Process(sys::Process);
 
 impl Process {
@@ -223,6 +223,8 @@ impl fmt::Debug for Process {
         f.debug_struct("Process").field("pid", &self.pid()).finish()
     }
 }
+
+heim_common::wrap!(Process, sys::Process);
 
 /// Returns stream which yields currently running processes.
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {

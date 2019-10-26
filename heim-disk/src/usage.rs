@@ -13,7 +13,6 @@ use crate::sys;
 /// See [os]-specific extension traits also.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Usage(sys::Usage);
 
 impl Usage {
@@ -48,6 +47,8 @@ impl fmt::Debug for Usage {
             .finish()
     }
 }
+
+heim_common::wrap!(Usage, sys::Usage);
 
 /// Returns disk [Usage] statistics about the partition which contains the given `path`.
 ///

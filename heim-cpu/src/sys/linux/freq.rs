@@ -7,11 +7,25 @@ use heim_common::prelude::{future, Error, Result, Stream, TryFutureExt, TryStrea
 use heim_common::units::{frequency, Frequency};
 use heim_runtime::fs;
 
-#[derive(Debug, Default, heim_derive::Getter)]
+#[derive(Debug, Default)]
 pub struct CpuFrequency {
     current: Frequency,
     min: Option<Frequency>,
     max: Option<Frequency>,
+}
+
+impl CpuFrequency {
+    pub fn current(&self) -> Frequency {
+        self.current
+    }
+
+    pub fn min(&self) -> Option<Frequency> {
+        self.min
+    }
+
+    pub fn max(&self) -> Option<Frequency> {
+        self.max
+    }
 }
 
 impl ops::Add<CpuFrequency> for CpuFrequency {

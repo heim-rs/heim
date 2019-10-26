@@ -5,7 +5,6 @@
 ///
 /// [Memory]: ../../struct.Memory.html
 /// [PROCESS_MEMORY_COUNTERS_EX]: https://docs.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex
-#[heim_derive::os_ext_for(crate::Memory, cfg(target_os = "windows"))]
 pub trait MemoryExt {
     /// Returns the number of page faults.
     fn page_faults(&self) -> u32;
@@ -44,4 +43,47 @@ pub trait MemoryExt {
     /// Commit Charge is the total amount of memory
     /// that the memory manager has committed for a running process.
     fn private_usage(&self) -> usize;
+}
+
+#[cfg(target_os = "windows")]
+impl MemoryExt for crate::Memory {
+    fn page_faults(&self) -> u32 {
+        self.as_ref().page_faults()
+    }
+
+    fn peak_working_set_size(&self) -> usize {
+        self.as_ref().peak_working_set_size()
+    }
+
+    fn working_set_size(&self) -> usize {
+        self.as_ref().working_set_size()
+    }
+
+    fn quota_peak_paged_pool_usage(&self) -> usize {
+        self.as_ref().quota_peak_paged_pool_usage()
+    }
+
+    fn quota_paged_pool_usage(&self) -> usize {
+        self.as_ref().quota_paged_pool_usage()
+    }
+
+    fn quota_peak_non_paged_pool_usage(&self) -> usize {
+        self.as_ref().quota_peak_non_paged_pool_usage()
+    }
+
+    fn quota_non_paged_pool_usage(&self) -> usize {
+        self.as_ref().quota_non_paged_pool_usage()
+    }
+
+    fn pagefile_usage(&self) -> usize {
+        self.as_ref().pagefile_usage()
+    }
+
+    fn peak_pagefile_usage(&self) -> usize {
+        self.as_ref().peak_pagefile_usage()
+    }
+
+    fn private_usage(&self) -> usize {
+        self.as_ref().private_usage()
+    }
 }

@@ -7,7 +7,6 @@ use crate::sys;
 /// Memory information about the process.
 ///
 /// See os-specific extensions also.
-#[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
 
 impl Memory {
@@ -30,3 +29,5 @@ impl fmt::Debug for Memory {
             .finish()
     }
 }
+
+heim_common::wrap!(Memory, sys::Memory);

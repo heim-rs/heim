@@ -8,7 +8,6 @@ use crate::Pid;
 /// trait methods are representing fields of this struct.
 ///
 /// [User]: ../../struct.User.html
-#[heim_derive::os_ext_for(crate::User, cfg(target_os = "macos"))]
 pub trait UserExt {
     /// Returns the `Pid` of login process.
     fn pid(&self) -> Pid;
@@ -21,4 +20,23 @@ pub trait UserExt {
 
     /// Returns the hostname for remote login.
     fn hostname(&self) -> &str;
+}
+
+#[cfg(target_os = "macos")]
+impl UserExt for crate::User {
+    fn pid(&self) -> Pid {
+        self.as_ref().pid()
+    }
+
+    fn terminal(&self) -> &str {
+        self.as_ref().terminal()
+    }
+
+    fn id(&self) -> &str {
+        self.as_ref().id()
+    }
+
+    fn hostname(&self) -> &str {
+        self.as_ref().hostname()
+    }
 }

@@ -13,7 +13,6 @@ use crate::{sys, FileSystem};
 /// See [os]-specific extension traits also.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Partition(sys::Partition);
 
 impl Partition {
@@ -42,6 +41,8 @@ impl fmt::Debug for Partition {
             .finish()
     }
 }
+
+heim_common::wrap!(Partition, sys::Partition);
 
 /// Returns stream which yields mounted disk [Partitions].
 ///

@@ -4,7 +4,6 @@ use std::fmt;
 use crate::sys;
 
 /// Process command line.
-#[derive(heim_derive::ImplWrap)]
 pub struct Command(sys::Command);
 
 impl Command {
@@ -39,8 +38,10 @@ impl fmt::Debug for Command {
     }
 }
 
+heim_common::wrap!(Command, sys::Command);
+
 /// Iterator over process command line arguments.
-#[derive(heim_derive::ImplWrap, Debug)]
+#[derive(Debug)]
 pub struct CommandIter<'a>(sys::CommandIter<'a>);
 
 impl<'a> IntoIterator for &'a Command {
@@ -59,3 +60,5 @@ impl<'a> Iterator for CommandIter<'a> {
         self.0.next()
     }
 }
+
+heim_common::wrap!('a, CommandIter<'a>, sys::CommandIter<'a>);

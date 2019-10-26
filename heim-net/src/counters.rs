@@ -6,7 +6,6 @@ use heim_common::units::Information;
 use crate::sys;
 
 /// Network device I/O counters.
-#[derive(heim_derive::ImplWrap)]
 pub struct IoCounters(sys::IoCounters);
 
 impl IoCounters {
@@ -71,6 +70,8 @@ impl fmt::Debug for IoCounters {
             .finish()
     }
 }
+
+heim_common::wrap!(IoCounters, sys::IoCounters);
 
 /// Returns stream which yield [IO counters] for each network interface.
 ///

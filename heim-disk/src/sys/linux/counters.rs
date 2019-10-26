@@ -20,9 +20,8 @@ use heim_runtime::fs;
 // * https://lkml.org/lkml/2015/8/17/234
 const DISK_SECTOR_SIZE: u64 = 512;
 
-#[derive(Debug, Default, heim_derive::Getter)]
+#[derive(Debug, Default)]
 pub struct IoCounters {
-    #[getter(as_str)]
     name: String,
     read_count: u64,
     write_count: u64,
@@ -36,6 +35,26 @@ pub struct IoCounters {
 impl IoCounters {
     pub fn device_name(&self) -> &OsStr {
         OsStr::new(self.name.as_str())
+    }
+
+    pub fn read_count(&self) -> u64 {
+        self.read_count
+    }
+
+    pub fn write_count(&self) -> u64 {
+        self.write_count
+    }
+
+    pub fn read_bytes(&self) -> Information {
+        self.read_bytes
+    }
+
+    pub fn write_bytes(&self) -> Information {
+        self.write_bytes
+    }
+
+    pub fn busy_time(&self) -> Time {
+        self.busy_time
     }
 
     // Based on the sysstat code:

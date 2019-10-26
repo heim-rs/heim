@@ -11,7 +11,6 @@ use crate::sys;
 /// for other metrics see [OS]-specific extensions.
 ///
 /// [OS]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Swap(sys::Swap);
 
 impl Swap {
@@ -40,6 +39,8 @@ impl fmt::Debug for Swap {
             .finish()
     }
 }
+
+heim_common::wrap!(Swap, sys::Swap);
 
 /// Returns future which will resolve into [Swap] struct.
 ///

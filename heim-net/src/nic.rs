@@ -27,7 +27,6 @@ pub enum Address {
 // Do not forget that it is OS-dependant.
 
 /// Network interface device.
-#[derive(heim_derive::ImplWrap)]
 pub struct Nic(sys::Nic);
 
 impl Nic {
@@ -80,6 +79,8 @@ impl fmt::Debug for Nic {
             .finish()
     }
 }
+
+heim_common::wrap!(Nic, sys::Nic);
 
 /// Returns stream which yields [Network Interface Cards].
 ///

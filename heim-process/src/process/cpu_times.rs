@@ -5,7 +5,6 @@ use heim_common::units::Time;
 use crate::sys;
 
 /// Accumulated CPU time for specific process.
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuTime(sys::CpuTime);
 
 impl CpuTime {
@@ -28,3 +27,5 @@ impl fmt::Debug for CpuTime {
             .finish()
     }
 }
+
+heim_common::wrap!(CpuTime, sys::CpuTime);

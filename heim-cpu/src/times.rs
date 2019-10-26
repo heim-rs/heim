@@ -12,7 +12,6 @@ use crate::sys;
 /// For Linux additional information can be retrieved with [CpuTimeExt] extension trait.
 ///
 /// [CpuTimeExt]: ./os/linux/trait.CpuTimeExt.html
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuTime(sys::CpuTime);
 
 impl CpuTime {
@@ -45,6 +44,8 @@ impl fmt::Debug for CpuTime {
             .finish()
     }
 }
+
+heim_common::wrap!(CpuTime, sys::CpuTime);
 
 /// Returns future which will resolve into cumulative value of all [CPU times].
 ///

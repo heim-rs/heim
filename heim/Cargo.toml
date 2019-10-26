@@ -16,7 +16,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
 heim-common = { version = "0.0.8", path = "../heim-common" }
-heim-derive = { version = "0.0.8", path = "../heim-derive" }
+# heim-derive = { version = "0.0.8", path = "../heim-derive" }
 heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
 heim-cpu = {version = "0.0.8", path = "../heim-cpu", optional = true }
 heim-disk = {version = "0.0.8", path = "../heim-disk", optional = true }
