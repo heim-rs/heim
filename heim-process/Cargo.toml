@@ -57,7 +57,7 @@ futures-executor = "^0.3"
 version-sync = "0.8"
 pin-utils = "0.1.0-alpha.4"
 futures-timer = "0.5.0"
-which = "~3.0"
+which = "~3.1"
 
 [features]
 runtime-polyfill = ["heim-runtime/runtime-polyfill"]
