@@ -49,7 +49,7 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 pub mod prelude {
     pub use super::errors::{Error, Result};
 
-    /// This module tries to mimic `futures-preview` crate structure
+    /// This module tries to mimic `futures` crate structure
     /// except without re-exporting unused subcrates like `executor` or `compat`.
     pub mod futures {
         pub use futures_util::ready;
@@ -59,14 +59,12 @@ pub mod prelude {
         pub mod future {
             pub use futures_core::future::*;
             pub use futures_util::future::*;
-            pub use futures_util::try_future::*;
         }
 
         /// Asynchronous streams.
         pub mod stream {
             pub use futures_core::stream::*;
             pub use futures_util::stream::*;
-            pub use futures_util::try_stream::*;
         }
     }
 

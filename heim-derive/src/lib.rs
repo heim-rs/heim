@@ -110,9 +110,6 @@ pub fn skip_ci(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Defines the async main function.
 ///
 /// Same thing what `runtime::main` does, but without checks and with `futures::executor` instead.
-/// Created because `runtime` crate as a dependency is too huge
-/// and might break some time (ex. as with `futures-preview = "0.3.0-alpha.18"` update)
-/// and it will block development.
 ///
 /// It is used for `heim` examples only.
 #[cfg(not(test))]

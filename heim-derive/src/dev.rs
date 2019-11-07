@@ -147,10 +147,7 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 #body
             }
 
-            let mut pool = futures_executor::ThreadPool::new()
-                .expect("Failed to create futures threadpool");
-
-            pool.run(async {
+            futures_executor::block_on(async {
                 main().await
             })
         }
@@ -179,10 +176,7 @@ pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[test]
         #(#attrs)*
         fn #name() #ret {
-            let mut pool = futures_executor::ThreadPool::new()
-                .expect("Failed to create futures threadpool");
-
-            pool.run(async {
+            futures_executor::block_on(async {
                 #body
             })
         }
@@ -209,11 +203,8 @@ pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[bench]
         #(#attrs)*
         fn #name(b: &mut test::Bencher) {
-            let mut pool = futures_executor::ThreadPool::new()
-                .expect("Failed to create futures threadpool");
-
             b.iter(|| {
-                let _ = pool.run(async {
+                let _ = futures_executor::block_on(async {
                     #body
                 });
             });

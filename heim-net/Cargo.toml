@@ -24,7 +24,7 @@ macaddr = "0.1"
 libc = "~0.2"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.18"
+futures-executor = "^0.3"
 version-sync = "0.8"
 
 [target.'cfg(unix)'.dependencies]
