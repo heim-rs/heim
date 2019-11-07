@@ -127,7 +127,7 @@ impl Process {
     /// let process = process::current().await?;
     /// let measurement_1 = process.cpu_usage().await?;
     /// // Or any other async timer at your choice
-    /// futures_timer::Delay::new(Duration::from_millis(100)).await?;
+    /// futures_timer::Delay::new(Duration::from_millis(100)).await;
     /// let measurement_2 = process.cpu_usage().await?;
     ///
     /// println!("CPU usage: {} %", (measurement_2 - measurement_1).get::<ratio::percent>());
