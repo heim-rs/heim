@@ -116,7 +116,10 @@ impl From<ffi::IntoStringError> for Error {
 
 impl From<string::ParseError> for Error {
     fn from(e: string::ParseError) -> Self {
-        Error::Other(Box::new(e))
+        // `string::ParseError` is a type alias to `Never`,
+        // and since it is in stabilization right now,
+        // `heim` is affected by https://github.com/heim-rs/heim/issues/182
+        match e {}
     }
 }
 
