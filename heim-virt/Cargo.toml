@@ -1,6 +1,6 @@
 [package]
 name = "heim-virt"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform virtualization system detection"
@@ -15,15 +15,15 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-heim-common = { version = "0.0.8", path = "../heim-common" }
-heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
+heim-common = { version = "0.0.9", path = "../heim-common" }
+heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
 cfg-if = "0.1.9"
 
 [target.'cfg(all(target_os = "linux", any(target_arch="x86", target_arch="x86_64")))'.dependencies]
 raw-cpuid = "7.0.3"
 
 [dev-dependencies]
-heim-derive = { version = "0.0.8", path = "../heim-derive" }
+heim-derive = { version = "0.0.9", path = "../heim-derive" }
 futures-executor = "^0.3"
 version-sync = "0.8"
 tempfile = "3.0"

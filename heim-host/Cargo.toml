@@ -1,6 +1,6 @@
 [package]
 name = "heim-host"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform host information"
@@ -16,9 +16,9 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-heim-derive = { version = "0.0.8", path = "../heim-derive" }
-heim-common = { version = "0.0.8", path = "../heim-common" }
-heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
+heim-derive = { version = "0.0.9", path = "../heim-derive" }
+heim-common = { version = "0.0.9", path = "../heim-common" }
+heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
 cfg-if = "0.1.7"
 platforms = "0.2.0"
 libc = "~0.2"

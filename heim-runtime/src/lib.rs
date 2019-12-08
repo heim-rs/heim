@@ -11,7 +11,7 @@
 //!
 //! See also: https://github.com/heim-rs/heim/issues/75
 
-#![doc(html_root_url = "https://docs.rs/heim-runtime/0.0.4")]
+#![doc(html_root_url = "https://docs.rs/heim-runtime/0.0.5")]
 #![deny(
     unused,
     unused_imports,

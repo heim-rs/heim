@@ -1,6 +1,6 @@
 [package]
 name = "heim-derive"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Derive macros for heim crates"

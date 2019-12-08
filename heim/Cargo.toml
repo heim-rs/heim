@@ -1,6 +1,6 @@
 [package]
 name = "heim"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform framework for system information"
@@ -15,17 +15,17 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-heim-common = { version = "0.0.8", path = "../heim-common" }
-heim-derive = { version = "0.0.8", path = "../heim-derive" }
-heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
-heim-cpu = {version = "0.0.8", path = "../heim-cpu", optional = true }
-heim-disk = {version = "0.0.8", path = "../heim-disk", optional = true }
-heim-host = { version = "0.0.8", path = "../heim-host", optional = true }
-heim-memory = {version = "0.0.8", path = "../heim-memory", optional = true }
-heim-net = {version = "0.0.8", path = "../heim-net", optional = true }
-heim-process = { version = "0.0.8", path = "../heim-process", optional = true }
-heim-virt = { version = "0.0.8", path = "../heim-virt", optional = true }
-heim-sensors = { version = "0.0.3", path = "../heim-sensors", optional = true }
+heim-common = { version = "0.0.9", path = "../heim-common" }
+heim-derive = { version = "0.0.9", path = "../heim-derive" }
+heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
+heim-cpu = {version = "0.0.9", path = "../heim-cpu", optional = true }
+heim-disk = {version = "0.0.9", path = "../heim-disk", optional = true }
+heim-host = { version = "0.0.9", path = "../heim-host", optional = true }
+heim-memory = {version = "0.0.9", path = "../heim-memory", optional = true }
+heim-net = {version = "0.0.9", path = "../heim-net", optional = true }
+heim-process = { version = "0.0.9", path = "../heim-process", optional = true }
+heim-virt = { version = "0.0.9", path = "../heim-virt", optional = true }
+heim-sensors = { version = "0.0.4", path = "../heim-sensors", optional = true }
 
 [dev-dependencies]
 version-sync = "0.8"

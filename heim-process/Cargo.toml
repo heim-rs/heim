@@ -1,6 +1,6 @@
 [package]
 name = "heim-process"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform processes information"
@@ -15,10 +15,10 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-heim-derive = { version = "0.0.8", path = "../heim-derive" }
-heim-common = { version = "0.0.8", path = "../heim-common" }
-heim-runtime = { version = "0.0.4", path = "../heim-runtime" }
-heim-cpu = { version = "0.0.8", path = "../heim-cpu" }
+heim-derive = { version = "0.0.9", path = "../heim-derive" }
+heim-common = { version = "0.0.9", path = "../heim-common" }
+heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
+heim-cpu = { version = "0.0.9", path = "../heim-cpu" }
 cfg-if = "0.1.7"
 libc = "~0.2"
 lazy_static = "1.3.0"
@@ -26,11 +26,11 @@ ordered-float = { version = "~1.0", default-features = false }
 memchr = "~2.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-heim-net = { version = "0.0.8", path = "../heim-net" }
-heim-host = { version = "0.0.8", path = "../heim-host" }
+heim-net = { version = "0.0.9", path = "../heim-net" }
+heim-host = { version = "0.0.9", path = "../heim-host" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-heim-host = { version = "0.0.8", path = "../heim-host" }
+heim-host = { version = "0.0.9", path = "../heim-host" }
 ntapi = "0.3.3"
 
 [target.'cfg(target_os = "windows")'.dependencies.winapi]
