@@ -11,7 +11,7 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 heim-common = { version = "0.0.9", path = "../heim-common" }
-cfg-if = "0.1.10"
+cfg-if = "^0.1"
 futures-util= "^0.3.0"
 
 # `runtime-polyfill` feature dependencies

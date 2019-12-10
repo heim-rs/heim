@@ -19,7 +19,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 heim-common = { version = "0.0.9", path = "../heim-common" }
 heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
 lazy_static = "1.4.0"
-cfg-if = "0.1.10"
+cfg-if = "^0.1"
 pin-utils = "0.1.0-alpha.4"
 
 [target.'cfg(target_os = "linux")'.dependencies]

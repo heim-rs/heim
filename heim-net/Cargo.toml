@@ -17,7 +17,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 [dependencies]
 heim-common = { version = "0.0.9", path = "../heim-common" }
 heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
-cfg-if = "0.1.10"
+cfg-if = "^0.1"
 bitflags = "1.0.4"
 macaddr = "0.1"
 libc = "~0.2"

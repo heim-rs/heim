@@ -18,7 +18,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 heim-common = { version = "0.0.9", path = "../heim-common" }
 heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
 heim-cpu = { version = "0.0.9", path = "../heim-cpu" }
-cfg-if = "0.1.10"
+cfg-if = "^0.1"
 libc = "~0.2"
 lazy_static = "1.4.0"
 ordered-float = { version = "~1.0", default-features = false }
