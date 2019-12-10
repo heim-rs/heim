@@ -14,7 +14,7 @@
 // Note that `heim-runtime` is used for Linux only at the moment,
 // so it is unnecessary to compile anything from here for other targets.
 #![cfg(target_os = "linux")]
-#![doc(html_root_url = "https://docs.rs/heim-runtime/0.0.4")]
+#![doc(html_root_url = "https://docs.rs/heim-runtime/0.0.5")]
 #![deny(
     unused,
     unused_imports,

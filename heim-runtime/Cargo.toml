@@ -1,6 +1,6 @@
 [package]
 name = "heim-runtime"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Runtime shims for heim crate"
@@ -10,13 +10,14 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
+heim-common = { version = "0.0.9", path = "../heim-common" }
 cfg-if = "0.1.10"
-futures-util-preview = "0.3.0-alpha.19"
+futures-util= "^0.3.0"
 
 # `runtime-polyfill` feature dependencies
 lazy_static = { version = "1.4.0", optional = true }
-futures-channel-preview = { version = "0.3.0-alpha.19", optional = true }
-futures-executor-preview = { version = "0.3.0-alpha.19", optional = true }
+futures-channel = { version = "^0.3", optional = true }
+futures-executor = { version = "^0.3", optional = true }
 
 [dev-dependencies]
 version-sync = "0.8"
@@ -25,4 +26,4 @@ version-sync = "0.8"
 default = ["runtime-polyfill"]
 runtime-async-std = []
 runtime-tokio = []
-runtime-polyfill = ["lazy_static", "futures-channel-preview", "futures-executor-preview"]
+runtime-polyfill = ["lazy_static", "futures-channel", "futures-executor"]

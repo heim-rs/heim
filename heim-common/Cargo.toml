@@ -1,6 +1,6 @@
 [package]
 name = "heim-common"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Common stuff shared across heim project crates"
@@ -15,14 +15,14 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-cfg-if = "0.1.10"
-futures-core-preview = "0.3.0-alpha.19"
-futures-util-preview = "0.3.0-alpha.19"
+cfg-if = "0.1.7"
+futures-core = "^0.3"
+futures-util = "^0.3"
 pin-utils = "0.1.0-alpha.4"
-libc = "~0.2"
-uom = { version = "0.25.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
+uom = { version = "0.26.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
 [target.'cfg(unix)'.dependencies]
+libc = "~0.2"
 nix = "0.15.0"
 lazy_static = "1.4.0"
 
@@ -31,9 +31,9 @@ winapi = { version = ">=0.3.8", features = ["winnt", "minwindef", "libloaderapi"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.3.2"
-core-foundation = "0.6.4"
+core-foundation = "0.7.0"
 
 [dev-dependencies]
-futures-executor-preview = "0.3.0-alpha.19"
+futures-executor = "^0.3"
 version-sync = "0.8"
 

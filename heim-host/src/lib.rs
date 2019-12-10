@@ -2,7 +2,7 @@
 //!
 //! This module is enabled with the `host` feature flag (enabled by default).
 
-#![doc(html_root_url = "https://docs.rs/heim-host/0.0.8")]
+#![doc(html_root_url = "https://docs.rs/heim-host/0.0.9")]
 #![cfg_attr(
     not(fuzzing),
     deny(
@@ -25,6 +25,7 @@
     unused_import_braces,
     unused_results
 )]
+#![allow(clippy::missing_safety_doc)]
 
 #[cfg(target_os = "windows")]
 #[macro_use]

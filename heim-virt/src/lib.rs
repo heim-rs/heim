@@ -8,7 +8,7 @@
 //! See the [issues list](https://github.com/heim-rs/heim/issues?q=is%3Aissue+is%3Aopen+label%3AA-virt)
 //! for a not supported currently systems.
 
-#![doc(html_root_url = "https://docs.rs/heim-virt/0.0.8")]
+#![doc(html_root_url = "https://docs.rs/heim-virt/0.0.9")]
 #![deny(
     unused,
     unused_imports,

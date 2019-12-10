@@ -2,7 +2,7 @@
 //!
 //! Do **NOT** use it directly.
 
-#![doc(html_root_url = "https://docs.rs/heim-common/0.0.8")]
+#![doc(html_root_url = "https://docs.rs/heim-common/0.0.9")]
 #![deny(
     unused,
     unused_imports,
@@ -48,7 +48,7 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 pub mod prelude {
     pub use super::errors::{Error, ErrorContext, Result};
 
-    /// This module tries to mimic `futures-preview` crate structure
+    /// This module tries to mimic `futures` crate structure
     /// except without re-exporting unused subcrates like `executor` or `compat`.
     pub mod futures {
         pub use futures_util::ready;
@@ -58,14 +58,12 @@ pub mod prelude {
         pub mod future {
             pub use futures_core::future::*;
             pub use futures_util::future::*;
-            pub use futures_util::try_future::*;
         }
 
         /// Asynchronous streams.
         pub mod stream {
             pub use futures_core::stream::*;
             pub use futures_util::stream::*;
-            pub use futures_util::try_stream::*;
         }
     }
 
