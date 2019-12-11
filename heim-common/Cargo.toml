@@ -23,7 +23,6 @@ pin-utils = "0.1.0-alpha.4"
 uom = { version = "0.26.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.15.0"
 lazy_static = "1.4.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
