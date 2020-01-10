@@ -1,8 +1,6 @@
 use std::marker::Unpin;
 use std::path::Path;
 
-use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryStreamExt};
-use heim_runtime::fs;
 #[cfg(any(
     target_arch = "arm",
     target_arch = "aarch64",
@@ -10,6 +8,8 @@ use heim_runtime::fs;
     target_arch = "powerpc64"
 ))]
 use heim_common::prelude::TryFutureExt;
+use heim_common::prelude::{future, Future, FutureExt, StreamExt, TryStreamExt};
+use heim_runtime::fs;
 
 use crate::Virtualization;
 
