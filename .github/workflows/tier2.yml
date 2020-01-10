@@ -1,7 +1,7 @@
 # Tier 2 platforms are expected to be compiled.
 # There are no guarantees provided for code correctness on these platforms.
 
-on: push
+on: [push, pull_request]
 
 name: Tier 2 CI
 
