@@ -49,7 +49,7 @@ See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) 
 
 `heim` requires stable Rust 1.36+,
 but examples, tests and benchmarks use the [`async_await`](https://github.com/rust-lang/rust/issues/50547)
-feature and therefore require a `nightly` compiler.\
+feature and therefore require stable Rust 1.39+.\
 Of course, you can use `heim` without the `async` keyword,
 just be aware that it is used by the examples.
 
