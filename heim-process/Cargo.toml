@@ -23,7 +23,7 @@ cfg-if = "0.1.7"
 libc = "~0.2"
 lazy_static = "1.3.0"
 ordered-float = { version = "~1.0", default-features = false }
-memchr = "~2.2"
+memchr = "~2.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 heim-net = { version = "0.0.9", path = "../heim-net" }
