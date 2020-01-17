@@ -20,7 +20,7 @@ heim-common = { version = "0.0.9", path = "../heim-common" }
 heim-runtime = { version = "0.0.5", path = "../heim-runtime" }
 cfg-if = "0.1.7"
 bitflags = "1.0.4"
-macaddr = "0.1"
+macaddr = "1.0"
 libc = "~0.2"
 
 [dev-dependencies]
