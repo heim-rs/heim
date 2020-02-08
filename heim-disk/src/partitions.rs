@@ -13,8 +13,9 @@ use crate::{sys, FileSystem};
 /// See [os]-specific extension traits also.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Partition(sys::Partition);
+
+wrap!(Partition, sys::Partition);
 
 impl Partition {
     /// Returns partition device name if available.

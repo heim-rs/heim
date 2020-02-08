@@ -2,10 +2,12 @@ use std::ffi::{OsStr, OsString};
 use std::fmt;
 
 use crate::sys;
+use heim_common::prelude::wrap;
 
 /// Process command line.
-#[derive(heim_derive::ImplWrap)]
 pub struct Command(sys::Command);
+
+wrap!(Command, sys::Command);
 
 impl Command {
     /// Create an `OsString` containing the process command line.
@@ -40,8 +42,10 @@ impl fmt::Debug for Command {
 }
 
 /// Iterator over process command line arguments.
-#[derive(heim_derive::ImplWrap, Debug)]
+#[derive(Debug)]
 pub struct CommandIter<'a>(sys::CommandIter<'a>);
+
+wrap!('a, CommandIter<'a>, sys::CommandIter<'a>);
 
 impl<'a> IntoIterator for &'a Command {
     type Item = &'a OsStr;

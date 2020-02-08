@@ -7,8 +7,9 @@ use crate::sys;
 /// CPU statistics.
 ///
 /// See [OS-specific extensions](./os/index.html) for more statistics.
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuStats(sys::CpuStats);
+
+wrap!(CpuStats, sys::CpuStats);
 
 impl CpuStats {
     /// Returns number of context switches (voluntary + involuntary) since system boot.

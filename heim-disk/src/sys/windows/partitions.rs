@@ -18,6 +18,7 @@ pub struct Partition {
 }
 
 impl Partition {
+    #[allow(clippy::option_as_ref_deref)] // >= 1.40.0
     pub fn device(&self) -> Option<&OsStr> {
         self.volume.as_ref().map(OsString::as_os_str)
     }

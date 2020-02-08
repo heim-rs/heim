@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_runtime::fs;
 
-#[derive(Debug, Default, Eq, PartialEq, Copy, Clone, heim_derive::Getter)]
+#[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
 pub struct Memory {
     total: Information,     // MemTotal
     free: Information,      // MemFree
@@ -14,6 +14,33 @@ pub struct Memory {
     active: Information,    // Active
     inactive: Information,  // Inactive
     shared: Information,    // Shmem
+}
+
+impl Memory {
+    pub fn total(&self) -> Information {
+        self.total
+    }
+    pub fn free(&self) -> Information {
+        self.free
+    }
+    pub fn available(&self) -> Information {
+        self.available
+    }
+    pub fn buffers(&self) -> Information {
+        self.buffers
+    }
+    pub fn cached(&self) -> Information {
+        self.cached
+    }
+    pub fn active(&self) -> Information {
+        self.active
+    }
+    pub fn inactive(&self) -> Information {
+        self.inactive
+    }
+    pub fn shared(&self) -> Information {
+        self.shared
+    }
 }
 
 impl FromStr for Memory {

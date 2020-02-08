@@ -25,6 +25,7 @@
 #![allow(clippy::missing_safety_doc)]
 
 mod errors;
+mod macros;
 #[doc(hidden)]
 pub mod sys;
 pub mod units;
@@ -48,6 +49,7 @@ pub type Pid = winapi::shared::minwindef::DWORD;
 /// and might change at any time.
 pub mod prelude {
     pub use super::errors::{Error, Result};
+    pub use super::wrap;
 
     /// This module tries to mimic `futures` crate structure
     /// except without re-exporting unused subcrates like `executor` or `compat`.

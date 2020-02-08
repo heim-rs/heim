@@ -1,7 +1,6 @@
 /// Windows-specific extension for [CpuStats].
 ///
 /// [CpuStats]: ../../struct.CpuStats.html
-#[heim_derive::os_ext_for(crate::CpuStats, cfg(target_os = "windows"))]
 pub trait CpuStatsExt {
     /// Returns number of [Deferred Procedure Calls] since boot.
     ///
@@ -10,4 +9,15 @@ pub trait CpuStatsExt {
 
     /// Returns number of syscalls since boot.
     fn syscalls(&self) -> u64;
+}
+
+#[cfg(target_os = "windows")]
+impl CpuStatsExt for crate::CpuStats {
+    fn dpc(&self) -> u64 {
+        self.as_ref().dpc()
+    }
+
+    fn syscalls(&self) -> u64 {
+        self.as_ref().syscalls()
+    }
 }

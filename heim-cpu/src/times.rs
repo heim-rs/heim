@@ -12,8 +12,9 @@ use crate::sys;
 /// For Linux additional information can be retrieved with [CpuTimeExt] extension trait.
 ///
 /// [CpuTimeExt]: ./os/linux/trait.CpuTimeExt.html
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuTime(sys::CpuTime);
+
+wrap!(CpuTime, sys::CpuTime);
 
 impl CpuTime {
     /// Returns time spent by normal processes executing in user mode.

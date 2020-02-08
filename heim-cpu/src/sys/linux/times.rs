@@ -5,7 +5,7 @@ use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
 use heim_runtime::fs;
 
-#[derive(Debug, Default, heim_derive::Getter)]
+#[derive(Debug, Default)]
 pub struct CpuTime {
     user: Time,
     nice: Time,
@@ -17,6 +17,39 @@ pub struct CpuTime {
     steal: Time,
     guest: Option<Time>,
     guest_nice: Option<Time>,
+}
+
+impl CpuTime {
+    pub fn user(&self) -> Time {
+        self.user
+    }
+    pub fn nice(&self) -> Time {
+        self.nice
+    }
+    pub fn system(&self) -> Time {
+        self.system
+    }
+    pub fn idle(&self) -> Time {
+        self.idle
+    }
+    pub fn io_wait(&self) -> Time {
+        self.io_wait
+    }
+    pub fn irq(&self) -> Time {
+        self.irq
+    }
+    pub fn soft_irq(&self) -> Time {
+        self.soft_irq
+    }
+    pub fn steal(&self) -> Time {
+        self.steal
+    }
+    pub fn guest(&self) -> Option<Time> {
+        self.guest
+    }
+    pub fn guest_nice(&self) -> Option<Time> {
+        self.guest_nice
+    }
 }
 
 impl FromStr for CpuTime {

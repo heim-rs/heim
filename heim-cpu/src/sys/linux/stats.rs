@@ -3,11 +3,23 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_runtime::fs;
 
-#[derive(Debug, Default, heim_derive::Getter)]
+#[derive(Debug, Default)]
 pub struct CpuStats {
     ctx_switches: u64,
     interrupts: u64,
     soft_interrupts: u64,
+}
+
+impl CpuStats {
+    pub fn ctx_switches(&self) -> u64 {
+        self.ctx_switches
+    }
+    pub fn interrupts(&self) -> u64 {
+        self.interrupts
+    }
+    pub fn soft_interrupts(&self) -> u64 {
+        self.soft_interrupts
+    }
 }
 
 impl FromStr for CpuStats {

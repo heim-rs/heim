@@ -1,5 +1,6 @@
 use std::fmt;
 
+use heim_common::prelude::wrap;
 use heim_common::units::Information;
 
 use crate::sys;
@@ -7,8 +8,9 @@ use crate::sys;
 /// Memory information about the process.
 ///
 /// See os-specific extensions also.
-#[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
+
+wrap!(Memory, sys::Memory);
 
 impl Memory {
     /// Returns resident set size, amount of non-swapped physical memory used by the process.

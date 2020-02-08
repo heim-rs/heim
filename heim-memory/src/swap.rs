@@ -11,8 +11,9 @@ use crate::sys;
 /// for other metrics see [OS]-specific extensions.
 ///
 /// [OS]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Swap(sys::Swap);
+
+wrap!(Swap, sys::Swap);
 
 impl Swap {
     /// The total amount of swap memory

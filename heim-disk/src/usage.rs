@@ -13,8 +13,9 @@ use crate::sys;
 /// See [os]-specific extension traits also.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Usage(sys::Usage);
+
+wrap!(Usage, sys::Usage);
 
 impl Usage {
     /// Returns total information amount available in partition.

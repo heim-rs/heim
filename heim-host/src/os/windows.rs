@@ -5,7 +5,6 @@ use std::net::IpAddr;
 /// Extension for [User] struct.
 ///
 /// [User]: ../../struct.User.html
-#[heim_derive::os_ext_for(crate::User, cfg(target_os = "windows"))]
 pub trait UserExt {
     /// Domain name that the user belongs to.
     fn domain(&self) -> &str;
@@ -23,4 +22,15 @@ pub trait UserExt {
     /// It should be expected that method will return `&IpAddr` directly,
     /// when support for all protocols will arrive.
     fn address(&self) -> Option<&IpAddr>;
+}
+
+#[cfg(target_os = "windows")]
+impl UserExt for crate::User {
+    fn domain(&self) -> &str {
+        self.as_ref().domain()
+    }
+
+    fn address(&self) -> Option<&IpAddr> {
+        self.as_ref().address()
+    }
 }

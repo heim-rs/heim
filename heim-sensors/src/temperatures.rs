@@ -21,6 +21,7 @@ impl TemperatureSensor {
     }
 
     /// Returns sensor label.
+    #[allow(clippy::option_as_ref_deref)] // >= 1.40.0
     pub fn label(&self) -> Option<&str> {
         self.label.as_ref().map(|s| s.as_str())
     }

@@ -30,6 +30,6 @@ lazy_static::lazy_static! {
         let info = unsafe { timebase_info().expect("Unable to get mach timebase info") };
         // We are going to use this fields as a `f64` types later in the `uptime` function,
         // so why can't we convert them only once?
-        (f64::from(info.numer) / f64::from(info.denom))
+        f64::from(info.numer) / f64::from(info.denom)
     };
 }

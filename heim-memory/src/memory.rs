@@ -11,8 +11,9 @@ use crate::sys;
 /// for other metrics see `MemoryExt` traits in the [os] submodules.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct Memory(sys::Memory);
+
+wrap!(Memory, sys::Memory);
 
 impl Memory {
     /// The total amount of physical memory.

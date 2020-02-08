@@ -13,7 +13,6 @@ pub use self::memory::MemoryExt;
 /// Linux-specific extension to [Process]
 ///
 /// [Process]: ../../struct.Process.html
-#[heim_derive::os_ext_for(crate::Process, cfg(target_os = "linux"))]
 pub trait ProcessExt {
     /// Returns future which resolves into process IO counters.
     ///
@@ -28,4 +27,15 @@ pub trait ProcessExt {
     ///
     /// [IO counters]: ./struct.IoCounters.html
     fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>>;
+}
+
+#[cfg(target_os = "linux")]
+impl ProcessExt for crate::Process {
+    fn io_counters(&self) -> BoxFuture<ProcessResult<IoCounters>> {
+        self.as_ref().io_counters()
+    }
+
+    fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
+        self.as_ref().net_io_counters()
+    }
 }

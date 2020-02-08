@@ -6,8 +6,9 @@ use heim_common::units::Information;
 use crate::sys;
 
 /// Network device I/O counters.
-#[derive(heim_derive::ImplWrap)]
 pub struct IoCounters(sys::IoCounters);
+
+wrap!(IoCounters, sys::IoCounters);
 
 impl IoCounters {
     /// Returns network interface name.

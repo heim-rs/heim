@@ -1,12 +1,14 @@
 use std::fmt;
 
+use heim_common::prelude::wrap;
 use heim_common::units::Time;
 
 use crate::sys;
 
 /// Accumulated CPU time for specific process.
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuTime(sys::CpuTime);
+
+wrap!(CpuTime, sys::CpuTime);
 
 impl CpuTime {
     /// Returns amount of CPU time spent in user mode within the process.

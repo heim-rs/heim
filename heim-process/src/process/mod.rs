@@ -22,8 +22,10 @@ pub use self::status::Status;
 /// System process.
 ///
 /// Some extra methods can be found in the [OS extensions](./os/index.html)
-#[derive(Eq, PartialEq, Hash, heim_derive::ImplWrap)]
+#[derive(Eq, PartialEq, Hash)]
 pub struct Process(sys::Process);
+
+wrap!(Process, sys::Process);
 
 impl Process {
     /// Returns the process pid.

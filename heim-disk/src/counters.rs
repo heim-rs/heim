@@ -17,8 +17,9 @@ use crate::sys;
 /// handle these cases and returned values might wrap.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct IoCounters(sys::IoCounters);
+
+wrap!(IoCounters, sys::IoCounters);
 
 impl IoCounters {
     /// Returns disk device name.

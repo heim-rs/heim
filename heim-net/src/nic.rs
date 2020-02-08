@@ -27,8 +27,9 @@ pub enum Address {
 // Do not forget that it is OS-dependant.
 
 /// Network interface device.
-#[derive(heim_derive::ImplWrap)]
 pub struct Nic(sys::Nic);
+
+wrap!(Nic, sys::Nic);
 
 impl Nic {
     /// Returns NIC name.

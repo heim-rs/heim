@@ -35,8 +35,9 @@ use crate::{sys, Arch};
 ///     architecture: X86_64,
 /// }
 /// ```
-#[derive(heim_derive::ImplWrap)]
 pub struct Platform(sys::Platform);
+
+wrap!(Platform, sys::Platform);
 
 impl Platform {
     /// Returns system name.

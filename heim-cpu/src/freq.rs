@@ -6,8 +6,9 @@ use heim_common::units::Frequency;
 use crate::sys;
 
 /// System CPU frequency.
-#[derive(heim_derive::ImplWrap)]
 pub struct CpuFrequency(sys::CpuFrequency);
+
+wrap!(CpuFrequency, sys::CpuFrequency);
 
 impl CpuFrequency {
     /// Current CPU frequency.

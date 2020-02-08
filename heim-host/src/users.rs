@@ -8,8 +8,9 @@ use heim_common::prelude::*;
 /// See [os] module for OS-specific extensions.
 ///
 /// [os]: ./os/index.html
-#[derive(heim_derive::ImplWrap)]
 pub struct User(sys::User);
+
+wrap!(User, sys::User);
 
 impl User {
     /// Returns the name of user.
