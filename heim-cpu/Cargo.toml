@@ -28,7 +28,9 @@ version = ">=0.3.8"
 features = [
     "powerbase",
     "sysinfoapi",
+    "minwindef",
     "winnt",
+    "winerror",
     "processthreadsapi",
     "impl-default",
     "winbase",

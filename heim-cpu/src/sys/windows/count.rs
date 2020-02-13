@@ -1,8 +1,6 @@
-use std::mem;
-use std::ptr;
+use winapi::um::{winbase, winnt};
 
-use winapi::um::{sysinfoapi, winbase, winnt};
-
+use super::wrappers::count::LogicalProcessors;
 use heim_common::prelude::*;
 
 pub fn logical_count() -> impl Future<Output = Result<u64>> {
@@ -17,40 +15,23 @@ pub fn logical_count() -> impl Future<Output = Result<u64>> {
     }
 }
 
+// TODO: Too much unsafe, would be nice to make a decent wrapper
+// around the `GetLogicalProcessorInformationEx` with `Iterator` interface
+// and proper deallocation on `Drop`
 pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
-    let mut buffer_size = 0;
+    match LogicalProcessors::get() {
+        Ok(processors) => {
+            let count = processors
+                .iter()
+                .filter(|p| p.Relationship == winnt::RelationProcessorCore)
+                .count();
 
-    let _ = unsafe {
-        sysinfoapi::GetLogicalProcessorInformationEx(
-            winnt::RelationProcessorCore,
-            ptr::null_mut(),
-            &mut buffer_size,
-        )
-    };
-
-    let struct_size = mem::size_of::<winnt::SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>() as u32;
-    let length = buffer_size / struct_size;
-    let mut buf = Vec::with_capacity(length as usize);
-
-    let result = unsafe {
-        sysinfoapi::GetLogicalProcessorInformationEx(
-            winnt::RelationProcessorCore,
-            buf.as_mut_ptr(),
-            &mut buffer_size,
-        )
-    };
-
-    if result == 0 {
-        return future::err(Error::last_os_error());
-    } else {
-        unsafe {
-            buf.set_len(length as usize);
+            if count > 0 {
+                future::ok(Some(count as u64))
+            } else {
+                future::ok(None)
+            }
         }
-    }
-
-    if !buf.is_empty() {
-        future::ok(Some(buf.len() as u64))
-    } else {
-        future::ok(None)
+        Err(e) => future::err(e.into()),
     }
 }
