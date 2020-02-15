@@ -34,54 +34,43 @@ impl Process {
         self.pid
     }
 
-    pub fn parent_pid(&self) -> impl Future<Output = ProcessResult<Pid>> {
-        let pid = self.pid;
+    pub async fn parent_pid(&self) -> ProcessResult<Pid> {
+        let snapshot = bindings::snapshot::Snapshot::new()?;
 
-        future::lazy(move |_| {
+        snapshot
+            .flatten()
+            .find(|entry| entry.th32ProcessID == self.pid)
+            .map(|entry| Ok(entry.th32ParentProcessID))
+            .unwrap_or_else(|| Err(ProcessError::NoSuchProcess(self.pid)))
+    }
+
+    pub async fn name(&self) -> ProcessResult<String> {
+        let res = match self.pid {
+            0 => Ok("System Idle Process".to_string()),
+            4 => Ok("System".to_string()),
+            _ => Err(()),
+        };
+
+        res.or_else(|_| {
+            // According to `psutil` working with a `Process::exe` is faster,
+            // but will fail in cases with AD and processes owned by other users.
+            match bindings::ProcessHandle::query_limited_info(self.pid) {
+                Ok(handle) => match handle.exe() {
+                    Ok(path) => match path.file_name() {
+                        None => Err(()),
+                        Some(name) => Ok(name.to_string_lossy().into_owned()),
+                    },
+                    Err(..) => Err(()),
+                },
+                Err(..) => Err(()),
+            }
+        })
+        .or_else(|_| {
             let snapshot = bindings::snapshot::Snapshot::new()?;
 
             snapshot
                 .flatten()
-                .find(|entry| entry.th32ProcessID == pid)
-                .map(|entry| Ok(entry.th32ParentProcessID))
-                .unwrap_or_else(|| Err(ProcessError::NoSuchProcess(pid)))
-        })
-    }
-
-    pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
-        // TODO: Rewrite it when `async_await` will be stable
-        let pid = self.pid;
-        future::lazy(move |_| match pid {
-            0 => Ok("System Idle Process".to_string()),
-            4 => Ok("System".to_string()),
-            _ => Err(()),
-        })
-        .or_else(move |_| {
-            // According to `psutil` working with a `Process::exe` is faster,
-            // but will fail in cases with AD and processes owned by other users.
-            //
-            // Also we do not care about any errors which might happen,
-            // that's why `future::err(())` is used
-            match bindings::ProcessHandle::query_limited_info(pid) {
-                Ok(handle) => match handle.exe() {
-                    Ok(path) => match path.file_name() {
-                        None => future::err(()),
-                        Some(name) => future::ok(name.to_string_lossy().into_owned()),
-                    },
-                    Err(..) => future::err(()),
-                },
-                Err(..) => future::err(()),
-            }
-        })
-        .or_else(move |_| {
-            let snapshot = match bindings::snapshot::Snapshot::new() {
-                Ok(snapshot) => snapshot,
-                Err(e) => return future::err(e.into()),
-            };
-
-            let result = snapshot
-                .flatten()
-                .find(|entry| entry.th32ProcessID == pid)
+                .find(|entry| entry.th32ProcessID == self.pid)
                 .map(|entry| {
                     let first_null = entry
                         .szExeFile
@@ -92,179 +81,145 @@ impl Process {
 
                     Ok(os_str.to_string_lossy().into_owned())
                 })
-                .unwrap_or_else(|| Err(ProcessError::NoSuchProcess(pid)));
-
-            future::ready(result)
+                .unwrap_or_else(|| Err(ProcessError::NoSuchProcess(self.pid)))
         })
     }
 
-    pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        let pid = self.pid;
-        future::lazy(move |_| {
-            // TODO: Move that check into the `bindings::ProcessHandle` constructors
-            if pid == 0 || pid == 4 {
-                Err(ProcessError::AccessDenied(pid))
-            } else {
-                let handle =
-                    bindings::ProcessHandle::query_limited_info(pid).map_err(|e| {
-                        match e.kind() {
-                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                            _ => e.into(),
-                        }
-                    })?;
+    pub async fn exe(&self) -> ProcessResult<PathBuf> {
+        // TODO: Move that check into the `bindings::ProcessHandle` constructors
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle =
+                bindings::ProcessHandle::query_limited_info(self.pid).map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                        _ => e.into(),
+                    }
+                })?;
 
-                handle.exe().map_err(|e| match e.kind() {
-                    io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                    _ => e.into(),
-                })
-            }
-        })
+            handle.exe().map_err(|e| match e.kind() {
+                io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                _ => e.into(),
+            })
+        }
     }
 
-    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
+    pub async fn command(&self) -> ProcessResult<Command> {
         self::command::command(self.pid)
     }
 
-    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        future::err(Error::incompatible("https://github.com/heim-rs/heim/issues/105").into())
+    pub async fn cwd(&self) -> ProcessResult<PathBuf> {
+        Err(Error::incompatible("https://github.com/heim-rs/heim/issues/105").into())
     }
 
-    pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        match suspend::is_suspended(self.pid) {
-            Ok(true) => future::ok(Status::Stopped),
-            Ok(false) => future::ok(Status::Running),
-            Err(e) => future::err(e),
+    pub async fn status(&self) -> ProcessResult<Status> {
+        if suspend::is_suspended(self.pid)? {
+            Ok(Status::Stopped)
+        } else {
+            Ok(Status::Running)
         }
     }
 
-    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::ok(self.unique_id.create_time())
+    pub async fn create_time(&self) -> ProcessResult<Time> {
+        Ok(self.unique_id.create_time())
     }
 
-    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
+    pub async fn cpu_time(&self) -> ProcessResult<CpuTime> {
         // TODO: Move that check into the `bindings::ProcessHandle`
         if self.pid == 0 {
-            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
+            Err(ProcessError::AccessDenied(self.pid))
         } else {
-            let pid = self.pid;
-
-            let f = future::lazy(move |_| {
-                let handle = bindings::ProcessHandle::query_limited_info(pid)
-                    // TODO: `query_limited_info` should return the `ProcessError`
-                    .map_err(|e| {
-                        match e.kind() {
-                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                            _ => e.into(),
-                        }
-                    })?;
-
-                handle.cpu_time().map_err(ProcessError::from)
-            });
-
-            future::Either::Right(f)
-        }
-    }
-
-    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
-        } else {
-            let pid = self.pid;
-
-            let f = future::lazy(move |_| {
-                let handle = bindings::ProcessHandle::query_limited_info(pid)
-                    // TODO: `query_limited_info` should return the `ProcessError`
-                    .map_err(|e| {
-                        match e.kind() {
-                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                            _ => e.into(),
-                        }
-                    })?;
-
-                handle
-                    .memory()
-                    .map(Memory::from)
-                    .map_err(ProcessError::from)
-            });
-
-            future::Either::Right(f)
-        }
-    }
-
-    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
-        let unique_id = self.unique_id.clone();
-        get(self.pid).map_ok(move |other| other.unique_id == unique_id)
-    }
-
-    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
-        } else {
-            let pid = self.pid;
-
-            let f = future::lazy(move |_| {
-                let handle =
-                    bindings::ProcessHandle::for_suspend_resume(pid).map_err(|e| {
-                        match e.kind() {
-                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                            _ => e.into(),
-                        }
-                    })?;
-
-                handle.suspend().map_err(ProcessError::from)
-            });
-
-            future::Either::Right(f)
-        }
-    }
-
-    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
-        } else {
-            let pid = self.pid;
-
-            let f = future::lazy(move |_| {
-                let handle =
-                    bindings::ProcessHandle::for_suspend_resume(pid).map_err(|e| {
-                        match e.kind() {
-                            io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
-                            _ => e.into(),
-                        }
-                    })?;
-
-                handle.resume().map_err(ProcessError::from)
-            });
-
-            future::Either::Right(f)
-        }
-    }
-
-    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
-        self.kill()
-    }
-
-    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            future::Either::Left(future::err(ProcessError::AccessDenied(self.pid)))
-        } else {
-            let pid = self.pid;
-
-            let f = future::lazy(move |_| {
-                let handle =
-                    bindings::ProcessHandle::for_termination(pid).map_err(|e| match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(pid),
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)
+                // TODO: `query_limited_info` should return the `ProcessError`
+                .map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
                         _ => e.into(),
-                    })?;
+                    }
+                })?;
 
-                handle.terminate().map_err(ProcessError::from)
-            });
+            handle.cpu_time().map_err(ProcessError::from)
+        }
+    }
 
-            future::Either::Right(f)
+    pub async fn memory(&self) -> ProcessResult<Memory> {
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)
+                // TODO: `query_limited_info` should return the `ProcessError`
+                .map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                        _ => e.into(),
+                    }
+                })?;
+
+            handle
+                .memory()
+                .map(Memory::from)
+                .map_err(ProcessError::from)
+        }
+    }
+
+    pub async fn is_running(&self) -> ProcessResult<bool> {
+        let other = get(self.pid).await?;
+
+        Ok(other == *self)
+    }
+
+    pub async fn suspend(&self) -> ProcessResult<()> {
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle =
+                bindings::ProcessHandle::for_suspend_resume(self.pid).map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                        _ => e.into(),
+                    }
+                })?;
+
+            handle.suspend().map_err(ProcessError::from)
+        }
+    }
+
+    pub async fn resume(&self) -> ProcessResult<()> {
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle =
+                bindings::ProcessHandle::for_suspend_resume(self.pid).map_err(|e| {
+                    match e.kind() {
+                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                        _ => e.into(),
+                    }
+                })?;
+
+            handle.resume().map_err(ProcessError::from)
+        }
+    }
+
+    pub async fn terminate(&self) -> ProcessResult<()> {
+        self.kill().await
+    }
+
+    pub async fn kill(&self) -> ProcessResult<()> {
+        // TODO: Move that check into the `bindings::ProcessHandle`
+        if self.pid == 0 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle =
+                bindings::ProcessHandle::for_termination(self.pid).map_err(|e| match e.kind() {
+                    io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
+                    _ => e.into(),
+                })?;
+
+            handle.terminate().map_err(ProcessError::from)
         }
     }
 }
@@ -284,8 +239,10 @@ impl cmp::PartialEq for Process {
 impl cmp::Eq for Process {}
 
 /// Create the `Process` from `pid` without checking first if pid is alive.
-fn get_unchecked(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
-    self::create_time::get(pid).map_ok(move |create_time| Process {
+async fn get_unchecked(pid: Pid) -> ProcessResult<Process> {
+    let create_time = self::create_time::get(pid).await?;
+
+    Ok(Process {
         pid,
         unique_id: UniqueId::new(pid, create_time),
     })
@@ -295,20 +252,16 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids().and_then(get_unchecked)
 }
 
-pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
-    pid_exists(pid).and_then(move |is_exists| {
-        if is_exists {
-            future::Either::Left(get_unchecked(pid))
-        } else {
-            let f = future::err(ProcessError::NoSuchProcess(pid));
-
-            future::Either::Right(f)
-        }
-    })
+pub async fn get(pid: Pid) -> ProcessResult<Process> {
+    if pid_exists(pid).await? {
+        get_unchecked(pid).await
+    } else {
+        Err(ProcessError::NoSuchProcess(pid))
+    }
 }
 
-pub fn current() -> impl Future<Output = ProcessResult<Process>> {
+pub async fn current() -> ProcessResult<Process> {
     let pid = unsafe { processthreadsapi::GetCurrentProcessId() };
 
-    get_unchecked(pid)
+    get_unchecked(pid).await
 }

@@ -115,23 +115,20 @@ impl FromStr for Stat {
     }
 }
 
-pub fn stat(pid: Pid) -> impl Future<Output = ProcessResult<Stat>> {
-    fs::read_to_string(format!("/proc/{}/stat", pid))
-        .map_err(move |e| {
-            if e.kind() == io::ErrorKind::NotFound {
-                ProcessError::NoSuchProcess(pid)
-            } else {
-                e.into()
-            }
-        })
-        .and_then(|contents| future::ready(Stat::from_str(&contents).map_err(Into::into)))
-        .and_then(|mut stat| {
-            heim_host::boot_time()
-                .map_err(Into::into)
-                .map_ok(move |boot_time| {
-                    stat.create_time += boot_time;
+pub async fn stat(pid: Pid) -> ProcessResult<Stat> {
+    let path = format!("/proc/{}/stat", pid);
+    let contents = match fs::read_to_string(path).await {
+        Ok(contents) => contents,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => {
+            return Err(ProcessError::NoSuchProcess(pid))
+        }
+        Err(e) => return Err(e.into()),
+    };
 
-                    stat
-                })
-        })
+    let mut stats = Stat::from_str(&contents)?;
+    let boot_time = heim_host::boot_time().await?;
+
+    stats.create_time += boot_time;
+
+    Ok(stats)
 }

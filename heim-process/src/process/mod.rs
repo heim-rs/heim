@@ -34,25 +34,27 @@ impl Process {
     }
 
     /// Returns future which resolves into the process parent pid.
-    pub fn parent_pid(&self) -> impl Future<Output = ProcessResult<Pid>> {
-        self.as_ref().parent_pid()
+    pub async fn parent_pid(&self) -> ProcessResult<Pid> {
+        self.as_ref().parent_pid().await
     }
 
     /// Returns future which resolves into the parent [Process].
     ///
     /// [Process]: ./struct.Process.html
-    pub fn parent(&self) -> impl Future<Output = ProcessResult<Process>> {
-        self.parent_pid().and_then(get)
+    pub async fn parent(&self) -> ProcessResult<Process> {
+        let ppid = self.parent_pid().await?;
+
+        get(ppid).await
     }
 
     /// Returns future which resolves into the process name.
-    pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
-        self.as_ref().name()
+    pub async fn name(&self) -> ProcessResult<String> {
+        self.as_ref().name().await
     }
 
     /// Returns future which resolves into the process executable as an absolute path.
-    pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        self.as_ref().exe()
+    pub async fn exe(&self) -> ProcessResult<PathBuf> {
+        self.as_ref().exe().await
     }
 
     /// Returns future which resolves into the process command line.
@@ -74,8 +76,8 @@ impl Process {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
-        self.as_ref().command().map_ok(Into::into)
+    pub async fn command(&self) -> ProcessResult<Command> {
+        self.as_ref().command().await.map(Into::into)
     }
 
     /// Returns future which resolves into the process current working directory.
@@ -84,26 +86,26 @@ impl Process {
     ///
     /// For Windows this method is not implemented yet and will always return an error,
     /// see [#105](https://github.com/heim-rs/heim/issues/105).
-    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
-        self.as_ref().cwd()
+    pub async fn cwd(&self) -> ProcessResult<PathBuf> {
+        self.as_ref().cwd().await
     }
 
     /// Returns future which resolves into the current process status.
-    pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
-        self.as_ref().status()
+    pub async fn status(&self) -> ProcessResult<Status> {
+        self.as_ref().status().await
     }
 
     /// Returns future which resolves into the process creation time,
     /// expressed as a [Time] amount since the UNIX epoch.
     ///
     /// [Time]: ../units/type.Time.html
-    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        self.as_ref().create_time()
+    pub async fn create_time(&self) -> ProcessResult<Time> {
+        self.as_ref().create_time().await
     }
 
     /// Returns future which resolves into the accumulated process time.
-    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
-        self.as_ref().cpu_time().map_ok(Into::into)
+    pub async fn cpu_time(&self) -> ProcessResult<CpuTime> {
+        self.as_ref().cpu_time().await.map(Into::into)
     }
 
     /// Returns future which resolves into the CPU usage measurement.
@@ -138,26 +140,28 @@ impl Process {
     /// ```
     ///
     /// [`CpuUsage`]: ./struct.CpuUsage.html
-    pub fn cpu_usage(&self) -> impl Future<Output = ProcessResult<CpuUsage>> {
-        self.cpu_time().and_then(|time| {
-            heim_cpu::logical_count()
-                .map_err(Into::into)
-                .map_ok(move |count| CpuUsage {
-                    cpu_count: count,
-                    cpu_time: time,
-                    at: Instant::now(),
-                })
+    pub async fn cpu_usage(&self) -> ProcessResult<CpuUsage> {
+        let (cpu_time, cpu_count) = future::try_join(
+            self.cpu_time(),
+            heim_cpu::logical_count().map_err(Into::into),
+        )
+        .await?;
+
+        Ok(CpuUsage {
+            cpu_count,
+            cpu_time,
+            at: Instant::now(),
         })
     }
 
     /// Returns future which resolves into the memory information about this process.
-    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
-        self.as_ref().memory().map_ok(Into::into)
+    pub async fn memory(&self) -> ProcessResult<Memory> {
+        self.as_ref().memory().await.map(Into::into)
     }
 
     /// Returns future which checks if this `Process` is still running.
-    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
-        self.as_ref().is_running()
+    pub async fn is_running(&self) -> ProcessResult<bool> {
+        self.as_ref().is_running().await
     }
 
     /// Suspend the current process.
@@ -170,8 +174,8 @@ impl Process {
     /// For *nix systems it sends the `SIGSTOP` signal to process.
     ///
     /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
-    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
-        self.0.suspend()
+    pub async fn suspend(&self) -> ProcessResult<()> {
+        self.as_ref().suspend().await
     }
 
     /// Resume the current process.
@@ -184,8 +188,8 @@ impl Process {
     /// For *nix systems it sends the `SIGCONT` signal to process.
     ///
     /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
-    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
-        self.0.resume()
+    pub async fn resume(&self) -> ProcessResult<()> {
+        self.as_ref().resume().await
     }
 
     /// Terminate the current process.
@@ -201,8 +205,8 @@ impl Process {
     ///
     /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
     /// [`Process::kill`]: #method.kill
-    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
-        self.0.terminate()
+    pub async fn terminate(&self) -> ProcessResult<()> {
+        self.as_ref().terminate().await
     }
 
     /// Kills the current process.
@@ -219,8 +223,8 @@ impl Process {
     ///
     /// [`NoSuchProcess`]: ./enum.ProcessError.html#variant.NoSuchProcess
     /// [`TerminateProcess`]: https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess
-    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
-        self.0.kill()
+    pub async fn kill(&self) -> ProcessResult<()> {
+        self.as_ref().kill().await
     }
 }
 
@@ -236,11 +240,11 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
 }
 
 /// Load the process information with `pid` given.
-pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
-    sys::get(pid).map_ok(Into::into)
+pub async fn get(pid: Pid) -> ProcessResult<Process> {
+    sys::get(pid).await.map(Into::into)
 }
 
 /// Returns the `Process` matching the currently running program.
-pub fn current() -> impl Future<Output = ProcessResult<Process>> {
-    sys::current().map_ok(Into::into)
+pub async fn current() -> ProcessResult<Process> {
+    sys::current().await.map(Into::into)
 }

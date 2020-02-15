@@ -51,6 +51,7 @@ pub struct vm_statistics64 {
     pub total_uncompressed_pages_in_compressor: u64,
 }
 
+// TODO: Function should not be marked as `unsafe` itself
 #[allow(trivial_casts)]
 pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
     let port = macos::mach_host_self();
@@ -81,6 +82,7 @@ pub unsafe fn host_vm_info() -> Result<vm_statistics64> {
     }
 }
 
+// TODO: Function should not be marked as `unsafe` itself
 #[allow(trivial_casts)]
 pub unsafe fn hw_memsize() -> Result<u64> {
     let mut name: [i32; 2] = [CTL_HW, HW_MEMSIZE];
@@ -103,6 +105,7 @@ pub unsafe fn hw_memsize() -> Result<u64> {
     }
 }
 
+// TODO: Function should not be marked as `unsafe` itself
 pub unsafe fn vm_swapusage() -> Result<libc::xsw_usage> {
     let mut name: [i32; 2] = [CTL_VM, VM_SWAPUSAGE];
     let mut value = mem::MaybeUninit::<libc::xsw_usage>::uninit();

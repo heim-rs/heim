@@ -134,16 +134,16 @@ impl Swap {
     }
 }
 
-fn vm_stat() -> impl Future<Output = Result<VmStat>> {
-    fs::read_into(PROC_VMSTAT)
+async fn vm_stat() -> Result<VmStat> {
+    fs::read_into(PROC_VMSTAT).await
 }
 
-pub fn swap() -> impl Future<Output = Result<Swap>> {
-    let meminfo = fs::read_to_string(PROC_MEMINFO);
-    // TODO: Replace with `try_join`
-    future::join(meminfo, vm_stat()).then(|result| match result {
-        (Ok(string), Ok(vm_stat)) => future::ready(Swap::parse_str(&string, vm_stat)),
-        (Err(e), _) => future::err(e.into()),
-        (_, Err(e)) => future::err(e),
-    })
+pub async fn swap() -> Result<Swap> {
+    let (meminfo, vm_stat) = future::try_join(
+        fs::read_to_string(PROC_MEMINFO).map_err(Into::into),
+        vm_stat(),
+    )
+    .await?;
+
+    Swap::parse_str(&meminfo, vm_stat)
 }

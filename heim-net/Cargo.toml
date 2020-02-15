@@ -25,6 +25,7 @@ libc = "~0.2"
 [dev-dependencies]
 heim-derive = { version = "0.0.10", path = "../heim-derive" }
 futures-executor = "^0.3"
+pin-utils = "0.1.0-alpha.4"
 version-sync = "0.8"
 
 [target.'cfg(unix)'.dependencies]

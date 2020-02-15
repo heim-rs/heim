@@ -113,67 +113,67 @@ impl fmt::Debug for Platform {
     }
 }
 
-unsafe fn get_native_system_info() -> impl Future<Output = Result<SystemInfo>> {
+fn get_native_system_info() -> SystemInfo {
     let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
-    sysinfoapi::GetNativeSystemInfo(info.as_mut_ptr());
-    let info = info.assume_init();
-
-    future::ok(info.into())
-}
-
-unsafe fn rtl_get_version() -> impl Future<Output = Result<winnt::OSVERSIONINFOEXW>> {
-    // Based on the `platform-info` crate source:
-    // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
-    let module = match get_ntdll() {
-        Ok(module) => module,
-        Err(e) => return future::err(e),
-    };
-
-    let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
-    let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());
-    if !func.is_null() {
-        let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW) -> ntdef::NTSTATUS =
-            mem::transmute(func as *const ());
-
-        let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
-        (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
-            mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
-        if func(osinfo.as_mut_ptr()) == ntstatus::STATUS_SUCCESS {
-            future::ok(osinfo.assume_init())
-        } else {
-            // https://docs.microsoft.com/en-us/windows/desktop/devnotes/rtlgetversion#return-value
-            unreachable!("RtlGetVersion should just work");
-        }
-    } else {
-        future::err(io::Error::last_os_error().into())
+    unsafe {
+        sysinfoapi::GetNativeSystemInfo(info.as_mut_ptr());
+        info.assume_init().into()
     }
 }
 
-unsafe fn get_computer_name() -> impl Future<Output = Result<String>> {
+fn rtl_get_version() -> Result<winnt::OSVERSIONINFOEXW> {
+    unsafe {
+        // Based on the `platform-info` crate source:
+        // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
+        // TODO: Use `ntapi` crate instead
+        let module = get_ntdll()?;
+
+        let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
+        let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());
+        if !func.is_null() {
+            let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW) -> ntdef::NTSTATUS =
+                mem::transmute(func as *const ());
+
+            let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
+            (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
+                mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
+            if func(osinfo.as_mut_ptr()) == ntstatus::STATUS_SUCCESS {
+                Ok(osinfo.assume_init())
+            } else {
+                // https://docs.microsoft.com/en-us/windows/desktop/devnotes/rtlgetversion#return-value
+                unreachable!("RtlGetVersion should just work");
+            }
+        } else {
+            Err(io::Error::last_os_error().into())
+        }
+    }
+}
+
+fn get_computer_name() -> Result<String> {
     let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
     let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
 
-    let result = winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size);
+    let result = unsafe { winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size) };
     if result == 0 {
-        future::err(Error::last_os_error())
+        Err(Error::last_os_error())
     } else {
-        buffer.set_len(size as usize + 1);
+        unsafe {
+            buffer.set_len(size as usize + 1);
+        }
         let str = OsString::from_wide(&buffer[..(size as usize)])
             .to_string_lossy()
             .to_string();
-        future::ok(str)
+        Ok(str)
     }
 }
 
-pub fn platform() -> impl Future<Output = Result<Platform>> {
-    let sysinfo = unsafe { get_native_system_info() };
-    let version = unsafe { rtl_get_version() };
-    let hostname = unsafe { get_computer_name() };
+pub async fn platform() -> Result<Platform> {
+    let version = rtl_get_version()?;
 
-    future::try_join3(sysinfo, version, hostname).map_ok(|(sysinfo, version, hostname)| Platform {
-        sysinfo,
+    Ok(Platform {
+        sysinfo: get_native_system_info(),
         version,
-        hostname,
+        hostname: get_computer_name()?,
         build: format!("{}", version.dwBuildNumber),
     })
 }

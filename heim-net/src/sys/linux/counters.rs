@@ -109,12 +109,12 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     fs::read_lines("/proc/net/dev")
         .skip(2)
         .map_err(Error::from)
-        .and_then(|line| future::ready(IoCounters::from_str(&line)))
+        .and_then(|line| async move { IoCounters::from_str(&line) })
 }
 
 pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
     fs::read_lines(format!("/proc/{}/net/dev", pid))
         .skip(2)
         .map_err(Error::from)
-        .and_then(|line| future::ready(IoCounters::from_str(&line)))
+        .and_then(|line| async move { IoCounters::from_str(&line) })
 }

@@ -101,6 +101,6 @@ impl FromStr for Memory {
     }
 }
 
-pub fn memory() -> impl Future<Output = Result<Memory>> {
-    fs::read_into("/proc/meminfo")
+pub async fn memory() -> Result<Memory> {
+    fs::read_into("/proc/meminfo").await
 }

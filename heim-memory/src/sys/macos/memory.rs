@@ -44,37 +44,34 @@ impl Memory {
     }
 }
 
-pub fn memory() -> impl Future<Output = Result<Memory>> {
-    future::lazy(|_| {
-        let total = unsafe { bindings::hw_memsize()? };
-        let vm_stats = unsafe { bindings::host_vm_info()? };
-        let page_size = *PAGE_SIZE;
+pub async fn memory() -> Result<Memory> {
+    let total = unsafe { bindings::hw_memsize()? };
+    let vm_stats = unsafe { bindings::host_vm_info()? };
+    let page_size = *PAGE_SIZE;
 
-        let total = Information::new::<information::byte>(total);
-        let available = Information::new::<information::byte>(
-            u64::from(vm_stats.active_count + vm_stats.free_count) * page_size,
-        );
-        let free = Information::new::<information::byte>(
-            u64::from(vm_stats.free_count - vm_stats.speculative_count) * page_size,
-        );
-        let used = Information::new::<information::byte>(
-            u64::from(vm_stats.active_count + vm_stats.wire_count) * page_size,
-        );
-        let active =
-            Information::new::<information::byte>(u64::from(vm_stats.active_count) * page_size);
-        let inactive =
-            Information::new::<information::byte>(u64::from(vm_stats.inactive_count) * page_size);
-        let wire =
-            Information::new::<information::byte>(u64::from(vm_stats.wire_count) * page_size);
+    let total = Information::new::<information::byte>(total);
+    let available = Information::new::<information::byte>(
+        u64::from(vm_stats.active_count + vm_stats.free_count) * page_size,
+    );
+    let free = Information::new::<information::byte>(
+        u64::from(vm_stats.free_count - vm_stats.speculative_count) * page_size,
+    );
+    let used = Information::new::<information::byte>(
+        u64::from(vm_stats.active_count + vm_stats.wire_count) * page_size,
+    );
+    let active =
+        Information::new::<information::byte>(u64::from(vm_stats.active_count) * page_size);
+    let inactive =
+        Information::new::<information::byte>(u64::from(vm_stats.inactive_count) * page_size);
+    let wire = Information::new::<information::byte>(u64::from(vm_stats.wire_count) * page_size);
 
-        Ok(Memory {
-            total,
-            available,
-            free,
-            used,
-            active,
-            inactive,
-            wire,
-        })
+    Ok(Memory {
+        total,
+        available,
+        free,
+        used,
+        active,
+        inactive,
+        wire,
     })
 }

@@ -3,7 +3,8 @@ use heim_net as net;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
-    let mut nic = net::nic();
+    let nic = net::nic();
+    pin_utils::pin_mut!(nic);
     while let Some(iface) = nic.next().await {
         dbg!(iface?);
     }

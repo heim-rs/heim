@@ -36,114 +36,109 @@ impl Process {
         self.pid
     }
 
-    pub fn parent_pid(&self) -> impl Future<Output = ProcessResult<Pid>> {
+    pub async fn parent_pid(&self) -> ProcessResult<Pid> {
         match bindings::process(self.pid) {
-            Ok(kinfo_proc) => future::ok(kinfo_proc.kp_eproc.e_ppid),
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Ok(kinfo_proc) => Ok(kinfo_proc.kp_eproc.e_ppid),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn name(&self) -> impl Future<Output = ProcessResult<String>> {
+    pub async fn name(&self) -> ProcessResult<String> {
         match bindings::process(self.pid) {
             Ok(kinfo_proc) => {
                 let raw_str = unsafe { CStr::from_ptr(kinfo_proc.kp_proc.p_comm.as_ptr()) };
                 let name = raw_str.to_string_lossy().into_owned();
 
-                future::ok(name)
+                Ok(name)
             }
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn exe(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
+    pub async fn exe(&self) -> ProcessResult<PathBuf> {
         match darwin_libproc::pid_path(self.pid) {
-            Ok(path) => future::ok(path),
-            Err(..) if self.pid == 0 => future::err(ProcessError::AccessDenied(self.pid)),
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Ok(path) => Ok(path),
+            Err(..) if self.pid == 0 => Err(ProcessError::AccessDenied(self.pid)),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn command(&self) -> impl Future<Output = ProcessResult<Command>> {
-        self::command::command(self.pid)
+    pub async fn command(&self) -> ProcessResult<Command> {
+        self::command::command(self.pid).await
     }
 
-    pub fn cwd(&self) -> impl Future<Output = ProcessResult<PathBuf>> {
+    pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         match darwin_libproc::pid_cwd(self.pid) {
-            Ok(path) => future::ok(path),
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Ok(path) => Ok(path),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn status(&self) -> impl Future<Output = ProcessResult<Status>> {
+    pub async fn status(&self) -> ProcessResult<Status> {
         match bindings::process(self.pid) {
-            Ok(kinfo_proc) => {
-                future::ready(Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from))
-            }
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn create_time(&self) -> impl Future<Output = ProcessResult<Time>> {
-        future::ok(self.unique_id.create_time())
+    pub async fn create_time(&self) -> ProcessResult<Time> {
+        Ok(self.unique_id.create_time())
     }
 
-    pub fn cpu_time(&self) -> impl Future<Output = ProcessResult<CpuTime>> {
+    pub async fn cpu_time(&self) -> ProcessResult<CpuTime> {
         match darwin_libproc::task_info(self.pid) {
-            Ok(task_info) => future::ok(CpuTime::from(task_info)),
+            Ok(task_info) => Ok(CpuTime::from(task_info)),
             Err(ref e) if e.kind() == io::ErrorKind::PermissionDenied => {
-                future::err(ProcessError::AccessDenied(self.pid))
+                Err(ProcessError::AccessDenied(self.pid))
             }
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn memory(&self) -> impl Future<Output = ProcessResult<Memory>> {
+    pub async fn memory(&self) -> ProcessResult<Memory> {
         match darwin_libproc::task_info(self.pid) {
-            Ok(task_info) => future::ok(Memory::from(task_info)),
+            Ok(task_info) => Ok(Memory::from(task_info)),
             Err(ref e) if e.kind() == io::ErrorKind::PermissionDenied => {
-                future::err(ProcessError::AccessDenied(self.pid))
+                Err(ProcessError::AccessDenied(self.pid))
             }
-            Err(e) => future::err(catch_zombie(e, self.pid)),
+            Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
 
-    pub fn is_running(&self) -> impl Future<Output = ProcessResult<bool>> {
-        let unique_id = self.unique_id.clone();
-        get(self.pid).map_ok(move |other| other.unique_id == unique_id)
+    pub async fn is_running(&self) -> ProcessResult<bool> {
+        let other = get(self.pid).await?;
+
+        Ok(other == *self)
     }
 
     // `Self::signal` needs to return `BoxFuture`,
     // but the `Self::kill` does not
-    fn _signal(&self, signal: Signal) -> impl Future<Output = ProcessResult<()>> {
-        let pid = self.pid;
-
-        self.is_running().and_then(move |is_running| {
-            if is_running {
-                future::ready(pid_kill(pid, signal))
-            } else {
-                future::err(ProcessError::NoSuchProcess(pid))
-            }
-        })
+    async fn _signal(&self, signal: Signal) -> ProcessResult<()> {
+        if self.is_running().await? {
+            pid_kill(self.pid, signal)
+        } else {
+            Err(ProcessError::NoSuchProcess(self.pid))
+        }
     }
 
     pub fn signal(&self, signal: Signal) -> BoxFuture<ProcessResult<()>> {
         self._signal(signal).boxed()
     }
 
-    pub fn suspend(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Stop)
+    pub async fn suspend(&self) -> ProcessResult<()> {
+        self._signal(Signal::Stop).await
     }
 
-    pub fn resume(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Cont)
+    pub async fn resume(&self) -> ProcessResult<()> {
+        self._signal(Signal::Cont).await
     }
 
-    pub fn terminate(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Term)
+    pub async fn terminate(&self) -> ProcessResult<()> {
+        self._signal(Signal::Term).await
     }
 
-    pub fn kill(&self) -> impl Future<Output = ProcessResult<()>> {
-        self._signal(Signal::Kill)
+    pub async fn kill(&self) -> ProcessResult<()> {
+        self._signal(Signal::Kill).await
     }
 }
 
@@ -165,7 +160,7 @@ pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     pids().map_err(Into::into).and_then(get)
 }
 
-pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
+pub async fn get(pid: Pid) -> ProcessResult<Process> {
     match bindings::process(pid) {
         Ok(kinfo_proc) => {
             let create_time = unsafe {
@@ -176,15 +171,17 @@ pub fn get(pid: Pid) -> impl Future<Output = ProcessResult<Process>> {
             let create_time = create_time.into_time();
             debug_assert!(!create_time.is_nan());
 
-            future::ok(Process {
+            Ok(Process {
                 pid,
                 unique_id: UniqueId::new(pid, create_time),
             })
         }
-        Err(e) => future::err(catch_zombie(e, pid)),
+        Err(e) => Err(catch_zombie(e, pid)),
     }
 }
 
-pub fn current() -> impl Future<Output = ProcessResult<Process>> {
-    future::lazy(|_| unsafe { libc::getpid() }).then(get)
+pub async fn current() -> ProcessResult<Process> {
+    let pid = unsafe { libc::getpid() };
+
+    get(pid).await
 }

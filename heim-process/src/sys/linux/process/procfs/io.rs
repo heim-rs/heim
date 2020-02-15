@@ -33,12 +33,11 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io(pid: Pid) -> impl Future<Output = ProcessResult<IoCounters>> {
-    fs::read_into(format!("/proc/{}/io", pid)).map_err(move |e: Error| {
-        match e.raw_os_error() {
-            // TODO: It is not possible to get `::std::io::ErrorKind` from the `heim::Error`
-            Some(libc::EACCES) => ProcessError::AccessDenied(pid),
-            _ => e.into(),
-        }
-    })
+pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
+    let path = format!("/proc/{}/io", pid);
+    match fs::read_to_string(path).await {
+        Ok(contents) => IoCounters::from_str(&contents).map_err(Into::into),
+        Err(e) if e.raw_os_error() == Some(libc::EACCES) => Err(ProcessError::AccessDenied(pid)),
+        Err(e) => Err(e.into()),
+    }
 }

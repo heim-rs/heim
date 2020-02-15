@@ -1,10 +1,10 @@
-use heim_common::prelude::{future, stream, Future, Stream, TryFutureExt};
+use heim_common::prelude::{future, stream, Stream, TryFutureExt};
 
 use super::bindings;
 use crate::sys::unix;
-use crate::{Pid, ProcessError};
+use crate::{Pid, ProcessResult};
 
-pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
+pub fn pids() -> impl Stream<Item = ProcessResult<Pid>> {
     future::lazy(|_| {
         // `kinfo_proc` is not `Send`-able, so it would not be possible
         // later to send it between threads (it's full of raw pointers),
@@ -19,6 +19,6 @@ pub fn pids() -> impl Stream<Item = Result<Pid, ProcessError>> {
     .try_flatten_stream()
 }
 
-pub fn pid_exists(pid: Pid) -> impl Future<Output = Result<bool, ProcessError>> {
-    future::ok(unix::pid_exists(pid))
+pub async fn pid_exists(pid: Pid) -> ProcessResult<bool> {
+    Ok(unix::pid_exists(pid))
 }

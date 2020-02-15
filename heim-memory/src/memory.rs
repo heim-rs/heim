@@ -47,6 +47,6 @@ impl fmt::Debug for Memory {
 /// Returns future which will resolve into [Memory] struct.
 ///
 /// [Memory]: ./struct.Memory.html
-pub fn memory() -> impl future::Future<Output = Result<Memory>> {
-    sys::memory().map(|res| res.map(Into::into))
+pub async fn memory() -> Result<Memory> {
+    sys::memory().await.map(Into::into)
 }

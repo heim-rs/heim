@@ -79,6 +79,8 @@ impl FromStr for Memory {
     }
 }
 
-pub fn stat_memory(pid: Pid) -> impl Future<Output = ProcessResult<Memory>> {
-    fs::read_into(format!("/proc/{}/statm", pid)).map_err(Into::into)
+pub async fn stat_memory(pid: Pid) -> ProcessResult<Memory> {
+    fs::read_into(format!("/proc/{}/statm", pid))
+        .await
+        .map_err(Into::into)
 }

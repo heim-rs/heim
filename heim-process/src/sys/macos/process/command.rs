@@ -1,8 +1,6 @@
 use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt;
 
-use heim_common::prelude::*;
-
 use crate::sys::macos::{pid_exists, wrappers};
 use crate::{Pid, ProcessError, ProcessResult};
 
@@ -40,29 +38,16 @@ impl<'a> Iterator for CommandIter<'a> {
     }
 }
 
-pub fn command(pid: Pid) -> impl Future<Output = ProcessResult<Command>> {
-    future::lazy(move |_| wrappers::ProcArgs::get(pid))
-        .map_ok(Command)
-        .or_else(move |e| {
-            // TODO: Will look better with `async_await`
-            match e.raw_os_error() {
-                // `KERN_PROCARGS2` syscall might return `EINVAL` in case of zombie process
-                Some(libc::EINVAL) => {
-                    let f = pid_exists(pid).and_then(move |is_exists| {
-                        if is_exists {
-                            future::err(ProcessError::ZombieProcess(pid))
-                        } else {
-                            future::err(e.into())
-                        }
-                    });
-
-                    future::Either::Left(f)
-                }
-                _ => {
-                    let f = future::err(e.into());
-
-                    future::Either::Right(f)
-                }
+pub async fn command(pid: Pid) -> ProcessResult<Command> {
+    match wrappers::ProcArgs::get(pid) {
+        Ok(proc_args) => Ok(Command(proc_args)),
+        Err(e) if e.raw_os_error() == Some(libc::EINVAL) => {
+            if pid_exists(pid).await? {
+                Err(ProcessError::ZombieProcess(pid))
+            } else {
+                Err(e.into())
             }
-        })
+        }
+        Err(e) => Err(e.into()),
+    }
 }
