@@ -1,6 +1,6 @@
 [package]
 name = "heim-common"
-version = "0.0.9"
+version = "0.0.10"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Common stuff shared across heim project crates"
@@ -19,11 +19,11 @@ cfg-if = "0.1.7"
 futures-core = "^0.3"
 futures-util = "^0.3"
 pin-utils = "0.1.0-alpha.4"
-uom = { version = "0.26.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
+uom = { version = "0.27.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "~0.2"
-nix = "0.16.0"
+nix = "0.17.0"
 lazy_static = "1.3.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]

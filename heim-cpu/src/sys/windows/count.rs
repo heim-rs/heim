@@ -15,9 +15,6 @@ pub fn logical_count() -> impl Future<Output = Result<u64>> {
     }
 }
 
-// TODO: Too much unsafe, would be nice to make a decent wrapper
-// around the `GetLogicalProcessorInformationEx` with `Iterator` interface
-// and proper deallocation on `Drop`
 pub fn physical_count() -> impl Future<Output = Result<Option<u64>>> {
     match LogicalProcessors::get() {
         Ok(processors) => {
