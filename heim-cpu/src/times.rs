@@ -50,8 +50,8 @@ impl fmt::Debug for CpuTime {
 /// Returns future which will resolve into cumulative value of all [CPU times].
 ///
 /// [CPU times]: struct.CpuTime.html
-pub fn time() -> impl Future<Output = Result<CpuTime>> {
-    sys::time().map_ok(Into::into)
+pub async fn time() -> Result<CpuTime> {
+    sys::time().await.map(Into::into)
 }
 
 /// Returns stream which will yield [CPU time] for each CPU.

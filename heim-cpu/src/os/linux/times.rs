@@ -39,6 +39,7 @@ pub trait CpuTimeExt {
     fn guest_nice(&self) -> Option<Time>;
 }
 
+#[cfg(target_os = "linux")]
 impl CpuTimeExt for crate::CpuTime {
     fn nice(&self) -> Time {
         self.as_ref().nice()

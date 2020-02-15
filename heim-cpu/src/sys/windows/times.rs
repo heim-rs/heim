@@ -28,7 +28,7 @@ impl CpuTime {
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
-pub fn time() -> impl Future<Output = Result<CpuTime>> {
+pub async fn time() -> Result<CpuTime> {
     let mut user = minwindef::FILETIME::default();
     let mut kernel = minwindef::FILETIME::default();
     let mut idle = minwindef::FILETIME::default();
@@ -36,7 +36,7 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
     let result = unsafe { processthreadsapi::GetSystemTimes(&mut idle, &mut kernel, &mut user) };
 
     if result == 0 {
-        future::err(Error::last_os_error())
+        Err(Error::last_os_error())
     } else {
         let user = user.into_time();
         let idle = idle.into_time();
@@ -44,7 +44,7 @@ pub fn time() -> impl Future<Output = Result<CpuTime>> {
         // and leaving only busy kernel time
         let system = kernel.into_time() - idle;
 
-        future::ok(CpuTime { user, system, idle })
+        Ok(CpuTime { user, system, idle })
     }
 }
 

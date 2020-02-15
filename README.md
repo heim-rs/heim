@@ -6,7 +6,7 @@
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
 [![dependency status](https://deps.rs/crate/heim/0.0.10/status.svg)](https://deps.rs/crate/heim/0.0.10)
 [![Coverage Status](https://github.com/heim-rs/heim/workflows/Continuous%20integration/badge.svg)](https://github.com/heim-rs/heim/actions?workflow=Continuous+integration)
-![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-green.svg)
+![Minimum rustc version](https://img.shields.io/badge/rustc-1.39+-green.svg)
 ![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
 [![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
 ![Platforms supported](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-brightgreen)
@@ -47,22 +47,7 @@ See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) 
 
 ## Technical notes
 
-`heim` requires stable Rust 1.36+,
-but examples, tests and benchmarks use the [`async_await`](https://github.com/rust-lang/rust/issues/50547)
-feature and therefore require stable Rust 1.39+.\
-Of course, you can use `heim` without the `async` keyword,
-just be aware that it is used by the examples.
-
-`heim` is using `std::future::Future` and it is expected that users understand
-how futures work, how to use them, and what differences there are
-between futures versions `0.1` and `0.3/std::future::Future`.\
-It is not a project goal to provide any kind of information about how to
-combine `heim` with `actix`, `hyper`, `tide`, or any other Rust crate.
-
-At the moment, `heim` is async runtime agnostic, but in the future it may need to depend on runtime
-specific features. Note that if this becomes the case, it is likely that the required runtime(s) will be
-compatible with the [runtime](https://crates.io/crates/runtime) crate.
-Users may want to consider this fact during development. See [#75](https://github.com/heim-rs/heim/issues/75) for more info.
+Currently `master` branch is going under `async/await` rewrite, stay tuned.
 
 ## Platform support
 
