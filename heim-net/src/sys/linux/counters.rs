@@ -4,7 +4,7 @@ use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_common::utils::iter::*;
 use heim_common::Pid;
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -106,14 +106,16 @@ impl FromStr for IoCounters {
 }
 
 pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    fs::read_lines("/proc/net/dev")
+    rt::fs::read_lines("/proc/net/dev")
+        .try_flatten_stream()
         .skip(2)
         .map_err(Error::from)
         .and_then(|line| async move { IoCounters::from_str(&line) })
 }
 
 pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
-    fs::read_lines(format!("/proc/{}/net/dev", pid))
+    rt::fs::read_lines(format!("/proc/{}/net/dev", pid))
+        .try_flatten_stream()
         .skip(2)
         .map_err(Error::from)
         .and_then(|line| async move { IoCounters::from_str(&line) })

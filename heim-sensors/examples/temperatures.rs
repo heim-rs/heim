@@ -3,7 +3,8 @@ use heim_sensors as sensors;
 
 #[heim_derive::main]
 async fn main() -> Result<()> {
-    let mut sensors = sensors::temperatures();
+    let sensors = sensors::temperatures();
+    pin_utils::pin_mut!(sensors);
     while let Some(sensor) = sensors.next().await {
         dbg!(sensor?);
     }

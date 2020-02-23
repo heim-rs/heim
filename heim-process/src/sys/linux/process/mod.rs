@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;
@@ -68,7 +68,7 @@ impl Process {
     }
 
     pub async fn exe(&self) -> ProcessResult<PathBuf> {
-        match fs::read_link(format!("/proc/{}/exe", self.pid)).await {
+        match rt::fs::read_link(format!("/proc/{}/exe", self.pid)).await {
             Ok(path) => Ok(path),
             Err(..) => {
                 // log::trace!() ?
@@ -88,7 +88,7 @@ impl Process {
     }
 
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
-        match fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
+        match rt::fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
             Ok(path) => Ok(path),
             Err(..) => {
                 if pid_exists(self.pid).await? {

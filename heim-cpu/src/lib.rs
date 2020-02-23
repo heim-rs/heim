@@ -1,6 +1,6 @@
 //! CPU information.
 //!
-//! This module is enabled with the `cpu` feature flag (enabled by default).
+//! This module is enabled with the `cpu` feature flag (disabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-cpu/0.0.10")]
 #![deny(

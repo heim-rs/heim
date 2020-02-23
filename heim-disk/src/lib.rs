@@ -1,6 +1,6 @@
 //! Disks information.
 //!
-//! This module is enabled with the `disk` feature flag (enabled by default).
+//! This module is enabled with the `disk` feature flag (disabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-disk/0.0.10")]
 #![deny(

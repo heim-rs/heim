@@ -1,33 +1,51 @@
 use heim_common::prelude::*;
-use heim_runtime::fs;
+use heim_runtime as rt;
 
-fn sysconf() -> impl Future<Output = Result<u64>> {
+fn sysconf() -> Result<u64> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
 
     if result < 0 {
-        future::err(Error::last_os_error())
+        Err(Error::last_os_error())
     } else {
-        future::ok(result as u64)
+        Ok(result as u64)
     }
 }
 
-fn cpuinfo() -> impl Future<Output = Result<u64>> {
-    fs::read_lines("/proc/cpuinfo")
-        .try_filter(|line| future::ready(line.starts_with("processor")))
-        .map_err(Error::from)
-        .try_fold(0, |acc, _| future::ok(acc + 1))
+async fn cpuinfo() -> Result<u64> {
+    let mut lines = rt::fs::read_lines("/proc/cpuinfo").await?;
+    let mut count = 0;
+    while let Some(line) = lines.next().await {
+        let line = line?;
+        if line.starts_with("processor") {
+            count += 1;
+        }
+    }
+
+    Ok(count)
 }
 
-fn stat() -> impl Future<Output = Result<u64>> {
-    fs::read_lines("/proc/stat")
-        .try_filter(|line| future::ready(line.starts_with("cpu")))
-        .map_err(Error::from)
-        // the first "cpu" line aggregates the numbers in all
-        // of the other "cpuN" lines, hence skip the first item
-        .skip(1)
-        .try_fold(0, |acc, _| future::ok(acc + 1))
+async fn stat() -> Result<u64> {
+    // the first "cpu" line aggregates the numbers in all
+    // of the other "cpuN" lines, hence skip the first item
+    let mut lines = rt::fs::read_lines("/proc/stat").await?.skip(1);
+
+    let mut count = 0;
+    while let Some(line) = lines.next().await {
+        let line = line?;
+        if line.starts_with("cpu") {
+            count += 1;
+        }
+    }
+
+    Ok(count)
 }
 
-pub fn logical_count() -> impl Future<Output = Result<u64>> {
-    sysconf().or_else(|_| cpuinfo()).or_else(|_| stat())
+pub async fn logical_count() -> Result<u64> {
+    match sysconf() {
+        Ok(value) => Ok(value),
+        Err(..) => match cpuinfo().await {
+            Ok(value) => Ok(value),
+            Err(..) => stat().await,
+        },
+    }
 }

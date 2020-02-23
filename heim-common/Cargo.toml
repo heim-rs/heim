@@ -15,7 +15,7 @@ maintenance = { status = "experimental" }
 azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
-cfg-if = "0.1.7"
+cfg-if = "~0.1"
 futures-core = "^0.3"
 futures-util = "^0.3"
 pin-utils = "0.1.0-alpha.4"

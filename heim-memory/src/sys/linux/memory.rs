@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
 pub struct Memory {
@@ -102,5 +102,5 @@ impl FromStr for Memory {
 }
 
 pub async fn memory() -> Result<Memory> {
-    fs::read_into("/proc/meminfo").await
+    rt::fs::read_into("/proc/meminfo").await
 }

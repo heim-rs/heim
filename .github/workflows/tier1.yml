@@ -16,6 +16,10 @@ jobs:
           - 1.39.0  # MSRV
           - stable
           - nightly
+        runtime:
+          - runtime-tokio
+          - runtime-async-std
+          - runtime-polyfill
 
     steps:
       - uses: actions/checkout@v1
@@ -30,11 +34,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-      - name: Run tests (nightly only)
-        if: matrix.toolchain == 'nightly'
+          args: --features ${{ matrix.runtime }} --manifest-path=heim/Cargo.toml
+      - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --lib --tests --examples --no-fail-fast
 
   clippy:
     runs-on: ${{ matrix.os }}
@@ -55,7 +60,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets -- -D warnings
+          args: --all-targets --all-features -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -99,7 +104,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all
+          args: --all --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"

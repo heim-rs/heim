@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use heim_common::prelude::*;
 use heim_common::units::time;
 use heim_host as host;

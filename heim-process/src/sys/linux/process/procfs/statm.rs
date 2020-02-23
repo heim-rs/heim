@@ -3,7 +3,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_common::utils::iter::ParseIterator;
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 use crate::{Pid, ProcessResult};
 
@@ -80,7 +80,7 @@ impl FromStr for Memory {
 }
 
 pub async fn stat_memory(pid: Pid) -> ProcessResult<Memory> {
-    fs::read_into(format!("/proc/{}/statm", pid))
+    rt::fs::read_into::<_, _, Error>(format!("/proc/{}/statm", pid))
         .await
         .map_err(Into::into)
 }

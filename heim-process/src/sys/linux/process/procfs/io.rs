@@ -3,7 +3,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::utils::iter::TryIterator;
 use heim_common::Pid;
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 use crate::os::linux::IoCounters;
 use crate::{ProcessError, ProcessResult};
@@ -35,7 +35,7 @@ impl FromStr for IoCounters {
 
 pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
     let path = format!("/proc/{}/io", pid);
-    match fs::read_to_string(path).await {
+    match rt::fs::read_to_string(path).await {
         Ok(contents) => IoCounters::from_str(&contents).map_err(Into::into),
         Err(e) if e.raw_os_error() == Some(libc::EACCES) => Err(ProcessError::AccessDenied(pid)),
         Err(e) => Err(e.into()),

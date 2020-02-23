@@ -17,14 +17,16 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 [dependencies]
 heim-common = { version = "0.0.10", path = "../heim-common" }
 heim-runtime = { version = "0.0.6", path = "../heim-runtime" }
-cfg-if = "0.1.7"
-bitflags = "1.0.4"
+cfg-if = "~0.1"
+bitflags = "^1.0"
 macaddr = "1.0"
 libc = "~0.2"
 
 [dev-dependencies]
 heim-derive = { version = "0.0.10", path = "../heim-derive" }
 futures-executor = "^0.3"
+tokio = { version = "^0.2", features = ["rt-threaded"] }
+async-std = "^1.5"
 pin-utils = "0.1.0-alpha.4"
 version-sync = "0.8"
 
@@ -35,4 +37,12 @@ nix = "0.17.0"
 hex = "=0.4.0"
 
 [features]
+# Polyfill runtime is enabled by default only to execute examples, tests and benchmarks.
+# When used via `heim` facade crate, this feature is disabled.
+# See https://github.com/rust-lang/cargo/issues/5015 for details.
+default = ["runtime-polyfill"]
+
 runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
+runtime-gio = ["heim-runtime/runtime-gio"]

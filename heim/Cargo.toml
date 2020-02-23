@@ -17,21 +17,21 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 [dependencies]
 heim-common = { version = "0.0.10", path = "../heim-common" }
 heim-runtime = { version = "0.0.6", path = "../heim-runtime" }
-heim-cpu = {version = "0.0.10", path = "../heim-cpu", optional = true }
-heim-disk = {version = "0.0.10", path = "../heim-disk", optional = true }
-heim-host = { version = "0.0.10", path = "../heim-host", optional = true }
-heim-memory = {version = "0.0.10", path = "../heim-memory", optional = true }
-heim-net = {version = "0.0.10", path = "../heim-net", optional = true }
-heim-process = { version = "0.0.10", path = "../heim-process", optional = true }
-heim-virt = { version = "0.0.10", path = "../heim-virt", optional = true }
-heim-sensors = { version = "0.0.5", path = "../heim-sensors", optional = true }
+heim-cpu = {version = "0.0.10", path = "../heim-cpu", optional = true, default-features = false }
+heim-disk = {version = "0.0.10", path = "../heim-disk", optional = true, default-features = false }
+heim-host = { version = "0.0.10", path = "../heim-host", optional = true, default-features = false }
+heim-memory = {version = "0.0.10", path = "../heim-memory", optional = true, default-features = false }
+heim-net = {version = "0.0.10", path = "../heim-net", optional = true, default-features = false }
+heim-process = { version = "0.0.10", path = "../heim-process", optional = true, default-features = false }
+heim-virt = { version = "0.0.10", path = "../heim-virt", optional = true, default-features = false }
+heim-sensors = { version = "0.0.5", path = "../heim-sensors", optional = true, default-features = false }
 
 [dev-dependencies]
 heim-derive = { version = "0.0.10", path = "../heim-derive" }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors", "runtime-polyfill"]
+default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors"]
 
 # Modules
 host = ["heim-host"]
@@ -43,7 +43,7 @@ process = ["heim-process"]
 virt = ["heim-virt"]
 sensors = ["heim-sensors"]
 
-# Reactors
+# Runtimes
 runtime-polyfill = [
     "heim-runtime/runtime-polyfill",
     "heim-cpu/runtime-polyfill",
@@ -56,3 +56,31 @@ runtime-polyfill = [
     "heim-virt/runtime-polyfill",
     "heim-sensors/runtime-polyfill",
 ]
+runtime-tokio = [
+    "heim-runtime/runtime-tokio",
+    "heim-cpu/runtime-tokio",
+    "heim-cpu/runtime-tokio",
+    "heim-disk/runtime-tokio",
+    "heim-host/runtime-tokio",
+    "heim-memory/runtime-tokio",
+    "heim-net/runtime-tokio",
+    "heim-process/runtime-tokio",
+    "heim-virt/runtime-tokio",
+    "heim-sensors/runtime-tokio",
+]
+runtime-async-std = [
+    "heim-runtime/runtime-async-std",
+    "heim-cpu/runtime-async-std",
+    "heim-cpu/runtime-async-std",
+    "heim-disk/runtime-async-std",
+    "heim-host/runtime-async-std",
+    "heim-memory/runtime-async-std",
+    "heim-net/runtime-async-std",
+    "heim-process/runtime-async-std",
+    "heim-virt/runtime-async-std",
+    "heim-sensors/runtime-async-std",
+]
+
+[package.metadata.docs.rs]
+features = ["runtime-polyfill"]
+rustdoc-args = ["--cfg", "docsrs"]

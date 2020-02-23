@@ -27,6 +27,11 @@ jobs:
           - arm-unknown-linux-gnueabihf
           - arm-unknown-linux-musleabi
           - arm-unknown-linux-musleabihf
+
+        runtime:
+          - runtime-tokio
+          - runtime-async-std
+          - runtime-polyfill
     steps:
       - uses: actions/checkout@v1
       - name: Install toolchain
@@ -40,3 +45,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+          args: --features ${{ matrix.runtime }} --manifest-path=heim/Cargo.toml

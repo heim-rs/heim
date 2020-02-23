@@ -58,34 +58,42 @@
 
 #[cfg(feature = "cpu")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "cpu")))]
 pub use heim_cpu as cpu;
 
 #[cfg(feature = "disk")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "disk")))]
 pub use heim_disk as disk;
 
 #[cfg(feature = "host")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "host")))]
 pub use heim_host as host;
 
 #[cfg(feature = "memory")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "memory")))]
 pub use heim_memory as memory;
 
 #[cfg(feature = "net")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "net")))]
 pub use heim_net as net;
 
 #[cfg(feature = "process")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "process")))]
 pub use heim_process as process;
 
 #[cfg(feature = "virt")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "virt")))]
 pub use heim_virt as virt;
 
 #[cfg(feature = "sensors")]
 #[doc(inline)]
+//#[cfg_attr(docsrs, doc(cfg(feature = "sensors")))]
 pub use heim_sensors as sensors;
 
 pub use heim_common::units;

@@ -73,6 +73,7 @@ pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::ItemFn);
 
     let name = &input.sig.ident;
+    let ret = &input.sig.output;
     let body = &input.block;
     let attrs = &input.attrs;
 
@@ -86,12 +87,33 @@ pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let result = quote::quote! {
         #[bench]
         #(#attrs)*
-        fn #name(b: &mut test::Bencher) {
-            b.iter(|| {
-                let _ = futures_executor::block_on(async {
-                    #body
-                });
-            });
+        fn #name(b: &mut test::Bencher) #ret {
+            cfg_if::cfg_if! {
+                if #[cfg(feature = "runtime-tokio")] {
+                    let mut rt = tokio::runtime::Builder::new()
+                        .threaded_scheduler()
+                        .enable_all()
+                        .build().unwrap();
+
+                    b.iter(|| {
+                        rt.block_on(async {
+                            #body
+                        })
+                    });
+                } else if #[cfg(feature = "runtime-async-std")] {
+                    b.iter(|| {
+                        async_std::task::block_on(async {
+                            #body
+                        })
+                    });
+                } else {
+                    b.iter(|| {
+                        futures_executor::block_on(async {
+                            #body
+                        })
+                    });
+                }
+            }
         }
     };
 

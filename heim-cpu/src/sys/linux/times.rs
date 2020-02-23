@@ -3,7 +3,7 @@ use std::str::{self, FromStr};
 use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
-use heim_runtime::fs;
+use heim_runtime as rt;
 
 #[derive(Debug, Default)]
 pub struct CpuTime {
@@ -86,21 +86,18 @@ impl FromStr for CpuTime {
     }
 }
 
-pub fn time() -> impl Future<Output = Result<CpuTime>> {
+pub async fn time() -> Result<CpuTime> {
     // cumulative time is always the first line
-    fs::read_lines_into::<_, CpuTime, _>("/proc/stat")
-        .into_stream()
-        .take(1)
-        .into_future()
-        .then(|res| match res {
-            (Some(Ok(time)), _) => future::ok(time),
-            (Some(Err(e)), _) => future::err(e),
-            (None, _) => future::err(Error::missing_entity("cumulative time line")),
-        })
+    let mut lines = rt::fs::read_lines_into::<_, CpuTime, _>("/proc/stat").await?;
+    match lines.next().await {
+        Some(line) => line,
+        None => Err(Error::missing_entity("cumulative time line")),
+    }
 }
 
 pub fn times() -> impl Stream<Item = Result<CpuTime>> {
-    fs::read_lines("/proc/stat")
+    rt::fs::read_lines("/proc/stat")
+        .try_flatten_stream()
         .skip(1)
         .try_filter(|line| future::ready(line.starts_with("cpu")))
         .map_err(Error::from)
