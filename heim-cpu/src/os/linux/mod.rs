@@ -1,6 +1,4 @@
 //! Linux-specific extensions.
-//!
-//! Available only for `cfg(target_os = "linux")`
 
 mod freq;
 mod stats;

@@ -38,8 +38,8 @@ impl Platform {
 }
 
 // Based on the https://github.com/uutils/platform-info/blob/master/src/unix.rs
-pub fn platform() -> impl Future<Output = Result<Platform>> {
-    future::lazy(|_| unsafe {
+pub async fn platform() -> Result<Platform> {
+    unsafe {
         let mut uts = mem::MaybeUninit::<libc::utsname>::uninit();
         let result = libc::uname(uts.as_mut_ptr());
 
@@ -66,5 +66,5 @@ pub fn platform() -> impl Future<Output = Result<Platform>> {
                 arch,
             })
         }
-    })
+    }
 }

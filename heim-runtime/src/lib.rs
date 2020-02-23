@@ -24,7 +24,8 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-    deprecated
+    deprecated,
+    intra_doc_link_resolution_failure
 )]
 #![allow(
     trivial_casts,
@@ -40,6 +41,13 @@ pub use futures;
 
 // Runtimes
 
+#[cfg(any(
+    all(feature = "runtime-polyfill", feature = "runtime-tokio"),
+    all(feature = "runtime-polyfill", feature = "runtime-async-std"),
+    all(feature = "runtime-tokio", feature = "runtime-async-std"),
+))]
+compile_error!("Multiple async runtime features are enabled!");
+
 cfg_if::cfg_if! {
     if #[cfg(feature = "runtime-tokio")] {
         #[path = "tokio/mod.rs"]
@@ -53,13 +61,12 @@ cfg_if::cfg_if! {
         // because `async-macros` crate macros are not so convenient,
         // as the `tokio` or `futures` ones.
         mod macros;
-    } else if #[cfg(feature = "runtime-gio")] {
-        // placeholder
-        compile_error!("GIO integration is not implemented yet");
-    } else {
+    } else if #[cfg(feature = "runtime-polyfill")] {
         #[path = "polyfill/mod.rs"]
         mod runtime;
         mod macros;
+    } else {
+        compile_error!("None of the async runtime support features were enabled!");
     }
 }
 

@@ -56,6 +56,6 @@ impl FromStr for CpuStats {
     }
 }
 
-pub fn stats() -> impl Future<Output = Result<CpuStats>> {
-    rt::fs::read_into("/proc/stat")
+pub async fn stats() -> Result<CpuStats> {
+    rt::fs::read_into("/proc/stat").await
 }

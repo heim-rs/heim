@@ -2,7 +2,9 @@
 
 use heim_common::units::Information;
 
-/// MacOS-specific extension to [`Memory`]
+/// MacOS-specific extension to [`Memory`].
+///
+/// [`Memory`]: crate::Memory
 pub trait MemoryExt {
     /// Returns memory currently in use or very recently used, and so it is in RAM.
     fn active(&self) -> Information;

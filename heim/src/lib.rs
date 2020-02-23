@@ -7,10 +7,9 @@
 //!  * Disks
 //!  * Host
 //!  * Memory
-//!  * Networks (*in progress*)
-//!  * Processes (*in progress*)
+//!  * Networks
+//!  * Processes
 //!  * Virtualization (*in progress*)
-//!  * Windows services (*in progress*)
 //!  * Hardware sensors (*in progress*)
 //!
 //! ## Platform support
@@ -23,6 +22,31 @@
 //!
 //! In addition, it would be good to double check if the returned information is correct.
 //! You know, just in case.
+//!
+//! ## Feature flags
+//!
+//! Heim uses a set of [feature flags](https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section)
+//! to reduce the amount of compiled code. In general, these feature flags can be split
+//! into two groups:
+//!
+//!  1. System components: each one of these enables functionality for fetching information
+//!     about some specific system part (ex. CPU or memory information).\
+//!     See modules list below for available features.
+//!
+//!     Alternatively you can use `full` feature to enable all components at once.
+//!
+//!  2. Async runtimes support. Heim can be integrated with popular async runtimes
+//!     and also provides a fallback implementation for other use cases.
+//!
+//!     * `runtime-tokio`: Enables integration with [`tokio`](https://tokio.rs)
+//!     * `runtime-async-std`: Enables integration with [`async-std`](https://async.rs)
+//!     * `runtime-polyfill`: Enables bundled polyfill implementation for async routines.
+//!       Note that there are no guarantees provided about performance and properly asynchronous
+//!       execution for this implementation; other runtime integrations should be used preferably.
+//!
+//!     None of these runtime features are enabled by default and you are required to
+//!     explicitly opt-in to use one of them.
+//!     Enabling multiple runtimes at once is also forbidden and will lead to the compilation error.
 //!
 //! ## Documentation
 //!
@@ -46,7 +70,8 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-    deprecated
+    deprecated,
+    intra_doc_link_resolution_failure
 )]
 #![warn(
     trivial_casts,
@@ -55,45 +80,46 @@
     unused_import_braces,
     unused_results
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "cpu")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "cpu")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "cpu")))]
 pub use heim_cpu as cpu;
 
 #[cfg(feature = "disk")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "disk")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "disk")))]
 pub use heim_disk as disk;
 
 #[cfg(feature = "host")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "host")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "host")))]
 pub use heim_host as host;
 
 #[cfg(feature = "memory")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "memory")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "memory")))]
 pub use heim_memory as memory;
 
 #[cfg(feature = "net")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "net")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "net")))]
 pub use heim_net as net;
 
 #[cfg(feature = "process")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "process")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "process")))]
 pub use heim_process as process;
 
 #[cfg(feature = "virt")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "virt")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "virt")))]
 pub use heim_virt as virt;
 
 #[cfg(feature = "sensors")]
 #[doc(inline)]
-//#[cfg_attr(docsrs, doc(cfg(feature = "sensors")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "sensors")))]
 pub use heim_sensors as sensors;
 
 pub use heim_common::units;

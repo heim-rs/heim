@@ -6,7 +6,6 @@ use crate::{sys, Time};
 /// since the UNIX epoch.
 ///
 /// [Time]: ./struct.Time.html
-pub fn boot_time() -> impl Future<Output = Result<Time>> {
-    // TODO: Cache the successful value, as it can't change later
-    sys::boot_time()
+pub async fn boot_time() -> Result<Time> {
+    sys::boot_time().await
 }

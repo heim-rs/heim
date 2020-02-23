@@ -7,7 +7,7 @@ use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::{time, Time};
 
-pub fn boot_time() -> impl Future<Output = Result<Time>> {
+pub async fn boot_time() -> Result<Time> {
     let mut filetime = mem::MaybeUninit::<minwindef::FILETIME>::uninit();
 
     // `time` value is now a time amount from the January 1, 1601
@@ -22,5 +22,5 @@ pub fn boot_time() -> impl Future<Output = Result<Time>> {
     // as soon as `uom` will mark `Time::new` as a `const fn`
     let unix_epoch_delta = Time::new::<time::second>(11_644_473_600.0);
 
-    future::ok(time - unix_epoch_delta)
+    Ok(time - unix_epoch_delta)
 }

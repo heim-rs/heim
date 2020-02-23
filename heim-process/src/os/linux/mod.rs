@@ -27,6 +27,7 @@ pub trait ProcessExt {
     /// this method returns boxed `Stream`. This behavior will change later.
     ///
     /// [IO counters]: ./struct.IoCounters.html
+    #[cfg(target_os = "linux")] // TODO: will be undocumented for other platforms
     fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>>;
 }
 

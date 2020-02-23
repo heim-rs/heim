@@ -16,7 +16,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [dependencies]
 heim-common = { version = "0.0.10", path = "../heim-common" }
-heim-runtime = { version = "0.0.6", path = "../heim-runtime" }
+heim-runtime = { version = "0.0.6", path = "../heim-runtime", default-features = false }
 heim-cpu = {version = "0.0.10", path = "../heim-cpu", optional = true, default-features = false }
 heim-disk = {version = "0.0.10", path = "../heim-disk", optional = true, default-features = false }
 heim-host = { version = "0.0.10", path = "../heim-host", optional = true, default-features = false }
@@ -31,7 +31,8 @@ heim-derive = { version = "0.0.10", path = "../heim-derive" }
 version-sync = "0.8"
 
 [features]
-default = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors"]
+default = []
+full = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors"]
 
 # Modules
 host = ["heim-host"]
@@ -44,43 +45,10 @@ virt = ["heim-virt"]
 sensors = ["heim-sensors"]
 
 # Runtimes
-runtime-polyfill = [
-    "heim-runtime/runtime-polyfill",
-    "heim-cpu/runtime-polyfill",
-    "heim-cpu/runtime-polyfill",
-    "heim-disk/runtime-polyfill",
-    "heim-host/runtime-polyfill",
-    "heim-memory/runtime-polyfill",
-    "heim-net/runtime-polyfill",
-    "heim-process/runtime-polyfill",
-    "heim-virt/runtime-polyfill",
-    "heim-sensors/runtime-polyfill",
-]
-runtime-tokio = [
-    "heim-runtime/runtime-tokio",
-    "heim-cpu/runtime-tokio",
-    "heim-cpu/runtime-tokio",
-    "heim-disk/runtime-tokio",
-    "heim-host/runtime-tokio",
-    "heim-memory/runtime-tokio",
-    "heim-net/runtime-tokio",
-    "heim-process/runtime-tokio",
-    "heim-virt/runtime-tokio",
-    "heim-sensors/runtime-tokio",
-]
-runtime-async-std = [
-    "heim-runtime/runtime-async-std",
-    "heim-cpu/runtime-async-std",
-    "heim-cpu/runtime-async-std",
-    "heim-disk/runtime-async-std",
-    "heim-host/runtime-async-std",
-    "heim-memory/runtime-async-std",
-    "heim-net/runtime-async-std",
-    "heim-process/runtime-async-std",
-    "heim-virt/runtime-async-std",
-    "heim-sensors/runtime-async-std",
-]
+runtime-polyfill = ["heim-runtime/runtime-polyfill"]
+runtime-tokio = ["heim-runtime/runtime-tokio"]
+runtime-async-std = ["heim-runtime/runtime-async-std"]
 
 [package.metadata.docs.rs]
-features = ["runtime-polyfill"]
+features = ["full", "runtime-polyfill"]
 rustdoc-args = ["--cfg", "docsrs"]

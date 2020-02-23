@@ -60,7 +60,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets --all-features -- -D warnings
+          args: --all-targets --all -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -99,6 +99,8 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           override: true
 
+      # TODO: Remove that separation eventually
+      # See https://github.com/rust-lang/rust/issues/63047#issuecomment-589849357
       - name: Execute tests (not macOS)
         if: startsWith(matrix.os, 'macOS') == false
         uses: actions-rs/cargo@v1

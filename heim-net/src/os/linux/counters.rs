@@ -30,6 +30,7 @@ impl IoCountersExt for crate::IoCounters {
 ///
 /// Implemented only for Linux for now. For other platforms will return an empty stream.
 #[doc(hidden)]
+#[cfg(target_os = "linux")]
 pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters_for_pid(pid).map_ok(Into::into)
 }

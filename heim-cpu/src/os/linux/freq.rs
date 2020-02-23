@@ -8,5 +8,15 @@ use crate::{sys, CpuFrequency};
 ///
 /// [CPU frequencies]: ../../struct.CpuFrequency.html
 pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
-    sys::frequencies().map_ok(Into::into)
+    // TODO: Looks ugly, fix this thing.
+    // Problem is that we want to doc this function
+    // no matter for what target are we building documentation,
+    // but `sys::frequencies` obviously available for Linux only.
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "linux")] {
+            sys::frequencies().map_ok(Into::into)
+        } else {
+            stream::iter(vec![])
+        }
+    }
 }

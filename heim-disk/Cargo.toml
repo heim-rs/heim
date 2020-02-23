@@ -48,9 +48,7 @@ pin-utils = "0.1.0-alpha.4"
 # Polyfill runtime is enabled by default only to execute examples, tests and benchmarks.
 # When used via `heim` facade crate, this feature is disabled.
 # See https://github.com/rust-lang/cargo/issues/5015 for details.
-default = ["runtime-polyfill"]
+default = ["heim-runtime/runtime-polyfill"]
 
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
-runtime-tokio = ["heim-runtime/runtime-tokio"]
-runtime-async-std = ["heim-runtime/runtime-async-std"]
-runtime-gio = ["heim-runtime/runtime-gio"]
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]

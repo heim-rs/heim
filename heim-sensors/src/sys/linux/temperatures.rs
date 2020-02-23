@@ -18,21 +18,17 @@ fn file_name(prefix: &OsStr, postfix: &[u8]) -> OsString {
     name
 }
 
-fn read_temperature(path: PathBuf) -> impl Future<Output = Result<ThermodynamicTemperature>> {
-    rt::fs::read_to_string(path)
-        .map_err(Error::from)
-        .and_then(|contents| {
-            match contents.trim_end().parse::<f32>() {
-                // Originally value is in millidegrees of Celsius
-                Ok(value) => future::ok(ThermodynamicTemperature::new::<
-                    thermodynamic_temperature::degree_celsius,
-                >(value / 1_000.0)),
-                Err(e) => future::err(e.into()),
-            }
-        })
+async fn read_temperature(path: PathBuf) -> Result<ThermodynamicTemperature> {
+    let contents = rt::fs::read_to_string(path).await?;
+    // Originally value is in millidegrees of Celsius
+    let value = contents.trim_end().parse::<f32>()?;
+
+    Ok(ThermodynamicTemperature::new::<
+        thermodynamic_temperature::degree_celsius,
+    >(value / 1_000.0))
 }
 
-fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor>> {
+async fn hwmon_sensor(input: PathBuf) -> Result<TemperatureSensor> {
     // It is guaranteed by `hwmon` and `hwmon_sensor` directory traversals,
     // that it is not a root directory and it points to a file.
     // Otherwise it is an implementation bug.
@@ -77,15 +73,15 @@ fn hwmon_sensor(input: PathBuf) -> impl Future<Output = Result<TemperatureSensor
         });
     let current = read_temperature(input);
 
-    future::try_join5(unit_name, label, current, high, critical).map_ok(
-        |(unit, label, current, high, critical)| TemperatureSensor {
+    future::try_join5(unit_name, label, current, high, critical)
+        .map_ok(|(unit, label, current, high, critical)| TemperatureSensor {
             unit,
             label,
             current,
             high,
             critical,
-        },
-    )
+        })
+        .await
 }
 
 fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {

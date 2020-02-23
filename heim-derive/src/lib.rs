@@ -14,7 +14,8 @@
     missing_docs,
     nonstandard_style,
     dead_code,
-    deprecated
+    deprecated,
+    intra_doc_link_resolution_failure
 )]
 #![warn(
     trivial_casts,

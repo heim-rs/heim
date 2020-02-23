@@ -11,7 +11,7 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 cfg-if = "~0.1"
-futures = { version = "^0.3", default-features = false, features = ["std"]}
+futures = { version = "^0.3", default-features = false, features = ["std", "async-await"] }
 
 # runtime-tokio
 tokio = { version = "~0.2", optional = true, default-features = false, features = ["fs", "io-util", "stream", "blocking", "macros"]}
@@ -32,4 +32,6 @@ default = []
 runtime-polyfill = ["async-task", "crossbeam-utils", "pin-utils"]
 runtime-tokio = ["tokio"]
 runtime-async-std = ["async-std"]
-runtime-gio = []
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]

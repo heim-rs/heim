@@ -95,8 +95,8 @@ and create the `sys::CpuStats` struct with data from it.
 Our `sys/linux/times.rs` should declare one function:
 
 ```rust
-pub fn cpu_times() -> impl Future<Item=CpuStats, Error=Error> {
-    heim_common::utils::fs::read_into("/proc/stat")
+pub async fn cpu_times() -> Result<CpuStats, Error> {
+    heim_runtime::fs::read_into("/proc/stat")
 }
 ```
 
@@ -110,7 +110,7 @@ It should declare a similar function too, but it's implementation will be much s
 ```rust
 use crate::sys;
 
-pub fn stats() -> impl Future<Item=CpuStats, Error=Error> {
+pub async fn stats() -> Result<CpuStats, Error> {
     sys::stats().map(Into::into)
 }
 ```

@@ -1,11 +1,13 @@
-//! OS-specific extensions for public types.
+//! OS-specific extensions.
 
-cfg_if::cfg_if! {
-    if #[cfg(target_os = "linux")] {
-        pub mod linux;
-    } else if #[cfg(target_os = "macos")] {
-        pub mod macos;
-    } else if #[cfg(target_os = "windows")] {
-        pub mod windows;
-    }
-}
+#[cfg(any(target_os = "linux", doc))]
+#[cfg_attr(docsrs, doc(cfg(target_os = "linux")))]
+pub mod linux;
+
+#[cfg(any(target_os = "macos", doc))]
+#[cfg_attr(docsrs, doc(cfg(target_os = "macos")))]
+pub mod macos;
+
+#[cfg(any(target_os = "windows", doc))]
+#[cfg_attr(docsrs, doc(cfg(target_os = "windows")))]
+pub mod windows;

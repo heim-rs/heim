@@ -50,7 +50,7 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
     }
 }
 
-pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
+pub async fn frequency() -> Result<CpuFrequency> {
     let init = CpuFrequency::default();
     frequencies()
         .try_fold((init, 0u64), |(acc, amount), freq| {
@@ -78,6 +78,7 @@ pub fn frequency() -> impl Future<Output = Result<CpuFrequency>> {
                 Err(e) => future::err(e),
             }
         })
+        .await
 }
 
 /// Check if file name matches the `cpu\d+` mask.

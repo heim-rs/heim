@@ -1,17 +1,15 @@
 //! OS-specific extensions.
-//!
-//! These are not cross-platform and their usage should be `cfg`-wrapped.
 
-#[cfg(not(windows))]
+#[cfg(any(not(target_os = "windows"), doc))]
 use heim_common::units::Information;
 
-cfg_if::cfg_if! {
-    if #[cfg(target_os = "linux")] {
-        pub mod linux;
-    } else if #[cfg(target_os = "macos")] {
-        pub mod macos;
-    }
-}
+#[cfg(any(target_os = "linux", doc))]
+#[cfg_attr(docsrs, doc(cfg(target_os = "linux")))]
+pub mod linux;
+
+#[cfg(any(target_os = "macos", doc))]
+#[cfg_attr(docsrs, doc(cfg(target_os = "macos")))]
+pub mod macos;
 
 /// OS-specific extension to [Swap].
 ///
@@ -20,7 +18,8 @@ cfg_if::cfg_if! {
 /// Applicable for all supported platforms except Windows.
 ///
 /// [Swap]: ../struct.Swap.html
-#[cfg(not(windows))]
+#[cfg(any(not(target_os = "windows"), doc))]
+#[cfg_attr(docsrs, doc(cfg(not(target_os = "windows"))))]
 pub trait SwapExt {
     /// The cumulative amount of information the system has swapped in from disk.
     fn sin(&self) -> Option<Information>;
@@ -29,7 +28,7 @@ pub trait SwapExt {
     fn sout(&self) -> Option<Information>;
 }
 
-#[cfg(not(windows))]
+#[cfg(not(target_os = "windows"))]
 impl SwapExt for crate::Swap {
     fn sin(&self) -> Option<Information> {
         self.as_ref().sin()

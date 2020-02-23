@@ -1,6 +1,4 @@
-//! macOS-specific extensions.
-//!
-//! Available only for `cfg(target_os = "windows")`
+//! Windows-specific extensions.
 
 mod stats;
 
