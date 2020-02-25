@@ -1,8 +1,8 @@
-use heim_common::prelude::*;
-use heim_common::units::information;
-use heim_memory as memory;
+//! Naive clone of the `free` utility
 
-#[heim_derive::main]
+use heim::{memory, units::information, Result};
+
+#[tokio::main]
 async fn main() -> Result<()> {
     let memory = memory::memory().await?;
     let swap = memory::swap().await?;

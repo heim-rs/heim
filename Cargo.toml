@@ -33,4 +33,5 @@ members = [
 
     # Internal
     "benchmarks",
+    "examples",
 ]

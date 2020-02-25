@@ -1,9 +1,11 @@
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use std::usize;
 
-use heim_common::prelude::{StreamExt, TryStreamExt};
-use heim_common::units::{ratio, Ratio};
-use heim_process::{self as process, Process, ProcessResult};
+use futures::prelude::*;
+use heim::{
+    process::{self, Process, ProcessResult},
+    units::{ratio, Ratio},
+};
 
 async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
     let usage_1 = process.cpu_usage().await?;
@@ -13,10 +15,8 @@ async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
     Ok((process, usage_2 - usage_1))
 }
 
-#[heim_derive::main]
+#[tokio::main]
 async fn main() -> ProcessResult<()> {
-    let start = Instant::now();
-
     let processes = process::processes()
         .map_ok(|process| {
             // Note that there is no `.await` here,
@@ -25,7 +25,7 @@ async fn main() -> ProcessResult<()> {
             usage(process)
         })
         .try_buffer_unordered(usize::MAX);
-    pin_utils::pin_mut!(processes);
+    tokio::pin!(processes);
 
     println!("| {:6} | {:40} | {:4} % |", "pid", "name", "CPU");
     while let Some(res) = processes.next().await {
@@ -38,16 +38,6 @@ async fn main() -> ProcessResult<()> {
             usage.get::<ratio::percent>()
         );
     }
-
-    let end = Instant::now();
-    println!(
-        "\nIt took {:?} to load and render the processes list",
-        (end - start)
-    );
-    println!(
-        "Memory used: {:?}",
-        process::current().await?.memory().await?
-    );
 
     Ok(())
 }

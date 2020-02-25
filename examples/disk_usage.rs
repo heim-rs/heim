@@ -1,23 +1,23 @@
-//! Command similar to `df -BM`
+//! Unix `du -h` command implementation.
 
 use std::ffi::OsStr;
 
-use heim_common::prelude::*;
-use heim_common::units::information;
-use heim_disk as disk;
+use heim::units::information;
+use tokio::stream::StreamExt;
 
-#[heim_derive::main]
-async fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> heim::Result<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} Mount",
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type"
     );
 
-    let partitions = disk::partitions_physical();
-    pin_utils::pin_mut!(partitions);
+    let partitions = heim::disk::partitions_physical();
+    tokio::pin!(partitions);
+
     while let Some(part) = partitions.next().await {
         let part = part?;
-        let usage = disk::usage(part.mount_point().to_path_buf()).await?;
+        let usage = heim::disk::usage(part.mount_point().to_path_buf()).await?;
 
         println!(
             "{:<17} {:<10} {:<10} {:<10} {:<10} {}",

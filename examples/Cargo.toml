@@ -1,0 +1,33 @@
+[package]
+name = "examples"
+version = "0.0.0"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+publish = false
+
+[dev-dependencies]
+heim = { path = "../heim", features = ["full", "runtime-tokio"] }
+tokio = { version = "~0.2", features = ["full", "macros"] }
+futures = "~0.3"
+futures-timer = "~3.0"
+ptree = { version = "0.2.1", default-features = false, features = ["ansi"] }
+
+[[example]]
+name = "disk_usage"
+path = "disk_usage.rs"
+
+[[example]]
+name = "free"
+path = "free.rs"
+
+[[example]]
+name = "uname"
+path = "uname.rs"
+
+[[example]]
+name = "top"
+path = "top.rs"
+
+[[example]]
+name = "pidof"
+path = "pidof.rs"
