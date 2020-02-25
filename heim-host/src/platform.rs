@@ -78,7 +78,7 @@ impl fmt::Debug for Platform {
     }
 }
 
-/// Returns `Future` which resolves into [Platform] struct.
+/// Returns [Platform] information.
 ///
 /// [Platform]: ./struct.Platform.html
 pub async fn platform() -> Result<Platform> {

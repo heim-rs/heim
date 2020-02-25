@@ -1,6 +1,4 @@
 //! Memory and swap information.
-//!
-//! This module is enabled with the `memory` feature flag (enabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-memory/0.0.10")]
 #![deny(

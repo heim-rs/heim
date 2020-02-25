@@ -73,7 +73,7 @@ impl fmt::Debug for IoCounters {
     }
 }
 
-/// Returns stream which yield [IO counters] for each network interface.
+/// Returns a stream over the [IO counters] for each network interface.
 ///
 /// ## Compatibility
 ///

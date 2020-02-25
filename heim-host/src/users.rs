@@ -27,7 +27,7 @@ impl fmt::Debug for User {
     }
 }
 
-/// Returns stream which yields [User]s.
+/// Returns a stream over [User] sessions currently connected to the system.
 ///
 /// ## Compatibility
 ///

@@ -54,7 +54,7 @@ impl fmt::Debug for TemperatureSensor {
     }
 }
 
-/// Returns stream which yields [temperature sensors].
+/// Returns a stream over the [temperature sensors] statistics.
 ///
 /// ## Compatibility
 ///

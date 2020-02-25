@@ -1,6 +1,4 @@
 //! Disks information.
-//!
-//! This module is enabled with the `disk` feature flag (disabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-disk/0.0.10")]
 #![deny(
@@ -38,6 +36,3 @@ pub use self::counters::*;
 pub use self::filesystem::*;
 pub use self::partitions::*;
 pub use self::usage::*;
-
-pub use heim_common::units::Information;
-pub use heim_common::units::Ratio;

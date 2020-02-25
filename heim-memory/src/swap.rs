@@ -42,7 +42,7 @@ impl fmt::Debug for Swap {
     }
 }
 
-/// Returns future which will resolve into [Swap] struct.
+/// Returns [Swap] memory statistics.
 ///
 /// [Swap]: ./struct.Swap.html
 pub async fn swap() -> Result<Swap> {

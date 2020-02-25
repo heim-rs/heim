@@ -60,7 +60,7 @@ impl fmt::Debug for IoCounters {
     }
 }
 
-/// Returns stream which will yield [IO counters] for all disks available in system.
+/// Returns a stream over [IO counters] for all disks available in system.
 ///
 /// ## Compatibility
 ///
@@ -72,8 +72,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     sys::io_counters().map_ok(Into::into)
 }
 
-/// Returns future which will resolve into [IO counters]
-/// for each physical disk installed on the system.
+/// Returns a stream over [IO counters] for each physical disk installed on the system.
 ///
 /// [IO counters]: struct.IoCounters.html
 pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {

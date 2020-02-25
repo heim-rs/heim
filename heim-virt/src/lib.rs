@@ -1,7 +1,5 @@
 //! Virtualization system detection.
 //!
-//! This module is enabled with the `virt` feature flag (enabled by default).
-//!
 //! At the moment not all declared virtualization systems are detected,
 //! therefore this crate should be used very carefully.
 //!
@@ -170,8 +168,7 @@ impl Virtualization {
     }
 }
 
-/// Returns future which tries to determine if the running program is running
-/// in some [Virtualization] system.
+/// Attempts to guess if the running process is running in some [Virtualization] system.
 ///
 /// ## Compatibility
 ///

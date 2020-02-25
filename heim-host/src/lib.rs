@@ -1,6 +1,4 @@
 //! Host system information.
-//!
-//! This module is enabled with the `host` feature flag (disabled by default).
 
 #![doc(html_root_url = "https://docs.rs/heim-host/0.0.10")]
 #![deny(

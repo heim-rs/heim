@@ -82,7 +82,7 @@ impl fmt::Debug for Nic {
     }
 }
 
-/// Returns stream which yields [Network Interface Cards].
+/// Returns a stream over the [Network Interface Cards].
 ///
 /// [Network Interface Cards]: struct.Nic.html
 pub fn nic() -> impl Stream<Item = Result<Nic>> {

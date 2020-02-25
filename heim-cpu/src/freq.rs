@@ -50,7 +50,7 @@ impl fmt::Debug for CpuFrequency {
     }
 }
 
-/// Returns future which will resolve into [CpuFrequency].
+/// Returns [CpuFrequency].
 ///
 /// ## Compatibility
 ///

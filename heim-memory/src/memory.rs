@@ -44,7 +44,7 @@ impl fmt::Debug for Memory {
     }
 }
 
-/// Returns future which will resolve into [Memory] struct.
+/// Returns physical [Memory] usage statistics.
 ///
 /// [Memory]: ./struct.Memory.html
 pub async fn memory() -> Result<Memory> {

@@ -32,7 +32,7 @@ impl fmt::Debug for CpuStats {
     }
 }
 
-/// Returns future which will resolve into [CpuStats].
+/// Returns [CpuStats] information.
 ///
 /// [CpuStats]: ./struct.CpuStats.html
 pub async fn stats() -> Result<CpuStats> {

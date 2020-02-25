@@ -33,12 +33,12 @@ impl Process {
         self.as_ref().pid()
     }
 
-    /// Returns future which resolves into the process parent pid.
+    /// Returns process parent pid.
     pub async fn parent_pid(&self) -> ProcessResult<Pid> {
         self.as_ref().parent_pid().await
     }
 
-    /// Returns future which resolves into the parent [Process].
+    /// Returns parent [Process].
     ///
     /// [Process]: ./struct.Process.html
     pub async fn parent(&self) -> ProcessResult<Process> {
@@ -47,17 +47,17 @@ impl Process {
         get(ppid).await
     }
 
-    /// Returns future which resolves into the process name.
+    /// Returns process name.
     pub async fn name(&self) -> ProcessResult<String> {
         self.as_ref().name().await
     }
 
-    /// Returns future which resolves into the process executable as an absolute path.
+    /// Returns process executable as an absolute path.
     pub async fn exe(&self) -> ProcessResult<PathBuf> {
         self.as_ref().exe().await
     }
 
-    /// Returns future which resolves into the process command line.
+    /// Returns process command line.
     ///
     /// ## Example
     ///
@@ -80,35 +80,34 @@ impl Process {
         self.as_ref().command().await.map(Into::into)
     }
 
-    /// Returns future which resolves into the process current working directory.
+    /// Returns process current working directory.
     ///
     /// ## Compatibility
     ///
-    /// For Windows this method is not implemented yet and will always return an error,
+    /// For Windows this method is not implemented yet and will always panic,
     /// see [#105](https://github.com/heim-rs/heim/issues/105).
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         self.as_ref().cwd().await
     }
 
-    /// Returns future which resolves into the current process status.
+    /// Returns current process status.
     pub async fn status(&self) -> ProcessResult<Status> {
         self.as_ref().status().await
     }
 
-    /// Returns future which resolves into the process creation time,
-    /// expressed as a [Time] amount since the UNIX epoch.
+    /// Returns process creation time, expressed as a [Time] amount since the UNIX epoch.
     ///
     /// [Time]: ../units/type.Time.html
     pub async fn create_time(&self) -> ProcessResult<Time> {
         self.as_ref().create_time().await
     }
 
-    /// Returns future which resolves into the accumulated process time.
+    /// Returns accumulated process time.
     pub async fn cpu_time(&self) -> ProcessResult<CpuTime> {
         self.as_ref().cpu_time().await.map(Into::into)
     }
 
-    /// Returns future which resolves into the CPU usage measurement.
+    /// Returns CPU usage measurement.
     ///
     /// Returned [`CpuUsage`] struct represents instantaneous CPU usage and does not represent
     /// any reasonable value by itself.
@@ -154,17 +153,17 @@ impl Process {
         })
     }
 
-    /// Returns future which resolves into the memory information about this process.
+    /// Returns memory usage information for this process.
     pub async fn memory(&self) -> ProcessResult<Memory> {
         self.as_ref().memory().await.map(Into::into)
     }
 
-    /// Returns future which checks if this `Process` is still running.
+    /// Checks if this `Process` is still running.
     pub async fn is_running(&self) -> ProcessResult<bool> {
         self.as_ref().is_running().await
     }
 
-    /// Suspend the current process.
+    /// Suspends the current process.
     ///
     /// Before the signal send, it checks whether process PID has been reused,
     /// and if it is a case, [`NoSuchProcess`] error will be returned.
@@ -178,7 +177,7 @@ impl Process {
         self.as_ref().suspend().await
     }
 
-    /// Resume the current process.
+    /// Resumes the current process.
     ///
     /// Before the signal send, it checks whether process PID has been reused,
     /// and if it is a case, [`NoSuchProcess`] error will be returned.
@@ -192,7 +191,7 @@ impl Process {
         self.as_ref().resume().await
     }
 
-    /// Terminate the current process.
+    /// Terminates the current process.
     ///
     /// Before the signal send, it checks whether process PID has been reused,
     /// and if it is a case, [`NoSuchProcess`] error will be returned.
@@ -234,12 +233,12 @@ impl fmt::Debug for Process {
     }
 }
 
-/// Returns stream which yields currently running processes.
+/// Returns a stream over the currently running processes.
 pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
     sys::processes().map_ok(Into::into)
 }
 
-/// Load the process information with `pid` given.
+/// Loads the process information with `pid` given.
 pub async fn get(pid: Pid) -> ProcessResult<Process> {
     sys::get(pid).await.map(Into::into)
 }

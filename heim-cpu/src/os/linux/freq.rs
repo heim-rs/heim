@@ -2,7 +2,7 @@ use heim_common::prelude::*;
 
 use crate::{sys, CpuFrequency};
 
-/// Returns stream of per-[CPU frequencies] information.
+/// Returns a stream over the per-[CPU frequencies] information.
 ///
 /// Order of the stream is constant.
 ///

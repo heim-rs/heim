@@ -2,7 +2,7 @@ use heim_common::prelude::Stream;
 
 use crate::{sys, Pid, ProcessResult};
 
-/// Returns stream which yields [Pid]s of processes currently running in the system.
+/// Returns a stream over the [Pid]s of the processes currently running in the system.
 ///
 /// Consequent calls are not guaranteed to return pids in the same order.
 ///
@@ -11,7 +11,7 @@ pub fn pids() -> impl Stream<Item = ProcessResult<Pid>> {
     sys::pids()
 }
 
-/// Returns future which checks if process with passed `pid` is exists.
+/// Checks if the process with given `pid` exists.
 pub async fn pid_exists(pid: Pid) -> ProcessResult<bool> {
     sys::pid_exists(pid).await
 }

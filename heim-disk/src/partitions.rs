@@ -44,7 +44,7 @@ impl fmt::Debug for Partition {
     }
 }
 
-/// Returns stream which yields mounted disk [Partitions].
+/// Returns a stream over mounted disk [Partitions].
 ///
 /// This includes all virtual partitions, such as `tmpfs`.
 /// See [partitions_physical] for physical partitions stream.
@@ -54,7 +54,7 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
     sys::partitions().map_ok(Into::into)
 }
 
-/// Returns stream which yields physical only mounted disk [Partitions].
+/// Returns a stream over physical only mounted disk [Partitions].
 ///
 /// [Partitions]: struct.Partition.html
 pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
