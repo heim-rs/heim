@@ -60,7 +60,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets --all -- -D warnings
+          args: --all-targets -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -106,7 +106,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --no-fail-fast
+          args: --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
@@ -116,7 +116,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --no-fail-fast
+          args: --no-fail-fast
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
