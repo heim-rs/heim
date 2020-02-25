@@ -46,7 +46,5 @@ impl From<bindings::vmmeter> for CpuStats {
 }
 
 pub async fn stats() -> Result<CpuStats> {
-    let vm = unsafe { bindings::vm_meter()? };
-
-    Ok(vm.into())
+    bindings::vm_meter().map(Into::into)
 }

@@ -36,7 +36,7 @@ impl Session {
         };
 
         if result == 0 {
-            return Err(Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("WTSQuerySessionInformationW"));
         }
 
         unsafe { Ok(WtsInfo(*buffer)) }
@@ -57,7 +57,7 @@ impl Session {
         };
 
         if result == 0 {
-            return Err(Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("WTSQuerySessionInformationW"));
         }
 
         let address = match unsafe { (*address_ptr).AddressFamily as i32 } {

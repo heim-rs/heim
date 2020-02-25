@@ -18,7 +18,7 @@ impl IoMasterPort {
         let result = unsafe { ffi::IOMasterPort(ffi::kIOMasterPortDefault, &mut master_port) };
 
         if result != kern_return::KERN_SUCCESS {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("IOMasterPort"))
         } else {
             Ok(IoMasterPort(master_port))
         }
@@ -28,6 +28,8 @@ impl IoMasterPort {
     /// where `name` is a bytes string ending in a `0x00`,
     /// for example: `b"IOMedia\0"`
     pub fn get_services(&self, name: &[u8]) -> Result<IoIterator> {
+        debug_assert!(name.ends_with(b"\0"));
+
         let service = unsafe {
             let ret = ffi::IOServiceMatching(name.as_ptr() as *const libc::c_char);
             assert_ne!(ret as *const _, kCFNull);
@@ -45,7 +47,7 @@ impl IoMasterPort {
             let raw_iterator = unsafe { raw_iterator.assume_init() };
             Ok(raw_iterator.into())
         } else {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("IOServiceGetMatchingServices"))
         }
     }
 }

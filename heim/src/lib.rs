@@ -31,18 +31,20 @@
 //!
 //!  1. System components: each one of these enables functionality for fetching information
 //!     about some specific system part (ex. CPU or memory information).\
+//!     All these features are *disabled* by default.
 //!     See modules list below for available features.
 //!
 //!     Alternatively you can use `full` feature to enable all components at once.
 //!
-//!  2. Async runtimes support. Heim can be integrated with popular async runtimes
+//!  2. Async runtimes support. Heim can integrate with popular async runtimes
 //!     and also provides a fallback implementation for other use cases.
 //!
 //!     * `runtime-tokio`: Enables integration with [`tokio`](https://tokio.rs)
 //!     * `runtime-async-std`: Enables integration with [`async-std`](https://async.rs)
 //!     * `runtime-polyfill`: Enables bundled polyfill implementation for async routines.
 //!       Note that there are no guarantees provided about performance and properly asynchronous
-//!       execution for this implementation; other runtime integrations should be used preferably.
+//!       execution (*read: it might accidentally block*) for this implementation;
+//!       other runtime integrations should be used preferably.
 //!
 //!     None of these runtime features are enabled by default and you are required to
 //!     explicitly opt-in to use one of them.

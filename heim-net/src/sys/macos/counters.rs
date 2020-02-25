@@ -56,17 +56,17 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
     future::lazy(|_| unsafe { net_pf_route() })
         .map_ok(|interfaces| stream::iter(interfaces).map(Ok))
         .try_flatten_stream()
-        .and_then(|msg: if_msghdr2| {
+        .and_then(|msg: if_msghdr2| async move {
             let mut name: [u8; libc::IF_NAMESIZE] = [0; libc::IF_NAMESIZE];
             let result = unsafe {
                 libc::if_indextoname(msg.ifm_index.into(), name.as_mut_ptr() as *mut libc::c_char)
             };
             if result.is_null() {
-                return future::err(Error::last_os_error());
+                return Err(Error::last_os_error().with_ffi("if_indextoname"));
             }
             let first_nul = name.iter().position(|c| *c == b'\0').unwrap_or(0);
             let name = String::from_utf8_lossy(&name[..first_nul]).to_string();
 
-            future::ok(IoCounters { name, data: msg })
+            Ok(IoCounters { name, data: msg })
         })
 }

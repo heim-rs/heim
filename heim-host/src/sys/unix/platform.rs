@@ -44,11 +44,14 @@ pub async fn platform() -> Result<Platform> {
         let result = libc::uname(uts.as_mut_ptr());
 
         if result != 0 {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("uname"))
         } else {
             let uts = uts.assume_init();
             let raw_arch = CStr::from_ptr(uts.machine.as_ptr()).to_string_lossy();
-            let arch = Arch::from_str(&raw_arch).unwrap_or(Arch::Unknown);
+            let arch = Arch::from_str(&raw_arch).unwrap_or_else(|_| {
+                log::error!("Unable to parse CPU architecture from \"{}\"", raw_arch);
+                Arch::Unknown
+            });
 
             Ok(Platform {
                 system: CStr::from_ptr(uts.sysname.as_ptr())

@@ -44,7 +44,7 @@ impl FromStr for CpuStats {
                     matched_lines += 1;
                     *field = value;
                 }
-                None => return Err(Error::missing_entity(name)),
+                None => return Err(Error::missing_key(name, "/proc/stat")),
             }
 
             if matched_lines == 3 {

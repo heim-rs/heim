@@ -2,33 +2,16 @@ use std::io;
 use std::mem;
 use std::ptr;
 
-#[allow(trivial_casts)]
-pub fn args_max() -> io::Result<libc::c_int> {
-    let mut name: [libc::c_int; 2] = [libc::CTL_KERN, libc::KERN_ARGMAX];
-    let mut value: libc::c_int = 0;
-    let mut length = mem::size_of::<libc::c_int>();
+use heim_common::sys::macos::sysctl;
+use heim_common::{Error, Result};
 
-    let result = unsafe {
-        libc::sysctl(
-            name.as_mut_ptr(),
-            2,
-            &mut value as *mut libc::c_int as *mut libc::c_void,
-            &mut length,
-            ptr::null_mut(),
-            0,
-        )
-    };
-
-    if result == 0 {
-        Ok(value)
-    } else {
-        Err(io::Error::last_os_error())
-    }
+pub fn args_max() -> Result<libc::c_int> {
+    sysctl::sysctl(&mut [libc::CTL_KERN, libc::KERN_ARGMAX])
 }
 
 // TODO: https://chromium.googlesource.com/crashpad/crashpad/+/360e441c53ab4191a6fd2472cc57c3343a2f6944/util/posix/process_util_mac.cc#32
 #[allow(trivial_casts)]
-pub fn proc_args(pid: libc::pid_t) -> io::Result<Vec<u8>> {
+pub fn proc_args(pid: libc::pid_t) -> Result<Vec<u8>> {
     // Command line for `kernel_task` process can't be fetched
     if pid == 0 {
         return Ok(Vec::new());
@@ -50,7 +33,9 @@ pub fn proc_args(pid: libc::pid_t) -> io::Result<Vec<u8>> {
     };
 
     if args_max < mem::size_of::<libc::c_int>() {
-        return Err(io::Error::from(io::ErrorKind::InvalidData));
+        let inner = io::Error::from(io::ErrorKind::InvalidData);
+        // TODO: context message
+        return Err(Error::from(inner));
     }
 
     // `sysctl` changes the `args_max` value to what length were stored
@@ -67,6 +52,6 @@ pub fn proc_args(pid: libc::pid_t) -> io::Result<Vec<u8>> {
     if result == 0 {
         Ok(value)
     } else {
-        Err(io::Error::last_os_error())
+        Err(Error::last_os_error().with_sysctl(name.as_ref()))
     }
 }

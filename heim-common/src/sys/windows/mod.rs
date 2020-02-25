@@ -13,7 +13,10 @@ use winapi::um::{libloaderapi, winnt};
 
 use crate::prelude::*;
 
+mod handle;
 mod time;
+
+pub use self::handle::Handle;
 
 #[allow(missing_docs)]
 pub type SYSTEM_INFORMATION_CLASS = minwindef::DWORD;
@@ -42,6 +45,8 @@ pub const SystemInterruptInformation: SYSTEM_INFORMATION_CLASS = 23;
 /// `heim` is using some private functions from the `ntdll.dll` file at the moment,
 /// and since it is not possible to link with it,
 /// we are required to do the run-time dynamic linking
+///
+/// TODO: Use `ntapi` crate instead
 ///
 /// https://docs.microsoft.com/ru-ru/windows/desktop/Dlls/using-run-time-dynamic-linking
 /// https://docs.microsoft.com/ru-ru/windows/desktop/api/libloaderapi/nf-libloaderapi-getmodulehandlew

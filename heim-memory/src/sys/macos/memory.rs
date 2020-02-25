@@ -45,8 +45,8 @@ impl Memory {
 }
 
 pub async fn memory() -> Result<Memory> {
-    let total = unsafe { bindings::hw_memsize()? };
-    let vm_stats = unsafe { bindings::host_vm_info()? };
+    let total = bindings::hw_memsize()?;
+    let vm_stats = bindings::host_vm_info()?;
     let page_size = *PAGE_SIZE;
 
     let total = Information::new::<information::byte>(total);

@@ -1,8 +1,9 @@
-use std::io;
 use std::ptr;
 
 use winapi::shared::{minwindef, winerror};
 use winapi::um::{sysinfoapi, winnt};
+
+use heim_common::prelude::{Error, Result};
 
 /// This struct contains information about logical processors
 /// received from the `GetLogicalProcessorInformationEx` function.
@@ -21,7 +22,7 @@ impl LogicalProcessors {
     // It is triggered by casting `*mut u8` to the logical processor info struct pointer,
     // which is `#[repr(C)]` and generally should be fine.
     #[allow(clippy::cast_ptr_alignment)]
-    pub fn get() -> io::Result<Self> {
+    pub fn get() -> Result<Self> {
         let mut buffer = vec![];
         let mut buffer_size = 0u32;
 
@@ -47,12 +48,12 @@ impl LogicalProcessors {
             };
 
             if result == minwindef::FALSE {
-                let e = io::Error::last_os_error();
+                let e = Error::last_os_error();
                 match e.raw_os_error() {
                     // Slight chance that there is now more CPU cores
                     // and we need more memory?
                     Some(value) if value == winerror::ERROR_INSUFFICIENT_BUFFER as i32 => continue,
-                    _ => return Err(e),
+                    _ => return Err(e.with_ffi("GetLogicalProcessorInformationEx")),
                 }
             } else {
                 unsafe {

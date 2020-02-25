@@ -23,7 +23,7 @@ impl FromStr for IoCounters {
                 "read_bytes:" => &mut counters.read_bytes,
                 "write_bytes:" => &mut counters.write_bytes,
                 "cancelled_write_bytes:" => &mut counters.cancelled_write_bytes,
-                other => return Err(Error::incompatible(format!("Unknown field {}", other))),
+                _ => continue,
             };
 
             *field = parts.try_next()?.parse::<u64>()?;

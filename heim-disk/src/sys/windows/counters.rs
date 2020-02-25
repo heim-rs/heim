@@ -53,11 +53,11 @@ where
 {
     stream::iter(bindings::Volumes::new())
         .try_filter(move |path| future::ready(filter(&path)))
-        .and_then(|volume_path| {
+        .and_then(|volume_path| async move {
             let perf = match bindings::disk_performance(&volume_path) {
                 Ok(Some(perf)) => perf,
-                Ok(None) => return future::ok(None),
-                Err(e) => return future::err(e),
+                Ok(None) => return Ok(None),
+                Err(e) => return Err(e),
             };
 
             let read_bytes = unsafe { *perf.BytesRead.QuadPart() as u64 };
@@ -77,7 +77,7 @@ where
                 write_time: Time::new::<time::microsecond>(write_time * 10.0),
             };
 
-            future::ok(Some(counters))
+            Ok(Some(counters))
         })
         .try_filter_map(future::ok)
 }

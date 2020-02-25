@@ -1,8 +1,9 @@
-use std::io::{Error, Result};
 use std::mem;
 
 use winapi::shared::minwindef::DWORD;
 use winapi::um::psapi;
+
+use heim_common::{Error, Result};
 
 pub mod handle;
 pub mod processes;
@@ -20,7 +21,7 @@ pub fn pids() -> Result<Vec<DWORD>> {
             unsafe { psapi::EnumProcesses(processes.as_mut_ptr(), cb, &mut bytes_returned) };
 
         if result == 0 {
-            return Err(Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("EnumProcesses"));
         }
 
         if cb == bytes_returned {

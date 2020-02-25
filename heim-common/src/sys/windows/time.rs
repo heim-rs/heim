@@ -1,3 +1,6 @@
+//! Conversions from various WinAPI structs representing time values
+//! into the `Time` value.
+
 use winapi::shared::{minwindef, ntdef};
 
 use crate::sys::IntoTime;

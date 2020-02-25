@@ -26,10 +26,11 @@ impl TryFrom<char> for Status {
             'W' => Ok(Status::Waking),
             'P' => Ok(Status::Parked),
             'I' => Ok(Status::Idle),
-            other => Err(Error::incompatible(format!(
-                "Unknown process state {}",
-                other
-            ))),
+            other => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+
+                Err(Error::from(inner).with_message(format!("Unknown process state {}", other)))
+            }
         }
     }
 }
@@ -117,12 +118,12 @@ impl FromStr for Stat {
 
 pub async fn stat(pid: Pid) -> ProcessResult<Stat> {
     let path = format!("/proc/{}/stat", pid);
-    let contents = match rt::fs::read_to_string(path).await {
+    let contents = match rt::fs::read_to_string(&path).await {
         Ok(contents) => contents,
         Err(e) if e.kind() == io::ErrorKind::NotFound => {
             return Err(ProcessError::NoSuchProcess(pid))
         }
-        Err(e) => return Err(e.into()),
+        Err(e) => return Err(Error::from(e).with_file(path).into()),
     };
 
     let mut stats = Stat::from_str(&contents)?;

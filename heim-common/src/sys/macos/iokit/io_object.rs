@@ -28,7 +28,7 @@ impl IoObject {
                 0,
             );
             if result != kern_return::KERN_SUCCESS {
-                Err(Error::last_os_error())
+                Err(Error::last_os_error().with_ffi("IORegistryEntryCreateCFProperties"))
             } else {
                 let props = props.assume_init();
                 Ok(CFMutableDictionary::wrap_under_create_rule(props).to_immutable())
@@ -49,7 +49,7 @@ impl IoObject {
         };
 
         if result != kern_return::KERN_SUCCESS {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("IORegistryEntryGetParentEntry"))
         } else {
             let parent = unsafe { parent.assume_init() };
             Ok(parent.into())

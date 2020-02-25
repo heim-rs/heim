@@ -34,7 +34,7 @@ pub mod units;
 #[doc(hidden)]
 pub mod utils;
 
-pub use self::errors::{Error, Result};
+pub use self::errors::{Context, Error, Result};
 
 /// Process identifier type.
 #[cfg(unix)]

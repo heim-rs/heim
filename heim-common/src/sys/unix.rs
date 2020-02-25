@@ -8,7 +8,7 @@ fn clock_ticks() -> Result<f64> {
     if result > 0 {
         Ok(result as f64)
     } else {
-        Err(Error::last_os_error())
+        Err(Error::last_os_error().with_sysconf(libc::_SC_CLK_TCK))
     }
 }
 

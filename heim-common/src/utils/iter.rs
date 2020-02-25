@@ -9,6 +9,8 @@ use crate::{Error, Result};
 /// Extension trait for all `T: Iterator`.
 ///
 /// Used across the `heim` sub-crates only.
+///
+/// TODO: Check if can be replaced with `fallible-iterator` crate
 pub trait TryIterator: Iterator {
     /// Attempt to fetch next element from iterator,
     /// but instead of returning `Option<T>` returns `Result<T>`.

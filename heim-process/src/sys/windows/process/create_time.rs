@@ -26,13 +26,20 @@ pub async fn get(pid: Pid) -> ProcessResult<Time> {
         return heim_host::boot_time().await.map_err(Into::into);
     }
 
-    bindings::ProcessHandle::query_limited_info(pid)
-        .and_then(|handle| handle.create_time())
-        .or_else(move |e| match e.raw_os_error() {
-            Some(libc::EPERM)
-            | Some(libc::EACCES)
-            | Some(ERROR_ACCESS_DENIED)
-            | Some(ERROR_PRIVILEGE_NOT_HELD) => traverse(pid),
-            _ => Err(e.into()),
-        })
+    let handle = bindings::ProcessHandle::query_limited_info(pid)?;
+
+    match handle.create_time() {
+        Ok(time) => Ok(time),
+        Err(ProcessError::Load(e)) => {
+            match e {
+                // TODO: DRY
+                _ if e.raw_os_error() == Some(libc::EPERM) => traverse(pid),
+                _ if e.raw_os_error() == Some(libc::EACCES) => traverse(pid),
+                _ if e.raw_os_error() == Some(ERROR_ACCESS_DENIED) => traverse(pid),
+                _ if e.raw_os_error() == Some(ERROR_PRIVILEGE_NOT_HELD) => traverse(pid),
+                _ => Err(ProcessError::Load(e)),
+            }
+        }
+        Err(e) => Err(e),
+    }
 }

@@ -39,7 +39,7 @@ impl NtProcesses {
                     data.reserve(needed_size as usize);
                     continue;
                 }
-                _ => return Err(Error::last_os_error()),
+                _ => return Err(Error::last_os_error().with_ffi("NtQuerySystemInformation")),
             }
         }
 

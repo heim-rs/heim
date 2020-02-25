@@ -36,8 +36,8 @@ impl Swap {
 
 #[allow(clippy::identity_conversion)]
 pub async fn swap() -> Result<Swap> {
-    let xsw_usage = unsafe { bindings::vm_swapusage()? };
-    let vm_stats = unsafe { bindings::host_vm_info()? };
+    let xsw_usage = bindings::vm_swapusage()?;
+    let vm_stats = bindings::host_vm_info()?;
     let page_size = *PAGE_SIZE;
 
     let total = Information::new::<information::byte>(u64::from(xsw_usage.xsu_total));

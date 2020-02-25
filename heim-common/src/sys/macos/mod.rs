@@ -10,7 +10,9 @@ use mach::vm_types::integer_t;
 use super::IntoTime;
 use crate::units::{time, Time};
 
+pub mod host_port;
 pub mod iokit;
+pub mod sysctl;
 
 /// https://developer.apple.com/documentation/kernel/host_flavor_t?language=objc
 pub type host_flavor_t = integer_t;

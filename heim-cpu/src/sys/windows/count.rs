@@ -1,7 +1,7 @@
 use winapi::um::{winbase, winnt};
 
 use super::wrappers::count::LogicalProcessors;
-use heim_common::prelude::*;
+use heim_common::prelude::{Error, Result};
 
 pub async fn logical_count() -> Result<u64> {
     // Safety: seems to be a very straightforward function.
@@ -11,7 +11,7 @@ pub async fn logical_count() -> Result<u64> {
     if result > 0 {
         Ok(u64::from(result))
     } else {
-        Err(Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("GetActiveProcessorCount"))
     }
 }
 

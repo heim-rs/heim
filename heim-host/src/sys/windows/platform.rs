@@ -1,13 +1,12 @@
 use std::ffi::{CStr, OsString};
 use std::fmt;
-use std::io;
 use std::mem;
 use std::os::windows::ffi::OsStringExt;
 
 use winapi::shared::{minwindef, ntdef, ntstatus};
 use winapi::um::{libloaderapi, sysinfoapi, winbase, winnt};
 
-use heim_common::prelude::*;
+use heim_common::prelude::{Error, Result};
 use heim_common::sys::windows::get_ntdll;
 
 use crate::Arch;
@@ -116,6 +115,8 @@ impl fmt::Debug for Platform {
 fn get_native_system_info() -> SystemInfo {
     let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
     unsafe {
+        // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getnativesysteminfo
+        // Returns nothing and can't fail, apparently
         sysinfoapi::GetNativeSystemInfo(info.as_mut_ptr());
         info.assume_init().into()
     }
@@ -144,7 +145,7 @@ fn rtl_get_version() -> Result<winnt::OSVERSIONINFOEXW> {
                 unreachable!("RtlGetVersion should just work");
             }
         } else {
-            Err(io::Error::last_os_error().into())
+            Err(Error::last_os_error().with_ffi("RtlGetVersion"))
         }
     }
 }
@@ -155,7 +156,7 @@ fn get_computer_name() -> Result<String> {
 
     let result = unsafe { winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size) };
     if result == 0 {
-        Err(Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("GetComputerNameW"))
     } else {
         unsafe {
             buffer.set_len(size as usize + 1);

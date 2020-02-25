@@ -34,7 +34,7 @@ impl<'s> Sessions<'s> {
         };
 
         if result == 0 {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("WTSEnumerateSessionsW"))
         } else {
             let sessions = unsafe { slice::from_raw_parts_mut(info, count as usize) };
 

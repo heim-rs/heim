@@ -1,4 +1,5 @@
 use std::convert::TryFrom;
+use std::io;
 use std::mem;
 use std::ptr;
 
@@ -33,10 +34,12 @@ impl TryFrom<libc::c_char> for Status {
             SSLEEP => Ok(Status::Sleeping),
             SSTOP => Ok(Status::Stopped),
             SZOMB => Ok(Status::Zombie),
-            other => Err(Error::incompatible(format!(
-                "Unnknown process p_stat {:?}",
-                other
-            ))),
+            other => {
+                let inner = io::Error::from(io::ErrorKind::InvalidData);
+
+                Err(Error::from(inner)
+                    .with_message(format!("Unknown process p_stat value: {:?}", other,)))
+            }
         }
     }
 }
@@ -184,7 +187,7 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             )
         };
         if result < 0 {
-            return Err(Error::last_os_error());
+            return Err(Error::last_os_error().with_sysctl(name.as_ref()));
         }
 
         processes.reserve(size);
@@ -201,7 +204,7 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
         };
         match result {
             libc::ENOMEM => continue,
-            code if code < 0 => return Err(Error::last_os_error()),
+            code if code < 0 => return Err(Error::last_os_error().with_sysctl(name.as_ref())),
             _ => {
                 let length = size / mem::size_of::<kinfo_proc>();
                 unsafe {

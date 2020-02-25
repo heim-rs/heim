@@ -49,16 +49,17 @@ pub fn partitions() -> impl Stream<Item = Result<Partition>> {
         Ok(stream)
     })
     .try_flatten_stream()
-    .and_then(|disk| match disk.information() {
-        Ok(Some((drive_type, flags, file_system))) => future::ok(Some(Partition {
-            volume: disk.volume_name().ok(),
-            mount_point: disk.to_path_buf(),
-            file_system,
-            drive_type,
-            flags,
-        })),
-        Ok(None) => future::ok(None),
-        Err(e) => future::err(e),
+    .and_then(|disk| async move {
+        match disk.information()? {
+            Some((drive_type, flags, file_system)) => Ok(Some(Partition {
+                volume: disk.volume_name().ok(),
+                mount_point: disk.to_path_buf(),
+                file_system,
+                drive_type,
+                flags,
+            })),
+            None => Ok(None),
+        }
     })
     .try_filter_map(future::ok)
 }

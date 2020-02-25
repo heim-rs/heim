@@ -1,10 +1,10 @@
 use std::convert::TryInto;
 use std::ffi::{OsStr, OsString};
-use std::io;
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
 use crate::sys::macos::bindings;
 use crate::Pid;
+use heim_common::Result;
 
 /// Somewhat idiomatic wrapper for the data returned by a `KERN_PROCARGS2` syscall.
 ///
@@ -13,7 +13,7 @@ use crate::Pid;
 pub struct ProcArgs(Vec<u8>);
 
 impl ProcArgs {
-    pub fn get(pid: Pid) -> io::Result<Self> {
+    pub fn get(pid: Pid) -> Result<Self> {
         bindings::proc_args(pid).map(Self)
     }
 

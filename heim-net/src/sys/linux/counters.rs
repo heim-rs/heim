@@ -76,7 +76,7 @@ impl FromStr for IoCounters {
         let mut parts = s.split_whitespace();
         let interface = match parts.next() {
             Some(str) => str.trim_end_matches(':').to_string(),
-            None => return Err(Error::incompatible("Unable to parse interface name")),
+            None => return Err(Error::missing_key("Interface", "/proc/net/dev")),
         };
 
         Ok(IoCounters {

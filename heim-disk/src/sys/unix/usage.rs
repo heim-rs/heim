@@ -64,7 +64,8 @@ pub async fn usage<T: AsRef<Path>>(path: T) -> Result<Usage> {
         .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidInput))
         .and_then(|string| {
             CString::new(string).map_err(|_| io::Error::from(io::ErrorKind::InvalidInput))
-        })?;
+        })
+        .map_err(|e| Error::from(e).with_message("Invalid path"))?;
 
     let mut vfs = mem::MaybeUninit::<libc::statvfs>::uninit();
     let result = unsafe { libc::statvfs(path.as_ptr(), vfs.as_mut_ptr()) };
@@ -73,6 +74,6 @@ pub async fn usage<T: AsRef<Path>>(path: T) -> Result<Usage> {
         let vfs = unsafe { vfs.assume_init() };
         Ok(Usage(vfs))
     } else {
-        Err(Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("statvfs"))
     }
 }

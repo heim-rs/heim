@@ -36,7 +36,7 @@ pub async fn time() -> Result<CpuTime> {
     let result = unsafe { processthreadsapi::GetSystemTimes(&mut idle, &mut kernel, &mut user) };
 
     if result == 0 {
-        Err(Error::last_os_error())
+        Err(Error::last_os_error().with_ffi("GetSystemTimes"))
     } else {
         let user = user.into_time();
         let idle = idle.into_time();

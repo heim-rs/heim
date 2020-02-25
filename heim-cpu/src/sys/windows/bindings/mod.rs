@@ -5,10 +5,13 @@ use winapi::um::sysinfoapi;
 pub mod power;
 pub mod winternl;
 
-// TODO: This one can be cached in the `lazy_static`
-pub unsafe fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
+// TODO: This one can be cached in the `lazy_static` / `once_cell`
+pub fn get_system_info() -> sysinfoapi::SYSTEM_INFO {
     let mut info = mem::MaybeUninit::<sysinfoapi::SYSTEM_INFO>::uninit();
-    sysinfoapi::GetSystemInfo(info.as_mut_ptr());
+    unsafe {
+        // TODO: Should `GetNativeSystemInfo` be used here instead?
+        sysinfoapi::GetSystemInfo(info.as_mut_ptr());
 
-    info.assume_init()
+        info.assume_init()
+    }
 }

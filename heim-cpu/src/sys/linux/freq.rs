@@ -1,9 +1,10 @@
 use std::ffi::OsStr;
+use std::io;
 use std::ops;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
-use heim_common::prelude::*;
+use heim_common::prelude::{Error, Result, Stream, StreamExt, TryFutureExt, TryStreamExt};
 use heim_common::units::{frequency, Frequency};
 use heim_runtime as rt;
 
@@ -51,34 +52,28 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
 }
 
 pub async fn frequency() -> Result<CpuFrequency> {
-    let init = CpuFrequency::default();
-    frequencies()
-        .try_fold((init, 0u64), |(acc, amount), freq| {
-            future::ok((acc + freq, amount + 1))
+    let mut acc = CpuFrequency::default();
+    let mut amount = 0;
+    let frequencies = frequencies();
+    pin_utils::pin_mut!(frequencies);
+
+    while let Some(freq) = frequencies.next().await {
+        let freq = freq?;
+
+        acc = acc + freq;
+        amount += 1;
+    }
+
+    if amount > 0 {
+        Ok(CpuFrequency {
+            current: acc.current / amount,
+            min: acc.min.map(|value| value / amount),
+            max: acc.max.map(|value| value / amount),
         })
-        .then(|result| {
-            match result {
-                // Will panic here if `frequencies()` stream returns nothing,
-                // which is either a bug in implementation or we are in container
-                // and should fetch information from another place.
-                //
-                // Also, `bind_by_move_pattern_guards` feature
-                // would simplify the following code a little,
-                // `freq` can be modified and returned in place
-                Ok((ref freq, amount)) if amount > 0 => future::ok(CpuFrequency {
-                    current: freq.current / amount,
-                    min: freq.min.map(|value| value / amount),
-                    max: freq.max.map(|value| value / amount),
-                }),
-                // Unable to determine CPU frequencies for some reasons.
-                // Might happen for containerized environments, such as Microsoft Azure, for example.
-                Ok(_) => future::err(Error::incompatible(
-                    "No CPU frequencies was found, running in VM?",
-                )),
-                Err(e) => future::err(e),
-            }
-        })
-        .await
+    } else {
+        let inner = io::Error::from(io::ErrorKind::InvalidData);
+        Err(Error::from(inner).with_message("No CPU frequencies was found, running in VM?"))
+    }
 }
 
 /// Check if file name matches the `cpu\d+` mask.

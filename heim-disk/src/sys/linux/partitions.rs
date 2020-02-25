@@ -9,6 +9,8 @@ use heim_runtime as rt;
 
 use crate::FileSystem;
 
+static PROC_MOUNTS: &str = "/proc/mounts";
+
 #[derive(Debug)]
 pub struct Partition {
     device: Option<String>,
@@ -46,19 +48,19 @@ impl FromStr for Partition {
         let device = match parts.next() {
             Some(device) if device == "none" => None,
             Some(device) => Some(device.to_string()),
-            None => return Err(Error::missing_entity("device")),
+            None => return Err(Error::missing_key("device", PROC_MOUNTS)),
         };
         let mount_point = match parts.next() {
             Some(point) => PathBuf::from(point),
-            None => return Err(Error::missing_entity("mount point")),
+            None => return Err(Error::missing_key("mount point", PROC_MOUNTS)),
         };
         let fs_type = match parts.next() {
             Some(fs) => FileSystem::from_str(fs)?,
-            _ => return Err(Error::missing_entity("file-system type")),
+            _ => return Err(Error::missing_key("file-system type", PROC_MOUNTS)),
         };
         let options = match parts.next() {
             Some(opts) => opts.to_string(),
-            None => return Err(Error::missing_entity("options")),
+            None => return Err(Error::missing_key("options", PROC_MOUNTS)),
         };
 
         Ok(Partition {
@@ -93,7 +95,7 @@ fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
 }
 
 pub fn partitions() -> impl Stream<Item = Result<Partition>> {
-    rt::fs::read_lines("/proc/mounts")
+    rt::fs::read_lines(PROC_MOUNTS)
         .try_flatten_stream()
         .map_err(Error::from)
         .try_filter_map(|line| {

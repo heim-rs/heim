@@ -1,6 +1,7 @@
+use std::io;
 use std::str::FromStr;
 
-use heim_common::prelude::*;
+use heim_common::prelude::{Error, Result};
 use heim_common::units::{information, Information};
 use heim_runtime as rt;
 
@@ -96,8 +97,11 @@ impl FromStr for Memory {
             }
         }
 
-        // TODO: Kinda bad to name it like this
-        Err(Error::missing_entity("<unknown>"))
+        // `FromStr` knows nothing about `/proc/meminfo`,
+        // but at this point we are not tracking which exact field are we missing.
+        // TODO: Rewrite parser and use `Error::missing_key` instead
+        let inner = io::Error::from(io::ErrorKind::InvalidData);
+        Err(Error::from(inner).with_file("/proc/meminfo"))
     }
 }
 

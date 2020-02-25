@@ -16,7 +16,7 @@ impl Snapshot {
     pub fn new() -> Result<Snapshot> {
         let handle = unsafe { tlhelp32::CreateToolhelp32Snapshot(tlhelp32::TH32CS_SNAPPROCESS, 0) };
         if handle == handleapi::INVALID_HANDLE_VALUE {
-            Err(Error::last_os_error())
+            Err(Error::last_os_error().with_ffi("CreateToolhelp32Snapshot"))
         } else {
             Ok(Snapshot {
                 handle,

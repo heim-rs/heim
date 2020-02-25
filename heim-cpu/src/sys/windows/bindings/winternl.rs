@@ -1,11 +1,12 @@
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
 
+use std::io;
 use std::mem;
 use std::ptr;
 
 use winapi::shared::{minwindef, ntdef, ntstatus};
 
-use heim_common::prelude::*;
+use heim_common::prelude::{Error, Result};
 use heim_common::sys::windows as ntdll;
 
 use super::get_system_info;
@@ -144,10 +145,11 @@ pub fn query_system_information<T>() -> Result<Vec<T>>
 where
     T: SystemInformation,
 {
-    let info = unsafe { get_system_info() };
+    let info = get_system_info();
     let proc_amount = info.dwNumberOfProcessors as usize;
     if proc_amount == 0 {
-        return Err(Error::incompatible("No processors were found"));
+        let inner = io::Error::from(io::ErrorKind::InvalidData);
+        return Err(Error::from(inner).with_message("No processors were found"));
     }
 
     let mut info = Vec::<T>::with_capacity(proc_amount);
@@ -161,7 +163,7 @@ where
             ptr::null_mut(),
         )?;
         if result != ntstatus::STATUS_SUCCESS {
-            return Err(Error::last_os_error());
+            return Err(Error::last_os_error().with_ffi("NtQuerySystemInformation"));
         }
         info.set_len(proc_amount);
     };

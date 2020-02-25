@@ -27,7 +27,7 @@ pub fn mounts() -> Result<Vec<libc::statfs>> {
         )
     };
     if result == -1 {
-        return Err(Error::last_os_error());
+        return Err(Error::last_os_error().with_ffi("getfsstat64"));
     } else {
         debug_assert!(
             expected_len == result,

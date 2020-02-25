@@ -1,7 +1,6 @@
 use std::cmp;
 use std::ffi::OsString;
 use std::hash;
-use std::io;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
 
@@ -86,22 +85,12 @@ impl Process {
     }
 
     pub async fn exe(&self) -> ProcessResult<PathBuf> {
-        // TODO: Move that check into the `bindings::ProcessHandle` constructors
         if self.pid == 0 || self.pid == 4 {
             Err(ProcessError::AccessDenied(self.pid))
         } else {
-            let handle =
-                bindings::ProcessHandle::query_limited_info(self.pid).map_err(|e| {
-                    match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                        _ => e.into(),
-                    }
-                })?;
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
 
-            handle.exe().map_err(|e| match e.kind() {
-                io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                _ => e.into(),
-            })
+            handle.exe()
         }
     }
 
@@ -110,7 +99,7 @@ impl Process {
     }
 
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
-        Err(Error::incompatible("https://github.com/heim-rs/heim/issues/105").into())
+        unimplemented!("https://github.com/heim-rs/heim/issues/105")
     }
 
     pub async fn status(&self) -> ProcessResult<Status> {
@@ -130,37 +119,20 @@ impl Process {
         if self.pid == 0 {
             Err(ProcessError::AccessDenied(self.pid))
         } else {
-            let handle = bindings::ProcessHandle::query_limited_info(self.pid)
-                // TODO: `query_limited_info` should return the `ProcessError`
-                .map_err(|e| {
-                    match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                        _ => e.into(),
-                    }
-                })?;
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
 
-            handle.cpu_time().map_err(ProcessError::from)
+            handle.cpu_time()
         }
     }
 
     pub async fn memory(&self) -> ProcessResult<Memory> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
+        // TODO: Move that check into the `bindings::ProcessHandle`?
         if self.pid == 0 {
             Err(ProcessError::AccessDenied(self.pid))
         } else {
-            let handle = bindings::ProcessHandle::query_limited_info(self.pid)
-                // TODO: `query_limited_info` should return the `ProcessError`
-                .map_err(|e| {
-                    match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                        _ => e.into(),
-                    }
-                })?;
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
 
-            handle
-                .memory()
-                .map(Memory::from)
-                .map_err(ProcessError::from)
+            handle.memory().map(Memory::from)
         }
     }
 
@@ -171,37 +143,15 @@ impl Process {
     }
 
     pub async fn suspend(&self) -> ProcessResult<()> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            Err(ProcessError::AccessDenied(self.pid))
-        } else {
-            let handle =
-                bindings::ProcessHandle::for_suspend_resume(self.pid).map_err(|e| {
-                    match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                        _ => e.into(),
-                    }
-                })?;
+        let handle = bindings::ProcessHandle::for_suspend_resume(self.pid)?;
 
-            handle.suspend().map_err(ProcessError::from)
-        }
+        handle.suspend().map_err(Into::into)
     }
 
     pub async fn resume(&self) -> ProcessResult<()> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            Err(ProcessError::AccessDenied(self.pid))
-        } else {
-            let handle =
-                bindings::ProcessHandle::for_suspend_resume(self.pid).map_err(|e| {
-                    match e.kind() {
-                        io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                        _ => e.into(),
-                    }
-                })?;
+        let handle = bindings::ProcessHandle::for_suspend_resume(self.pid)?;
 
-            handle.resume().map_err(ProcessError::from)
-        }
+        handle.resume().map_err(Into::into)
     }
 
     pub async fn terminate(&self) -> ProcessResult<()> {
@@ -209,18 +159,9 @@ impl Process {
     }
 
     pub async fn kill(&self) -> ProcessResult<()> {
-        // TODO: Move that check into the `bindings::ProcessHandle`
-        if self.pid == 0 {
-            Err(ProcessError::AccessDenied(self.pid))
-        } else {
-            let handle =
-                bindings::ProcessHandle::for_termination(self.pid).map_err(|e| match e.kind() {
-                    io::ErrorKind::PermissionDenied => ProcessError::AccessDenied(self.pid),
-                    _ => e.into(),
-                })?;
+        let handle = bindings::ProcessHandle::for_termination(self.pid)?;
 
-            handle.terminate().map_err(ProcessError::from)
-        }
+        handle.terminate().map_err(Into::into)
     }
 }
 

@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::io;
 use std::os::unix::ffi::OsStrExt;
 use std::str;
 
@@ -40,7 +41,7 @@ async fn topology() -> Result<u64> {
     } else {
         // This error will not be propagated to caller,
         // since `physical_count` will call `or_else()` on it
-        Err(Error::incompatible("Unable to fetch CPU topology"))
+        Err(Error::from(io::Error::from(io::ErrorKind::InvalidData)))
     }
 }
 
@@ -54,7 +55,7 @@ fn parse_line(line: &str) -> Result<u64> {
     line.split(':')
         .nth(2)
         .map(|value| value.trim())
-        .ok_or_else(|| Error::incompatible("Unsupported format for /proc/cpuinfo"))
+        .ok_or_else(|| Error::from(io::Error::from(io::ErrorKind::InvalidData)))
         .and_then(|value| value.parse::<u64>().map_err(Error::from))
 }
 
