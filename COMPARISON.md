@@ -13,7 +13,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
 * [`heim = "0.0.7"`](https://crates.io/crates/heim)
 * [`psutil = "1.7.0"`](https://crates.io/crates/psutil)
-* [`sysinfo = "0.9.2"`](https://crates.io/crates/sysinfo)
+* [`sysinfo = "0.11.2"`](https://crates.io/crates/sysinfo)
 * [`sys-info = "0.5.7"`](https://crates.io/crates/sys-info)
 * [`systemstat = "0.1.4"`](https://crates.io/crates/systemstat)
 
@@ -34,17 +34,20 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 | Windows    | ✓        | ✗      | ✓       | ✓        | ✓          |
 | FreeBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
 | OpenBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
-| Android    | ✗        | ✗      | ?       | ✗        | ✗          |
+| Android    | ✗        | ✗      | ✓       | ✗        | ✗          |
 
 ## CPU information
 
 |                | heim     | psutil | sysinfo | sys-info | systemstat |
 |----------------|----------|--------|---------|----------|------------|
-| logical count  | ✓        | ✓      | ✗       | ✓        | ✗          |
-| physical count | ✓        | ✓      | ✗       | ✗        | ✗          |
-| frequency      | ✓        | ✗      | ✗       | ✓        | ✗          |
+| logical count  | ✓        | ✓      | ✓       | ✓        | ✗          |
+| physical count | ✓        | ✓      | ✓       | ✗        | ✗          |
+| frequency      | ✓        | ✗      | ✓       | ✓        | ✗          |
 | time           | ✓        | ✓      | ✗       | ✗        | ✓          |
-| stats          | ✓        | ✗      | ✗       | ✗        | ✗          |
+| stats (*)      | ✓        | ✗      | ✗       | ✗        | ✗          |
+
+(*): "stats" here refers to the information about context switches or interrupt
+amounts.
 
 ## Disks information
 
@@ -60,9 +63,9 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 |------------------|----------|--------|---------|----------|------------|
 | uptime           | ✓        | ✓      | ✓       | ✗        | ✓          |
 | boot time        | ✗        | ✗      | ✗       | ✓        | ✓          |
-| load average     | ✗        | ✓      | ?       | ✓        | ✓          |
-| name/version     | ✓        | ✗      | ✗       | ✓        | ✗          |
-| hostname         | ✓        | ✗      | ✗       | ✓        | ✗          |
+| load average     | ✗        | ✓      | ✓       | ✓        | ✓          |
+| name/version     | ✓        | ✗      | ✓       | ✓        | ✗          |
+| hostname         | ✓        | ✗      | ✓       | ✓        | ✗          |
 | users            | ✓        | ✗      | ✗       | ✗        | ✗          |
 
 ## Memory information
@@ -76,7 +79,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
 |             | heim     | psutil | sysinfo | sys-info | systemstat |
 |-------------|----------|--------|---------|----------|------------|
-| NIC info    | ✓        | ✗      | ✗       | ✗        | ✓          |
+| NIC info    | ✓        | ✗      | ✓       | ✗        | ✓          |
 | IO counters | ✓        | ✓      | ✓       | ✗        | ✓          |
 | connections | ✗        | ✗      | ✗       | ✗        | ✗          |
 
