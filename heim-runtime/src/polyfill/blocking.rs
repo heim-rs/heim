@@ -7,7 +7,7 @@ use std::thread;
 use std::time::Duration;
 
 use crossbeam_utils::sync::Parker;
-use futures::channel::oneshot;
+use futures_channel::oneshot;
 
 pub async fn spawn<F, T>(f: F) -> T
 where

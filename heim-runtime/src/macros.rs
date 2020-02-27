@@ -6,8 +6,8 @@
 #[macro_export]
 macro_rules! join {
     ($($tokens:tt)*) => {
-        $crate::futures::inner_macro::join! {
-            futures_crate_path ( ::heim_runtime::futures )
+        $crate::futures_util::join! {
+            futures_crate_path ( ::heim_runtime::futures_util )
             $( $tokens )*
         }
     }
@@ -16,8 +16,8 @@ macro_rules! join {
 #[macro_export]
 macro_rules! try_join {
     ($($tokens:tt)*) => {
-        $crate::futures::inner_macro::try_join! {
-            futures_crate_path ( ::heim_runtime::futures )
+        $crate::futures_util::try_join! {
+            futures_crate_path ( ::heim_runtime::futures_util )
             $( $tokens )*
         }
     }

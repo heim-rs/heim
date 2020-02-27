@@ -3,7 +3,8 @@ use std::marker::Unpin;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use futures::stream::{Stream, StreamExt, TryStreamExt};
+use futures_core::Stream;
+use futures_util::{future::ready, StreamExt, TryStreamExt};
 
 use super::runtime;
 pub use runtime::fs::{path_exists, read_dir, read_lines, read_link, read_to_string};
@@ -32,7 +33,7 @@ where
 
     let parsed = lines
         .map_err(E::from)
-        .and_then(|line| futures::future::ready(R::from_str(&line).map_err(E::from)));
+        .and_then(|line| ready(R::from_str(&line).map_err(E::from)));
 
     Ok(parsed)
 }

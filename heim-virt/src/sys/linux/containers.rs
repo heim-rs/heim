@@ -50,7 +50,7 @@ where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
     let lines = rt::fs::read_lines(path).await.map_err(|_| ())?;
-    pin_utils::pin_mut!(lines);
+    rt::pin!(lines);
 
     while let Some(line) = lines.next().await {
         match line {

@@ -3,9 +3,9 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
 
-use futures::{
+use async_std::{
+    stream::Stream,
     task::{Context, Poll},
-    Stream,
 };
 
 use async_std::{
@@ -73,12 +73,12 @@ impl DirEntry {
 
 pub struct ReadDir(fs::ReadDir);
 
-impl futures::Stream for ReadDir {
+impl Stream for ReadDir {
     type Item = io::Result<DirEntry>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let pinned = Pin::new(&mut self.0);
-        match futures::ready!(pinned.poll_next(cx)) {
+        match async_std::task::ready!(pinned.poll_next(cx)) {
             Some(Ok(entry)) => Poll::Ready(Some(Ok(DirEntry(entry)))),
             Some(Err(e)) => Poll::Ready(Some(Err(e))),
             None => Poll::Ready(None),

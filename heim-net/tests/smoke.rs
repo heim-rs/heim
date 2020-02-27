@@ -1,5 +1,6 @@
 use heim_common::prelude::*;
 use heim_net as net;
+use heim_runtime as rt;
 
 #[cfg(target_os = "linux")]
 use heim_net::os::linux::IoCountersExt;
@@ -10,7 +11,7 @@ use heim_net::os::windows::IoCountersExt;
 #[heim_derive::test]
 async fn smoke_io_counters() {
     let counters = net::io_counters();
-    pin_utils::pin_mut!(counters);
+    rt::pin!(counters);
     while let Some(counter) = counters.next().await {
         let counter = counter.unwrap();
 
@@ -31,7 +32,7 @@ async fn smoke_io_counters() {
 #[heim_derive::test]
 async fn smoke_nic() {
     let nic = net::nic();
-    pin_utils::pin_mut!(nic);
+    rt::pin!(nic);
     while let Some(iface) = nic.next().await {
         let iface = iface.unwrap();
 

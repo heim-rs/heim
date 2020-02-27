@@ -3,7 +3,8 @@ use std::io::{self, BufRead as _, BufReader};
 use std::marker::Unpin;
 use std::path::{Path, PathBuf};
 
-use futures::Stream;
+use futures_core::Stream;
+use futures_util::stream;
 
 use super::blocking::spawn;
 
@@ -39,7 +40,7 @@ where
         let lines = BufReader::new(file).lines();
 
         // TODO: will block on each iteration during the `Read`
-        Ok(futures::stream::iter(lines))
+        Ok(stream::iter(lines))
     })
     .await
 }
@@ -52,7 +53,7 @@ where
         let entries = fs::read_dir(path)?;
 
         // TODO: will block on each iteration during the `Read`
-        Ok(futures::stream::iter(entries))
+        Ok(stream::iter(entries))
     })
     .await
 }

@@ -42,7 +42,6 @@ futures-executor = "^0.3"
 tokio = { version = "^0.2", features = ["rt-threaded"] }
 async-std = "^1.5"
 version-sync = "0.8"
-pin-utils = "0.1.0-alpha.4"
 
 [features]
 # Polyfill runtime is enabled by default only to execute examples, tests and benchmarks.

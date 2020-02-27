@@ -18,7 +18,7 @@ azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 libc = "~0.2"
 cfg-if = "~0.1"
 futures-core = "^0.3"
-futures-util = "^0.3"
+futures-util = { version = "^0.3", default-features = false }
 pin-utils = "0.1.0-alpha.4"
 uom = { version = "0.27.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 

@@ -55,7 +55,7 @@ pub async fn frequency() -> Result<CpuFrequency> {
     let mut acc = CpuFrequency::default();
     let mut amount = 0;
     let frequencies = frequencies();
-    pin_utils::pin_mut!(frequencies);
+    rt::pin!(frequencies);
 
     while let Some(freq) = frequencies.next().await {
         let freq = freq?;

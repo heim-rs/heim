@@ -1,4 +1,4 @@
-pub use tokio::{join, try_join};
+pub use tokio::{join, pin, try_join};
 
 pub mod task {
     #[inline]
@@ -17,7 +17,9 @@ pub mod fs {
     use std::io;
     use std::path::Path;
 
-    use futures::Stream;
+    //    use futures::Stream;
+
+    use tokio::stream::Stream;
 
     pub use tokio::io::{AsyncBufReadExt as _, BufReader};
     // Re-exports
