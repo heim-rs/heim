@@ -22,7 +22,14 @@ jobs:
           - runtime-polyfill
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+
+      - name: Cache cargo build target
+        if: matrix.toolchain != 'nightly'
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: target-${{ runner.os }}-${{ matrix.toolchain }}-${{ matrix.runtime }}-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -30,6 +37,7 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -50,7 +58,14 @@ jobs:
           - macOS-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+
+      - name: Cache cargo build target
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: target-clippy-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -65,7 +80,7 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -90,7 +105,13 @@ jobs:
           - nightly
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+
+      - name: Cache cargo build target
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: target-coverage-${{ runner.os }}-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1

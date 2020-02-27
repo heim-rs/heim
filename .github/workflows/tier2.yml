@@ -33,7 +33,19 @@ jobs:
           - runtime-async-std
           - runtime-polyfill
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+
+      - name: Cache rustup toolchain
+        uses: actions/cache@v1
+        with:
+          path: ~/.rustup/toolchains
+          key: rustup-toolchain-stable
+      - name: Cache cargo build target
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: target-tier-2-${{ matrix.target }}-${{ matrix.runtime }}-${{ hashFiles('**/Cargo.toml') }}
+
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
