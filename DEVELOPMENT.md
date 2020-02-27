@@ -1,11 +1,12 @@
 ## Short intro about how things should be done
 
-Consider we want to expose information about CPU statistics (context switches and interrupts amount).
+Consider we want to expose information about CPU statistics
+(context switches and interrupts amount).
 
-The crate should have the following structure:
+Our new crate should have the following structure:
 
 ```
-$ls /src
+$ ls /src
 
 os/
 sys/
@@ -23,17 +24,22 @@ Where:
 ## Public interface
 
 ```rust
+use heim_common::prelude::wrap;
+
 use crate::sys;
 
-/// System CPU stats
-#[derive(heim_derive::ImplWrap)]
+/// System CPU stats.
 pub struct CpuStats(sys::CpuStats);
+
+wrap!(CpuStats, sys::CpuStats);
 ```
 
-`heim_derive::ImplWrap` is a `proc-macro` which generates `AsRef`, `AsMut` and `From` implementations,
+`wrap!` macro generates `AsRef`, `AsMut` and `From` implementations,
 which allows working with the "inner" `sys::CpuStats` struct.
 
-The default implementation for the struct **MUST** have only the cross-platform methods, as done in the following example.
+It is strictly important that struct should has only these methods,
+which are available on all platforms supported,
+as done in the following example.
 
 ```rust
 impl CpuStats {
@@ -52,26 +58,34 @@ but we can't expose it here, because it would not be portable.\
 Instead, we should create the `CpuStatsExt` trait at `os/linux/stats.rs`:
 
 ```rust
-#[heim_derive::os_ext_for(crate::CpuStats, cfg(target_os = "linux"))]
 pub trait CpuStatsExt {
     fn soft_interrupts(&self) -> u64;
 }
+
+#[cfg(target_os = "linux")]
+impl CpuStatsExt for crate::CpuStats {
+    fn soft_interrupts(&self) -> u64 {
+        self.as_ref().soft_interrupts()   
+    }
+}
 ```
 
-Another `proc-macro`, `heim_derive::os_ext_for`, will generate an implementation
-of our `CpuStatsExt` for `crate::CpuStats` which will be feature-gated by `#[cfg(target_os = "linux")]`.
+Trait itself should be publicly accessible, but `impl` block
+for our `crate::CpuStats` should be gated and implemented only
+for `target_os = "linux"`
 
 ## Platform implementations
 
-Now we need to create a platform implementation and we will start with the `sys/linux/times.rs` file.
+Now we need to create platform-specific implementation
+and we will start with the `sys/linux/mod.rs` module.
 
-`sys/linux/mod.rs` should be feature-gated too with `#[cfg(target_os = "linux")]`,
-because it can only be used for Linux systems. The same thing applies to all platforms implementations.
+`sys/linux/mod.rs` should be compile-gated too with `#[cfg(target_os = "linux")]`,
+because it can only be used for Linux systems.
+Same thing applies to all other platform-specific implementations.
 
-This `sys/linux/times.rs` file should contain the struct with the same name,
-because we are using it above, but it contents will vary from platform to platform.
+Implementation for our `src/stats.rs` goes into the `sys/linux/stats.rs` module.
 
-In the case of Linux it will contain a few fields, which will be populated later:
+In the case of Linux it will contain few fields, which will be populated later:
 
 ```rust
 pub struct CpuStats {
@@ -89,10 +103,11 @@ impl FromStr for CpuStats {
 }
 ```
 
-Now, we need to provide the async interface. In the case of Linux we need to parse the `/proc/stat` file
+Now, we need to provide the async interface.
+In case of Linux we need to parse the `/proc/stat` file
 and create the `sys::CpuStats` struct with data from it.
 
-Our `sys/linux/times.rs` should declare one function:
+Our `sys/linux/stats.rs` should declare one function:
 
 ```rust
 pub async fn cpu_times() -> Result<CpuStats, Error> {
@@ -100,8 +115,8 @@ pub async fn cpu_times() -> Result<CpuStats, Error> {
 }
 ```
 
-What will happen here: `/proc/stat` will be read asynchronously with the help of `heim_runtime::fs`
-and then parsed with the `FromStr` implementation.
+What will happen here: `/proc/stat` will be read asynchronously
+with the help of `heim_runtime::fs` and then parsed with the `FromStr` implementation.
 
 Now let's go back to the public `CpuStats` struct.
 
@@ -115,10 +130,10 @@ pub async fn stats() -> Result<CpuStats, Error> {
 }
 ```
 
-Since the `heim_derive::ImplWrap` macro generates the `From<sys::CpuStats for CpuStats` implementation,
+Since that `wrap!` macro from the start generates `From<sys::CpuStats> for CpuStats` implementation,
 all we need now is to call the platform-specific function and wrap the result into public struct.
 
-The same thing applies to all structs and functions returning `Future`s and `Stream`s --
+Same thing applies to all structs and functions returning `Future`s and `Stream`s --
 platform-specific implementations should be received from the `Future` or `Stream` and wrapped
 into a public struct via `Into::into`.
 

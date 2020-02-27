@@ -28,14 +28,12 @@ See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) 
 
 `heim` has a few key goals which define its development and public interface:
 
- 1. Async-first.\
-    Async support in Rust has become a first class citizen
-    and it's about time to use it.
-    While many things here do not require async right now,
-    it will help create better and faster implementations later.
+ 1. Async-first with [tokio](https://tokio.rs) and [async-std](https://async.rs) support.\
+    Bundled polyfill option could be used for other use cases, see [documentation](https://docs.rs/heim)
+    for more details.
 
  2. Cross-platform.\
-    Any code from `heim` should just work on any supported platforms.
+    Any code from `heim` should just work on any of the supported platforms.
     OS-specific things do exist, but the API design forces users to
     pay attention to them.
 
@@ -47,19 +45,17 @@ See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) 
 
 ## Technical notes
 
-Currently `master` branch is going under `async/await` rewrite, stay tuned.
+`heim` requires Rust 1.39 or higher; this version is explicitly tested in CI
+and may be bumped in any major or minor release as needed.\
+Any changes to the supported minimum version will be called out in the
+[release notes](https://github.com/heim-rs/heim/blob/master/CHANGELOG.md).
 
 ## Platform support
 
-At the moment, `heim` is in **MVP** phase, which means that there is only only **partial** support
-for [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
+Right now `heim` support [Tier 1](https://forge.rust-lang.org/platform-support.html#tier-1)
 platforms (Linux, macOS, and Windows for `i686` and `x86_64`).
 You can check the [GitHub projects page](https://github.com/heim-rs/heim/projects)
 for more information.
-
-Please be aware that at the moment, `heim` (and all sub-crates)
-has the "**experimental**" status,
-so consider double checking the results before pushing your code to production.
 
 ## License
 

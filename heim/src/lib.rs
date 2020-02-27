@@ -41,10 +41,9 @@
 //!
 //!     * `runtime-tokio`: Enables integration with [`tokio`](https://tokio.rs)
 //!     * `runtime-async-std`: Enables integration with [`async-std`](https://async.rs)
-//!     * `runtime-polyfill`: Enables bundled polyfill implementation for async routines.
-//!       Note that there are no guarantees provided about performance and properly asynchronous
-//!       execution (*read: it might accidentally block*) for this implementation;
-//!       other runtime integrations should be used preferably.
+//!     * `runtime-polyfill`: Enables bundled polyfill implementation for async routines,
+//!       with all potentially blocking operations executed on the current thread.
+//!       Other runtime integrations should be used preferably.
 //!
 //!     None of these runtime features are enabled by default and you are required to
 //!     explicitly opt-in to use one of them.

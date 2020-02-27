@@ -1,6 +1,6 @@
 # Contributing to heim
 
-The following is a set of guidelines for contributing to heim.
+The following is a set of guidelines for contributing to `heim`.
 
 ## Table of contents
 
@@ -20,7 +20,7 @@ By participating, you are expected to uphold this code.
 First of all: do not file an issue to ask a question about how to use heim!
 
 It is not a project goal right now to provide any kind of information
-about how to work with `Futures`, use heim with `actix`, or any other such things.\
+about how to work with `Futures`, use `heim` with `actix`, or any other such things.\
 Such issues will be closed immediately.
 
 Use any [Rust community channel available](https://www.rust-lang.org/community#contribute-talk) to get help
@@ -30,8 +30,11 @@ or check out the [Gitter](https://gitter.im/heim-rs/heim) chat.
 
 ### Crates system
 
-heim is split into multiple crates, each one responsible for a specific system component
+`heim` is split into multiple crates, each one responsible for a specific system component
 (ex. `heim-cpu` provides information about CPUs, `heim-memory` about system memory, you got it).
+
+`heim-runtime` contains shim modules, allowing to abstract over various async runtimes,
+and also has "polyfill" shim, which executes futures on the current thread.
 
 The `heim` crate acts as a facade to all the `heim-*` crates and does nothing more
 than re-export all of them.
