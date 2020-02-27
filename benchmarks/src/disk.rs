@@ -14,35 +14,35 @@ pub fn inner(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    c.bench_function("io_counters", |b| {
+    c.bench_function("disk_io_counters", |b| {
         b.iter(|| {
             let stream = heim::disk::io_counters().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("io_counters_physical", |b| {
+    c.bench_function("disk_io_counters_physical", |b| {
         b.iter(|| {
             let stream = heim::disk::io_counters_physical().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("partitions", |b| {
+    c.bench_function("disk_partitions", |b| {
         b.iter(|| {
             let stream = heim::disk::partitions().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("partitions_physical", |b| {
+    c.bench_function("disk_partitions_physical", |b| {
         b.iter(|| {
             let stream = heim::disk::partitions_physical().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("usage", |b| {
+    c.bench_function("disk_usage", |b| {
         b.iter(|| {
             let stream = heim::disk::usage(USAGE_PATH);
             rt.block_on(stream)

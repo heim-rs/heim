@@ -7,9 +7,13 @@ pub fn inner(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    c.bench_function("memory", |b| b.iter(|| rt.block_on(heim::memory::memory())));
+    c.bench_function("memory_memory", |b| {
+        b.iter(|| rt.block_on(heim::memory::memory()))
+    });
 
-    c.bench_function("swap", |b| b.iter(|| rt.block_on(heim::memory::swap())));
+    c.bench_function("memory_swap", |b| {
+        b.iter(|| rt.block_on(heim::memory::swap()))
+    });
 }
 
 criterion_group!(bench, inner);

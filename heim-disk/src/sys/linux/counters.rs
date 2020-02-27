@@ -1,4 +1,5 @@
 use std::ffi::{CString, OsStr};
+use std::io;
 use std::str::FromStr;
 
 use heim_common::prelude::*;
@@ -59,15 +60,15 @@ impl IoCounters {
 
     // Based on the sysstat code:
     // https://github.com/sysstat/sysstat/blob/1c711c1fd03ac638cfc1b25cdf700625c173fd2c/common.c#L200
-    async fn is_storage_device(&self) -> bool {
-        let path = CString::new(format!("/sys/block/{}", self.name.replace("/", "!")))
-            // FIXME: propagate error
-            .expect("Malformed device path");
+    async fn is_storage_device(&self) -> Result<bool> {
+        let path = CString::new(format!("/sys/block/{}", self.name.replace("/", "!")))?;
 
-        // TODO: This function blocks, need to use blocking from the `heim-runtime`
-        let result = unsafe { libc::access(path.as_ptr(), libc::F_OK) };
+        let result =
+            rt::task::spawn_blocking(move || unsafe { libc::access(path.as_ptr(), libc::F_OK) })
+                .await
+                .map_err(io::Error::from)?;
 
-        result == 0
+        Ok(result == 0)
     }
 }
 
@@ -121,7 +122,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
 
 pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
     io_counters().try_filter_map(|device| async move {
-        if device.is_storage_device().await {
+        if device.is_storage_device().await? {
             Ok(Some(device))
         } else {
             Ok(None)

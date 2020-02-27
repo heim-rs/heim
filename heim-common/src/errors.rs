@@ -293,6 +293,13 @@ impl From<io::Error> for Error {
     }
 }
 
+impl From<ffi::NulError> for Error {
+    fn from(e: ffi::NulError) -> Self {
+        let inner = io::Error::new(io::ErrorKind::InvalidData, e);
+        Self::from(inner)
+    }
+}
+
 impl From<num::ParseIntError> for Error {
     fn from(e: num::ParseIntError) -> Self {
         let inner = io::Error::new(io::ErrorKind::InvalidData, e);

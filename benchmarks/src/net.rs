@@ -8,14 +8,14 @@ pub fn inner(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    c.bench_function("io_counters", |b| {
+    c.bench_function("net_io_counters", |b| {
         b.iter(|| {
             let stream = heim::net::io_counters().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("nic", |b| {
+    c.bench_function("net_nic", |b| {
         b.iter(|| {
             let stream = heim::net::nic().for_each(|_| async {});
             rt.block_on(stream)

@@ -8,23 +8,23 @@ fn inner(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    c.bench_function("logical_count", |b| {
+    c.bench_function("cpu_logical_count", |b| {
         b.iter(|| rt.block_on(heim::cpu::logical_count()))
     });
 
-    c.bench_function("physical_count", |b| {
+    c.bench_function("cpu_physical_count", |b| {
         b.iter(|| rt.block_on(heim::cpu::physical_count()))
     });
 
-    c.bench_function("frequency", |b| {
+    c.bench_function("cpu_frequency", |b| {
         b.iter(|| rt.block_on(heim::cpu::frequency()))
     });
 
-    c.bench_function("stats", |b| b.iter(|| rt.block_on(heim::cpu::stats())));
+    c.bench_function("cpu_stats", |b| b.iter(|| rt.block_on(heim::cpu::stats())));
 
-    c.bench_function("time", |b| b.iter(|| rt.block_on(heim::cpu::time())));
+    c.bench_function("cpu_time", |b| b.iter(|| rt.block_on(heim::cpu::time())));
 
-    c.bench_function("times", |b| {
+    c.bench_function("cpu_times", |b| {
         b.iter(|| {
             let stream = heim::cpu::times().for_each(|_| async {});
             rt.block_on(stream)

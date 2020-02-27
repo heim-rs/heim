@@ -7,17 +7,22 @@ pub mod task {
         F: FnOnce() -> T + Send + 'static,
         T: Send + 'static,
     {
-        tokio::task::spawn_blocking(f)
-            .await
-            .map_err(|_| crate::task::JoinError)
+        tokio::task::spawn_blocking(f).await.map_err(|e| {
+            if e.is_cancelled() {
+                return crate::task::JoinError::Cancel;
+            }
+            if e.is_panic() {
+                return crate::task::JoinError::Panic;
+            }
+
+            crate::task::JoinError::Other
+        })
     }
 }
 
 pub mod fs {
     use std::io;
     use std::path::Path;
-
-    //    use futures::Stream;
 
     use tokio::stream::Stream;
 

@@ -8,14 +8,14 @@ pub fn inner(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    c.bench_function("pids", |b| {
+    c.bench_function("process_pids", |b| {
         b.iter(|| {
             let stream = heim::process::pids().for_each(|_| async {});
             rt.block_on(stream)
         })
     });
 
-    c.bench_function("processes", |b| {
+    c.bench_function("process_processes", |b| {
         b.iter(|| {
             let stream = heim::process::processes().for_each(|_| async {});
             rt.block_on(stream)
@@ -27,7 +27,7 @@ pub fn inner(c: &mut Criterion) {
     //
     // Note: any possible errors are intentionally ignored here,
     // as the both stream and inner futures must be executed for as much as possible
-    c.bench_function("processes_full", |b| {
+    c.bench_function("process_processes_full", |b| {
         b.iter(|| {
             let stream =
                 heim::process::processes().for_each_concurrent(None, |process| async move {
