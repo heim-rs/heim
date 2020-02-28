@@ -4,6 +4,8 @@ version = "0.0.0"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 publish = false
+autoexamples = false
+autobins = false
 
 [dev-dependencies]
 heim = { path = "../heim", features = ["full", "runtime-tokio"] }
