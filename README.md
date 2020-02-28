@@ -4,6 +4,7 @@
 
 [![Latest Version](https://img.shields.io/crates/v/heim.svg)](https://crates.io/crates/heim)
 [![Latest Version](https://docs.rs/heim/badge.svg)](https://docs.rs/heim)
+[![User guide](https://img.shields.io/badge/user%20guide-book-brightgreen)](https://heim-rs.github.io/book/)
 [![dependency status](https://deps.rs/crate/heim/0.0.10/status.svg)](https://deps.rs/crate/heim/0.0.10)
 [![Coverage Status](https://github.com/heim-rs/heim/workflows/Continuous%20integration/badge.svg)](https://github.com/heim-rs/heim/actions?workflow=Continuous+integration)
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.39+-green.svg)
@@ -21,6 +22,9 @@ It targets to have at least the same functionality as
 [gopsutil](https://github.com/shirou/gopsutil) or
 [oshi](https://github.com/oshi/oshi) eventually.
 
+Check [user guide](https://heim-rs.github.io/book/) to get more information
+on the `heim` goals, integrations and showcases.
+
 Why should I use `heim` instead of *{crate-name}*?
 See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) page.
 
@@ -31,16 +35,8 @@ See the [comparison](https://github.com/heim-rs/heim/blob/master/COMPARISON.md) 
  1. Async-first with [tokio](https://tokio.rs) and [async-std](https://async.rs) support.\
     Bundled polyfill option could be used for other use cases, see [documentation](https://docs.rs/heim)
     for more details.
-
- 2. Cross-platform.\
-    Any code from `heim` should just work on any of the supported platforms.
-    OS-specific things do exist, but the API design forces users to
-    pay attention to them.
-
- 3. Modular design.\
-    Thanks to the various `futures` combinators, it's up to you
-    to choose the exact information you want to get.
-
+ 2. Cross-platform.
+ 3. Modular design.
  4. Idiomatic and easy to use.
 
 ## Technical notes
