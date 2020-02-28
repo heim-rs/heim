@@ -3,6 +3,8 @@ use std::net::IpAddr;
 use heim_common::prelude::*;
 use heim_common::Pid;
 
+use crate::os::linux::SessionId;
+
 #[derive(Debug)]
 pub struct User;
 
@@ -31,7 +33,7 @@ impl User {
         unimplemented!("https://github.com/heim-rs/heim/issues/141")
     }
 
-    pub fn session_id(&self) -> i32 {
+    pub fn session_id(&self) -> SessionId {
         unimplemented!("https://github.com/heim-rs/heim/issues/141")
     }
 }

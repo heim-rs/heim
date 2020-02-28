@@ -57,7 +57,9 @@ where
     target_arch = "powerpc64"
 ))]
 pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
-    hypervisor(HYPERVISOR_COMPAT_PATH).or_else(|_| device_tree(DEVICE_TREE_ROOT))
+    hypervisor(HYPERVISOR_COMPAT_PATH)
+        .or_else(|_| device_tree(DEVICE_TREE_ROOT))
+        .await
 }
 
 #[cfg(not(any(

@@ -57,4 +57,5 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --features ${{ matrix.runtime }} --manifest-path=heim/Cargo.toml
+          args: --features full,${{ matrix.runtime }} --target=${{ matrix.target }} --manifest-path=heim/Cargo.toml
+          use-cross: true

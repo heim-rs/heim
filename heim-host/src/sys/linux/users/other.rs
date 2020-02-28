@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use heim_common::prelude::*;
 use heim_common::Pid;
 
+use crate::os::linux::SessionId;
 use crate::sys::unix::{from_ut_addr_v6, get_users};
 
 #[derive(Debug)]
@@ -14,7 +15,7 @@ pub struct User {
     hostname: String,
     pid: libc::pid_t,
     addr: Option<IpAddr>,
-    session_id: i32,
+    session_id: SessionId,
 }
 
 impl User {
@@ -42,7 +43,7 @@ impl User {
         self.addr
     }
 
-    pub fn session_id(&self) -> i32 {
+    pub fn session_id(&self) -> SessionId {
         self.session_id
     }
 }
