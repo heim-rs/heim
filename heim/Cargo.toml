@@ -1,6 +1,6 @@
 [package]
 name = "heim"
-version = "0.0.10"
+version = "0.1.0-alpha.1"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform framework for system information"
@@ -11,23 +11,25 @@ readme = "README.md"
 license = "Apache-2.0 OR MIT"
 
 [badges]
-maintenance = { status = "experimental" }
-azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
+maintenance = { status = "actively-developed" }
+github-actions = { repository = "heim-rs/heim", workflow = "Tier 1 CI" }
+is-it-maintained-issue-resolution = { repository = "heim-rs/heim" }
+is-it-maintained-open-issues = { repository = "heim-rs/heim" }
 
 [dependencies]
-heim-common = { version = "0.0.10", path = "../heim-common" }
-heim-runtime = { version = "0.0.6", path = "../heim-runtime", default-features = false }
-heim-cpu = {version = "0.0.10", path = "../heim-cpu", optional = true, default-features = false }
-heim-disk = {version = "0.0.10", path = "../heim-disk", optional = true, default-features = false }
-heim-host = { version = "0.0.10", path = "../heim-host", optional = true, default-features = false }
-heim-memory = {version = "0.0.10", path = "../heim-memory", optional = true, default-features = false }
-heim-net = {version = "0.0.10", path = "../heim-net", optional = true, default-features = false }
-heim-process = { version = "0.0.10", path = "../heim-process", optional = true, default-features = false }
-heim-virt = { version = "0.0.10", path = "../heim-virt", optional = true, default-features = false }
-heim-sensors = { version = "0.0.5", path = "../heim-sensors", optional = true, default-features = false }
+heim-common = { version = "0.1.0-alpha.1", path = "../heim-common" }
+heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime", default-features = false }
+heim-cpu = {version = "0.1.0-alpha.1", path = "../heim-cpu", optional = true, default-features = false }
+heim-disk = {version = "0.1.0-alpha.1", path = "../heim-disk", optional = true, default-features = false }
+heim-host = { version = "0.1.0-alpha.1", path = "../heim-host", optional = true, default-features = false }
+heim-memory = {version = "0.1.0-alpha.1", path = "../heim-memory", optional = true, default-features = false }
+heim-net = {version = "0.1.0-alpha.1", path = "../heim-net", optional = true, default-features = false }
+heim-process = { version = "0.1.1-alpha.1", path = "../heim-process", optional = true, default-features = false }
+heim-virt = { version = "0.1.0-alpha.1", path = "../heim-virt", optional = true, default-features = false }
+heim-sensors = { version = "0.1.0-alpha.1", path = "../heim-sensors", optional = true, default-features = false }
 
 [dev-dependencies]
-heim-derive = { version = "0.0.10", path = "../heim-derive" }
+heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 version-sync = "0.8"
 
 [features]

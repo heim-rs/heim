@@ -13,7 +13,7 @@
 //!
 //! Public API should somewhat match the `std`, `tokio` or `async-std` modules structure.
 
-#![doc(html_root_url = "https://docs.rs/heim-runtime/0.0.6")]
+#![doc(html_root_url = "https://docs.rs/heim-runtime/0.1.0-alpha.1")]
 #![allow(
     unused,
     unused_imports,

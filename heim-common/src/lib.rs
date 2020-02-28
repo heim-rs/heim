@@ -2,7 +2,7 @@
 //!
 //! Do **NOT** use it directly.
 
-#![doc(html_root_url = "https://docs.rs/heim-common/0.0.10")]
+#![doc(html_root_url = "https://docs.rs/heim-common/0.1.0-alpha.1")]
 #![deny(
     unused,
     unused_imports,

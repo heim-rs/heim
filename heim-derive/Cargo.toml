@@ -1,6 +1,6 @@
 [package]
 name = "heim-derive"
-version = "0.0.10"
+version = "0.1.0-alpha.1"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Derive macros for heim crates"
@@ -9,10 +9,6 @@ categories = ["asynchronous", "os", "api-bindings"]
 repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
-
-[badges]
-maintenance = { status = "experimental" }
-azure-devops = { project = "heim-rs/heim", pipeline = "heim-rs.heim" }
 
 [lib]
 proc-macro = true

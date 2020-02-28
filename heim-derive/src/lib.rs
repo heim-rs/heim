@@ -2,7 +2,7 @@
 //!
 //! Do not use directly.
 
-#![doc(html_root_url = "https://docs.rs/heim-derive/0.0.10")]
+#![doc(html_root_url = "https://docs.rs/heim-derive/0.1.0-alpha.1")]
 #![recursion_limit = "128"]
 #![deny(
     unused,

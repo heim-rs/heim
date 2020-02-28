@@ -15,7 +15,8 @@ jobs:
         toolchain:
           - 1.39.0  # MSRV
           - stable
-          - nightly
+          # Nightly is temporary broken
+          # - nightly
         runtime:
           - runtime-tokio
           - runtime-async-std
@@ -69,7 +70,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: beta
           override: true
           components: clippy
       - uses: actions-rs/cargo@v1

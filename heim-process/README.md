@@ -1,14 +1,7 @@
 # heim-process
 
-[![Latest Version](https://img.shields.io/crates/v/heim-process.svg)](https://crates.io/crates/heim-process)
-[![Latest Version](https://docs.rs/heim-process/badge.svg)](https://docs.rs/heim-process)
-[![dependency status](https://deps.rs/crate/heim-process/0.0.10/status.svg)](https://deps.rs/crate/heim-process/0.0.10)
-[![CI status](https://github.com/heim-rs/heim/workflows/Continuous%20integration/badge.svg)](https://github.com/heim-rs/heim/actions?workflow=Continuous+integration)
-![Apache 2.0 OR MIT licensed](https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg)
-[![Gitter](https://badges.gitter.im/heim-rs/heim.svg)](https://gitter.im/heim-rs/heim)
-
 > Cross-platform information about system processes.
 
 `heim-process` a part of [heim project](https://github.com/heim-rs),
-and preferably should not be used directly,
+and **SHOULD NOT** be used directly,
 but via [heim](https://crates.io/crates/heim) crate.
