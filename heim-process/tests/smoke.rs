@@ -55,11 +55,11 @@ async fn smoke_processes() {
         try_method!(process.parent_pid());
         try_method!(process.name());
         try_method!(process.command());
-        #[cfg(not(target_os = "windows"))] // Not implemented yet
         try_method!(process.exe());
+        #[cfg(not(target_os = "windows"))] // Not implemented yet
         try_method!(process.cwd());
         try_method!(process.status());
-        #[cfg(target_os = "linux")] // Not implemented yet for all platforms
+        #[cfg(any(target_os = "linux", target_os = "macos"))] // Not implemented yet for all platforms
         try_method!(process.environment());
         try_method!(process.create_time());
         try_method!(process.cpu_time());

@@ -20,6 +20,7 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod command;
 mod cpu_times;
+mod env;
 mod memory;
 
 pub use self::command::{Command, CommandIter};
@@ -71,6 +72,9 @@ impl Process {
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         match darwin_libproc::pid_cwd(self.pid) {
             Ok(path) => Ok(path),
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
+                Err(ProcessError::AccessDenied(self.pid))
+            }
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
     }
@@ -83,7 +87,7 @@ impl Process {
     }
 
     pub async fn environment(&self) -> ProcessResult<Environment> {
-        unimplemented!()
+        env::environment(self.pid).await
     }
 
     pub async fn create_time(&self) -> ProcessResult<Time> {

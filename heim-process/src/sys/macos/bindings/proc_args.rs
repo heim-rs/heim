@@ -5,16 +5,20 @@ use std::ptr;
 use heim_common::sys::macos::sysctl;
 use heim_common::{Error, Result};
 
+use crate::Pid;
+
 pub fn args_max() -> Result<libc::c_int> {
     sysctl::sysctl(&mut [libc::CTL_KERN, libc::KERN_ARGMAX])
 }
 
 // TODO: https://chromium.googlesource.com/crashpad/crashpad/+/360e441c53ab4191a6fd2472cc57c3343a2f6944/util/posix/process_util_mac.cc#32
+// TODO: Use `process::ProcessResult`
 #[allow(trivial_casts)]
-pub fn proc_args(pid: libc::pid_t) -> Result<Vec<u8>> {
+pub fn proc_args(pid: Pid) -> Result<Vec<u8>> {
     // Command line for `kernel_task` process can't be fetched
     if pid == 0 {
-        return Ok(Vec::new());
+        // TODO: Return `ProcessError::AccessDenied`
+        return Err(io::Error::from(io::ErrorKind::PermissionDenied).into());
     }
 
     let mut args_max = args_max()? as usize;

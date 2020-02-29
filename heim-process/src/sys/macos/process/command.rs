@@ -1,4 +1,5 @@
 use std::ffi::{OsStr, OsString};
+use std::io;
 use std::os::unix::ffi::OsStrExt;
 
 use crate::sys::macos::{pid_exists, wrappers};
@@ -47,6 +48,9 @@ pub async fn command(pid: Pid) -> ProcessResult<Command> {
             } else {
                 Err(e.into())
             }
+        }
+        Err(e) if e.as_inner().kind() == io::ErrorKind::PermissionDenied => {
+            Err(ProcessError::AccessDenied(pid))
         }
         Err(e) => Err(e.into()),
     }

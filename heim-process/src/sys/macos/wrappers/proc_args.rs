@@ -3,6 +3,7 @@ use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
 use crate::sys::macos::bindings;
+use crate::sys::unix::Environment;
 use crate::Pid;
 use heim_common::Result;
 
@@ -27,6 +28,21 @@ impl ProcArgs {
     pub fn exe(&self) -> &OsStr {
         let (start, end) = self.exe_range();
         OsStr::from_bytes(&self.0[start..end])
+    }
+
+    pub fn environment(&self) -> Environment {
+        // env vars are starting right after the arguments block
+        // and ends when second `\0` appears.
+        let start = self.arguments_range().1 + 1;
+
+        // This sounds like a dirty hack, but we just pass
+        // all that remaining data into the `Environment`,
+        // which will stop consuming data when it finds that second `\0` byte.
+        //
+        // It looks bad to assume that it will behave correctly,
+        // but doing another one iteration on the bytes in order to find
+        // that trailing null sounds not so great either.
+        Environment::from_bytes(&self.0[start..])
     }
 
     pub fn arguments(&self) -> ProcArgsArguments<'_> {
