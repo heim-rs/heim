@@ -2,10 +2,16 @@
 
 use std::net::IpAddr;
 
+use heim_common::Result;
+
 /// Extension for [User] struct.
 ///
 /// [User]: ../../struct.User.html
-pub trait UserExt {
+pub trait UserExt: Sized {
+    // TODO: Proper type instead of `i32`
+    #[doc(hidden)]
+    fn try_from_sid(sid: i32) -> Result<Self>;
+
     /// Domain name that the user belongs to.
     fn domain(&self) -> &str;
 
@@ -26,6 +32,10 @@ pub trait UserExt {
 
 #[cfg(target_os = "windows")]
 impl UserExt for crate::User {
+    fn try_from_sid(sid: i32) -> Result<Self> {
+        crate::sys::User::try_from_sid(sid).map(crate::User::from)
+    }
+
     fn domain(&self) -> &str {
         self.as_ref().domain()
     }

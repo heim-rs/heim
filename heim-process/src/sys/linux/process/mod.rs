@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_host::User;
 use heim_runtime as rt;
 
 use super::{pid_exists, pids};
@@ -120,6 +121,14 @@ impl Process {
 
     pub async fn memory(&self) -> ProcessResult<Memory> {
         procfs::stat_memory(self.pid).await
+    }
+
+    pub async fn user(&self) -> ProcessResult<User> {
+        // TODO: implement
+        // 1. Read `/proc/{pid}/stat` or smth else
+        // 2. parse uid and gid
+        // 3. Construct `heim_host::User` from them
+        unimplemented!("https://github.com/heim-rs/heim/issues/194")
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {

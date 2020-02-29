@@ -27,6 +27,10 @@ impl User {
         }))
     }
 
+    pub fn try_from_sid(_sid: i32) -> Result<Self> {
+        unimplemented!()
+    }
+
     pub fn domain(&self) -> &str {
         self.domain.as_str()
     }

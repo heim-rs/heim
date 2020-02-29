@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_host::User;
 use winapi::um::processthreadsapi;
 
 use super::{bindings, pid_exists, pids};
@@ -140,6 +141,13 @@ impl Process {
 
             handle.memory().map(Memory::from)
         }
+    }
+    pub async fn user(&self) -> ProcessResult<User> {
+        // TODO: implement
+        // Get the process handle
+        // Acquire access token from it
+        // Fetch user from this token
+        unimplemented!("https://github.com/heim-rs/heim/issues/194")
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {
