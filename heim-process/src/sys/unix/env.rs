@@ -19,6 +19,10 @@ impl Environment {
         let mut position = 0;
 
         while let Some(offset) = memchr::memchr(b'\0', &bytes[position..]) {
+            // Null byte at the start or the double null byte means that we are also done parsing
+            if offset == 0 {
+                break;
+            }
             let kv = &bytes[position..position + offset];
 
             // Skipping the trailing `\0` also
@@ -169,6 +173,20 @@ mod tests {
             )),
             env.next(),
         );
+        assert_eq!(None, env.next());
+    }
+
+    #[test]
+    fn test_empty() {
+        let mut env = Environment::from_bytes(b"").into_iter();
+        assert_eq!(None, env.next());
+    }
+
+    #[test]
+    fn test_nulls() {
+        let mut env =
+            Environment::from_bytes(b"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
+                .into_iter();
         assert_eq!(None, env.next());
     }
 }
