@@ -3,6 +3,10 @@ use std::io;
 use crate::os::unix::Signal;
 use crate::{Pid, ProcessError, ProcessResult};
 
+mod env;
+
+pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
+
 pub fn pid_exists(pid: Pid) -> bool {
     if pid == 0 {
         return true;

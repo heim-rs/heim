@@ -15,11 +15,13 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 mod command;
 mod cpu_times;
 mod create_time;
+mod env;
 mod memory;
 mod suspend;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
+pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
 pub use self::memory::Memory;
 
 #[derive(Debug)]
@@ -108,6 +110,10 @@ impl Process {
         } else {
             Ok(Status::Running)
         }
+    }
+
+    pub async fn environment(&self) -> ProcessResult<Environment> {
+        unimplemented!()
     }
 
     pub async fn create_time(&self) -> ProcessResult<Time> {

@@ -16,6 +16,14 @@ where
     spawn(move || path.as_ref().exists()).await
 }
 
+/// Asynchronously read the entire contents of a file into a bytes vector.
+pub async fn read<T>(path: T) -> io::Result<Vec<u8>>
+where
+    T: AsRef<Path> + Send,
+{
+    spawn(move || fs::read(path)).await
+}
+
 /// Asynchronously read the entire contents of a file into a string.
 pub async fn read_to_string<T>(path: T) -> io::Result<String>
 where

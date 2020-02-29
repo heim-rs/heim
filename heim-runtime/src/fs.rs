@@ -7,7 +7,7 @@ use futures_core::Stream;
 use futures_util::{future::ready, StreamExt, TryStreamExt};
 
 use super::runtime;
-pub use runtime::fs::{path_exists, read_dir, read_lines, read_link, read_to_string};
+pub use runtime::fs::{path_exists, read, read_dir, read_lines, read_link, read_to_string};
 
 /// Read `path` file as a string and try to convert it into `R`
 pub async fn read_into<T, R, E>(path: T) -> Result<R, E>

@@ -16,7 +16,7 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
 
-pub use self::procfs::{Command, CommandIter, CpuTime, Memory};
+pub use self::procfs::{Command, CommandIter, CpuTime, Environment, Memory};
 
 #[derive(Debug)]
 pub struct Process {
@@ -104,6 +104,10 @@ impl Process {
         let procfs::Stat { state, .. } = procfs::stat(self.pid).await?;
 
         Ok(state)
+    }
+
+    pub async fn environment(&self) -> ProcessResult<Environment> {
+        procfs::environment(self.pid).await
     }
 
     pub async fn create_time(&self) -> ProcessResult<Time> {

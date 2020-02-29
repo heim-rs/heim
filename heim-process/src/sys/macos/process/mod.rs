@@ -15,6 +15,7 @@ use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::pid_kill;
+pub use crate::sys::unix::{Environment, EnvironmentIter, IntoEnvironmentIter};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod command;
@@ -79,6 +80,10 @@ impl Process {
             Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
+    }
+
+    pub async fn environment(&self) -> ProcessResult<Environment> {
+        unimplemented!()
     }
 
     pub async fn create_time(&self) -> ProcessResult<Time> {

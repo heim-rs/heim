@@ -31,6 +31,14 @@ where
     fs::read_link(path).await.map(|path| path.into())
 }
 
+pub async fn read<T>(path: T) -> io::Result<Vec<u8>>
+where
+    T: AsRef<Path> + Send,
+{
+    let path = path.as_ref();
+    fs::read(path).await
+}
+
 pub async fn read_to_string<T>(path: T) -> io::Result<String>
 where
     T: AsRef<Path> + Send,

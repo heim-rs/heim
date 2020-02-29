@@ -28,7 +28,7 @@ pub mod fs {
 
     pub use tokio::io::{AsyncBufReadExt as _, BufReader};
     // Re-exports
-    pub use tokio::fs::{read_dir, read_link, read_to_string};
+    pub use tokio::fs::{read, read_dir, read_link, read_to_string};
 
     pub async fn path_exists<T>(path: T) -> bool
     where

@@ -10,12 +10,14 @@ use crate::{sys, Pid, ProcessResult};
 mod command;
 mod cpu_times;
 mod cpu_usage;
+mod env;
 mod memory;
 mod status;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::cpu_usage::CpuUsage;
+pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
 pub use self::memory::Memory;
 pub use self::status::Status;
 
@@ -93,6 +95,11 @@ impl Process {
     /// Returns current process status.
     pub async fn status(&self) -> ProcessResult<Status> {
         self.as_ref().status().await
+    }
+
+    /// Returns process environment.
+    pub async fn environment(&self) -> ProcessResult<Environment> {
+        self.as_ref().environment().await.map(Into::into)
     }
 
     /// Returns process creation time, expressed as a [Time] amount since the UNIX epoch.
