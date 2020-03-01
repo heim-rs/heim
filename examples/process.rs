@@ -8,6 +8,7 @@
 //!
 //! `$$` is expanded by bash into its own pid.
 
+#[cfg(not(target_os = "windows"))]
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
@@ -43,6 +44,7 @@ async fn flip_the_table(p: process::Process) -> process::ProcessResult<prettytab
     table.add_row(row!["Parent PID", p.parent_pid().await?]);
     table.add_row(row!["Name", p.name().await?]);
     table.add_row(row!["Exe", p.exe().await?.display()]);
+    #[cfg(not(target_os = "windows"))] // Not implemented yet
     table.add_row(row!["Command", format!("{:?}", p.command().await?)]);
     #[cfg(not(target_os = "windows"))] // Not implemented yet
     table.add_row(row!["Current working dir", format!("{:?}", p.cwd().await?)]);
