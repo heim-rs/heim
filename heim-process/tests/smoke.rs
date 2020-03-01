@@ -54,6 +54,7 @@ async fn smoke_processes() {
         let _ = process.pid();
         try_method!(process.parent_pid());
         try_method!(process.name());
+        try_method!(process.user());
         try_method!(process.command());
         try_method!(process.exe());
         #[cfg(not(target_os = "windows"))] // Not implemented yet

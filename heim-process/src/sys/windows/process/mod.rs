@@ -142,12 +142,15 @@ impl Process {
             handle.memory().map(Memory::from)
         }
     }
+
     pub async fn user(&self) -> ProcessResult<User> {
-        // TODO: implement
-        // Get the process handle
-        // Acquire access token from it
-        // Fetch user from this token
-        unimplemented!("https://github.com/heim-rs/heim/issues/194")
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+
+            handle.owner()
+        }
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {
