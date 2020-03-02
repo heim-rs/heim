@@ -2,7 +2,7 @@ use std::net::IpAddr;
 use std::ptr;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::winbase::LookupAccountSidW;
-use winapi::um::winnt::{SidTypeUser, SID_AND_ATTRIBUTES, SID_NAME_USE, WCHAR};
+use winapi::um::winnt::{SidTypeUser, PSID, SID_NAME_USE, WCHAR};
 
 use super::wrappers::{Session, Sessions};
 use heim_common::prelude::*;
@@ -31,7 +31,7 @@ impl User {
         }))
     }
 
-    pub fn try_from_sid(sid: &SID_AND_ATTRIBUTES) -> Result<Self> {
+    pub fn try_from_sid(sid: PSID) -> Result<Self> {
         // name and domain cannot be longer than 256
         let mut name_cch: DWORD = 256;
         let mut name: Vec<WCHAR> = Vec::with_capacity(name_cch as usize);
@@ -42,7 +42,7 @@ impl User {
         let result = unsafe {
             LookupAccountSidW(
                 ptr::null(),
-                sid.Sid,
+                sid,
                 name.as_mut_ptr(),
                 &mut name_cch,
                 domain.as_mut_ptr(),

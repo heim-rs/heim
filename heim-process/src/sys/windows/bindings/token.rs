@@ -48,6 +48,6 @@ impl Token {
 
         let token_user = unsafe { ptr::read(data.as_ptr() as *const TOKEN_USER) };
 
-        User::try_from_sid(&token_user.User)
+        User::try_from_sid(token_user.User.Sid)
     }
 }
