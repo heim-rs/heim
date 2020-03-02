@@ -43,7 +43,7 @@ async fn flip_the_table(p: process::Process) -> process::ProcessResult<prettytab
     table.add_row(row!["PID", p.pid()]);
     table.add_row(row!["Parent PID", p.parent_pid().await?]);
     table.add_row(row!["Name", p.name().await?]);
-    #[cfg(not(target_os = "windows"))] // Not implemented yet
+    #[cfg(target_os = "windows")] // Not implemented yet
     table.add_row(row!["User", p.user().await?.username()]);
     table.add_row(row!["Exe", p.exe().await?.display()]);
     #[cfg(not(target_os = "windows"))] // Not implemented yet
