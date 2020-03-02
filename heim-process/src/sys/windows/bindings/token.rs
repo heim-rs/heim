@@ -1,6 +1,5 @@
 use std::ptr;
 use winapi::shared::minwindef::{DWORD, LPVOID};
-use winapi::um::handleapi::CloseHandle;
 use winapi::um::processthreadsapi::OpenProcessToken;
 use winapi::um::securitybaseapi::GetTokenInformation;
 use winapi::um::winnt::{TokenUser, HANDLE, TOKEN_QUERY, TOKEN_USER};
@@ -11,7 +10,7 @@ use heim_common::Result;
 use heim_host::os::windows::UserExt;
 use heim_host::User;
 
-pub struct Token(HANDLE);
+pub struct Token(Handle);
 
 impl Token {
     pub fn open(process_handle: &Handle) -> Result<Self> {
@@ -23,7 +22,7 @@ impl Token {
             return Err(Error::last_os_error().with_ffi("OpenProcessToken"));
         }
 
-        Ok(Self(token_handle))
+        Ok(Self(Handle::new(token_handle)))
     }
 
     pub fn user(&self) -> Result<User> {
@@ -33,7 +32,7 @@ impl Token {
 
         let result = unsafe {
             GetTokenInformation(
-                self.0,
+                *self.0,
                 TokenUser,
                 data.as_mut_ptr() as LPVOID,
                 data.capacity() as DWORD,
@@ -50,17 +49,5 @@ impl Token {
         let token_user = unsafe { ptr::read(data.as_ptr() as *const TOKEN_USER) };
 
         User::try_from_sid(token_user.User.Sid)
-    }
-}
-
-impl Drop for Token {
-    fn drop(&mut self) {
-        let result = unsafe { CloseHandle(self.0) };
-
-        assert!(
-            result != 0,
-            "{:?}",
-            Error::last_os_error().with_ffi("CloseHandle")
-        );
     }
 }

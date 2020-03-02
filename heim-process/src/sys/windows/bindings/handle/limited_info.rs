@@ -143,10 +143,6 @@ impl ProcessHandle<QueryLimitedInformation> {
     }
 
     pub fn owner(&self) -> ProcessResult<User> {
-        // TODO clean this up?
-        match Token::open(&self.handle)?.user() {
-            Ok(x) => Ok(x),
-            Err(e) => Err(e.into()),
-        }
+        Token::open(&self.handle)?.user().map_err(Into::into)
     }
 }

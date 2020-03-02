@@ -2,7 +2,7 @@ use std::net::IpAddr;
 use std::ptr;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::winbase::LookupAccountSidW;
-use winapi::um::winnt::{PSID, PSID_NAME_USE, SID_NAME_USE, WCHAR};
+use winapi::um::winnt::{SidTypeUser, PSID, SID_NAME_USE, WCHAR};
 
 use super::wrappers::{Session, Sessions};
 use heim_common::prelude::*;
@@ -37,8 +37,6 @@ impl User {
         let mut name: Vec<WCHAR> = Vec::with_capacity(name_cch as usize);
         let mut domain_cch: DWORD = 256;
         let mut domain: Vec<WCHAR> = Vec::with_capacity(domain_cch as usize);
-
-        // winapi does not have SID_NAME_USE enum
         let mut account_type: SID_NAME_USE = 0;
 
         let result = unsafe {
@@ -49,12 +47,12 @@ impl User {
                 &mut name_cch,
                 domain.as_mut_ptr(),
                 &mut domain_cch,
-                &mut account_type as PSID_NAME_USE,
+                &mut account_type,
             )
         };
 
-        if result == 0 {
-            return Err(Error::last_os_error());
+        if result == 0 || account_type != SidTypeUser {
+            return Err(Error::last_os_error().with_ffi("LookupAccountSidW"));
         }
 
         unsafe {
@@ -63,8 +61,8 @@ impl User {
         }
 
         Ok(Self {
-            domain: String::from_utf16(domain.as_slice()).unwrap(),
-            username: String::from_utf16(name.as_slice()).unwrap(),
+            domain: String::from_utf16(domain.as_slice())?,
+            username: String::from_utf16(name.as_slice())?,
             address: None,
         })
     }
