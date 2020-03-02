@@ -41,7 +41,6 @@ pub fn inner(c: &mut Criterion) {
                         process.name(),
                         process.exe(),
                         process.command(),
-                        #[cfg(not(target_os = "windows"))]
                         process.cwd(),
                         process.status(),
                         process.create_time(),
