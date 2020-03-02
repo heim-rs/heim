@@ -20,7 +20,7 @@ use heim::process;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let process = match env::args().skip(1).next() {
+    let process = match env::args().nth(1) {
         Some(value) => {
             let pid = value.parse()?;
             process::get(pid).await?

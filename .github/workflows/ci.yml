@@ -1,0 +1,236 @@
+on: [push, pull_request]
+
+name: Continuous integration
+
+jobs:
+  # Lints are going first, since it is cheap to run them
+  # and we want to fail as fast as possible
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          # That also includes `examples` and `benchmarks` crates,
+          # which are ignored by default by the workspace
+          args: --all -- --check
+
+  clippy:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache cargo build target
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: clippy-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: beta
+          override: true
+          components: clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets -- -D warnings
+      # `examples` and `benchmarks` are checked separately due to enabled `runtime-tokio` feature
+      # which clashes with default feature for other sub-crates.
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -p examples -p benchmarks --all-targets -- -D warnings
+
+  # Now, let's check that code compiles at least
+  compile:
+    name: ${{ matrix.toolchain }} / ${{ matrix.triple.target }}
+    needs: [rustfmt, clippy]
+    runs-on: ${{ matrix.triple.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        triple:
+          # Tier 1 platforms
+          - { os: 'ubuntu-latest',  target: 'x86_64-unknown-linux-gnu', cross: false }
+          - { os: 'ubuntu-latest',  target: 'i686-unknown-linux-gnu',   cross: true }
+          - { os: 'macOS-latest',   target: 'x86_64-apple-darwin',      cross: false }
+          # TODO: cross does not support it
+          # - { os: 'windows-latest', target: 'i686-pc-windows-msvc',     cross: true }
+          - { os: 'windows-latest', target: 'x86_64-pc-windows-msvc',   cross: false }
+
+          # Tier 2 platforms
+
+          ## ARM64
+          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-gnu',  cross: true }
+          - { os: 'ubuntu-latest', target: 'aarch64-unknown-linux-musl', cross: true }
+          ## ARMv7
+          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-gnueabihf',  cross: true }
+          - { os: 'ubuntu-latest', target: 'armv7-unknown-linux-musleabihf', cross: true }
+          ## ARMv6
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf',  cross: true }
+          - { os: 'ubuntu-latest', target: 'arm-unknown-linux-musleabihf', cross: true }
+        toolchain:
+          - 1.39.0  # MSRV
+          - stable
+        # For sake of not creating incredibly huge additional matrix dimension,
+        # code compilation check will be executed only with `runtime-polyfill` feature enabled.
+        runtime:
+          - runtime-polyfill
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Cache
+      - name: Cache rustup toolchain
+        uses: actions/cache@v1
+        with:
+          path: ~/.rustup/toolchains
+          key: rustup-toolchain-${{ matrix.toolchain }}
+      - name: Cache cargo build target
+        if: matrix.toolchain != 'nightly'
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: compile-${{ runner.os }}-${{ matrix.toolchain }}-${{ matrix.triple.target }}-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --features full,${{ matrix.runtime }} --target=${{ matrix.triple.target }} --manifest-path=heim/Cargo.toml
+          use-cross: ${{ matrix.triple.cross }}
+
+  # Now checking if integration with async runtimes works correctly
+  # Checks are executed for Tier 1 platforms only
+  runtimes:
+    name: ${{ matrix.runtime }} / ${{ matrix.os }}
+    needs: [rustfmt, clippy]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        toolchain:
+          - 1.39.0  # MSRV
+          - stable
+        runtime:
+          - runtime-tokio
+          - runtime-async-std
+          - runtime-polyfill
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache rustup toolchain
+        uses: actions/cache@v1
+        with:
+          path: ~/.rustup/toolchains
+          key: rustup-toolchain-${{ matrix.toolchain }}
+      - name: Cache cargo build target
+        if: matrix.toolchain != 'nightly'
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: runtime-${{ runner.os }}-${{ matrix.toolchain }}-${{ matrix.runtime }}-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - name: Check runtime integration
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --features full,${{ matrix.runtime }} --manifest-path=heim/Cargo.toml
+
+  # Test suite is executed for Tier 1 platforms now,
+  # which mean we can do that natively on the Actions VMs
+  tests:
+    needs: [compile, runtimes]
+    name: Test ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        # We need nightly for `-Zprofile`
+        toolchain:
+          - nightly
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Execute tests (not macOS)
+        if: startsWith(matrix.os, 'macOS') == false
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+
+      - name: Execute tests (macOS)
+        if: startsWith(matrix.os, 'macOS') == true
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
+
+      - name: Gather coverage data
+        id: coverage
+        uses: actions-rs/grcov@v0.1
+        with:
+          coveralls-token: ${{ secrets.COVERALLS_TOKEN }}
+
+      - name: Coveralls upload
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          path-to-lcov: ${{ steps.coverage.outputs.report }}
+
+  code_coverage_finalize:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Coveralls finalization
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
