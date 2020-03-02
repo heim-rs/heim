@@ -1,3 +1,4 @@
+use std::mem;
 use std::ptr;
 use winapi::shared::minwindef::{DWORD, LPVOID};
 use winapi::um::processthreadsapi::OpenProcessToken;
@@ -26,8 +27,7 @@ impl Token {
     }
 
     pub fn user(&self) -> Result<User> {
-        // data should always be 44 bytes
-        let mut data: Vec<u8> = Vec::with_capacity(64);
+        let mut data = mem::MaybeUninit::<TOKEN_USER>::uninit();
         let mut length: DWORD = 0;
 
         let result = unsafe {
@@ -35,7 +35,8 @@ impl Token {
                 *self.0,
                 TokenUser,
                 data.as_mut_ptr() as LPVOID,
-                data.capacity() as DWORD,
+                // data should always be 44 bytes
+                44,
                 &mut length,
             )
         };
@@ -44,9 +45,7 @@ impl Token {
             return Err(Error::last_os_error().with_ffi("GetTokenInformation"));
         }
 
-        unsafe { data.set_len(length as usize) };
-
-        let token_user = unsafe { ptr::read(data.as_ptr() as *const TOKEN_USER) };
+        let token_user = unsafe { data.assume_init() };
 
         User::try_from_sid(token_user.User.Sid)
     }
