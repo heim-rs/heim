@@ -1,11 +1,17 @@
 //! Windows-specific extensions.
 
 use std::net::IpAddr;
+use winapi::um::winnt::PSID;
+
+use heim_common::Result;
 
 /// Extension for [User] struct.
 ///
 /// [User]: ../../struct.User.html
-pub trait UserExt {
+pub trait UserExt: Sized {
+    #[doc(hidden)]
+    fn try_from_sid(sid: PSID) -> Result<Self>;
+
     /// Domain name that the user belongs to.
     fn domain(&self) -> &str;
 
@@ -26,6 +32,10 @@ pub trait UserExt {
 
 #[cfg(target_os = "windows")]
 impl UserExt for crate::User {
+    fn try_from_sid(sid: PSID) -> Result<Self> {
+        crate::sys::User::try_from_sid(sid).map(crate::User::from)
+    }
+
     fn domain(&self) -> &str {
         self.as_ref().domain()
     }

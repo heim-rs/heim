@@ -321,6 +321,12 @@ impl From<convert::Infallible> for Error {
     }
 }
 
+impl From<std::string::FromUtf16Error> for Error {
+    fn from(e: std::string::FromUtf16Error) -> Self {
+        Error::from(io::Error::new(io::ErrorKind::InvalidData, e))
+    }
+}
+
 #[cfg(unix)]
 impl From<nix::Error> for Error {
     fn from(e: nix::Error) -> Self {

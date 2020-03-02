@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_host::User;
 use winapi::um::processthreadsapi;
 
 use super::{bindings, pid_exists, pids};
@@ -139,6 +140,16 @@ impl Process {
             let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
 
             handle.memory().map(Memory::from)
+        }
+    }
+
+    pub async fn user(&self) -> ProcessResult<User> {
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+
+            handle.owner()
         }
     }
 

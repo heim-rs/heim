@@ -10,6 +10,7 @@ use futures::future::BoxFuture;
 use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::Time;
+use heim_host::User;
 
 use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
@@ -112,6 +113,12 @@ impl Process {
             }
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
+    }
+
+    pub async fn user(&self) -> ProcessResult<User> {
+        // Fetch user infomation with `darwin_libproc` help,
+        // construct user from this information somehow.
+        unimplemented!("https://github.com/heim-rs/heim/issues/194")
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {

@@ -15,7 +15,9 @@ use winapi::um::{processthreadsapi, psapi, winbase, winnt};
 use heim_common::sys::IntoTime;
 use heim_common::units::{time, Time};
 use heim_common::Error;
+use heim_host::User;
 
+use super::super::token::Token;
 use super::{ProcessHandle, ProcessHandlePermissions};
 use crate::sys::windows::process::CpuTime;
 use crate::{Pid, ProcessError, ProcessResult};
@@ -138,5 +140,9 @@ impl ProcessHandle<QueryLimitedInformation> {
         } else {
             Ok((creation, exit, kernel, user))
         }
+    }
+
+    pub fn owner(&self) -> ProcessResult<User> {
+        Token::open(&self.handle)?.user().map_err(Into::into)
     }
 }

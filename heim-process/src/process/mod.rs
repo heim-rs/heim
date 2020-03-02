@@ -4,6 +4,7 @@ use std::time::Instant;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_host::User;
 
 use crate::{sys, Pid, ProcessResult};
 
@@ -163,6 +164,11 @@ impl Process {
     /// Returns memory usage information for this process.
     pub async fn memory(&self) -> ProcessResult<Memory> {
         self.as_ref().memory().await.map(Into::into)
+    }
+
+    /// Returns user who owns this process.
+    pub async fn user(&self) -> ProcessResult<User> {
+        self.as_ref().user().await.map(Into::into)
     }
 
     /// Checks if this `Process` is still running.

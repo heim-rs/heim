@@ -8,6 +8,7 @@ use heim_common::{Error, Result};
 pub mod handle;
 pub mod processes;
 pub mod snapshot;
+pub mod token;
 
 pub use self::handle::ProcessHandle;
 
