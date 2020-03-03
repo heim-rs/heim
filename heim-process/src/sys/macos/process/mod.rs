@@ -14,7 +14,7 @@ use heim_common::units::Time;
 use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
-use crate::sys::unix::pid_kill;
+use crate::sys::unix::{pid_kill, pid_wait};
 pub use crate::sys::unix::{Environment, EnvironmentIter, IntoEnvironmentIter};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
@@ -151,7 +151,7 @@ impl Process {
     }
 
     pub async fn wait(&self) -> ProcessResult<()> {
-        unimplemented!()
+        pid_wait(self.pid).await
     }
 }
 
