@@ -1,5 +1,9 @@
 //! OS-specific extensions.
 
+#[cfg(any(unix, doc))]
+#[cfg_attr(docsrs, doc(cfg(unix)))]
+pub mod unix;
+
 #[cfg(any(target_os = "linux", doc))]
 #[cfg_attr(docsrs, doc(cfg(target_os = "linux")))]
 pub mod linux;

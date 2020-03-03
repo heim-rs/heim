@@ -12,6 +12,7 @@ heim = { path = "../heim", features = ["full", "runtime-tokio"] }
 tokio = { version = "~0.2", features = ["full", "macros"] }
 futures = "~0.3"
 futures-timer = "~3.0"
+cfg-if = "~0.1"
 
 ptree = { version = "0.2.1", default-features = false, features = ["ansi"] }
 prettytable-rs = "0.8.0"
@@ -44,3 +45,7 @@ path = "process.rs"
 [[example]]
 name = "wait"
 path = "wait.rs"
+
+[[example]]
+name = "uptime"
+path = "uptime.rs"

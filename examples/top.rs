@@ -2,6 +2,8 @@ use std::time::Duration;
 use std::usize;
 
 use futures::prelude::*;
+#[cfg(unix)]
+use heim::cpu::os::unix::loadavg;
 use heim::{
     process::{self, Process, ProcessResult},
     units::{ratio, Ratio},
@@ -17,6 +19,17 @@ async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
 
 #[tokio::main]
 async fn main() -> ProcessResult<()> {
+    #[cfg(unix)]
+    {
+        let (one, five, fifteen) = loadavg().await?;
+        println!(
+            "Load average: {} {} {}",
+            one.get::<ratio::ratio>(),
+            five.get::<ratio::ratio>(),
+            fifteen.get::<ratio::ratio>()
+        );
+    }
+
     let processes = process::processes()
         .map_ok(|process| {
             // Note that there is no `.await` here,

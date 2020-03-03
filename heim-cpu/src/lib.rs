@@ -1,4 +1,10 @@
 //! CPU information.
+//!
+//! ## Platform-specific functions
+//!
+//! * Average system load fetching is available for *nix systems: [`os::unix::loadavg`]
+//!
+//! [`os::unix::loadavg`]: ./os/unix/fn.loadavg.html
 
 #![doc(html_root_url = "https://docs.rs/heim-cpu/0.1.0-alpha.1")]
 #![deny(
