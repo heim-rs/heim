@@ -1,5 +1,6 @@
 mod blocking;
 pub(crate) mod fs;
+pub(crate) mod time;
 
 pub mod task {
     use super::blocking;

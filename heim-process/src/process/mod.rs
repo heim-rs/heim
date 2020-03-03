@@ -232,6 +232,15 @@ impl Process {
     pub async fn kill(&self) -> ProcessResult<()> {
         self.as_ref().kill().await
     }
+
+    /// Wait for the current process termination.
+    ///
+    /// ## Returns
+    ///
+    /// If the process is already terminated, this method returns `Ok(())`.
+    pub async fn wait(&self) -> ProcessResult<()> {
+        self.as_ref().wait().await
+    }
 }
 
 impl fmt::Debug for Process {

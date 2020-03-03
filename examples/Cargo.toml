@@ -40,3 +40,7 @@ path = "pidof.rs"
 [[example]]
 name = "process"
 path = "process.rs"
+
+[[example]]
+name = "wait"
+path = "wait.rs"

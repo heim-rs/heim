@@ -1,3 +1,5 @@
+pub mod fs;
+
 pub mod task {
     #[inline]
     pub async fn spawn_blocking<F, T>(f: F) -> Result<T, crate::task::JoinError>
@@ -9,4 +11,6 @@ pub mod task {
     }
 }
 
-pub mod fs;
+pub mod time {
+    pub use async_std::stream::interval;
+}

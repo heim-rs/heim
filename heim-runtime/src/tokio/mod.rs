@@ -49,3 +49,7 @@ pub mod fs {
         Ok(reader.lines())
     }
 }
+
+pub mod time {
+    pub use tokio::time::interval;
+}

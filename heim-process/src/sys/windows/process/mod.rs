@@ -169,6 +169,10 @@ impl Process {
 
         handle.terminate().map_err(Into::into)
     }
+
+    pub async fn wait(&self) -> ProcessResult<()> {
+        unimplemented!()
+    }
 }
 
 impl hash::Hash for Process {

@@ -11,7 +11,7 @@ use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
-use crate::sys::unix::pid_kill;
+use crate::sys::unix::{pid_kill, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
@@ -154,6 +154,10 @@ impl Process {
 
     pub async fn kill(&self) -> ProcessResult<()> {
         self.signal(Signal::Kill).await
+    }
+
+    pub async fn wait(&self) -> ProcessResult<()> {
+        pid_wait(self.pid).await
     }
 
     // Linux-specific methods

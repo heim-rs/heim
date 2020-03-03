@@ -12,6 +12,13 @@
 //! See also: https://github.com/heim-rs/heim/issues/75
 //!
 //! Public API should somewhat match the `std`, `tokio` or `async-std` modules structure.
+//!
+//! ## Big and important note
+//!
+//! This crate is used internally by `heim`.
+//! No one else should use it, all things in here should be considered as private,
+//! and there are no guarantees provided on API stability.
+//! Seriously, do not use it. Even if you want to. Don't.
 
 #![doc(html_root_url = "https://docs.rs/heim-runtime/0.1.0-alpha.1")]
 #![allow(
@@ -74,3 +81,4 @@ cfg_if::cfg_if! {
 
 pub mod fs;
 pub mod task;
+pub mod time;

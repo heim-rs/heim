@@ -149,6 +149,10 @@ impl Process {
     pub async fn kill(&self) -> ProcessResult<()> {
         self._signal(Signal::Kill).await
     }
+
+    pub async fn wait(&self) -> ProcessResult<()> {
+        unimplemented!()
+    }
 }
 
 impl hash::Hash for Process {

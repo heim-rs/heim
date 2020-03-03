@@ -17,16 +17,24 @@ futures-util = { version = "^0.3", default-features = false, features = ["std", 
 # Shared across multiple runtimes
 pin-utils = { version = "0.1.0-alpha.4", optional = true }
 
-# runtime-tokio
-tokio = { version = "~0.2", optional = true, default-features = false, features = ["fs", "io-util", "stream", "blocking", "macros"]}
-
-# runtime-async-std
-async-std = { version = "^1.5", optional = true, features = ["unstable"] }
-
 # runtime-polyfill
 async-task = { version = "^1.3", optional = true }
 crossbeam-utils = { version = "~0.7", optional = true }
 futures-channel = "^0.3"
+futures-timer = "~3.0"
+
+# runtime-tokio
+[dependencies.tokio]
+version = "~0.2"
+optional = true
+default-features = false
+features = ["fs", "io-util", "stream", "blocking", "time", "macros"]
+
+# runtime-async-std
+[dependencies.async-std]
+version = "^1.5"
+optional = true
+features = ["unstable"]
 
 [dev-dependencies]
 version-sync = "0.8"
