@@ -1,0 +1,28 @@
+
+[package]
+name = "heim-disk-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.2"
+
+[dependencies.heim-disk]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "linux_counters"
+path = "fuzz_targets/linux_counters.rs"
+
+[[bin]]
+name = "linux_partitions"
+path = "fuzz_targets/linux_partitions.rs"
