@@ -98,6 +98,18 @@ impl Error {
         }
     }
 
+    /// Creates a new instance of an `Error` from a particular OS error code.
+    ///
+    /// This method is considered to be an internal API
+    /// and should not be used by external parties.
+    #[doc(hidden)]
+    pub fn from_raw_os_error(code: i32) -> Self {
+        Self {
+            source: io::Error::from_raw_os_error(code),
+            context: None,
+        }
+    }
+
     /// Returns error representing missing key in some data.
     ///
     /// This method is considered to be an internal API

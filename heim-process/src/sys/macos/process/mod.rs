@@ -14,7 +14,7 @@ use heim_common::units::Time;
 use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
-use crate::sys::unix::{pid_kill, pid_wait};
+use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 pub use crate::sys::unix::{Environment, EnvironmentIter, IntoEnvironmentIter};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
@@ -112,6 +112,14 @@ impl Process {
             }
             Err(e) => Err(catch_zombie(e, self.pid)),
         }
+    }
+
+    pub async fn niceness(&self) -> ProcessResult<i32> {
+        pid_priority(self.pid)
+    }
+
+    pub async fn set_niceness(&self, value: libc::c_int) -> ProcessResult<()> {
+        pid_setpriority(self.pid, value)
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {

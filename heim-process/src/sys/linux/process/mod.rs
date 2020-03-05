@@ -11,7 +11,7 @@ use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
-use crate::sys::unix::{pid_kill, pid_wait};
+use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
@@ -120,6 +120,14 @@ impl Process {
 
     pub async fn memory(&self) -> ProcessResult<Memory> {
         procfs::stat_memory(self.pid).await
+    }
+
+    pub async fn niceness(&self) -> ProcessResult<i32> {
+        pid_priority(self.pid)
+    }
+
+    pub async fn set_niceness(&self, value: libc::c_int) -> ProcessResult<()> {
+        pid_setpriority(self.pid, value)
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {

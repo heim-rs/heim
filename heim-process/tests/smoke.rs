@@ -67,6 +67,13 @@ async fn smoke_processes() {
         try_method!(process.memory());
         try_method!(process.is_running());
 
+        #[cfg(unix)]
+        {
+            use heim_process::os::unix::ProcessExt;
+
+            try_method!(process.niceness());
+        }
+
         #[cfg(target_os = "linux")]
         {
             use heim_process::os::linux::ProcessExt;
