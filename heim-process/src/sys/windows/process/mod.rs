@@ -9,6 +9,7 @@ use heim_common::units::Time;
 use winapi::um::processthreadsapi;
 
 use super::{bindings, pid_exists, pids};
+use crate::os::windows::Priority;
 use crate::sys::common::UniqueId;
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
@@ -17,6 +18,7 @@ mod cpu_times;
 mod create_time;
 mod env;
 mod memory;
+mod priority;
 mod suspend;
 
 pub use self::command::{Command, CommandIter};
@@ -140,6 +142,17 @@ impl Process {
 
             handle.memory().map(Memory::from)
         }
+    }
+
+    pub async fn priority(&self) -> ProcessResult<Priority> {
+        let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+        handle.priority()
+    }
+
+    pub async fn set_priority(&self, value: Priority) -> ProcessResult<()> {
+        let handle = bindings::ProcessHandle::for_set_information(self.pid)?;
+
+        handle.set_priority(value).map_err(Into::into)
     }
 
     pub async fn is_running(&self) -> ProcessResult<bool> {

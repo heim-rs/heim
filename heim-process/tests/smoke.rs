@@ -81,5 +81,12 @@ async fn smoke_processes() {
             try_method!(process.io_counters());
             try_method!(process.net_io_counters().try_for_each(|_| future::ok(())));
         }
+
+        #[cfg(target_os = "windows")]
+        {
+            use heim_process::os::windows::ProcessExt;
+
+            try_method!(process.priority());
+        }
     }
 }

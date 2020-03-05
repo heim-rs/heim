@@ -11,6 +11,7 @@ use heim_common::Error;
 use crate::{Pid, ProcessError, ProcessResult};
 
 mod limited_info;
+mod set_information;
 mod suspend;
 mod termination;
 

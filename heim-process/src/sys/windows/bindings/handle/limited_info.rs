@@ -1,6 +1,7 @@
 //! Process handle variant for querying process information
 //! without requiring any additional privileges (expected to work for any user)
 
+use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::io;
 use std::marker::PhantomData;
@@ -17,6 +18,7 @@ use heim_common::units::{time, Time};
 use heim_common::Error;
 
 use super::{ProcessHandle, ProcessHandlePermissions};
+use crate::os::windows::Priority;
 use crate::sys::windows::process::CpuTime;
 use crate::{Pid, ProcessError, ProcessResult};
 
@@ -115,6 +117,18 @@ impl ProcessHandle<QueryLimitedInformation> {
         let unix_epoch_delta = Time::new::<time::second>(11_644_473_600.0);
 
         Ok(creation.into_time() - unix_epoch_delta)
+    }
+
+    /// Get process priority.
+    ///
+    /// Note that `set_priority` is located at `ProcessHandle<SetInformation>` impl
+    pub fn priority(&self) -> ProcessResult<Priority> {
+        let result = unsafe { processthreadsapi::GetPriorityClass(*self.handle) };
+        if result == 0 {
+            Err(Error::last_os_error().with_ffi("GetPriorityClass").into())
+        } else {
+            Priority::try_from(result).map_err(Into::into)
+        }
     }
 
     fn process_times(&self) -> ProcessResult<(FILETIME, FILETIME, FILETIME, FILETIME)> {

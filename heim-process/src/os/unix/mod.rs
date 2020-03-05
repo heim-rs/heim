@@ -28,7 +28,7 @@ impl ProcessExt for crate::Process {
         self.as_ref().signal(signal).await
     }
 
-    async fn niceness(&self) -> ProcessResult<i32> {
+    async fn niceness(&self) -> ProcessResult<libc::c_int> {
         self.as_ref().niceness().await
     }
 
