@@ -9,6 +9,10 @@ categories = ["asynchronous", "os", "api-bindings"]
 repository = "https://github.com/heim-rs/heim"
 readme = "README.md"
 license = "Apache-2.0 OR MIT"
+exclude = [
+    "fuzz",
+    "tests",
+]
 
 [dependencies]
 heim-common = { version = "0.1.0-alpha.1", path = "../heim-common" }

@@ -7,18 +7,21 @@
 //! [`os::unix::loadavg`]: ./os/unix/fn.loadavg.html
 
 #![doc(html_root_url = "https://docs.rs/heim-cpu/0.1.0-alpha.1")]
-#![deny(
-    unused,
-    unused_imports,
-    unused_features,
-    bare_trait_objects,
-    future_incompatible,
-    missing_debug_implementations,
-    missing_docs,
-    nonstandard_style,
-    dead_code,
-    deprecated,
-    intra_doc_link_resolution_failure
+#![cfg_attr(
+    not(fuzzing),
+    deny(
+        unused,
+        unused_imports,
+        unused_features,
+        bare_trait_objects,
+        future_incompatible,
+        missing_debug_implementations,
+        missing_docs,
+        nonstandard_style,
+        dead_code,
+        deprecated,
+        intra_doc_link_resolution_failure
+    )
 )]
 #![warn(
     trivial_casts,
@@ -31,6 +34,9 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod os;
+#[cfg(fuzzing)]
+pub mod sys;
+#[cfg(not(fuzzing))]
 mod sys;
 
 mod count;
