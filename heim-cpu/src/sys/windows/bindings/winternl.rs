@@ -4,10 +4,10 @@ use std::io;
 use std::mem;
 use std::ptr;
 
+use ntapi::ntexapi;
 use winapi::shared::{minwindef, ntdef, ntstatus};
 
 use heim_common::prelude::{Error, Result};
-use heim_common::sys::windows as ntdll;
 
 use super::get_system_info;
 
@@ -119,24 +119,24 @@ pub struct SYSTEM_INTERRUPT_INFORMATION {
 }
 
 pub trait SystemInformation: Sized {
-    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS;
+    fn class() -> ntexapi::SYSTEM_INFORMATION_CLASS;
 }
 
 impl SystemInformation for SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION {
-    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
-        ntdll::SystemProcessorPerformanceInformation
+    fn class() -> ntexapi::SYSTEM_INFORMATION_CLASS {
+        ntexapi::SystemProcessorPerformanceInformation
     }
 }
 
 impl SystemInformation for SYSTEM_PERFORMANCE_INFORMATION {
-    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
-        ntdll::SystemPerformanceInformation
+    fn class() -> ntexapi::SYSTEM_INFORMATION_CLASS {
+        ntexapi::SystemPerformanceInformation
     }
 }
 
 impl SystemInformation for SYSTEM_INTERRUPT_INFORMATION {
-    fn class() -> ntdll::SYSTEM_INFORMATION_CLASS {
-        ntdll::SystemInterruptInformation
+    fn class() -> ntexapi::SYSTEM_INFORMATION_CLASS {
+        ntexapi::SystemInterruptInformation
     }
 }
 
@@ -156,12 +156,12 @@ where
     let buffer_length = proc_amount * mem::size_of::<T>();
 
     unsafe {
-        let result = ntdll::NtQuerySystemInformation(
+        let result = ntexapi::NtQuerySystemInformation(
             T::class(),
             info.as_mut_ptr() as *mut _,
             buffer_length as u32,
             ptr::null_mut(),
-        )?;
+        );
         if result != ntstatus::STATUS_SUCCESS {
             return Err(Error::last_os_error().with_ffi("NtQuerySystemInformation"));
         }

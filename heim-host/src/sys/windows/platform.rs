@@ -1,13 +1,13 @@
-use std::ffi::{CStr, OsString};
+use std::ffi::OsString;
 use std::fmt;
 use std::mem;
 use std::os::windows::ffi::OsStringExt;
 
-use winapi::shared::{minwindef, ntdef, ntstatus};
-use winapi::um::{libloaderapi, sysinfoapi, winbase, winnt};
+use ntapi::ntrtl;
+use winapi::shared::{minwindef, ntstatus};
+use winapi::um::{sysinfoapi, winbase, winnt};
 
 use heim_common::prelude::{Error, Result};
-use heim_common::sys::windows::get_ntdll;
 
 use crate::Arch;
 
@@ -122,31 +122,22 @@ fn get_native_system_info() -> SystemInfo {
     }
 }
 
-fn rtl_get_version() -> Result<winnt::OSVERSIONINFOEXW> {
+/// Based on the `platform-info` crate source:
+/// https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
+fn rtl_get_version() -> winnt::OSVERSIONINFOEXW {
+    let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
+
     unsafe {
-        // Based on the `platform-info` crate source:
-        // https://github.com/uutils/platform-info/blob/8fa071f764d55bd8e41a96cf42009da9ae20a650/src/windows.rs
-        // TODO: Use `ntapi` crate instead
-        let module = get_ntdll()?;
+        (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
+            mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
 
-        let funcname = CStr::from_bytes_with_nul_unchecked(b"RtlGetVersion\0");
-        let func = libloaderapi::GetProcAddress(module, funcname.as_ptr());
-        if !func.is_null() {
-            let func: extern "stdcall" fn(*mut winnt::RTL_OSVERSIONINFOEXW) -> ntdef::NTSTATUS =
-                mem::transmute(func as *const ());
+        let result = ntrtl::RtlGetVersion(osinfo.as_mut_ptr() as *mut _);
 
-            let mut osinfo = mem::MaybeUninit::<winnt::RTL_OSVERSIONINFOEXW>::uninit();
-            (*osinfo.as_mut_ptr()).dwOSVersionInfoSize =
-                mem::size_of::<winnt::RTL_OSVERSIONINFOEXW>() as minwindef::DWORD;
-            if func(osinfo.as_mut_ptr()) == ntstatus::STATUS_SUCCESS {
-                Ok(osinfo.assume_init())
-            } else {
-                // https://docs.microsoft.com/en-us/windows/desktop/devnotes/rtlgetversion#return-value
-                unreachable!("RtlGetVersion should just work");
-            }
-        } else {
-            Err(Error::last_os_error().with_ffi("RtlGetVersion"))
-        }
+        // Should work all the time.
+        // https://docs.microsoft.com/en-us/windows/desktop/devnotes/rtlgetversion#return-value
+        debug_assert!(result == ntstatus::STATUS_SUCCESS);
+
+        osinfo.assume_init()
     }
 }
 
@@ -169,7 +160,7 @@ fn get_computer_name() -> Result<String> {
 }
 
 pub async fn platform() -> Result<Platform> {
-    let version = rtl_get_version()?;
+    let version = rtl_get_version();
 
     Ok(Platform {
         sysinfo: get_native_system_info(),

@@ -31,7 +31,8 @@ lazy_static = "1.3.0"
 mach = "0.3.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = ">=0.3.8", features = ["sysinfoapi", "libloaderapi", "ws2def", "winbase", "minwindef", "winnt", "ntdef"] }
+winapi = { version = ">=0.3.8", features = ["sysinfoapi", "ws2def", "winbase", "minwindef", "winnt"] }
+ntapi = "~0.3"
 
 [features]
 # Polyfill runtime is enabled by default only to execute examples, tests and benchmarks.
