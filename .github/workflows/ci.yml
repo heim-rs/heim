@@ -202,12 +202,32 @@ jobs:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
 
+      - name: Execute integration tests (not macOS)
+        if: startsWith(matrix.os, 'macOS') == false
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-fail-fast -p tests
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+
       - name: Execute tests (macOS)
         if: startsWith(matrix.os, 'macOS') == true
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
+
+      - name: Execute integration tests (macOS)
+        if: startsWith(matrix.os, 'macOS') == true
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-fail-fast -p tests
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"

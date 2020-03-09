@@ -1,0 +1,15 @@
+[package]
+name = "tests"
+description = "Integration tests"
+version = "0.0.0"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+heim = { path = "../heim", features = ["full", "runtime-tokio"] }
+tokio = { version = "~0.2", features = ["macros"] }
+cfg-if = "~0.1"
+
+approx = "~0.3"
+claim = "~0.2"
