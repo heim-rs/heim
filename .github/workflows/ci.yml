@@ -212,6 +212,11 @@ jobs:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
 
+      - name: Install grcov
+        uses: actions-rs/install@master
+        with:
+          crate: grcov
+
       - name: Gather coverage data
         id: coverage
         uses: actions-rs/grcov@v0.1
