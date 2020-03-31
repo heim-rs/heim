@@ -24,7 +24,7 @@ heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 futures-executor = "^0.3"
 tokio = { version = "^0.2", features = ["rt-threaded"] }
 async-std = "^1.5"
-version-sync = "0.8"
+version-sync = "0.9"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 lazy_static = "1.3.0"

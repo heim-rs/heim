@@ -57,7 +57,7 @@ heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 futures-executor = "^0.3"
 tokio = { version = "^0.2", features = ["rt-threaded"] }
 async-std = "^1.5"
-version-sync = "0.8"
+version-sync = "0.9"
 futures-timer = "^3.0"
 which = { version = "^3.1", default-features = false }
 

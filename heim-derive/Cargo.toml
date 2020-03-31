@@ -19,4 +19,4 @@ quote = "~1.0"
 syn = { version = "~1.0", default-features = false, features = ["derive", "full", "parsing", "printing", "proc-macro"] }
 
 [dev-dependencies]
-version-sync = "0.8"
+version-sync = "0.9"

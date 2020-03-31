@@ -31,5 +31,5 @@ core-foundation = "0.7.0"
 
 [dev-dependencies]
 futures-executor = "^0.3"
-version-sync = "0.8"
+version-sync = "0.9"
 
