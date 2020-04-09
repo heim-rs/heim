@@ -13,7 +13,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 
 * [`heim = "0.0.7"`](https://crates.io/crates/heim)
 * [`psutil = "1.7.0"`](https://crates.io/crates/psutil)
-* [`sysinfo = "0.11.5"`](https://crates.io/crates/sysinfo)
+* [`sysinfo = "0.13.0"`](https://crates.io/crates/sysinfo)
 * [`sys-info = "0.5.7"`](https://crates.io/crates/sys-info)
 * [`systemstat = "0.1.4"`](https://crates.io/crates/systemstat)
 
@@ -85,11 +85,12 @@ amounts.
 
 ## Processes information
 
-|             | heim     | psutil | sysinfo | sys-info | systemstat |
-|-------------|----------|--------|---------|----------|------------|
-| pids        | ✓        | ✓      | ✓       | ✗        | ✗          |
-| pid_exists  | ✓        | ✓      | ✓       | ✗        | ✗          |
-| processes   | ✓        | ✓      | ✓       | ✗        | ✗          |
+|                      | heim     | psutil | sysinfo | sys-info | systemstat |
+|----------------------|----------|--------|---------|----------|------------|
+| pids                 | ✓        | ✓      | ✓       | ✗        | ✗          |
+| pid_exists           | ✓        | ✓      | ✓       | ✗        | ✗          |
+| processes            | ✓        | ✓      | ✓       | ✗        | ✗          |
+| process disk usage   | ✗        | ✗      | ✓       | ✗        | ✗          |
 
 ## Sensors information
 
