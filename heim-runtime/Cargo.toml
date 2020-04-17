@@ -36,9 +36,6 @@ version = "^1.5"
 optional = true
 features = ["unstable"]
 
-[dev-dependencies]
-version-sync = "0.8"
-
 [features]
 default = []
 runtime-polyfill = ["async-task", "crossbeam-utils", "pin-utils"]

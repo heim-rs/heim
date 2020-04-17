@@ -30,7 +30,6 @@ heim-sensors = { version = "0.1.0-alpha.1", path = "../heim-sensors", optional =
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
-version-sync = "0.8"
 
 [features]
 default = []
