@@ -86,19 +86,20 @@ impl FromStr for Stat {
         let _cmajflt: u64 = parts.try_parse_next()?;
         let utime: u64 = parts.try_parse_next()?;
         let stime: u64 = parts.try_parse_next()?;
-        let cutime: i64 = parts.try_parse_next()?;
-        let cstime: i64 = parts.try_parse_next()?;
+        let cutime: u64 = parts.try_parse_next()?;
+        let cstime: u64 = parts.try_parse_next()?;
         let _priority: i64 = parts.try_parse_next()?;
         let _nice: i64 = parts.try_parse_next()?;
         let _num_threads: i64 = parts.try_parse_next()?;
         let _itrealvalue: i64 = parts.try_parse_next()?;
-        let start_time: i64 = parts.try_parse_next()?;
+        let start_time: u64 = parts.try_parse_next()?;
         let _vsize: i64 = parts.try_parse_next()?;
         let _rss: i64 = parts.try_parse_next()?;
         let _rsslim: u64 = parts.try_parse_next()?;
         // ...
 
-        let start_time = start_time as f64 / *CLOCK_TICKS;
+        // TODO: Potential precision loss
+        let start_time = (start_time / *CLOCK_TICKS) as f64;
         debug_assert!(!start_time.is_nan());
 
         Ok(Stat {
@@ -107,11 +108,11 @@ impl FromStr for Stat {
             state,
             ppid,
             create_time: Time::new::<time::second>(start_time),
-            // TODO: Possible values truncation during the `as f64` cast
-            utime: Time::new::<time::second>(utime as f64 / *CLOCK_TICKS),
-            stime: Time::new::<time::second>(stime as f64 / *CLOCK_TICKS),
-            cutime: Time::new::<time::second>(cutime as f64 / *CLOCK_TICKS),
-            cstime: Time::new::<time::second>(cstime as f64 / *CLOCK_TICKS),
+            // TODO: Possible precision during the `as f64` cast
+            utime: Time::new::<time::second>((utime / *CLOCK_TICKS) as f64),
+            stime: Time::new::<time::second>((stime / *CLOCK_TICKS) as f64),
+            cutime: Time::new::<time::second>((cutime / *CLOCK_TICKS) as f64),
+            cstime: Time::new::<time::second>((cstime / *CLOCK_TICKS) as f64),
         })
     }
 }

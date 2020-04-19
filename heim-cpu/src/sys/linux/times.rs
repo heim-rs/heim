@@ -62,9 +62,11 @@ impl FromStr for CpuTime {
 
         let parts = value.split_whitespace().skip(1);
         for (idx, part) in parts.enumerate() {
-            let value = part.parse::<u32>().map(|value| {
-                let value = f64::from(value) / *CLOCK_TICKS;
-                Time::new::<time::second>(value)
+            let value = part.parse::<u64>().map(|value| {
+                let value = value / *CLOCK_TICKS;
+                // TODO: Potential precision loss.
+                // Do we care about it at all?
+                Time::new::<time::second>(value as f64)
             })?;
 
             match idx {
@@ -102,4 +104,18 @@ pub fn times() -> impl Stream<Item = Result<CpuTime>> {
         .try_filter(|line| future::ready(line.starts_with("cpu")))
         .map_err(Error::from)
         .and_then(|line| future::ready(CpuTime::from_str(&line)))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use super::CpuTime;
+
+    #[test]
+    fn test_issue_233() {
+        const LINE: &str = "cpu  465552918 3813058 111153634 9065060137 5821166 0 4346876 0 0 0\n";
+
+        let _ = CpuTime::from_str(LINE).unwrap();
+    }
 }
