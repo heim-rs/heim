@@ -16,7 +16,7 @@ heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime" }
 cfg-if = "~0.1"
 
 [target.'cfg(all(target_os = "linux", any(target_arch="x86", target_arch="x86_64")))'.dependencies]
-raw-cpuid = "7.0.3"
+raw-cpuid = "8.0.0"
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
