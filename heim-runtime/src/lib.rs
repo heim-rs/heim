@@ -67,13 +67,13 @@ cfg_if::cfg_if! {
         // `futures` macros are used with `async-std` runtime,
         // because `async-macros` crate macros are not so convenient,
         // as the `tokio` or `futures` ones.
-        mod macros;
         pub use pin_utils::pin_mut as pin;
+        pub use futures_util::{try_join, join};
     } else if #[cfg(feature = "runtime-polyfill")] {
         #[path = "polyfill/mod.rs"]
         mod runtime;
-        mod macros;
         pub use pin_utils::pin_mut as pin;
+        pub use futures_util::{try_join, join};
     } else {
         compile_error!("None of the async runtime support features were enabled!");
     }
