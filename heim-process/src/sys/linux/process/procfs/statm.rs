@@ -3,7 +3,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_common::utils::iter::ParseIterator;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use crate::{Pid, ProcessResult};
 

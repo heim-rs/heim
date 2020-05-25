@@ -2,7 +2,7 @@ use std::fs;
 use std::io;
 use std::str::FromStr;
 
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};

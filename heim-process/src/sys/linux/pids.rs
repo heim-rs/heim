@@ -1,5 +1,5 @@
 use heim_common::prelude::{Stream, TryStreamExt, Result};
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use crate::sys::unix;
 use crate::{Pid, ProcessResult};

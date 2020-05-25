@@ -10,37 +10,9 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-cfg-if = "~0.1"
-futures-core = "^0.3"
-futures-util = { version = "^0.3", default-features = false, features = ["std", "async-await-macro"] }
-
-# Shared across multiple runtimes
-pin-utils = { version = "0.1.0-alpha.4", optional = true }
-
-# runtime-polyfill
-async-task = { version = "^1.3", optional = true }
-crossbeam-utils = { version = "~0.7", optional = true }
-futures-channel = "^0.3"
+futures = { version = "~0.3", default-features = false, features = ["std"] }
 futures-timer = "~3.0"
-
-# runtime-tokio
-[dependencies.tokio]
-version = "~0.2"
-optional = true
-default-features = false
-features = ["fs", "io-util", "stream", "blocking", "time", "macros"]
-
-# runtime-async-std
-[dependencies.async-std]
-version = "^1.5"
-optional = true
-features = ["unstable"]
-
-[features]
-default = ["runtime-polyfill"]
-runtime-polyfill = ["async-task", "crossbeam-utils", "pin-utils"]
-runtime-tokio = ["tokio"]
-runtime-async-std = ["async-std", "pin-utils"]
+smol = "~0.1"
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]

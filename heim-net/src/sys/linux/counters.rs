@@ -5,7 +5,7 @@ use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_common::utils::iter::*;
 use heim_common::Pid;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 #[derive(Debug)]
 pub struct IoCounters {

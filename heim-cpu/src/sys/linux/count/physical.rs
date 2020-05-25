@@ -4,7 +4,7 @@ use std::io::{self, BufRead};
 use std::str;
 
 use heim_common::prelude::*;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 async fn topology() -> Result<u64> {
     rt::spawn_blocking(|| {

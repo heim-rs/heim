@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use heim_common::prelude::StreamExt as _;
 use heim_common::Error;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use super::bindings::{errno, set_errno};
 use crate::os::unix::Signal;

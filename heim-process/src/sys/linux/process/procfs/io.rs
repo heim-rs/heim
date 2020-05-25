@@ -3,7 +3,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::utils::iter::TryIterator;
 use heim_common::Pid;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use crate::os::linux::IoCounters;
 use crate::{ProcessError, ProcessResult};

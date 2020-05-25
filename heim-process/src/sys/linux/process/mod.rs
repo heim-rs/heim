@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;

@@ -2,7 +2,7 @@ use std::marker::Unpin;
 use std::path::Path;
 
 use heim_common::prelude::{future, StreamExt, TryFutureExt};
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use crate::Virtualization;
 

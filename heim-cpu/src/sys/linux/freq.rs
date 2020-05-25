@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::{Error, Result, Stream};
 use heim_common::units::{frequency, Frequency};
-use heim_rt as rt;
+use heim_runtime as rt;
 
 #[derive(Debug, Default)]
 pub struct CpuFrequency {

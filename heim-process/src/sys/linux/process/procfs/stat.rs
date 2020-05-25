@@ -6,7 +6,7 @@ use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
-use heim_rt as rt;
+use heim_runtime as rt;
 
 use crate::{Pid, ProcessError, ProcessResult, Status};
 

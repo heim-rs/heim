@@ -2,7 +2,7 @@ use heim_common::{
     units::{time, Time},
     Error, Result,
 };
-use heim_rt as rt;
+use heim_runtime as rt;
 
 const PROC_UPTIME: &str = "/proc/uptime";
 

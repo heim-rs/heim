@@ -16,7 +16,7 @@ github-actions = { repository = "heim-rs/heim", workflow = "Tier 1 CI" }
 
 [dependencies]
 heim-common = { version = "0.1.0-alpha.1", path = "../heim-common" }
-heim-rt = { path = "../heim-rt" }
+heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime" }
 heim-cpu = { version = "0.1.0-alpha.1", path = "../heim-cpu" }
 cfg-if = "~0.1"
 libc = "~0.2"

@@ -4,7 +4,7 @@ use std::str::FromStr;
 use heim_common::prelude::*;
 use heim_common::units::{information, time, Information, Time};
 use heim_common::utils::iter::*;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 // Copied from the `psutil` sources:
 //

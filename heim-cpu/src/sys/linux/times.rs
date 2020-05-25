@@ -3,7 +3,7 @@ use std::str::{self, FromStr};
 use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
-use heim_rt as rt;
+use heim_runtime as rt;
 
 #[derive(Debug, Default)]
 pub struct CpuTime {

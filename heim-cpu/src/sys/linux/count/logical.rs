@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, BufRead};
 
 use heim_common::prelude::*;
-use heim_rt as rt;
+use heim_runtime as rt;
 
 fn sysconf() -> Result<u64> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
