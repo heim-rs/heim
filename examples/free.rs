@@ -2,7 +2,7 @@
 
 use heim::{memory, units::information, Result};
 
-#[tokio::main]
+#[smol_potat::main]
 async fn main() -> Result<()> {
     let memory = memory::memory().await?;
     let swap = memory::swap().await?;

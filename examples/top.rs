@@ -17,7 +17,7 @@ async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
     Ok((process, usage_2 - usage_1))
 }
 
-#[tokio::main]
+#[smol_potat::main]
 async fn main() -> ProcessResult<()> {
     #[cfg(unix)]
     {
@@ -31,6 +31,7 @@ async fn main() -> ProcessResult<()> {
     }
 
     let processes = process::processes()
+        .await?
         .map_ok(|process| {
             // Note that there is no `.await` here,
             // as we want to pass the returned future
@@ -38,7 +39,7 @@ async fn main() -> ProcessResult<()> {
             usage(process)
         })
         .try_buffer_unordered(usize::MAX);
-    tokio::pin!(processes);
+    futures::pin_mut!(processes);
 
     println!("| {:6} | {:40} | {:4} % |", "pid", "name", "CPU");
     while let Some(res) = processes.next().await {

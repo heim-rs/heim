@@ -5,7 +5,7 @@ use std::hash;
 use std::io;
 use std::path::PathBuf;
 
-use futures::future::BoxFuture;
+use ::futures::future::BoxFuture;
 
 use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
@@ -177,8 +177,10 @@ impl cmp::PartialEq for Process {
 
 impl cmp::Eq for Process {}
 
-pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
-    pids().map_err(Into::into).and_then(get)
+pub async fn processes() -> Result<impl Stream<Item = ProcessResult<Process>>> {
+    let inner = pids().await?;
+
+    Ok(inner.map_err(Into::into).and_then(get))
 }
 
 pub async fn get(pid: Pid) -> ProcessResult<Process> {

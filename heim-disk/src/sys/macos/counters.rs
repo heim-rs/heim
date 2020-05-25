@@ -46,56 +46,50 @@ impl IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    future::lazy(|_| {
-        let port = iokit::IoMasterPort::new()?;
+fn filter_map_block_devices(device: iokit::IoObject) -> Result<Option<IoCounters>> {
+    let parent = device.parent(b"IOService\0")?;
 
-        let services = port.get_services(b"IOMedia\0")?;
+    if !parent.conforms_to(b"IOBlockStorageDriver\0") {
+        return Ok(None);
+    }
 
-        let stream = stream::iter(services).map(Ok);
+    let disk_props = device.properties()?;
+    let parent_props = parent.properties()?;
 
-        Ok(stream)
-    })
-    .try_flatten_stream()
-    .map(|io_object: Result<iokit::IoObject>| {
-        match io_object {
-            Ok(obj) => {
-                let parent = obj.parent(b"IOService\0")?;
-                Ok((obj, parent))
-            },
-            Err(e) => Err(e),
-        }
-    })
-    .try_filter(|(_disk, parent)| {
-        future::ready(parent.conforms_to(b"IOBlockStorageDriver\0"))
-    })
-    .map(|result| {
-        match result {
-            Ok((disk, parent)) => {
-                let disk_props = disk.properties()?;
-                let parent_props = parent.properties()?;
+    let name = disk_props.get_string("BSD Name")?;
+    let stats = parent_props.get_dict("Statistics")?;
 
-                let name = disk_props.get_string("BSD Name")?;
-                let stats = parent_props.get_dict("Statistics")?;
-
-                Ok(IoCounters{
-                    device: name,
-                    removable: disk_props.get_bool("Removable")?,
-                    reads: stats.get_i64("Operations (Read)")? as u64,
-                    writes: stats.get_i64("Operations (Write)")? as u64,
-                    read_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Read)")? as u64),
-                    write_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Write)")? as u64),
-                    read_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Read)")? as f64),
-                    write_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Write)")? as f64),
-                })
-            },
-            Err(e) => {
-                Err(e)
-            },
-        }
-    })
+    Ok(Some(IoCounters {
+        device: name,
+        removable: disk_props.get_bool("Removable")?,
+        reads: stats.get_i64("Operations (Read)")? as u64,
+        writes: stats.get_i64("Operations (Write)")? as u64,
+        read_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Read)")? as u64),
+        write_bytes: Information::new::<information::byte>(stats.get_i64("Bytes (Write)")? as u64),
+        read_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Read)")? as f64),
+        write_time: Time::new::<time::nanosecond>(stats.get_i64("Total Time (Write)")? as f64),
+    }))
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
-    io_counters().try_filter(|counter| future::ready(!counter.removable))
+pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let port = iokit::IoMasterPort::new()?;
+
+    let iter =
+        port.get_services(b"IOMedia\0")?.filter_map(|device| {
+            match filter_map_block_devices(device) {
+                Ok(Some(counters)) => Some(Ok(counters)),
+                Ok(None) => None,
+                Err(e) => Some(Err(e)),
+            }
+        });
+
+    Ok(stream::iter(iter))
+}
+
+pub async fn io_counters_physical() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let inner = io_counters().await?;
+
+    let stream = inner.try_filter(|counter| future::ready(!counter.removable));
+
+    Ok(stream)
 }

@@ -5,14 +5,13 @@ use winapi::um::minwinbase;
 use super::bindings;
 use crate::{Pid, ProcessError, ProcessResult};
 
-pub fn pids() -> impl Stream<Item = ProcessResult<Pid>> {
-    future::lazy(|_| {
-        let pids = bindings::pids()?;
+#[allow(clippy::identity_conversion)]
+pub async fn pids() -> Result<impl Stream<Item = Result<Pid>>> {
+    let pids = bindings::pids()?
+        .into_iter()
+        .map(|pid| Ok(Pid::from(pid)));
 
-        Ok(stream::iter(pids).map(Ok))
-    })
-    .try_flatten_stream()
-    .map_ok(Pid::from)
+    Ok(stream::iter(pids))
 }
 
 pub async fn pid_exists(pid: Pid) -> ProcessResult<bool> {

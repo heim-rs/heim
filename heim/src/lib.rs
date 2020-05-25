@@ -26,34 +26,18 @@
 //! ## Feature flags
 //!
 //! Heim uses a set of [feature flags](https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section)
-//! to reduce the amount of compiled code. In general, these feature flags can be split
-//! into two groups:
+//! to reduce the amount of compiled code by selecting only the system components
+//! you are planning to use.\
+//! All these features are *disabled* by default, see modules list below for available features.
 //!
-//!  1. System components: each one of these enables functionality for fetching information
-//!     about some specific system part (ex. CPU or memory information).\
-//!     All these features are *disabled* by default.
-//!     See modules list below for available features.
-//!
-//!     Alternatively you can use `full` feature to enable all components at once.
-//!
-//!  2. Async runtimes support. Heim can integrate with popular async runtimes
-//!     and also provides a fallback implementation for other use cases.
-//!
-//!     * `runtime-tokio`: Enables integration with [`tokio`](https://tokio.rs)
-//!     * `runtime-async-std`: Enables integration with [`async-std`](https://async.rs)
-//!     * `runtime-polyfill`: Enables bundled polyfill implementation for async routines,
-//!       with all potentially blocking operations executed on the current thread.
-//!       Other runtime integrations should be used preferably.
-//!
-//!     None of these runtime features are enabled by default and you are required to
-//!     explicitly opt-in to use one of them.
-//!     Enabling multiple runtimes at once is also forbidden and will lead to the compilation error.
+//! Alternatively you can use `full` feature to enable all components at once.
 //!
 //! ## Documentation
 //!
 //! Note that `heim` also provides platform-specific APIs.
 //! If you are browsing this documentation via [docs.rs](https://docs.rs/heim),
-//! do not forget to use the platform selector at the page header.
+//! do not forget to use the platform selector at the page header.\
+//! For a local copy, use `--target` argument to choose your platform.
 //!
 //! Also, due to Rust [bug #15823](https://github.com/rust-lang/rust/issues/15823),
 //! type aliases are not rendered properly across the sub-crates bounds,

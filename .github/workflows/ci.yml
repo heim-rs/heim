@@ -15,12 +15,7 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          # That also includes `examples` and `benchmarks` crates,
-          # which are ignored by default by the workspace
-          args: --all -- --check
+      - run: cargo fmt --all -- --check
 
   clippy:
     runs-on: ${{ matrix.os }}
@@ -44,16 +39,7 @@ jobs:
           toolchain: beta
           override: true
           components: clippy
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets -- -D warnings
-      # `examples` and `benchmarks` are checked separately due to enabled `runtime-tokio` feature
-      # which clashes with default feature for other sub-crates.
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -p examples -p benchmarks --all-targets -- -D warnings
+      - run: cargo clippy --all-targets --workspace -- -D warnings
 
   # Now, let's check that code compiles at least
   compile:
@@ -84,12 +70,8 @@ jobs:
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf',  cross: true }
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-musleabihf', cross: true }
         toolchain:
-          - 1.39.0  # MSRV
+          - 1.40.0  # MSRV
           - stable
-        # For sake of not creating incredibly huge additional matrix dimension,
-        # code compilation check will be executed only with `runtime-polyfill` feature enabled.
-        runtime:
-          - runtime-polyfill
 
     steps:
       - uses: actions/checkout@v2
@@ -118,62 +100,17 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --features full,${{ matrix.runtime }} --target=${{ matrix.triple.target }} --manifest-path=heim/Cargo.toml
+          args: --features full --target=${{ matrix.triple.target }} --manifest-path=heim/Cargo.toml
           use-cross: ${{ matrix.triple.cross }}
-
-  # Now checking if integration with async runtimes works correctly
-  # Checks are executed for Tier 1 platforms only
-  runtimes:
-    name: ${{ matrix.runtime }} / ${{ matrix.os }}
-    needs: [rustfmt, clippy]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
-        toolchain:
-          - 1.39.0  # MSRV
-          - stable
-        runtime:
-          - runtime-tokio
-          - runtime-async-std
-          - runtime-polyfill
-    steps:
-      - uses: actions/checkout@v2
-      - name: Cache rustup toolchain
-        uses: actions/cache@v1
-        with:
-          path: ~/.rustup/toolchains
-          key: rustup-toolchain-${{ matrix.toolchain }}
-      - name: Cache cargo build target
-        if: matrix.toolchain != 'nightly'
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: runtime-${{ runner.os }}-${{ matrix.toolchain }}-${{ matrix.runtime }}-${{ hashFiles('**/Cargo.toml') }}
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-      - name: Check runtime integration
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --features full,${{ matrix.runtime }} --manifest-path=heim/Cargo.toml
 
   # Test suite is executed for Tier 1 platforms now,
   # which mean we can do that natively on the Actions VMs
   tests:
-    needs: [compile, runtimes]
+    needs: [compile]
     name: Test ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -194,26 +131,24 @@ jobs:
 
       - name: Execute tests (not macOS)
         if: startsWith(matrix.os, 'macOS') == false
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-fail-fast
+        run: cargo test --no-fail-fast
         env:
+          RUST_BACKTRACE: full
           CARGO_INCREMENTAL: 0
-          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+          RUSTDOCFLAGS: "-Cpanic=abort"
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
 
       - name: Execute tests (macOS)
         if: startsWith(matrix.os, 'macOS') == true
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-fail-fast
+        run: cargo test --no-fail-fast
         env:
+          RUST_BACKTRACE: full
           CARGO_INCREMENTAL: 0
-          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Coverflow-checks=off -Zno-landing-pads"
+          RUSTDOCFLAGS: "-Cpanic=abort"
+          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Copt-level=0 -Coverflow-checks=off"
 
       - name: Install grcov
-        uses: actions-rs/install@master
+        uses: actions-rs/install@v0.1
         with:
           crate: grcov
 

@@ -1,5 +1,8 @@
+use std::fs;
+use std::io::{self, BufRead};
+
 use heim_common::prelude::*;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 fn sysconf() -> Result<u64> {
     let result = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
@@ -12,32 +15,38 @@ fn sysconf() -> Result<u64> {
 }
 
 async fn cpuinfo() -> Result<u64> {
-    let mut lines = rt::fs::read_lines("/proc/cpuinfo").await?;
-    let mut count = 0;
-    while let Some(line) = lines.next().await {
-        let line = line?;
-        if line.starts_with("processor") {
-            count += 1;
+    rt::spawn_blocking(|| {
+        let f = fs::File::open("/proc/cpuinfo")?;
+        let reader = io::BufReader::new(f);
+        let mut count = 0;
+        for line in reader.lines() {
+            if line?.starts_with("processor") {
+                count += 1;
+            }
         }
-    }
 
-    Ok(count)
+        Ok(count)
+    })
+    .await
 }
 
 async fn stat() -> Result<u64> {
-    // the first "cpu" line aggregates the numbers in all
-    // of the other "cpuN" lines, hence skip the first item
-    let mut lines = rt::fs::read_lines("/proc/stat").await?.skip(1);
+    rt::spawn_blocking(|| {
+        let f = fs::File::open("/proc/stat")?;
+        let reader = io::BufReader::new(f);
+        let mut count = 0;
 
-    let mut count = 0;
-    while let Some(line) = lines.next().await {
-        let line = line?;
-        if line.starts_with("cpu") {
-            count += 1;
+        // the first "cpu" line aggregates the numbers in all
+        // of the other "cpuN" lines, hence skip the first item
+        for line in reader.lines().skip(1) {
+            if line?.starts_with("cpu") {
+                count += 1;
+            }
         }
-    }
 
-    Ok(count)
+        Ok(count)
+    })
+    .await
 }
 
 pub async fn logical_count() -> Result<u64> {

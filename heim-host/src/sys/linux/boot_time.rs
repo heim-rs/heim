@@ -2,7 +2,7 @@ use heim_common::{
     units::{time, Time},
     Error, Result,
 };
-use heim_runtime as rt;
+use heim_rt as rt;
 
 const PROC_STAT: &str = "/proc/stat";
 

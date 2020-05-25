@@ -8,11 +8,15 @@ autoexamples = false
 autobins = false
 
 [dev-dependencies]
-heim = { path = "../heim", features = ["full", "runtime-tokio"] }
-tokio = { version = "~0.2", features = ["full", "macros"] }
-futures = "~0.3"
-futures-timer = "~3.0"
 cfg-if = "~0.1"
+heim = { path = "../heim", features = ["full"] }
+smol-potat = "~0.2"
+futures-timer = "~3.0"
+
+futures = "~0.3"
+smol = "~0.1"
+tokio = { version = "~0.2", features = ["full"] }
+async-std = { version = "~1.6", features = ["attributes"] }
 
 ptree = { version = "0.2.1", default-features = false, features = ["ansi"] }
 prettytable-rs = "0.8.0"
@@ -49,3 +53,11 @@ path = "wait.rs"
 [[example]]
 name = "uptime"
 path = "uptime.rs"
+
+[[example]]
+name = "tokio"
+path = "tokio.rs"
+
+[[example]]
+name = "async_std"
+path = "async_std.rs"

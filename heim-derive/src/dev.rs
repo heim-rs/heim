@@ -31,7 +31,7 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 #body
             }
 
-            futures_executor::block_on(async {
+            smol::block_on(async {
                 main().await
             })
         }
@@ -60,7 +60,7 @@ pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[test]
         #(#attrs)*
         fn #name() #ret {
-            futures_executor::block_on(async {
+            smol::block_on(async {
                 #body
             })
         }
@@ -108,7 +108,7 @@ pub fn bench(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     });
                 } else {
                     b.iter(|| {
-                        futures_executor::block_on(async {
+                        smol::block_on(async {
                             #body
                         })
                     });

@@ -1,6 +1,6 @@
 use std::io;
 
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::{Pid, ProcessError, ProcessResult};
 

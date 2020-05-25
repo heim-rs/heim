@@ -37,7 +37,7 @@ optional = true
 features = ["unstable"]
 
 [features]
-default = []
+default = ["runtime-polyfill"]
 runtime-polyfill = ["async-task", "crossbeam-utils", "pin-utils"]
 runtime-tokio = ["tokio"]
 runtime-async-std = ["async-std", "pin-utils"]

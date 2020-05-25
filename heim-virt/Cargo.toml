@@ -12,24 +12,18 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 heim-common = { version = "0.1.0-alpha.1", path = "../heim-common" }
-heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime" }
+heim-rt = { path = "../heim-rt" }
 cfg-if = "~0.1"
+futures = { version = "~0.3", default-features = false, features = ["std", "async-await"] }
 
 [target.'cfg(all(target_os = "linux", any(target_arch="x86", target_arch="x86_64")))'.dependencies]
 raw-cpuid = "7.0.3"
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
-futures-executor = "^0.3"
-tokio = { version = "^0.2", features = ["rt-threaded"] }
-async-std = "^1.5"
+smol = "~0.1"
 tempfile = "3.0"
 
-[features]
-# Polyfill runtime is enabled by default only to execute examples, tests and benchmarks.
-# When used via `heim` facade crate, this feature is disabled.
-# See https://github.com/rust-lang/cargo/issues/5015 for details.
-default = ["heim-runtime/runtime-polyfill"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]

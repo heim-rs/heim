@@ -2,7 +2,7 @@ use std::ffi::{OsStr, OsString};
 use std::io;
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::{Pid, ProcessError, ProcessResult};
 

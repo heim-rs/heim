@@ -14,11 +14,12 @@ fn format(t: Time) -> humantime::FormattedDuration {
     humantime::format_duration(duration)
 }
 
-#[tokio::main]
+#[smol_potat::main]
 async fn main() -> Result<()> {
     let uptime = heim::host::uptime().await?;
     // There is no `.count()` method for Streams
     let users = heim::host::users()
+        .await?
         .try_fold(0usize, |acc, _| async move { Ok(acc + 1) })
         .await?;
 

@@ -52,11 +52,13 @@ impl fmt::Debug for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    future::lazy(|_| unsafe { net_pf_route() })
-        .map_ok(|interfaces| stream::iter(interfaces).map(Ok))
-        .try_flatten_stream()
-        .and_then(|msg: if_msghdr2| async move {
+pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let interfaces = unsafe {
+        net_pf_route()?
+    };
+
+    let interfaces = interfaces
+        .map(|msg| {
             let mut name: [u8; libc::IF_NAMESIZE] = [0; libc::IF_NAMESIZE];
             let result = unsafe {
                 libc::if_indextoname(msg.ifm_index.into(), name.as_mut_ptr() as *mut libc::c_char)
@@ -68,5 +70,7 @@ pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
             let name = String::from_utf8_lossy(&name[..first_nul]).to_string();
 
             Ok(IoCounters { name, data: msg })
-        })
+        });
+
+    Ok(stream::iter(interfaces))
 }

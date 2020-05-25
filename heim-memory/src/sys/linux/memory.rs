@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use heim_common::prelude::{Error, Result};
 use heim_common::units::{information, Information};
-use heim_runtime as rt;
+use heim_rt as rt;
 
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
 pub struct Memory {

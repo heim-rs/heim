@@ -6,7 +6,7 @@ use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
@@ -119,7 +119,8 @@ impl FromStr for Stat {
 
 pub async fn stat(pid: Pid) -> ProcessResult<Stat> {
     let path = format!("/proc/{}/stat", pid);
-    let contents = match rt::fs::read_to_string(&path).await {
+    // TODO: Get rid of the `.clone`
+    let contents = match rt::fs::read_to_string(path.clone()).await {
         Ok(contents) => contents,
         Err(e) if e.kind() == io::ErrorKind::NotFound => {
             return Err(ProcessError::NoSuchProcess(pid))

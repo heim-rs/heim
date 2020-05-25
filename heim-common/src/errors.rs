@@ -8,6 +8,9 @@ use std::num;
 use std::path::PathBuf;
 use std::result;
 
+#[cfg(feature = "backtrace")]
+use backtrace::Backtrace;
+
 /// A specialized Result type for data fetching functions.
 ///
 /// This type is used almost for all `heim` routines
@@ -70,10 +73,19 @@ pub enum Context {
 #[derive(Debug)]
 pub struct Error {
     source: io::Error,
+    #[cfg(feature = "backtrace")]
+    backtrace: Option<Backtrace>,
     context: Option<Context>,
 }
 
 impl Error {
+    /// Returns an error backtrace if any.
+    #[cfg_attr(docsrs, doc(cfg(all(feature = "unstable", feature = "backtrace"))))]
+    #[cfg(feature = "backtrace")]
+    pub fn backtrace(&self) -> Option<&Backtrace> {
+        self.backtrace.as_ref()
+    }
+
     /// Create new `Error` instance from `io::Error` and context details.
     ///
     /// This method is considered to be an internal API
@@ -82,6 +94,8 @@ impl Error {
     pub fn new(source: io::Error, context: Context) -> Self {
         Self {
             source,
+            #[cfg(feature = "backtrace")]
+            backtrace: Some(Backtrace::new()),
             context: Some(context),
         }
     }
@@ -94,8 +108,16 @@ impl Error {
     pub fn last_os_error() -> Self {
         Self {
             source: io::Error::last_os_error(),
+            #[cfg(feature = "backtrace")]
+            backtrace: Some(Backtrace::new()),
             context: None,
         }
+    }
+
+    /// Returns internal OS error kind.
+    #[doc(hidden)]
+    pub fn kind(&self) -> io::ErrorKind {
+        self.source.kind()
     }
 
     /// Creates a new instance of an `Error` from a particular OS error code.
@@ -106,6 +128,8 @@ impl Error {
     pub fn from_raw_os_error(code: i32) -> Self {
         Self {
             source: io::Error::from_raw_os_error(code),
+            #[cfg(feature = "backtrace")]
+            backtrace: Some(Backtrace::new()),
             context: None,
         }
     }
@@ -122,6 +146,8 @@ impl Error {
     {
         Self {
             source: io::Error::from(io::ErrorKind::InvalidData),
+            #[cfg(feature = "backtrace")]
+            backtrace: Some(Backtrace::new()),
             context: Some(Context::MissingKey {
                 name: name.into(),
                 source: source.into(),
@@ -300,6 +326,8 @@ impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
         Error {
             source: e,
+            #[cfg(feature = "backtrace")]
+            backtrace: Some(Backtrace::new()),
             context: None,
         }
     }

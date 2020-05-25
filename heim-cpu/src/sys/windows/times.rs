@@ -48,23 +48,17 @@ pub async fn time() -> Result<CpuTime> {
     }
 }
 
-pub fn times() -> impl Stream<Item = Result<CpuTime>> {
-    future::lazy(|_| {
-        let processors: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
-            winternl::query_system_information()?;
+pub async fn times() -> Result<impl Stream<Item = Result<CpuTime>>> {
+    let processors: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
+        winternl::query_system_information()?;
 
-        let stream = stream::iter(processors).map(Ok);
+    let stream = stream::iter(processors).map(|proc_info| {
+        let user = proc_info.UserTime.into_time();
+        let idle = proc_info.IdleTime.into_time();
+        let system = proc_info.KernelTime.into_time() - idle;
 
-        Ok(stream)
-    })
-    .try_flatten_stream()
-    .map_ok(
-        |proc_info: winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION| {
-            let user = proc_info.UserTime.into_time();
-            let idle = proc_info.IdleTime.into_time();
-            let system = proc_info.KernelTime.into_time() - idle;
+        Ok(CpuTime { user, system, idle })
+    });
 
-            CpuTime { user, system, idle }
-        },
-    )
+    Ok(stream)
 }

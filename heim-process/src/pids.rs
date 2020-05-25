@@ -1,4 +1,4 @@
-use heim_common::prelude::Stream;
+use heim_common::prelude::{Result, Stream};
 
 use crate::{sys, Pid, ProcessResult};
 
@@ -7,8 +7,8 @@ use crate::{sys, Pid, ProcessResult};
 /// Consequent calls are not guaranteed to return pids in the same order.
 ///
 /// [Pid]: type.Pid.html
-pub fn pids() -> impl Stream<Item = ProcessResult<Pid>> {
-    sys::pids()
+pub async fn pids() -> Result<impl Stream<Item = Result<Pid>>> {
+    sys::pids().await
 }
 
 /// Checks if the process with given `pid` exists.

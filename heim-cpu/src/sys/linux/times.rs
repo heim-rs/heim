@@ -3,7 +3,7 @@ use std::str::{self, FromStr};
 use heim_common::prelude::*;
 use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
-use heim_runtime as rt;
+use heim_rt as rt;
 
 #[derive(Debug, Default)]
 pub struct CpuTime {
@@ -97,13 +97,20 @@ pub async fn time() -> Result<CpuTime> {
     }
 }
 
-pub fn times() -> impl Stream<Item = Result<CpuTime>> {
-    rt::fs::read_lines("/proc/stat")
-        .try_flatten_stream()
+pub async fn times() -> Result<impl Stream<Item = Result<CpuTime>>> {
+    let lines = rt::fs::read_lines("/proc/stat").await?;
+
+    let stream = lines
         .skip(1)
-        .try_filter(|line| future::ready(line.starts_with("cpu")))
-        .map_err(Error::from)
-        .and_then(|line| future::ready(CpuTime::from_str(&line)))
+        .filter_map(|try_line| async move {
+            match try_line {
+                Ok(line) if line.starts_with("cpu") => Some(CpuTime::from_str(&line)),
+                Ok(..) => None,
+                Err(e) => Some(Err(e.into())),
+            }
+        });
+
+    Ok(stream)
 }
 
 #[cfg(test)]

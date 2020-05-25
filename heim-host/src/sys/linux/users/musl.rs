@@ -38,6 +38,6 @@ impl User {
     }
 }
 
-pub fn users() -> impl Stream<Item = Result<User>> {
-    stream::iter(vec![])
+pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
+    Ok(stream::empty())
 }

@@ -47,47 +47,53 @@ impl IoCounters {
     }
 }
 
-fn inner_stream<F>(mut filter: F) -> impl Stream<Item = Result<IoCounters>>
+fn inner_stream<F>(mut filter: F) -> impl Iterator<Item = Result<IoCounters>>
 where
     F: FnMut(&Path) -> bool + 'static,
 {
-    stream::iter(bindings::Volumes::new())
-        .try_filter(move |path| future::ready(filter(&path)))
-        .and_then(|volume_path| async move {
-            let perf = match bindings::disk_performance(&volume_path) {
-                Ok(Some(perf)) => perf,
-                Ok(None) => return Ok(None),
-                Err(e) => return Err(e),
-            };
+    bindings::Volumes::new()
+        .filter_map(move |try_volume| {
+            match try_volume {
+                Ok(path) if filter(&path) => {
+                    let perf = match bindings::disk_performance(&path) {
+                        Ok(Some(perf)) => perf,
+                        Ok(None) => return None,
+                        Err(e) => return Some(Err(e)),
+                    };
 
-            let read_bytes = unsafe { *perf.BytesRead.QuadPart() as u64 };
-            let write_bytes = unsafe { *perf.BytesWritten.QuadPart() as u64 };
-            let read_time = unsafe { *perf.ReadTime.QuadPart() as f64 };
-            let write_time = unsafe { *perf.WriteTime.QuadPart() as f64 };
+                    let read_bytes = unsafe { *perf.BytesRead.QuadPart() as u64 };
+                    let write_bytes = unsafe { *perf.BytesWritten.QuadPart() as u64 };
+                    let read_time = unsafe { *perf.ReadTime.QuadPart() as f64 };
+                    let write_time = unsafe { *perf.WriteTime.QuadPart() as f64 };
 
-            let counters = IoCounters {
-                volume_path,
-                read_count: perf.ReadCount.into(),
-                write_count: perf.WriteCount.into(),
-                read_bytes: Information::new::<information::byte>(read_bytes),
-                write_bytes: Information::new::<information::byte>(write_bytes),
-                // `ReadTime` and `WriteTime` seems to be in tenths of microseconds
-                // https://github.com/giampaolo/psutil/issues/1012
-                read_time: Time::new::<time::microsecond>(read_time * 10.0),
-                write_time: Time::new::<time::microsecond>(write_time * 10.0),
-            };
+                    let counters = IoCounters {
+                        volume_path: path,
+                        read_count: perf.ReadCount.into(),
+                        write_count: perf.WriteCount.into(),
+                        read_bytes: Information::new::<information::byte>(read_bytes),
+                        write_bytes: Information::new::<information::byte>(write_bytes),
+                        // `ReadTime` and `WriteTime` seems to be in tenths of microseconds
+                        // https://github.com/giampaolo/psutil/issues/1012
+                        read_time: Time::new::<time::microsecond>(read_time * 10.0),
+                        write_time: Time::new::<time::microsecond>(write_time * 10.0),
+                    };
 
-            Ok(Some(counters))
+                    Some(Ok(counters))
+                },
+                Ok(_) => None,
+                Err(e) => Some(Err(e)),
+            }
         })
-        .try_filter_map(future::ok)
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    inner_stream(|_| true)
+pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    Ok(stream::iter(inner_stream(|_| true)))
 }
 
-pub fn io_counters_physical() -> impl Stream<Item = Result<IoCounters>> {
-    inner_stream(|path: &Path| {
+pub async fn io_counters_physical() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let iter = inner_stream(|path: &Path| {
         bindings::DriveType::from_path(path) == Some(bindings::DriveType::Fixed)
-    })
+    });
+
+    Ok(stream::iter(iter))
 }

@@ -28,7 +28,9 @@ pub trait ProcessExt {
     ///
     /// [IO counters]: ./struct.IoCounters.html
     #[cfg(target_os = "linux")] // TODO: will be undocumented for other platforms
-    fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>>;
+    async fn net_io_counters(
+        &self,
+    ) -> ProcessResult<BoxStream<'_, ProcessResult<heim_net::IoCounters>>>;
 }
 
 #[cfg(target_os = "linux")]
@@ -38,7 +40,11 @@ impl ProcessExt for crate::Process {
         self.as_ref().io_counters().await
     }
 
-    fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
-        self.as_ref().net_io_counters()
+    async fn net_io_counters(
+        &self,
+    ) -> ProcessResult<BoxStream<'_, ProcessResult<heim_net::IoCounters>>> {
+        let stream = self.as_ref().net_io_counters().await?;
+
+        Ok(stream)
     }
 }

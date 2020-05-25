@@ -18,7 +18,7 @@ extern crate prettytable;
 
 use heim::process;
 
-#[tokio::main]
+#[smol_potat::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let process = match env::args().nth(1) {
         Some(value) => {

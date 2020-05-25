@@ -18,15 +18,15 @@ is-it-maintained-open-issues = { repository = "heim-rs/heim" }
 
 [dependencies]
 heim-common = { version = "0.1.0-alpha.1", path = "../heim-common" }
-heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime", default-features = false }
-heim-cpu = {version = "0.1.0-alpha.1", path = "../heim-cpu", optional = true, default-features = false }
-heim-disk = {version = "0.1.0-alpha.1", path = "../heim-disk", optional = true, default-features = false }
-heim-host = { version = "0.1.0-alpha.1", path = "../heim-host", optional = true, default-features = false }
-heim-memory = {version = "0.1.0-alpha.1", path = "../heim-memory", optional = true, default-features = false }
-heim-net = {version = "0.1.0-alpha.1", path = "../heim-net", optional = true, default-features = false }
-heim-process = { version = "0.1.1-alpha.1", path = "../heim-process", optional = true, default-features = false }
-heim-virt = { version = "0.1.0-alpha.1", path = "../heim-virt", optional = true, default-features = false }
-heim-sensors = { version = "0.1.0-alpha.1", path = "../heim-sensors", optional = true, default-features = false }
+heim-runtime = { version = "0.1.0-alpha.1", path = "../heim-runtime" }
+heim-cpu = {version = "0.1.0-alpha.1", path = "../heim-cpu", optional = true }
+heim-disk = {version = "0.1.0-alpha.1", path = "../heim-disk", optional = true }
+heim-host = { version = "0.1.0-alpha.1", path = "../heim-host", optional = true }
+heim-memory = {version = "0.1.0-alpha.1", path = "../heim-memory", optional = true }
+heim-net = {version = "0.1.0-alpha.1", path = "../heim-net", optional = true }
+heim-process = { version = "0.1.1-alpha.1", path = "../heim-process", optional = true }
+heim-virt = { version = "0.1.0-alpha.1", path = "../heim-virt", optional = true }
+heim-sensors = { version = "0.1.0-alpha.1", path = "../heim-sensors", optional = true }
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
@@ -34,6 +34,8 @@ heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 [features]
 default = []
 full = ["host", "cpu", "memory", "disk", "net", "process", "virt", "sensors"]
+unstable = []
+backtrace = ["unstable", "heim-common/backtrace"]
 
 # Modules
 host = ["heim-host"]
@@ -44,11 +46,6 @@ net = ["heim-net"]
 process = ["heim-process"]
 virt = ["heim-virt"]
 sensors = ["heim-sensors"]
-
-# Runtimes
-runtime-polyfill = ["heim-runtime/runtime-polyfill"]
-runtime-tokio = ["heim-runtime/runtime-tokio"]
-runtime-async-std = ["heim-runtime/runtime-async-std"]
 
 [package.metadata.docs.rs]
 features = ["full", "runtime-polyfill"]

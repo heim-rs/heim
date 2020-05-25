@@ -2,7 +2,7 @@ use std::marker::Unpin;
 use std::path::Path;
 
 use heim_common::prelude::{future, StreamExt, TryFutureExt};
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::Virtualization;
 
@@ -49,8 +49,9 @@ async fn detect_cgroups<T>(path: T) -> Result<Virtualization, ()>
 where
     T: AsRef<Path> + Send + Unpin + 'static,
 {
+    // TODO: Can be done in a blocking task completely
     let lines = rt::fs::read_lines(path).await.map_err(|_| ())?;
-    rt::pin!(lines);
+    futures::pin_mut!(lines);
 
     while let Some(line) = lines.next().await {
         match line {
@@ -66,10 +67,11 @@ where
 }
 
 async fn detect_openvz() -> Result<Virtualization, ()> {
+    // TODO: Can be done in a blocking task completely
     let f1 = rt::fs::path_exists("/proc/vz");
     let f2 = rt::fs::path_exists("/proc/bc");
 
-    match rt::join!(f1, f2) {
+    match futures::join!(f1, f2) {
         // `/proc/vz` exists in container and outside of the container,
         // `/proc/bc` only outside of the container.
         (true, false) => Ok(Virtualization::OpenVz),

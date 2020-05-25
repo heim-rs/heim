@@ -1,0 +1,12 @@
+[package]
+name = "heim-rt"
+version = "0.1.0"
+authors = ["svartalf <self@svartalf.info>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures = { version = "~0.3", default-features = false, features = ["std"] }
+futures-timer = "~3.0"
+smol = "~0.1"

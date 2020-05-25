@@ -1,7 +1,6 @@
 use heim_common::prelude::*;
 use heim_process as process;
 use heim_process::ProcessError;
-use heim_runtime as rt;
 
 #[heim_derive::test]
 async fn smoke_pid_exists() {
@@ -11,13 +10,15 @@ async fn smoke_pid_exists() {
 }
 
 #[heim_derive::test]
-async fn smoke_pids() {
-    let pids = process::pids();
-    rt::pin!(pids);
+async fn smoke_pids() -> Result<()> {
+    let pids = process::pids().await?;
+    ::futures::pin_mut!(pids);
 
     while let Some(pid) = pids.next().await {
         assert!(pid.is_ok());
     }
+
+    Ok(())
 }
 
 /// Try to .await the `Process` method and panic if there is a loading error occured.
@@ -40,9 +41,9 @@ macro_rules! try_method {
 }
 
 #[heim_derive::test]
-async fn smoke_processes() {
-    let processes = process::processes();
-    rt::pin!(processes);
+async fn smoke_processes() -> Result<()> {
+    let processes = process::processes().await?;
+    ::futures::pin_mut!(processes);
 
     while let Some(process) = processes.next().await {
         let process = match process {
@@ -79,7 +80,7 @@ async fn smoke_processes() {
             use heim_process::os::linux::ProcessExt;
 
             try_method!(process.io_counters());
-            try_method!(process.net_io_counters().try_for_each(|_| future::ok(())));
+            try_method!(process.net_io_counters());
         }
 
         #[cfg(target_os = "windows")]
@@ -89,4 +90,6 @@ async fn smoke_processes() {
             try_method!(process.priority());
         }
     }
+
+    Ok(())
 }

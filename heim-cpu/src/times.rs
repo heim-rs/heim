@@ -57,6 +57,8 @@ pub async fn time() -> Result<CpuTime> {
 /// Returns a stream over the [CPU time] for each CPU core.
 ///
 /// [CPU time]: struct.CpuTime.html
-pub fn times() -> impl Stream<Item = Result<CpuTime>> {
-    sys::times().map_ok(Into::into)
+pub async fn times() -> Result<impl Stream<Item = Result<CpuTime>>> {
+    let inner = sys::times().await?;
+
+    Ok(inner.map_ok(Into::into))
 }

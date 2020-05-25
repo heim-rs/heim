@@ -1,10 +1,11 @@
 use std::str::FromStr;
+use std::path::Path;
 
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 use heim_common::utils::iter::*;
 use heim_common::Pid;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 #[derive(Debug)]
 pub struct IoCounters {
@@ -105,18 +106,27 @@ impl FromStr for IoCounters {
     }
 }
 
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    rt::fs::read_lines("/proc/net/dev")
-        .try_flatten_stream()
+async fn inner<T: AsRef<Path> + Send + 'static>(path: T) -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let lines = rt::fs::read_lines(path.as_ref().to_path_buf()).await
+        .map_err(|e| Error::from(e).with_file(path.as_ref()))?;
+
+    let stream = lines
         .skip(2)
         .map_err(Error::from)
-        .and_then(|line| async move { IoCounters::from_str(&line) })
+        .and_then(|line| async move {
+            IoCounters::from_str(&line)
+        });
+
+    Ok(stream)
+
 }
 
-pub fn io_counters_for_pid(pid: Pid) -> impl Stream<Item = Result<IoCounters>> {
-    rt::fs::read_lines(format!("/proc/{}/net/dev", pid))
-        .try_flatten_stream()
-        .skip(2)
-        .map_err(Error::from)
-        .and_then(|line| async move { IoCounters::from_str(&line) })
+pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    inner("/proc/net/dev").await
+}
+
+pub async fn io_counters_for_pid(pid: Pid) -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let path = format!("/proc/{}/net/dev", pid);
+
+    inner(path).await
 }

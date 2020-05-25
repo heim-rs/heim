@@ -1,3 +1,4 @@
+use std::io;
 use std::cmp;
 use std::hash;
 use std::os::unix::ffi::OsStrExt;
@@ -5,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use super::{pid_exists, pids};
 use crate::os::linux::IoCounters;
@@ -174,10 +175,20 @@ impl Process {
         procfs::io(self.pid).await
     }
 
-    pub fn net_io_counters(&self) -> BoxStream<ProcessResult<heim_net::IoCounters>> {
-        heim_net::os::linux::io_counters_for_pid(self.pid())
-            .map_err(Into::into)
-            .boxed()
+    pub async fn net_io_counters(&self) -> ProcessResult<BoxStream<'_, ProcessResult<heim_net::IoCounters>>> {
+        // TODO: Convert specific errors into ProcessResult error variants
+        let stream = match heim_net::os::linux::io_counters_for_pid(self.pid()).await {
+            Ok(stream) => stream,
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
+                return match self.status().await {
+                    Ok(Status::Zombie) => Err(ProcessError::ZombieProcess(self.pid)),
+                    _ => Err(e.into()),
+                }
+            },
+            Err(e) => return Err(e.into()),
+        };
+
+        Ok(stream.map_err(Into::into).boxed())
     }
 }
 
@@ -195,8 +206,11 @@ impl cmp::PartialEq for Process {
 
 impl cmp::Eq for Process {}
 
-pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
-    pids().map_err(Into::into).and_then(get)
+pub async fn processes() -> Result<impl Stream<Item = ProcessResult<Process>>> {
+    let pids = pids().await?;
+
+    let stream = pids.map_err(Into::into).and_then(get);
+    Ok(stream)
 }
 
 pub async fn get(pid: Pid) -> ProcessResult<Process> {

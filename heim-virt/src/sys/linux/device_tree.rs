@@ -9,7 +9,7 @@ use heim_common::prelude::StreamExt;
     target_arch = "powerpc64"
 ))]
 use heim_common::prelude::TryFutureExt;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::Virtualization;
 

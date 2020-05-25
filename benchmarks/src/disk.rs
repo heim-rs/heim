@@ -8,44 +8,59 @@ static USAGE_PATH: &str = "/";
 static USAGE_PATH: &str = "C:\\";
 
 pub fn inner(c: &mut Criterion) {
-    let mut rt = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .enable_all()
-        .build()
-        .unwrap();
-
     c.bench_function("disk_io_counters", |b| {
         b.iter(|| {
-            let stream = heim::disk::io_counters().for_each(|_| async {});
-            rt.block_on(stream)
+            smol::block_on(async {
+                heim::disk::io_counters()
+                    .await?
+                    .for_each(|_| async {})
+                    .await;
+
+                Ok::<(), heim::Error>(())
+            })
         })
     });
 
     c.bench_function("disk_io_counters_physical", |b| {
         b.iter(|| {
-            let stream = heim::disk::io_counters_physical().for_each(|_| async {});
-            rt.block_on(stream)
+            smol::block_on(async {
+                heim::disk::io_counters_physical()
+                    .await?
+                    .for_each(|_| async {})
+                    .await;
+
+                Ok::<(), heim::Error>(())
+            })
         })
     });
 
     c.bench_function("disk_partitions", |b| {
         b.iter(|| {
-            let stream = heim::disk::partitions().for_each(|_| async {});
-            rt.block_on(stream)
+            smol::block_on(async {
+                heim::disk::partitions().await?.for_each(|_| async {}).await;
+
+                Ok::<(), heim::Error>(())
+            })
         })
     });
 
     c.bench_function("disk_partitions_physical", |b| {
         b.iter(|| {
-            let stream = heim::disk::partitions_physical().for_each(|_| async {});
-            rt.block_on(stream)
+            smol::block_on(async {
+                heim::disk::partitions_physical()
+                    .await?
+                    .for_each(|_| async {})
+                    .await;
+
+                Ok::<(), heim::Error>(())
+            })
         })
     });
 
     c.bench_function("disk_usage", |b| {
         b.iter(|| {
-            let stream = heim::disk::usage(USAGE_PATH);
-            rt.block_on(stream)
+            let fut = heim::disk::usage(USAGE_PATH);
+            smol::block_on(fut)
         })
     });
 }

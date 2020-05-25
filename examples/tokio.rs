@@ -1,10 +1,8 @@
-//! `uname -a` implementation
+//! Tiny example of using `heim` with `tokio` runtime.
 
-use heim::{host, Result};
-
-#[smol_potat::main]
-async fn main() -> Result<()> {
-    let platform = host::platform().await?;
+#[tokio::main]
+async fn main() -> heim::Result<()> {
+    let platform = heim::host::platform().await?;
 
     println!(
         "{} {} {} {} {}",

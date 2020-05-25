@@ -1,11 +1,12 @@
 use std::collections::HashSet;
 use std::ffi::OsStr;
-use std::iter::FromIterator;
+use std::fs;
+use std::io::{self, BufRead};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use crate::FileSystem;
 
@@ -73,11 +74,14 @@ impl FromStr for Partition {
 }
 
 // Returns stream with known physical (only!) partitions
-fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
-    rt::fs::read_lines("/proc/filesystems")
-        .try_flatten_stream()
-        .map_err(Error::from)
-        .try_filter_map(|line| {
+async fn known_filesystems() -> Result<HashSet<FileSystem>> {
+    rt::spawn_blocking(|| {
+        let file = fs::File::open("/proc/filesystems")?;
+        let reader = io::BufReader::new(file);
+        let mut acc = HashSet::with_capacity(4);
+
+        for line in reader.lines() {
+            let line = line?;
             let mut parts = line.splitn(2, '\t');
             let nodev = match parts.next() {
                 Some("nodev") => true,
@@ -87,35 +91,39 @@ fn known_filesystems() -> impl Stream<Item = Result<FileSystem>> {
             let fs = match parts.next() {
                 Some("zfs") if nodev => FileSystem::from_str("zfs"),
                 Some(filesystem) if !nodev => FileSystem::from_str(filesystem),
-                _ => return future::ok(None),
-            };
+                _ => continue,
+            }?;
 
-            future::ready(fs.map(Some))
-        })
+            let _ = acc.insert(fs);
+        }
+
+        Ok(acc)
+    })
+    .await
 }
 
-pub fn partitions() -> impl Stream<Item = Result<Partition>> {
-    rt::fs::read_lines(PROC_MOUNTS)
-        .try_flatten_stream()
+pub async fn partitions() -> Result<impl Stream<Item = Result<Partition>>> {
+    let lines = rt::fs::read_lines(PROC_MOUNTS).await?;
+    let stream = lines
         .map_err(Error::from)
-        .try_filter_map(|line| {
+        .try_filter_map(|line| async move {
             let result = Partition::from_str(&line).ok();
 
-            future::ok(result)
-        })
+            Ok(result)
+        });
+
+    Ok(stream)
 }
 
-pub fn partitions_physical() -> impl Stream<Item = Result<Partition>> {
-    known_filesystems()
-        .into_stream()
-        .try_collect::<HashSet<_>>()
-        .map_ok(HashSet::from_iter)
-        .map_ok(|fs: HashSet<FileSystem>| {
-            partitions().try_filter_map(move |part| match part {
-                Partition { device: None, .. } => future::ok(None),
-                Partition { ref fs_type, .. } if !fs.contains(fs_type) => future::ok(None),
-                partition => future::ok(Some(partition)),
-            })
-        })
-        .try_flatten_stream()
+pub async fn partitions_physical() -> Result<impl Stream<Item = Result<Partition>>> {
+    let filesystems = known_filesystems().await?;
+    let stream = partitions().await?;
+
+    let stream = stream.try_filter_map(move |part| match part {
+        Partition { device: None, .. } => future::ok(None),
+        Partition { ref fs_type, .. } if !filesystems.contains(fs_type) => future::ok(None),
+        partition => future::ok(Some(partition)),
+    });
+
+    Ok(stream)
 }

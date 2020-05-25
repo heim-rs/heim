@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use heim_common::prelude::*;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 #[derive(Debug, Default)]
 pub struct CpuStats {

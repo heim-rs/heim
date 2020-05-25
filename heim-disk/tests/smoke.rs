@@ -1,13 +1,15 @@
-use heim_common::prelude::*;
+use std::error::Error;
+
+use futures::StreamExt;
+
 use heim_disk as disk;
-use heim_runtime as rt;
 
 #[heim_derive::test]
-async fn smoke_partitions() {
-    let partitions = disk::partitions();
-    rt::pin!(partitions);
+async fn smoke_partitions() -> Result<(), Box<dyn Error>> {
+    let partitions = disk::partitions().await?;
+    futures::pin_mut!(partitions);
     while let Some(part) = partitions.next().await {
-        let part = part.unwrap();
+        let part = part?;
 
         let _ = part.device();
         let _ = part.mount_point();
@@ -28,14 +30,16 @@ async fn smoke_partitions() {
             let _ = part.drive_type();
         }
     }
+
+    Ok(())
 }
 
 #[heim_derive::test]
-async fn smoke_partitions_physical() {
-    let partitions = disk::partitions_physical();
-    rt::pin!(partitions);
+async fn smoke_partitions_physical() -> Result<(), Box<dyn Error>> {
+    let partitions = disk::partitions_physical().await?;
+    futures::pin_mut!(partitions);
     while let Some(part) = partitions.next().await {
-        let part = part.unwrap();
+        let part = part?;
 
         let _ = part.device();
         let _ = part.mount_point();
@@ -56,13 +60,13 @@ async fn smoke_partitions_physical() {
             let _ = part.drive_type();
         }
     }
+
+    Ok(())
 }
 
 #[heim_derive::test]
-async fn smoke_usage() {
-    let usage = disk::usage("/").await;
-
-    let usage = usage.unwrap();
+async fn smoke_usage() -> Result<(), Box<dyn Error>> {
+    let usage = disk::usage("/").await?;
 
     let _ = usage.total();
     let _ = usage.used();
@@ -75,10 +79,12 @@ async fn smoke_usage() {
 
         let _ = usage.flags();
     }
+
+    Ok(())
 }
 
 #[heim_derive::test]
-async fn smoke_io_counters() {
+async fn smoke_io_counters() -> Result<(), Box<dyn Error>> {
     #[cfg(target_os = "windows")]
     {
         use std::process::Command;
@@ -86,8 +92,8 @@ async fn smoke_io_counters() {
         let _ = Command::new("diskperf").arg("-y").status();
     }
 
-    let counters = disk::io_counters();
-    rt::pin!(counters);
+    let counters = disk::io_counters().await?;
+    futures::pin_mut!(counters);
     while let Some(count) = counters.next().await {
         let count = count.unwrap();
 
@@ -97,10 +103,12 @@ async fn smoke_io_counters() {
         let _ = count.read_bytes();
         let _ = count.write_bytes();
     }
+
+    Ok(())
 }
 
 #[heim_derive::test]
-async fn smoke_io_counters_physical() {
+async fn smoke_io_counters_physical() -> Result<(), Box<dyn Error>> {
     #[cfg(target_os = "windows")]
     {
         use std::process::Command;
@@ -108,10 +116,10 @@ async fn smoke_io_counters_physical() {
         let _ = Command::new("diskperf").arg("-y").status();
     }
 
-    let counters = disk::io_counters_physical();
-    rt::pin!(counters);
+    let counters = disk::io_counters_physical().await?;
+    futures::pin_mut!(counters);
     while let Some(count) = counters.next().await {
-        let count = count.unwrap();
+        let count = count?;
 
         let _ = count.device_name();
         let _ = count.read_count();
@@ -119,4 +127,6 @@ async fn smoke_io_counters_physical() {
         let _ = count.read_bytes();
         let _ = count.write_bytes();
     }
+
+    Ok(())
 }

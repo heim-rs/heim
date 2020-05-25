@@ -2,18 +2,18 @@
 
 use std::ffi::OsStr;
 
+use futures::StreamExt;
 use heim::units::information;
-use tokio::stream::StreamExt;
 
-#[tokio::main]
+#[smol_potat::main]
 async fn main() -> heim::Result<()> {
     println!(
         "{:<17} {:<10} {:<10} {:<10} {:<10} Mount",
         "Device", "Total, Mb", "Used, Mb", "Free, Mb", "Type"
     );
 
-    let partitions = heim::disk::partitions_physical();
-    tokio::pin!(partitions);
+    let partitions = heim::disk::partitions_physical().await?;
+    futures::pin_mut!(partitions);
 
     while let Some(part) = partitions.next().await {
         let part = part?;

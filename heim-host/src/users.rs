@@ -35,6 +35,8 @@ impl fmt::Debug for User {
 /// see [#141](https://github.com/heim-rs/heim/issues/141).
 ///
 /// [User]: ./struct.User.html
-pub fn users() -> impl Stream<Item = Result<User>> {
-    sys::users().map_ok(Into::into)
+pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
+    let inner = sys::users().await?;
+
+    Ok(inner.map_ok(Into::into))
 }

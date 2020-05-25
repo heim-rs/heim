@@ -212,8 +212,10 @@ async fn get_unchecked(pid: Pid) -> ProcessResult<Process> {
     })
 }
 
-pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
-    pids().and_then(get_unchecked)
+pub async fn processes() -> Result<impl Stream<Item = ProcessResult<Process>>> {
+    let stream = pids().await?;
+
+    Ok(stream.map_err(Into::into).and_then(get_unchecked))
 }
 
 pub async fn get(pid: Pid) -> ProcessResult<Process> {

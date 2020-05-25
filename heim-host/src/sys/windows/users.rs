@@ -40,12 +40,14 @@ impl User {
     }
 }
 
-pub fn users() -> impl Stream<Item = Result<User>> {
-    future::lazy(|_| {
-        let sessions = Sessions::new()?;
+pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
+    let sessions = Sessions::new()?;
 
-        Ok(stream::iter(sessions).map(Ok))
-    })
-    .try_flatten_stream()
-    .try_filter_map(|session| future::ready(User::from_session(session)))
+    let stream = stream::iter(sessions)
+        .map(Ok)
+        .try_filter_map(|session| async move {
+            User::from_session(session)
+        });
+
+    Ok(stream)
 }

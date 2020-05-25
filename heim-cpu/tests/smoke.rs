@@ -1,9 +1,9 @@
 //#![feature(test)]
 
-use heim_common::prelude::*;
+//use heim_common::prelude::*;
+use futures::StreamExt;
 use heim_common::units::frequency;
 use heim_cpu as cpu;
-use heim_runtime as rt;
 
 #[heim_derive::skip_ci(target_os = "linux")]
 #[heim_derive::test]
@@ -19,7 +19,7 @@ async fn smoke_frequency() {
 #[cfg(target_os = "linux")]
 async fn smoke_frequencies() {
     let frequencies = cpu::os::linux::frequencies();
-    rt::pin!(frequencies);
+    futures::pin_mut!(frequencies);
     while let Some(freq) = frequencies.next().await {
         let f = freq.unwrap();
 
@@ -85,8 +85,8 @@ async fn smoke_time() {
 
 #[heim_derive::test]
 async fn smoke_times() {
-    let times = cpu::times();
-    rt::pin!(times);
+    let times = cpu::times().await.unwrap();
+    futures::pin_mut!(times);
     while let Some(time) = times.next().await {
         let time = time.unwrap();
 

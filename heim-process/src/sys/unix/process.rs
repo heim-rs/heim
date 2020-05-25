@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use heim_common::prelude::StreamExt as _;
 use heim_common::Error;
-use heim_runtime as rt;
+use heim_rt as rt;
 
 use super::bindings::{errno, set_errno};
 use crate::os::unix::Signal;
@@ -55,7 +55,7 @@ pub fn pid_kill(pid: Pid, signal: Signal) -> ProcessResult<()> {
 pub async fn pid_wait(pid: Pid) -> ProcessResult<()> {
     // `waitpid` might block indefinitely,
     // we need to handle that
-    let waited = rt::task::spawn_blocking(move || {
+    let waited = rt::spawn_blocking(move || {
         let result = unsafe { libc::waitpid(pid, ptr::null_mut(), 0) };
         if result == -1 {
             // Do not care about the error type at this point
@@ -67,7 +67,7 @@ pub async fn pid_wait(pid: Pid) -> ProcessResult<()> {
     .await;
 
     // Task finished correctly and `waitpid` succeeded too
-    if let Ok(Ok(..)) = waited {
+    if waited.is_ok() {
         return Ok(());
     }
     // If either task failed or `waitpid` failed,
@@ -77,7 +77,7 @@ pub async fn pid_wait(pid: Pid) -> ProcessResult<()> {
     // except for a naive checking for pid existence in a loop
 
     let interval = rt::time::interval(Duration::from_millis(40));
-    rt::pin!(interval);
+    futures::pin_mut!(interval);
     while let Some(..) = interval.next().await {
         if !pid_exists(pid) {
             return Ok(());

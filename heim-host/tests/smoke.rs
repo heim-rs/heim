@@ -26,10 +26,10 @@ async fn smoke_boot_time() {
     assert!(boot_time.unwrap().get::<time::second>() > 0.0);
 }
 
-#[heim_derive::skip_ci(target_os = "windows")] // https://github.com/heim-rs/heim/issues/32
 #[heim_derive::test]
 async fn smoke_users() {
-    let mut users = host::users();
+    let users = host::users().await.unwrap();
+    ::futures::pin_mut!(users);
     while let Some(user) = users.next().await {
         let user = user.unwrap();
 

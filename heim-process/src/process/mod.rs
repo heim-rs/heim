@@ -250,8 +250,10 @@ impl fmt::Debug for Process {
 }
 
 /// Returns a stream over the currently running processes.
-pub fn processes() -> impl Stream<Item = ProcessResult<Process>> {
-    sys::processes().map_ok(Into::into)
+pub async fn processes() -> Result<impl Stream<Item = ProcessResult<Process>>> {
+    let inner = sys::processes().await?;
+
+    Ok(inner.map_ok(Into::into))
 }
 
 /// Loads the process information with `pid` given.

@@ -80,6 +80,8 @@ impl fmt::Debug for IoCounters {
 /// Windows implementation is missing, see [related issue](https://github.com/heim-rs/heim/issues/26)
 ///
 /// [IO counters]: struct.IoCounters.html
-pub fn io_counters() -> impl Stream<Item = Result<IoCounters>> {
-    sys::io_counters().map_ok(Into::into)
+pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let inner = sys::io_counters().await?;
+
+    Ok(inner.map_ok(Into::into))
 }

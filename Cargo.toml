@@ -22,6 +22,7 @@ members = [
     "heim-common",
     "heim-derive",
     "heim-runtime",
+    "heim-rt",
     "heim-host",
     "heim-cpu",
     "heim-memory",

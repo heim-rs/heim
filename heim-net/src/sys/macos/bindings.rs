@@ -117,6 +117,7 @@ pub struct if_msghdr_partial {
     pub ifm_type: libc::c_uchar,
 }
 
+// TODO: Why the function itself is `unsafe`?
 // TODO: Use `heim_common::sys::macos::sysctl` if possible
 pub unsafe fn net_pf_route() -> Result<Routes> {
     let mut name: [libc::c_int; 6] = [libc::CTL_NET, libc::PF_ROUTE, 0, 0, libc::NET_RT_IFLIST2, 0];
