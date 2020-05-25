@@ -91,6 +91,7 @@ impl Process {
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         match rt::fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
             Ok(path) => Ok(path),
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => Err(ProcessError::AccessDenied(self.pid)),
             Err(..) => {
                 if pid_exists(self.pid).await? {
                     Err(ProcessError::ZombieProcess(self.pid))
