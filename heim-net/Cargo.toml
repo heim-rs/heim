@@ -25,6 +25,7 @@ nix = "0.17.0"
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 smol = "~0.1"
 futures = "~0.3"
+version-sync = "0.9"
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]

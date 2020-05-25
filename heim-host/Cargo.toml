@@ -23,6 +23,7 @@ libc = "~0.2"
 heim-derive = { version = "0.1.0-alpha.1", path = "../heim-derive" }
 futures = "~0.3"
 smol = "~0.1"
+version-sync = "0.9"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 lazy_static = "1.3.0"
