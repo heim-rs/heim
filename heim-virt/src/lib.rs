@@ -33,6 +33,7 @@ mod sys;
 
 /// Virtualization systems (both VMs and containers)
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
+#[non_exhaustive]
 pub enum Virtualization {
     // VMs
     /// Kernel Virtual Machine (https://www.linux-kvm.org)
@@ -101,9 +102,6 @@ pub enum Virtualization {
     /// Usually means that there are symptoms of being running in some virtualization system,
     /// but it can't be determined specifically.
     Unknown,
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl Virtualization {

@@ -12,18 +12,30 @@ for information about previous releases.
 
 ### Added
 
- * Integration with `tokio` async runtime
- * Integration with `async-std` async runtime
- * Polyfill async runtime for other use cases
+ * Async and blocking operations are handled by `smol` crate internally
  * `heim::Error` type contains cause data for debugging purposes now
+ * `process::Process::priority` method for Windows (#217)
+ * `process::Process::niceness` method for *nixes (#216)
+ * `process::Process::wait` method for Linux and macOS (#213, #214)
+ * `process::Process::environment` method for Linux and macOS (#208, #209)
+ * `heim::cpu::os::unix::loadavg` function for load average values fetching
 
 ### Changed
 
- * MSRV bumped to Rust 1.39+
+ * MSRV bumped to Rust 1.40.0+
  * Examples moved to the separate workspace crate
  * Benchmarks moved to the separate workspace crate
- * `Process::cwd` for Windows panics instead of returning blank error, as this method is not implemented yet
- * Huge internal refactoring across all sub-crates
+ * `process::Process::cwd` for Windows panics instead of returning blank error, as this method is not implemented yet
+ * `process::Process::cwd` for Linux returns `AccessDenied` error if IO operation fails with the permission error (#226)
+ * Internal blocking operations are grouped together as much as possible in order to reduce execution time
+
+### Removed
+
+ * Preliminary support for `tokio` and `async-std` crates introduced in `v0.1.0-alpha.1` was removed
+
+### Fixed
+
+ * `cpu::times` for Linux correctly parses `/proc/stat` (#233)
 
 ## Older versions
 

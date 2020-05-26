@@ -7,6 +7,7 @@ use std::str::FromStr;
 /// All physical filesystems should have their own enum element
 /// and all virtual filesystems will go into the `Other` element.
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
+#[non_exhaustive]
 pub enum FileSystem {
     /// ext2 (https://en.wikipedia.org/wiki/Ext2)
     Ext2,
@@ -69,9 +70,6 @@ pub enum FileSystem {
     // TODO: Extend list
     /// Some unspecified filesystem.
     Other(String),
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl FileSystem {
@@ -111,7 +109,6 @@ impl FileSystem {
             FileSystem::Xfs => "xfs",
             FileSystem::Apfs => "apfs",
             FileSystem::Other(string) => string.as_str(),
-            _ => unimplemented!(),
         }
     }
 }

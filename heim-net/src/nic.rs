@@ -7,6 +7,7 @@ use crate::sys;
 
 /// Network interface address.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[non_exhaustive]
 pub enum Address {
     /// IPv4 Internet protocols
     Inet(net::SocketAddr),
@@ -16,9 +17,6 @@ pub enum Address {
 
     /// Link level interface
     Link(macaddr::MacAddr),
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 // TODO: Consider implement `Address::to_family()` method

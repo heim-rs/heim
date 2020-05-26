@@ -20,6 +20,7 @@ pub type Result<T> = result::Result<T, Error>;
 /// Error details.
 #[doc(hidden)]
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum Context {
     /// Invalid data format, unable to parse file.
     File {
@@ -58,8 +59,6 @@ pub enum Context {
         /// Details text.
         text: Cow<'static, str>,
     },
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 /// Error type for data fetching operations.
@@ -307,7 +306,6 @@ impl fmt::Display for Error {
             Some(Context::Ffi { func }) => {
                 f.write_fmt(format_args!("FFI function \"{}\" call failed", func))
             }
-            Some(other) => unreachable!("Nonexhaustive variant should be skipped for {:?}", other),
             None => return fmt::Display::fmt(&self.source, f),
         }?;
 

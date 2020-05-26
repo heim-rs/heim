@@ -12,6 +12,7 @@ pub type ProcessResult<T> = result::Result<T, ProcessError>;
 
 /// Error which might happen during the process information fetching.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum ProcessError {
     /// Process with this pid does not exists.
     NoSuchProcess(Pid),
@@ -21,9 +22,6 @@ pub enum ProcessError {
     AccessDenied(Pid),
     /// Data loading failure.
     Load(Error),
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl fmt::Display for ProcessError {
@@ -39,7 +37,6 @@ impl fmt::Display for ProcessError {
                 f.write_fmt(format_args!("Access denied for process {}", pid))
             }
             ProcessError::Load(e) => fmt::Display::fmt(e, f),
-            _ => unreachable!(),
         }
     }
 }
