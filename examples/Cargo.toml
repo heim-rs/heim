@@ -10,7 +10,7 @@ autobins = false
 [dev-dependencies]
 cfg-if = "~0.1"
 heim = { path = "../heim", features = ["full"] }
-smol-potat = "~0.2"
+smol-potat = "~0.3"
 futures-timer = "~3.0"
 
 futures = "~0.3"
