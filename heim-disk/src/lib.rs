@@ -1,6 +1,6 @@
 //! Disks information.
 
-#![doc(html_root_url = "https://docs.rs/heim-disk/0.1.0-alpha.1")]
+#![doc(html_root_url = "https://docs.rs/heim-disk/0.1.0-beta.1")]
 #![deny(
     unused,
     unused_imports,

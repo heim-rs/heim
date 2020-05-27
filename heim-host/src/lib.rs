@@ -1,6 +1,6 @@
 //! Host system information.
 
-#![doc(html_root_url = "https://docs.rs/heim-host/0.1.0-alpha.1")]
+#![doc(html_root_url = "https://docs.rs/heim-host/0.1.0-beta.1")]
 #![deny(
     unused,
     unused_imports,
