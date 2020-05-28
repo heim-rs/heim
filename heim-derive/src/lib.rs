@@ -24,6 +24,11 @@
     unused_import_braces,
     unused_results
 )]
+#![allow(
+    // Next two are temporary, see https://github.com/rust-lang/rust/issues/72686
+    unknown_lints,
+    unused_crate_dependencies
+)]
 
 #[allow(unused_extern_crates)]
 extern crate proc_macro;

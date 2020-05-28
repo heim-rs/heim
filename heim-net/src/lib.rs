@@ -21,7 +21,13 @@
     unused_import_braces,
     unused_results
 )]
-#![allow(clippy::missing_safety_doc)]
+#![allow(
+    // Next two are temporary, see https://github.com/rust-lang/rust/issues/72686
+    unknown_lints,
+    unused_crate_dependencies,
+
+    clippy::missing_safety_doc
+)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod os;
