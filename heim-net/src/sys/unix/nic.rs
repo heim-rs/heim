@@ -1,3 +1,5 @@
+use std::net::SocketAddr;
+
 use macaddr::MacAddr;
 use nix::ifaddrs;
 use nix::net::if_::InterfaceFlags;
@@ -60,27 +62,16 @@ impl Nic {
     }
 }
 
-pub fn nic() -> impl Stream<Item = Result<Nic>> {
-    future::lazy(|_| {
-        // `nix::ifaddrs` structs are not safe to send between threads,
-        // so collecting them in a once
-        // TODO: Can we Pin them maybe?
-        let iter = ifaddrs::getifaddrs()?;
-        let interfaces = iter.collect::<Vec<_>>();
-
-        Ok(stream::iter(interfaces).map(Ok))
-    })
-    .try_flatten_stream()
-    .try_filter_map(|addr: ifaddrs::InterfaceAddress| {
-        // Skipping unsupported address families
-        let result = if addr.address.is_some() {
-            Some(Nic(addr))
+pub async fn nic() -> Result<impl Stream<Item = Result<Nic>>> {
+    let iter = ifaddrs::getifaddrs()?.filter_map(|addr| {
+        if addr.address.is_some() {
+            Some(Ok(Nic(addr)))
         } else {
             None
-        };
+        }
+    });
 
-        future::ok(result)
-    })
+    Ok(stream::iter(iter))
 }
 
 impl From<&socket::SockAddr> for Address {
@@ -88,7 +79,10 @@ impl From<&socket::SockAddr> for Address {
         use nix::sys::socket::SockAddr::*;
 
         match *s {
-            Inet(addr) => Address::Inet(addr.to_std()),
+            Inet(addr) => match addr.to_std() {
+                SocketAddr::V4(addr) => Address::Inet(addr),
+                SocketAddr::V6(addr) => Address::Inet6(addr),
+            },
             Link(addr) => Address::Link(MacAddr::from(addr.addr())),
             other => unimplemented!("Unknown sockaddr: {:?}", other),
         }

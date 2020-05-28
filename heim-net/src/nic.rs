@@ -10,10 +10,10 @@ use crate::sys;
 #[non_exhaustive]
 pub enum Address {
     /// IPv4 Internet protocols
-    Inet(net::SocketAddr),
+    Inet(net::SocketAddrV4),
 
     /// IPv6 Internet protocols
-    Inet6(net::SocketAddr),
+    Inet6(net::SocketAddrV6),
 
     /// Link level interface
     Link(macaddr::MacAddr),
@@ -89,5 +89,7 @@ impl fmt::Debug for Nic {
 ///
 /// [Network Interface Cards]: struct.Nic.html
 pub async fn nic() -> Result<impl Stream<Item = Result<Nic>>> {
-    Ok(sys::nic().map_ok(Into::into))
+    let inner = sys::nic().await?;
+
+    Ok(inner.map_ok(Into::into))
 }
