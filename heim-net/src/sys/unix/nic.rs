@@ -39,6 +39,10 @@ impl Nic {
         self.0.flags.contains(InterfaceFlags::IFF_UP)
     }
 
+    pub fn is_running(&self) -> bool {
+        self.0.flags.contains(InterfaceFlags::IFF_RUNNING)
+    }
+
     pub fn is_broadcast(&self) -> bool {
         self.0.flags.contains(InterfaceFlags::IFF_BROADCAST)
     }

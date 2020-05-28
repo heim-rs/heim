@@ -50,9 +50,14 @@ impl Nic {
         self.as_ref().destination()
     }
 
-    /// Returns `bool` indicating whether interface is up and running.
+    /// Returns `bool` indicating whether interface is up.
     pub fn is_up(&self) -> bool {
         self.as_ref().is_up()
+    }
+
+    /// Returns `bool` indicating whether interface is running.
+    pub fn is_running(&self) -> bool {
+        self.as_ref().is_running()
     }
 
     /// Returns `bool` indicating whether interface is loopback.

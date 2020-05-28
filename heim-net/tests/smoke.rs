@@ -42,6 +42,7 @@ async fn smoke_nic() -> Result<()> {
         let _ = iface.netmask();
         let _ = iface.destination();
         let _ = iface.is_up();
+        let _ = iface.is_running();
         let _ = iface.is_loopback();
         let _ = iface.is_multicast();
 

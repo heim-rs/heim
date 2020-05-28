@@ -30,6 +30,10 @@ impl Nic {
         unimplemented!()
     }
 
+    pub fn is_running(&self) -> bool {
+        unimplemented!()
+    }
+
     pub fn is_broadcast(&self) -> bool {
         unimplemented!()
     }

@@ -18,7 +18,8 @@ for information about previous releases.
  * `process::Process::niceness` method for *nixes (#216)
  * `process::Process::wait` method for Linux and macOS (#213, #214)
  * `process::Process::environment` method for Linux and macOS (#208, #209)
- * `heim::cpu::os::unix::loadavg` function for load average values fetching
+ * `cpu::os::unix::loadavg` function for load average values fetching
+ * `net::Nic::is_running` method for checking network interface running state (#223)
 
 ### Changed
 
@@ -28,6 +29,7 @@ for information about previous releases.
  * `process::Process::cwd` for Windows panics instead of returning blank error, as this method is not implemented yet
  * `process::Process::cwd` for Linux returns `AccessDenied` error if IO operation fails with the permission error (#226)
  * Internal blocking operations are grouped together as much as possible in order to reduce execution time
+ * `net::Nic::is_up` method represents only "up" state now, `is_running` method added also (#223)
 
 ### Removed
 
