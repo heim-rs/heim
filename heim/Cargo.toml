@@ -49,5 +49,5 @@ virt = ["heim-virt"]
 sensors = ["heim-sensors"]
 
 [package.metadata.docs.rs]
-features = ["full", "runtime-polyfill"]
+features = ["full"]
 rustdoc-args = ["--cfg", "docsrs"]
