@@ -59,14 +59,14 @@ impl FromStr for CpuTime {
     // "cpu1 317865 456 71065 3101075 8645 14938 10567 0 0 0"
     fn from_str(value: &str) -> Result<CpuTime> {
         let mut times = CpuTime::default();
+        let ticks = *CLOCK_TICKS as f64;
 
         let parts = value.split_whitespace().skip(1);
         for (idx, part) in parts.enumerate() {
-            let value = part.parse::<u64>().map(|value| {
-                let value = value / *CLOCK_TICKS;
+            let value = part.parse::<f64>().map(|value| {
                 // TODO: Potential precision loss.
                 // Do we care about it at all?
-                Time::new::<time::second>(value as f64)
+                Time::new::<time::second>(value / ticks)
             })?;
 
             match idx {

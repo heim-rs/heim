@@ -98,8 +98,14 @@ impl FromStr for Stat {
         let _rsslim: u64 = parts.try_parse_next()?;
         // ...
 
-        // TODO: Potential precision loss
-        let start_time = (start_time / *CLOCK_TICKS) as f64;
+        // Note: we need to operate with `f64` in here for as much as possible,
+        // otherwise we will lose the fraction part, leading to the same CPU time values
+        // if called consequently. That breaks `top` example (and similar things),
+        // so these fractions are really important here.
+        let ticks = *CLOCK_TICKS as f64;
+
+        // TODO: Potential precision loss during the `as f64` cast
+        let start_time = start_time as f64 / ticks;
         debug_assert!(!start_time.is_nan());
 
         Ok(Stat {
@@ -108,11 +114,11 @@ impl FromStr for Stat {
             state,
             ppid,
             create_time: Time::new::<time::second>(start_time),
-            // TODO: Possible precision during the `as f64` cast
-            utime: Time::new::<time::second>((utime / *CLOCK_TICKS) as f64),
-            stime: Time::new::<time::second>((stime / *CLOCK_TICKS) as f64),
-            cutime: Time::new::<time::second>((cutime / *CLOCK_TICKS) as f64),
-            cstime: Time::new::<time::second>((cstime / *CLOCK_TICKS) as f64),
+            // TODO: Possible precision loss during the `as f64` cast
+            utime: Time::new::<time::second>(utime as f64 / ticks),
+            stime: Time::new::<time::second>(stime as f64 / ticks),
+            cutime: Time::new::<time::second>(cutime as f64 / ticks),
+            cstime: Time::new::<time::second>(cstime as f64 / ticks),
         })
     }
 }

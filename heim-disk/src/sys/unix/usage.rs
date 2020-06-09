@@ -14,7 +14,7 @@ pub struct Usage(libc::statvfs);
 // Why there are `u64::from()` everywhere -- to mitigate the differences
 // between `libc::statvfs` for x86 and `libc::statvfs` for x86_64,
 // fields can be either `u32` or `u64`.
-#[allow(clippy::identity_conversion)]
+#[allow(clippy::useless_conversion)]
 impl Usage {
     pub fn total(&self) -> Information {
         let value = u64::from(self.0.f_blocks) * u64::from(self.0.f_frsize);

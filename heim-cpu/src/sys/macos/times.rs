@@ -32,26 +32,26 @@ impl CpuTime {
 
 impl From<bindings::host_cpu_load_info> for CpuTime {
     fn from(info: bindings::host_cpu_load_info) -> CpuTime {
-        let ticks = *CLOCK_TICKS;
+        let ticks = *CLOCK_TICKS as f64;
 
         CpuTime {
-            user: Time::new::<time::second>((u64::from(info.user) / ticks) as f64),
-            nice: Time::new::<time::second>((u64::from(info.nice) / ticks) as f64),
-            system: Time::new::<time::second>((u64::from(info.system) / ticks) as f64),
-            idle: Time::new::<time::second>((u64::from(info.idle) / ticks) as f64),
+            user: Time::new::<time::second>(f64::from(info.user) / ticks),
+            nice: Time::new::<time::second>(f64::from(info.nice) / ticks),
+            system: Time::new::<time::second>(f64::from(info.system) / ticks),
+            idle: Time::new::<time::second>(f64::from(info.idle) / ticks),
         }
     }
 }
 
 impl From<bindings::processor_cpu_load_info> for CpuTime {
     fn from(info: bindings::processor_cpu_load_info) -> CpuTime {
-        let ticks = *CLOCK_TICKS;
+        let ticks = *CLOCK_TICKS as f64;
 
         CpuTime {
-            user: Time::new::<time::second>((u64::from(info.user) / ticks) as f64),
-            nice: Time::new::<time::second>((u64::from(info.nice) / ticks) as f64),
-            system: Time::new::<time::second>((u64::from(info.system) / ticks) as f64),
-            idle: Time::new::<time::second>((u64::from(info.idle) / ticks) as f64),
+            user: Time::new::<time::second>(f64::from(info.user) / ticks),
+            nice: Time::new::<time::second>(f64::from(info.nice) / ticks),
+            system: Time::new::<time::second>(f64::from(info.system) / ticks),
+            idle: Time::new::<time::second>(f64::from(info.idle) / ticks),
         }
     }
 }

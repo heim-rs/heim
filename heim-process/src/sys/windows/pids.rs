@@ -5,7 +5,7 @@ use winapi::um::minwinbase;
 use super::bindings;
 use crate::{Pid, ProcessError, ProcessResult};
 
-#[allow(clippy::identity_conversion)]
+#[allow(clippy::useless_conversion)]
 pub async fn pids() -> Result<impl Stream<Item = Result<Pid>>> {
     let pids = bindings::pids()?
         .into_iter()

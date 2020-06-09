@@ -28,7 +28,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
         let key = CFString::from_static_string(raw_key);
 
         self.find(&key)
-            .and_then(|value_ref| {
+            .map(|value_ref| {
                 unsafe {
                     debug_assert!(value_ref.type_of() == CFDictionaryGetTypeID());
                 }
@@ -39,7 +39,7 @@ impl DictionaryProps for CFDictionary<CFString, CFType> {
                 // and it does not decrements here.
                 let ptr = value_ref.to_void() as CFDictionaryRef;
 
-                unsafe { Some(CFDictionary::wrap_under_get_rule(ptr)) }
+                unsafe { CFDictionary::wrap_under_get_rule(ptr) }
             })
             // TODO: What should we put instead of the empty second argument?
             .ok_or_else(|| Error::missing_key(raw_key, ""))
