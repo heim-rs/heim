@@ -1,6 +1,6 @@
 //! System processes information.
 
-#![doc(html_root_url = "https://docs.rs/heim-process/0.1.1-beta.1")]
+#![doc(html_root_url = "https://docs.rs/heim-process/0.1.1-beta.2")]
 #![deny(
     unused,
     unused_imports,

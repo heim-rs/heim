@@ -44,7 +44,7 @@
 //! therefore documentation might look terrible in some places,
 //! consider checking the sources or sub-crates documentation in such case.
 
-#![doc(html_root_url = "https://docs.rs/heim/0.1.0-beta.1")]
+#![doc(html_root_url = "https://docs.rs/heim/0.1.0-beta.2")]
 #![deny(
     unused,
     unused_imports,

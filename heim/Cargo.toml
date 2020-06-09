@@ -1,6 +1,6 @@
 [package]
 name = "heim"
-version = "0.1.0-beta.1"
+version = "0.1.0-beta.2"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Cross-platform framework for system information"
@@ -19,12 +19,12 @@ is-it-maintained-open-issues = { repository = "heim-rs/heim" }
 [dependencies]
 heim-common = { version = "0.1.0-beta.1", path = "../heim-common" }
 heim-runtime = { version = "0.1.0-beta.1", path = "../heim-runtime" }
-heim-cpu = {version = "0.1.0-beta.1", path = "../heim-cpu", optional = true }
+heim-cpu = {version = "0.1.0-beta.2", path = "../heim-cpu", optional = true }
 heim-disk = {version = "0.1.0-beta.1", path = "../heim-disk", optional = true }
 heim-host = { version = "0.1.0-beta.1", path = "../heim-host", optional = true }
 heim-memory = {version = "0.1.0-beta.1", path = "../heim-memory", optional = true }
-heim-net = {version = "0.1.0-beta.1", path = "../heim-net", optional = true }
-heim-process = { version = "0.1.1-beta.1", path = "../heim-process", optional = true }
+heim-net = {version = "0.1.0-beta.2", path = "../heim-net", optional = true }
+heim-process = { version = "0.1.1-beta.2", path = "../heim-process", optional = true }
 heim-virt = { version = "0.1.0-beta.1", path = "../heim-virt", optional = true }
 heim-sensors = { version = "0.1.0-beta.1", path = "../heim-sensors", optional = true }
 

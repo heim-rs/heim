@@ -1,6 +1,6 @@
 //! Network information.
 
-#![doc(html_root_url = "https://docs.rs/heim-net/0.1.0-beta.1")]
+#![doc(html_root_url = "https://docs.rs/heim-net/0.1.0-beta.2")]
 #![deny(
     unused,
     unused_imports,
