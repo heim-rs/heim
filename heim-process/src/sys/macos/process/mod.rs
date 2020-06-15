@@ -22,10 +22,12 @@ mod command;
 mod cpu_times;
 mod env;
 mod memory;
+mod io_counters;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::memory::Memory;
+pub use self::io_counters::IoCounters;
 
 #[derive(Debug)]
 pub struct Process {
@@ -160,6 +162,10 @@ impl Process {
 
     pub async fn wait(&self) -> ProcessResult<()> {
         pid_wait(self.pid).await
+    }
+
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        io_counters::io(self.pid).await
     }
 }
 

@@ -20,11 +20,13 @@ mod env;
 mod memory;
 mod priority;
 mod suspend;
+mod io_counters;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
 pub use self::memory::Memory;
+pub use self::io_counters::IoCounters;
 
 #[derive(Debug)]
 pub struct Process {
@@ -185,6 +187,10 @@ impl Process {
 
     pub async fn wait(&self) -> ProcessResult<()> {
         unimplemented!()
+    }
+
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        io_counters::io(self.pid).await
     }
 }
 
