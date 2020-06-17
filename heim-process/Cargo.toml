@@ -54,7 +54,7 @@ features = [
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach = "0.3.2"
-darwin-libproc = "0.1.1"
+darwin-libproc = {git = "https://github.com/heim-rs/darwin-libproc.git", branch="pid-rusage"}
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-beta.1", path = "../heim-derive" }

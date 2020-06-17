@@ -11,7 +11,7 @@ use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::Time;
 
-use super::{bindings, pids, utils::catch_zombie};
+use super::{pids, bindings, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};

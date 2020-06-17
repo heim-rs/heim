@@ -67,6 +67,7 @@ async fn smoke_processes() -> Result<()> {
         try_method!(process.cpu_usage());
         try_method!(process.memory());
         try_method!(process.is_running());
+        try_method!(process.io_counters());
 
         #[cfg(unix)]
         {
@@ -79,7 +80,6 @@ async fn smoke_processes() -> Result<()> {
         {
             use heim_process::os::linux::ProcessExt;
 
-            try_method!(process.io_counters());
             try_method!(process.net_io_counters());
         }
 
