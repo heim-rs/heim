@@ -190,7 +190,15 @@ impl Process {
     }
 
     pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
-        io_counters::io(self.pid).await
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+            match handle.io_counters(){
+                Ok(content) => ProcessResult::Ok(IoCounters::from(content)),
+                Err(e) => Err(e.into())
+            }
+        }
     }
 }
 
