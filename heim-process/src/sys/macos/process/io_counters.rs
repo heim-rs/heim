@@ -1,7 +1,8 @@
 use heim_common::Pid;
 use heim_common::units::{information, Information};
 use std::fmt;
-use crate::ProcessResult;
+use std::io;
+use crate::{ProcessResult, ProcessError};
 #[derive(Default)]
 pub struct IoCounters{
     read_bytes: u64,
@@ -44,6 +45,7 @@ impl From<darwin_libproc::rusage_info_v2> for IoCounters{
 pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
     match darwin_libproc::pid_rusage::<darwin_libproc::rusage_info_v2>(pid){
         Ok(contents) => Ok(IoCounters::from(contents)),
+        Err(e) if e.kind() == io::ErrorKind::PermissionDenied => Err(ProcessError::AccessDenied(pid)),
         Err(e) => Err(e.into())
     }
 }
