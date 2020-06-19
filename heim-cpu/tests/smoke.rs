@@ -114,6 +114,7 @@ async fn smoke_cpu_logical_count() {
     let count = cpu::logical_count().await.unwrap();
 
     assert!(count > 0);
+    assert!(count < 1024); // Some sane value till we will have proper unittests
 }
 
 // TODO: Crashes for some reasons in Azure VM, should be investigated
@@ -126,5 +127,6 @@ async fn smoke_cpu_physical_count() {
 
     if let Some(cpus) = count {
         assert!(cpus > 0);
+        assert!(cpus < 1024); // Some sane value till we will have proper unittests
     }
 }
