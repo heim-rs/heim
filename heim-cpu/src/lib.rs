@@ -6,7 +6,7 @@
 //!
 //! [`os::unix::loadavg`]: ./os/unix/fn.loadavg.html
 
-#![doc(html_root_url = "https://docs.rs/heim-cpu/0.1.0-beta.2")]
+#![doc(html_root_url = "https://docs.rs/heim-cpu/0.1.0-beta.3")]
 #![deny(
     unused,
     unused_imports,
