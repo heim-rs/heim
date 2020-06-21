@@ -1,5 +1,5 @@
-use heim_common::units::Information;
 use heim_common::prelude::wrap;
+use heim_common::units::Information;
 use std::fmt;
 
 use crate::sys;
@@ -28,8 +28,8 @@ impl IoCounters {
 impl fmt::Debug for IoCounters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("IoCounters")
-        .field("bytes_read", &self.bytes_read())
-        .field("bytes_written", &self.bytes_written())
-        .finish()
+            .field("bytes_read", &self.bytes_read())
+            .field("bytes_written", &self.bytes_written())
+            .finish()
     }
 }
