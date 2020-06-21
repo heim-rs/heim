@@ -196,7 +196,7 @@ impl Process {
             let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
             match handle.io_counters() {
                 Ok(content) => ProcessResult::Ok(IoCounters::from(content)),
-                Err(e) => Err(e.into()),
+                Err(e) => Err(e),
             }
         }
     }
