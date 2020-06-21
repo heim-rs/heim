@@ -1,12 +1,12 @@
-use heim_common::Pid;
+use crate::{ProcessError, ProcessResult};
 use heim_common::units::{information, Information};
+use heim_common::Pid;
 use std::fmt;
 use std::io;
-use crate::{ProcessResult, ProcessError};
 #[derive(Default)]
-pub struct IoCounters{
+pub struct IoCounters {
     read_bytes: u64,
-    write_bytes: u64
+    write_bytes: u64,
 }
 
 impl fmt::Debug for IoCounters {
@@ -18,8 +18,7 @@ impl fmt::Debug for IoCounters {
     }
 }
 
-
-impl IoCounters{
+impl IoCounters {
     /// Attempt to count the number of bytes which this process really did cause to
     /// be fetched from the storage layer.
     pub fn bytes_read(&self) -> Information {
@@ -33,9 +32,9 @@ impl IoCounters{
     }
 }
 
-impl From<darwin_libproc::rusage_info_v2> for IoCounters{
-    fn from(info: darwin_libproc::rusage_info_v2) -> IoCounters{
-        IoCounters{
+impl From<darwin_libproc::rusage_info_v2> for IoCounters {
+    fn from(info: darwin_libproc::rusage_info_v2) -> IoCounters {
+        IoCounters {
             read_bytes: info.ri_diskio_bytesread,
             write_bytes: info.ri_diskio_bytesread,
         }
@@ -43,9 +42,11 @@ impl From<darwin_libproc::rusage_info_v2> for IoCounters{
 }
 
 pub async fn io(pid: Pid) -> ProcessResult<IoCounters> {
-    match darwin_libproc::pid_rusage::<darwin_libproc::rusage_info_v2>(pid){
+    match darwin_libproc::pid_rusage::<darwin_libproc::rusage_info_v2>(pid) {
         Ok(contents) => Ok(IoCounters::from(contents)),
-        Err(e) if e.kind() == io::ErrorKind::PermissionDenied => Err(ProcessError::AccessDenied(pid)),
-        Err(e) => Err(e.into())
+        Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
+            Err(ProcessError::AccessDenied(pid))
+        }
+        Err(e) => Err(e.into()),
     }
 }

@@ -11,7 +11,7 @@ use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::Time;
 
-use super::{pids, bindings, utils::catch_zombie};
+use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
@@ -21,13 +21,13 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 mod command;
 mod cpu_times;
 mod env;
-mod memory;
 mod io_counters;
+mod memory;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
-pub use self::memory::Memory;
 pub use self::io_counters::IoCounters;
+pub use self::memory::Memory;
 
 #[derive(Debug)]
 pub struct Process {

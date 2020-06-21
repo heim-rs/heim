@@ -17,16 +17,16 @@ mod command;
 mod cpu_times;
 mod create_time;
 mod env;
+mod io_counters;
 mod memory;
 mod priority;
 mod suspend;
-mod io_counters;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
-pub use self::memory::Memory;
 pub use self::io_counters::IoCounters;
+pub use self::memory::Memory;
 
 #[derive(Debug)]
 pub struct Process {
@@ -194,9 +194,9 @@ impl Process {
             Err(ProcessError::AccessDenied(self.pid))
         } else {
             let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
-            match handle.io_counters(){
+            match handle.io_counters() {
                 Ok(content) => ProcessResult::Ok(IoCounters::from(content)),
-                Err(e) => Err(e.into())
+                Err(e) => Err(e.into()),
             }
         }
     }
