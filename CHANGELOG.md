@@ -38,6 +38,7 @@ for information about previous releases.
 ### Fixed
 
  * `cpu::times` for Linux correctly parses `/proc/stat` (#233)
+ * Handle addition overflow when calculating CPU interrupts stats for Windows (#250)
 
 ## Older versions
 

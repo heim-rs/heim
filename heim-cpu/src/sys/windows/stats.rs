@@ -44,20 +44,29 @@ fn system_performance_info() -> Result<(u64, u64)> {
 fn dpc_count() -> Result<u64> {
     let info: Vec<winternl::SYSTEM_INTERRUPT_INFORMATION> = winternl::query_system_information()?;
 
-    let count = info.into_iter().fold(0, |acc, item| acc + item.DpcCount);
+    let count = info.into_iter()
+        .fold(0u64, |acc, item| {
+            // TODO: Log the overflow (`info` level?)
+            acc.overflowing_add(item.DpcCount.into()).0
+        });
 
-    Ok(count.into())
+    Ok(count)
 }
 
 fn interrupts() -> Result<u64> {
     let info: Vec<winternl::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
         winternl::query_system_information()?;
 
-    let count = info
-        .into_iter()
-        .fold(0, |acc, item| acc + item.InterruptCount);
+    let count = info.into_iter().fold(0u64, |acc, item| {
+        // `InterruptCount` type is `u32` (`ULONG`) and working with `u32`
+        // in here can overflow really quick (see #250).
+        // `u64` will not overflow that fast, but we still want
+        // to handle that case.
+        // TODO: Log the overflow (`info` level?)
+        acc.overflowing_add(item.InterruptCount.into()).0
+    });
 
-    Ok(count.into())
+    Ok(count)
 }
 
 pub async fn stats() -> Result<CpuStats> {
