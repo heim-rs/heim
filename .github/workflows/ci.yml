@@ -12,7 +12,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          # rustfmt is broken in 1.44+
+          # and can't format heim sub-crates properly
+          toolchain: 1.43.1
           override: true
           components: rustfmt
       - run: cargo fmt --all -- --check

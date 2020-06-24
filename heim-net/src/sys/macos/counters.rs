@@ -53,24 +53,21 @@ impl fmt::Debug for IoCounters {
 }
 
 pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
-    let interfaces = unsafe {
-        net_pf_route()?
-    };
+    let interfaces = unsafe { net_pf_route()? };
 
-    let interfaces = interfaces
-        .map(|msg| {
-            let mut name: [u8; libc::IF_NAMESIZE] = [0; libc::IF_NAMESIZE];
-            let result = unsafe {
-                libc::if_indextoname(msg.ifm_index.into(), name.as_mut_ptr() as *mut libc::c_char)
-            };
-            if result.is_null() {
-                return Err(Error::last_os_error().with_ffi("if_indextoname"));
-            }
-            let first_nul = name.iter().position(|c| *c == b'\0').unwrap_or(0);
-            let name = String::from_utf8_lossy(&name[..first_nul]).to_string();
+    let interfaces = interfaces.map(|msg| {
+        let mut name: [u8; libc::IF_NAMESIZE] = [0; libc::IF_NAMESIZE];
+        let result = unsafe {
+            libc::if_indextoname(msg.ifm_index.into(), name.as_mut_ptr() as *mut libc::c_char)
+        };
+        if result.is_null() {
+            return Err(Error::last_os_error().with_ffi("if_indextoname"));
+        }
+        let first_nul = name.iter().position(|c| *c == b'\0').unwrap_or(0);
+        let name = String::from_utf8_lossy(&name[..first_nul]).to_string();
 
-            Ok(IoCounters { name, data: msg })
-        });
+        Ok(IoCounters { name, data: msg })
+    });
 
     Ok(stream::iter(interfaces))
 }

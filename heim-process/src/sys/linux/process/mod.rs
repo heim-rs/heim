@@ -1,6 +1,6 @@
-use std::io;
 use std::cmp;
 use std::hash;
+use std::io;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
@@ -91,7 +91,9 @@ impl Process {
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         match rt::fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
             Ok(path) => Ok(path),
-            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => Err(ProcessError::AccessDenied(self.pid)),
+            Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
+                Err(ProcessError::AccessDenied(self.pid))
+            }
             Err(..) => {
                 if pid_exists(self.pid).await? {
                     Err(ProcessError::ZombieProcess(self.pid))
@@ -176,7 +178,9 @@ impl Process {
         procfs::io(self.pid).await
     }
 
-    pub async fn net_io_counters(&self) -> ProcessResult<BoxStream<'_, ProcessResult<heim_net::IoCounters>>> {
+    pub async fn net_io_counters(
+        &self,
+    ) -> ProcessResult<BoxStream<'_, ProcessResult<heim_net::IoCounters>>> {
         // TODO: Convert specific errors into ProcessResult error variants
         let stream = match heim_net::os::linux::io_counters_for_pid(self.pid()).await {
             Ok(stream) => stream,
@@ -185,7 +189,7 @@ impl Process {
                     Ok(Status::Zombie) => Err(ProcessError::ZombieProcess(self.pid)),
                     _ => Err(e.into()),
                 }
-            },
+            }
             Err(e) => return Err(e.into()),
         };
 

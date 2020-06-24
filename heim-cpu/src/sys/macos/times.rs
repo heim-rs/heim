@@ -63,9 +63,7 @@ pub async fn time() -> Result<CpuTime> {
 pub async fn times() -> Result<impl Stream<Item = Result<CpuTime>>> {
     let processors = bindings::processor_load_info()?;
 
-    let stream = stream::iter(processors).map(|proc_info| {
-        Ok(CpuTime::from(proc_info))
-    });
+    let stream = stream::iter(processors).map(|proc_info| Ok(CpuTime::from(proc_info)));
 
     Ok(stream)
 }

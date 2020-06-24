@@ -7,9 +7,7 @@ use crate::{Pid, ProcessError, ProcessResult};
 
 #[allow(clippy::useless_conversion)]
 pub async fn pids() -> Result<impl Stream<Item = Result<Pid>>> {
-    let pids = bindings::pids()?
-        .into_iter()
-        .map(|pid| Ok(Pid::from(pid)));
+    let pids = bindings::pids()?.into_iter().map(|pid| Ok(Pid::from(pid)));
 
     Ok(stream::iter(pids))
 }

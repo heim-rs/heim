@@ -1,4 +1,4 @@
-use heim_common::prelude::{stream, Stream, Result};
+use heim_common::prelude::{stream, Result, Stream};
 
 use super::bindings;
 use crate::sys::unix;

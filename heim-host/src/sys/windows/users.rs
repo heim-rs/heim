@@ -45,9 +45,7 @@ pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
 
     let stream = stream::iter(sessions)
         .map(Ok)
-        .try_filter_map(|session| async move {
-            User::from_session(session)
-        });
+        .try_filter_map(|session| async move { User::from_session(session) });
 
     Ok(stream)
 }

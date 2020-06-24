@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use std::path::Path;
+use std::str::FromStr;
 
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
@@ -106,19 +106,19 @@ impl FromStr for IoCounters {
     }
 }
 
-async fn inner<T: AsRef<Path> + Send + 'static>(path: T) -> Result<impl Stream<Item = Result<IoCounters>>> {
-    let lines = rt::fs::read_lines(path.as_ref().to_path_buf()).await
+async fn inner<T: AsRef<Path> + Send + 'static>(
+    path: T,
+) -> Result<impl Stream<Item = Result<IoCounters>>> {
+    let lines = rt::fs::read_lines(path.as_ref().to_path_buf())
+        .await
         .map_err(|e| Error::from(e).with_file(path.as_ref()))?;
 
     let stream = lines
         .skip(2)
         .map_err(Error::from)
-        .and_then(|line| async move {
-            IoCounters::from_str(&line)
-        });
+        .and_then(|line| async move { IoCounters::from_str(&line) });
 
     Ok(stream)
-
 }
 
 pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {

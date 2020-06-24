@@ -100,15 +100,13 @@ pub async fn time() -> Result<CpuTime> {
 pub async fn times() -> Result<impl Stream<Item = Result<CpuTime>>> {
     let lines = rt::fs::read_lines("/proc/stat").await?;
 
-    let stream = lines
-        .skip(1)
-        .filter_map(|try_line| async move {
-            match try_line {
-                Ok(line) if line.starts_with("cpu") => Some(CpuTime::from_str(&line)),
-                Ok(..) => None,
-                Err(e) => Some(Err(e.into())),
-            }
-        });
+    let stream = lines.skip(1).filter_map(|try_line| async move {
+        match try_line {
+            Ok(line) if line.starts_with("cpu") => Some(CpuTime::from_str(&line)),
+            Ok(..) => None,
+            Err(e) => Some(Err(e.into())),
+        }
+    });
 
     Ok(stream)
 }

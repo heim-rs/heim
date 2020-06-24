@@ -1,4 +1,4 @@
-use heim_common::prelude::{Stream, TryStreamExt, Result};
+use heim_common::prelude::{Result, Stream, TryStreamExt};
 use heim_runtime as rt;
 
 use crate::sys::unix;

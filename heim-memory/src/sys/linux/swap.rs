@@ -148,5 +148,6 @@ pub async fn swap() -> Result<Swap> {
         let vmstat = VmStat::from_str(&vmstat)?;
 
         Swap::parse_str(&meminfo, vmstat)
-    }).await
+    })
+    .await
 }

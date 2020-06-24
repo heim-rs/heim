@@ -44,11 +44,10 @@ fn system_performance_info() -> Result<(u64, u64)> {
 fn dpc_count() -> Result<u64> {
     let info: Vec<winternl::SYSTEM_INTERRUPT_INFORMATION> = winternl::query_system_information()?;
 
-    let count = info.into_iter()
-        .fold(0u64, |acc, item| {
-            // TODO: Log the overflow (`info` level?)
-            acc.overflowing_add(item.DpcCount.into()).0
-        });
+    let count = info.into_iter().fold(0u64, |acc, item| {
+        // TODO: Log the overflow (`info` level?)
+        acc.overflowing_add(item.DpcCount.into()).0
+    });
 
     Ok(count)
 }
