@@ -5,58 +5,43 @@ use winapi::um::winnt;
 /// For additional information, see [IO_COUNTERS] documentation.
 ///
 /// [IO_COUNTERS]: https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-io_counters
-#[derive(Default)]
-pub struct IoCounters {
-    read_operation_count: u64,
-    write_operation_count: u64,
-    other_operation_count: u64,
-    read_transfer_count: u64,
-    write_transfer_count: u64,
-    other_transfer_count: u64,
-}
+pub struct IoCounters(winnt::IO_COUNTERS);
 
 impl IoCounters {
     /// The number of read operations performed.
     pub fn read_iops(&self) -> u64 {
-        self.read_operation_count
+        self.0.ReadOperationCount
     }
 
     /// The number of read operations performed.
     pub fn write_iops(&self) -> u64 {
-        self.write_operation_count
+        self.0.WriteOperationCount
     }
 
     /// The number of I/O operations performed, other than read and write operations.
     pub fn other_iops(&self) -> u64 {
-        self.other_operation_count
+        self.0.OtherOperationCount
     }
 
     /// The number of bytes read.
     pub fn bytes_read(&self) -> Information {
-        Information::new::<information::byte>(self.read_transfer_count)
+        Information::new::<information::byte>(self.0.ReadTransferCount)
     }
 
     /// The number of bytes written.
     pub fn bytes_written(&self) -> Information {
-        Information::new::<information::byte>(self.write_transfer_count)
+        Information::new::<information::byte>(self.0.WriteTransferCount)
     }
 
     /// The number of bytes transferred during operations other than read and write operations.
     pub fn bytes_other(&self) -> Information {
-        Information::new::<information::byte>(self.other_transfer_count)
+        Information::new::<information::byte>(self.0.OtherTransferCount)
     }
 }
 
 impl From<winnt::IO_COUNTERS> for IoCounters {
     fn from(info: winnt::IO_COUNTERS) -> IoCounters {
-        IoCounters {
-            read_operation_count: info.ReadOperationCount,
-            write_operation_count: info.WriteOperationCount,
-            other_operation_count: info.OtherOperationCount,
-            read_transfer_count: info.ReadTransferCount,
-            write_transfer_count: info.WriteTransferCount,
-            other_transfer_count: info.OtherTransferCount,
-        }
+        IoCounters(info)
     }
 }
 
