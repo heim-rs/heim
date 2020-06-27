@@ -3,7 +3,6 @@ use heim_common::units::{information, Information};
 use heim_common::Pid;
 use std::fmt;
 use std::io;
-#[derive(Default)]
 pub struct IoCounters {
     read_bytes: u64,
     write_bytes: u64,
