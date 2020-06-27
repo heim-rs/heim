@@ -245,9 +245,6 @@ impl Process {
     }
 
     /// Returns future which resolves into process IO counters.
-    ///
-    /// Since `-> impl Trait` is not allowed yet in the trait methods,
-    /// this method returns boxed `Future`. This behavior will change later.
     pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
         self.as_ref().io_counters().await.map(Into::into)
     }
