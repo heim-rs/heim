@@ -9,7 +9,6 @@ use heim_common::units::Time;
 use heim_runtime as rt;
 
 use super::{pid_exists, pids};
-use crate::os::linux::IoCounters;
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
@@ -17,7 +16,7 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 
 mod procfs;
 
-pub use self::procfs::{Command, CommandIter, CpuTime, Environment, Memory};
+pub use self::procfs::{Command, CommandIter, CpuTime, Environment, IoCounters, Memory};
 
 #[derive(Debug)]
 pub struct Process {

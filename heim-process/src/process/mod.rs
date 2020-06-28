@@ -11,6 +11,7 @@ mod command;
 mod cpu_times;
 mod cpu_usage;
 mod env;
+mod io_counters;
 mod memory;
 mod status;
 
@@ -18,6 +19,7 @@ pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::cpu_usage::CpuUsage;
 pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
+pub use self::io_counters::IoCounters;
 pub use self::memory::Memory;
 pub use self::status::Status;
 
@@ -240,6 +242,11 @@ impl Process {
     /// If the process is already terminated, this method returns `Ok(())`.
     pub async fn wait(&self) -> ProcessResult<()> {
         self.as_ref().wait().await
+    }
+
+    /// Returns future which resolves into process IO counters.
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        self.as_ref().io_counters().await.map(Into::into)
     }
 }
 

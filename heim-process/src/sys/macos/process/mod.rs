@@ -21,10 +21,12 @@ use crate::{Pid, ProcessError, ProcessResult, Status};
 mod command;
 mod cpu_times;
 mod env;
+mod io_counters;
 mod memory;
 
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
+pub use self::io_counters::IoCounters;
 pub use self::memory::Memory;
 
 #[derive(Debug)]
@@ -160,6 +162,10 @@ impl Process {
 
     pub async fn wait(&self) -> ProcessResult<()> {
         pid_wait(self.pid).await
+    }
+
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        io_counters::io(self.pid).await
     }
 }
 

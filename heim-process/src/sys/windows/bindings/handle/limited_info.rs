@@ -99,6 +99,20 @@ impl ProcessHandle<QueryLimitedInformation> {
         }
     }
 
+    pub fn io_counters(&self) -> ProcessResult<winnt::IO_COUNTERS> {
+        let mut counters = mem::MaybeUninit::<winnt::IO_COUNTERS>::uninit();
+
+        let result = unsafe { winbase::GetProcessIoCounters(*self.handle, counters.as_mut_ptr()) };
+
+        if result == 0 {
+            Err(Error::last_os_error()
+                .with_ffi("GetProcessIoCounters")
+                .into())
+        } else {
+            unsafe { Ok(counters.assume_init()) }
+        }
+    }
+
     pub fn cpu_time(&self) -> ProcessResult<CpuTime> {
         let (_, _, kernel, user) = self.process_times()?;
 

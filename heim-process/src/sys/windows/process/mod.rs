@@ -17,6 +17,7 @@ mod command;
 mod cpu_times;
 mod create_time;
 mod env;
+mod io_counters;
 mod memory;
 mod priority;
 mod suspend;
@@ -24,6 +25,7 @@ mod suspend;
 pub use self::command::{Command, CommandIter};
 pub use self::cpu_times::CpuTime;
 pub use self::env::{Environment, EnvironmentIter, IntoEnvironmentIter};
+pub use self::io_counters::IoCounters;
 pub use self::memory::Memory;
 
 #[derive(Debug)]
@@ -185,6 +187,18 @@ impl Process {
 
     pub async fn wait(&self) -> ProcessResult<()> {
         unimplemented!()
+    }
+
+    pub async fn io_counters(&self) -> ProcessResult<IoCounters> {
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+            match handle.io_counters() {
+                Ok(content) => ProcessResult::Ok(IoCounters::from(content)),
+                Err(e) => Err(e),
+            }
+        }
     }
 }
 
