@@ -190,7 +190,11 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             return Err(Error::last_os_error().with_sysctl(name.as_ref()));
         }
 
-        processes.reserve(size);
+        // Reserve enough room to store the whole process list
+        let num_processes = size / mem::size_of::<kinfo_proc>();
+        if num_processes > processes.capacity() {
+            processes.reserve_exact(num_processes - processes.capacity());
+        }
 
         let result = unsafe {
             libc::sysctl(
