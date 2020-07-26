@@ -7,6 +7,7 @@ use mach::{boolean, vm_types};
 
 use heim_common::prelude::Error;
 
+use crate::sys::unix::bindings::errno;
 use crate::{Pid, ProcessError, Status};
 
 // Process status values, declared at `bsd/sys/proc.h`
@@ -213,10 +214,10 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             // `libc::ENOMEM` indicates there was not enough space in `processes` to store the whole
             // process list which can occur when a new process spawns between getting the size and
             // storing. If this is the case then simply try again.
-            if errno::errno() == libc::ENOMEM {
+            if errno() == libc::ENOMEM {
                 continue;
             } else {
-                return Err(io::Error::last_os_error());
+                return Err(io::Error::last_os_error().with_sysctl(name.as_ref()));
             }
         } else {
             // Getting the list succeeded so let `processes` know how many processes it holds
