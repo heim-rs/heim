@@ -32,7 +32,7 @@ fn system_performance_info() -> Result<(u64, u64)> {
     let perf_info: Vec<winternl::SYSTEM_PERFORMANCE_INFORMATION> =
         winternl::query_system_information()?;
 
-    match perf_info.iter().next() {
+    match perf_info.get(0) {
         Some(sys_info) => Ok((
             u64::from(sys_info.ContextSwitches),
             u64::from(sys_info.SystemCalls),
