@@ -213,10 +213,11 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             // `libc::ENOMEM` indicates there was not enough space in `processes` to store the whole
             // process list which can occur when a new process spawns between getting the size and
             // storing. If this is the case then simply try again.
-            if io::Error::last_os_error().raw_os_error().unwrap() == libc::ENOMEM {
+            let err = Error::last_os_error();
+            if let Some(libc::ENOMEM) = err.raw_os_error() {
                 continue;
             } else {
-                return Err(Error::last_os_error().with_sysctl(name.as_ref()));
+                return Err(err.with_sysctl(name.as_ref()));
             }
         } else {
             // Getting the list succeeded so let `processes` know how many processes it holds
