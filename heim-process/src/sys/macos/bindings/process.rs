@@ -217,7 +217,7 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             if errno() == libc::ENOMEM {
                 continue;
             } else {
-                return Err(io::Error::last_os_error().with_sysctl(name.as_ref()));
+                return Err(Error::last_os_error().with_sysctl(name.as_ref()));
             }
         } else {
             // Getting the list succeeded so let `processes` know how many processes it holds
