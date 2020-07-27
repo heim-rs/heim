@@ -176,6 +176,7 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
     let mut processes: Vec<kinfo_proc> = vec![];
 
     loop {
+        // Dry-run to get the size required for the process list
         let result = unsafe {
             libc::sysctl(
                 name.as_mut_ptr(),
@@ -190,8 +191,13 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
             return Err(Error::last_os_error().with_sysctl(name.as_ref()));
         }
 
-        processes.reserve(size);
+        // Reserve enough room to store the whole process list
+        let num_processes = size / mem::size_of::<kinfo_proc>();
+        if num_processes > processes.capacity() {
+            processes.reserve_exact(num_processes - processes.capacity());
+        }
 
+        // Attempt to store the process list in `processes`
         let result = unsafe {
             libc::sysctl(
                 name.as_mut_ptr(),
@@ -202,18 +208,26 @@ pub fn processes() -> Result<Vec<kinfo_proc>, Error> {
                 0,
             )
         };
-        match result {
-            libc::ENOMEM => continue,
-            code if code < 0 => return Err(Error::last_os_error().with_sysctl(name.as_ref())),
-            _ => {
-                let length = size / mem::size_of::<kinfo_proc>();
-                unsafe {
-                    processes.set_len(length);
-                }
-                debug_assert!(!processes.is_empty());
 
-                return Ok(processes);
+        if result < 0 {
+            // `libc::ENOMEM` indicates there was not enough space in `processes` to store the whole
+            // process list which can occur when a new process spawns between getting the size and
+            // storing. If this is the case then simply try again.
+            let err = Error::last_os_error();
+            if let Some(libc::ENOMEM) = err.raw_os_error() {
+                continue;
+            } else {
+                return Err(err.with_sysctl(name.as_ref()));
             }
+        } else {
+            // Getting the list succeeded so let `processes` know how many processes it holds
+            let length = size / mem::size_of::<kinfo_proc>();
+            unsafe {
+                processes.set_len(length);
+            }
+            debug_assert!(!processes.is_empty());
+
+            return Ok(processes);
         }
     }
 }
