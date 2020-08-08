@@ -39,6 +39,15 @@ pub use self::errors::{Context, Error, Result};
 /// Process identifier type.
 #[cfg(unix)]
 pub type Pid = libc::pid_t;
+/// User identifier type
+#[cfg(unix)]
+pub type Uid = libc::uid_t;
+/// Group identifier type
+#[cfg(unix)]
+pub type Gid = libc::gid_t;
+/// Process umask
+#[cfg(unix)]
+pub type Umask = libc::mode_t;
 
 /// Process identifier type.
 // TODO: Is it a correct type for pid?

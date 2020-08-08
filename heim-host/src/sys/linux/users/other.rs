@@ -2,7 +2,7 @@ use std::ffi::CStr;
 use std::net::IpAddr;
 
 use heim_common::prelude::*;
-use heim_common::Pid;
+use heim_common::{Pid, Uid};
 
 use crate::os::linux::SessionId;
 use crate::sys::unix::{from_ut_addr_v6, get_users};
@@ -87,4 +87,41 @@ pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
     let users = get_users::<User>();
 
     Ok(stream::iter(users).map(Ok))
+}
+
+impl From<*mut libc::passwd> for User {
+    fn from(entry: *mut libc::passwd) -> Self {
+        let username = unsafe {
+            CStr::from_ptr((*entry).pw_name)
+                .to_string_lossy()
+                .into_owned()
+        };
+        let terminal = unsafe {
+            CStr::from_ptr((*entry).pw_shell)
+                .to_string_lossy()
+                .into_owned()
+        };
+        let id = unsafe {(*entry).pw_uid }.to_string();
+
+        let mut hostname_buffer = vec![0; (libc::_SC_HOST_NAME_MAX + 1) as usize];
+        let _result = unsafe { libc::gethostname(hostname_buffer.as_mut_ptr(), hostname_buffer.len())};
+        let hostname = hostname_buffer.iter().map(|i| i.to_string()).collect();
+        User {
+            username,
+            terminal,
+            id,
+            hostname,
+            pid: 0,
+            session_id: 0,
+            addr: None,
+        }
+    }
+}
+
+impl From<Uid> for User {
+    fn from(uid: Uid) -> Self {
+        let passwd = unsafe { libc::getpwuid(uid)};
+        let user = User::from(passwd);
+        return user;
+    }
 }

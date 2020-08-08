@@ -2,7 +2,8 @@
 
 use std::net::IpAddr;
 
-use crate::Pid;
+use heim_common::{Pid, Uid};
+
 
 cfg_if::cfg_if! {
     // aarch64-unknown-linux-gnu has different type
@@ -78,5 +79,12 @@ impl UserExt for crate::User {
 
     fn session_id(&self) -> SessionId {
         self.as_ref().session_id()
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl From<Uid> for crate::User {
+    fn from(uid: Uid) -> Self {
+        crate::User::from(crate::sys::User::from(uid))
     }
 }

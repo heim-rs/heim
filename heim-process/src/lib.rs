@@ -40,3 +40,13 @@ pub use heim_common::Pid;
 
 #[cfg(target_os = "linux")]
 pub use heim_net::IoCounters;
+
+#[cfg(target_os = "linux")]
+pub use heim_common::Uid;
+
+#[cfg(target_os = "linux")]
+pub use heim_common::Gid;
+
+#[cfg(target_os = "linux")]
+pub use heim_common::Umask;
+

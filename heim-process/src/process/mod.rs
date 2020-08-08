@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
-
+use heim_host::User;
 use crate::{sys, Pid, ProcessResult};
 
 mod command;
@@ -97,6 +97,11 @@ impl Process {
     /// Returns current process status.
     pub async fn status(&self) -> ProcessResult<Status> {
         self.as_ref().status().await
+    }
+
+    /// Returns user who owns this process.
+    pub async fn user(&self) -> ProcessResult<User> {
+        self.as_ref().user().await.map(Into::into)
     }
 
     /// Returns process environment.

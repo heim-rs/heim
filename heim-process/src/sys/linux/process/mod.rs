@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 
 use heim_common::prelude::*;
 use heim_common::units::Time;
+use heim_host::User;
 use heim_runtime as rt;
 
 use super::{pid_exists, pids};
@@ -107,6 +108,11 @@ impl Process {
         let procfs::Stat { state, .. } = procfs::stat(self.pid).await?;
 
         Ok(state)
+    }
+
+    pub async fn user(&self) -> ProcessResult<User> {
+        let statuss = procfs::statuss(self.pid).await?;
+        Ok(User::from(statuss.uid.real))
     }
 
     pub async fn environment(&self) -> ProcessResult<Environment> {
