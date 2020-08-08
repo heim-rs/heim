@@ -68,7 +68,7 @@ async fn smoke_processes() -> Result<()> {
         try_method!(process.memory());
         try_method!(process.is_running());
         try_method!(process.io_counters());
-        #[cfg(target_os = "linux")] // Not implemented yet
+        #[cfg(target_os = "linux")] 
         try_method!(process.user());
 
         #[cfg(unix)]
