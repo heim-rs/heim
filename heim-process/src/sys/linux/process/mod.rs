@@ -14,7 +14,6 @@ use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
-
 mod procfs;
 
 pub use self::procfs::{Command, CommandIter, CpuTime, Environment, IoCounters, Memory};
@@ -111,8 +110,8 @@ impl Process {
     }
 
     pub async fn user(&self) -> ProcessResult<User> {
-        let statuss = procfs::statuss(self.pid).await?;
-        Ok(User::from(statuss.uid.real))
+        let status = procfs::statuss(self.pid).await?;
+        Ok(User::from(status.uid.real))
     }
 
     pub async fn environment(&self) -> ProcessResult<Environment> {

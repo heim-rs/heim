@@ -4,6 +4,11 @@ use heim_runtime as rt;
 use crate::{Pid, Gid, Uid, Umask, ProcessResult, Status};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
 
+//TODO:
+//Parse rest of /status/
+//Rename struct
+
+
 #[derive(Default)]
 pub struct Uids {
     pub real: Uid,
@@ -79,8 +84,7 @@ impl FromStr for Status2 {
                     status.uid.filesystem = uids.try_parse_next()?;
                 }
                 "Gid" => {
-                    let mut gids = ss.try_next()?.split('\t');//.collect::<Vec<&str>>();
-                    //let mut gids_iter = gids.iter();
+                    let mut gids = ss.try_next()?.split('\t');
                     status.gid.real = gids.try_parse_next()?;
                     status.gid.effective = gids.try_parse_next()?;
                     status.gid.saved = gids.try_parse_next()?;

@@ -89,6 +89,7 @@ pub async fn users() -> Result<impl Stream<Item = Result<User>>> {
     Ok(stream::iter(users).map(Ok))
 }
 
+//TODO: Figureout how to get rest of data
 impl From<*mut libc::passwd> for User {
     fn from(entry: *mut libc::passwd) -> Self {
         let username = unsafe {
@@ -96,21 +97,12 @@ impl From<*mut libc::passwd> for User {
                 .to_string_lossy()
                 .into_owned()
         };
-        let terminal = unsafe {
-            CStr::from_ptr((*entry).pw_shell)
-                .to_string_lossy()
-                .into_owned()
-        };
-        let id = unsafe {(*entry).pw_uid }.to_string();
 
-        let mut hostname_buffer = vec![0; (libc::_SC_HOST_NAME_MAX + 1) as usize];
-        let _result = unsafe { libc::gethostname(hostname_buffer.as_mut_ptr(), hostname_buffer.len())};
-        let hostname = hostname_buffer.iter().map(|i| i.to_string()).collect();
         User {
             username,
-            terminal,
-            id,
-            hostname,
+            id: "".to_string(),
+            terminal: "".to_string(),
+            hostname: "".to_string(),
             pid: 0,
             session_id: 0,
             addr: None,

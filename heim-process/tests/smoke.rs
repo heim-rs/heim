@@ -70,7 +70,7 @@ async fn smoke_processes() -> Result<()> {
         try_method!(process.io_counters());
         #[cfg(target_os = "linux")] 
         try_method!(process.user());
-
+        println!("{:?}", process.user().await);
         #[cfg(unix)]
         {
             use heim_process::os::unix::ProcessExt;
