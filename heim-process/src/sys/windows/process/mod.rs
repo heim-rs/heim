@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use std::hash;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
-
+use heim_host::User;
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use winapi::um::processthreadsapi;
@@ -157,6 +157,15 @@ impl Process {
         handle.set_priority(value).map_err(Into::into)
     }
 
+    pub async fn user(&self) -> ProcessResult<User> {
+        if self.pid == 0 || self.pid == 4 {
+            Err(ProcessError::AccessDenied(self.pid))
+        } else {
+            let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+
+            handle.owner()
+        }
+    }
     pub async fn is_running(&self) -> ProcessResult<bool> {
         let other = get(self.pid).await?;
 

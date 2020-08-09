@@ -8,7 +8,8 @@ use std::marker::PhantomData;
 use std::mem;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
-
+use super::super::token::Token;
+use heim_host::User;
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::{DWORD, FILETIME, MAX_PATH};
 use winapi::um::{processthreadsapi, psapi, winbase, winnt};
@@ -166,5 +167,9 @@ impl ProcessHandle<QueryLimitedInformation> {
         } else {
             Ok((creation, exit, kernel, user))
         }
+    }
+
+    pub fn owner(&self) -> ProcessResult<User> {
+        Token::open(&self.handle)?.user().map_err(Into::into)
     }
 }

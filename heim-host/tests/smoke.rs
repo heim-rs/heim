@@ -45,7 +45,6 @@ async fn smoke_users() {
             let _ = user.hostname();
             let _ = user.address();
             let _ = user.session_id();
-            println!("{:?} - {:?} - {:?} - {:?}", user.pid(), user.terminal(), user.id(), user.hostname());
         }
 
         #[cfg(target_os = "macos")]

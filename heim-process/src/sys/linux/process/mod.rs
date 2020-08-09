@@ -110,7 +110,7 @@ impl Process {
     }
 
     pub async fn user(&self) -> ProcessResult<User> {
-        let status = procfs::statuss(self.pid).await?;
+        let status = procfs::status(self.pid).await?;
         Ok(User::from(status.uid.real))
     }
 
