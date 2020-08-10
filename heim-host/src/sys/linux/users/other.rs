@@ -1,5 +1,5 @@
 use std::ffi::CStr;
-use std::net::IpAddr;
+use std::{convert::TryFrom, net::IpAddr};
 
 use heim_common::prelude::*;
 use heim_common::{Pid, Uid};
@@ -110,10 +110,14 @@ impl From<*mut libc::passwd> for User {
     }
 }
 
-impl From<Uid> for User {
-    fn from(uid: Uid) -> Self {
+impl TryFrom<Uid> for User {
+    type Error = Error;
+    fn try_from(uid: Uid) -> Result<Self> {
         let passwd = unsafe { libc::getpwuid(uid)};
+        if passwd.is_null() {
+            return Err(Error::last_os_error().with_ffi("getpwuid"));
+        }
         let user = User::from(passwd);
-        return user;
+        Ok(user)
     }
 }

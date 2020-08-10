@@ -1,9 +1,8 @@
 //! Linux-specific extensions.
 
-use std::net::IpAddr;
+use std::{convert::TryFrom, net::IpAddr};
 
-use heim_common::{Pid, Uid};
-
+use heim_common::{Error, Result, Pid, Uid};
 
 cfg_if::cfg_if! {
     // aarch64-unknown-linux-gnu has different type
@@ -83,8 +82,10 @@ impl UserExt for crate::User {
 }
 
 #[cfg(target_os = "linux")]
-impl From<Uid> for crate::User {
-    fn from(uid: Uid) -> Self {
-        crate::User::from(crate::sys::User::from(uid))
+impl TryFrom<Uid> for crate::User {
+    type Error = Error;
+    fn try_from(uid: Uid) -> Result<Self> {
+        let user = crate::sys::User::try_from(uid)?;
+        Ok(crate::User::try_from(user)?)
     }
 }

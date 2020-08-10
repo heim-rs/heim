@@ -8,7 +8,7 @@ use heim_common::Result;
 /// Extension for [User] struct.
 ///
 /// [User]: ../../struct.User.html
-pub trait UserExt {
+pub trait UserExt: Sized {
     #[doc(hidden)]
     fn try_from_sid(sid: PSID) -> Result<Self>;
 

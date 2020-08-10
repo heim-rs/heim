@@ -10,7 +10,7 @@ use ::futures::future::BoxFuture;
 use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
 use heim_common::units::Time;
-
+use heim_host::User;
 use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
@@ -124,6 +124,13 @@ impl Process {
         pid_setpriority(self.pid, value)
     }
 
+    pub async fn user(&self) -> ProcessResult<User> {
+        let process = match bindings::process(self.pid) {
+            Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
+            Err(e) => Err(catch_zombie(e, self.pid)),
+        }?;
+
+    }
     pub async fn is_running(&self) -> ProcessResult<bool> {
         let other = get(self.pid).await?;
 

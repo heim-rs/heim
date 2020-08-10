@@ -16,6 +16,7 @@ use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 mod procfs;
 
+use std::convert::TryFrom;
 pub use self::procfs::{Command, CommandIter, CpuTime, Environment, IoCounters, Memory};
 
 #[derive(Debug)]
@@ -111,7 +112,7 @@ impl Process {
 
     pub async fn user(&self) -> ProcessResult<User> {
         let status = procfs::status(self.pid).await?;
-        Ok(User::from(status.uid.real))
+        Ok(User::try_from(status.uid.real)?)
     }
 
     pub async fn environment(&self) -> ProcessResult<Environment> {
