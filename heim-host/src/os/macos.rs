@@ -1,6 +1,7 @@
 //! macOS-specific extensions.
 
-use crate::Pid;
+use heim_common::{Error, Result, Pid, Uid};
+use std::convert::TryFrom;
 
 /// macOS-specific extensions for [User].
 ///
@@ -38,5 +39,13 @@ impl UserExt for crate::User {
 
     fn hostname(&self) -> &str {
         self.as_ref().hostname()
+    }
+}
+
+impl TryFrom<Uid> for crate::User {
+    type Error = Error;
+    fn try_from(uid: Uid) -> Result<Self> {
+        let user = crate::sys::User::try_from(uid)?;
+        Ok(crate::User::try_from(user)?)
     }
 }

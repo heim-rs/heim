@@ -9,14 +9,14 @@ use ::futures::future::BoxFuture;
 
 use heim_common::prelude::*;
 use heim_common::sys::IntoTime;
-use heim_common::units::Time;
-use heim_host::User;
+use heim_common::{Uid, units::Time};
 use super::{bindings, pids, utils::catch_zombie};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 pub use crate::sys::unix::{Environment, EnvironmentIter, IntoEnvironmentIter};
 use crate::{Pid, ProcessError, ProcessResult, Status};
+use heim_host::User;
 
 mod command;
 mod cpu_times;
@@ -125,12 +125,13 @@ impl Process {
     }
 
     pub async fn user(&self) -> ProcessResult<User> {
-        let process = match bindings::process(self.pid) {
-            Ok(kinfo_proc) => Status::try_from(kinfo_proc.kp_proc.p_stat).map_err(From::from),
-            Err(e) => Err(catch_zombie(e, self.pid)),
-        }?;
-
+        let uid: Uid = match bindings::process(self.pid) {
+            Ok(kinfo_proc) => kinfo_proc.kp_eproc.e_pcred.p_ruid,
+            Err(e) => return Err(e),
+        };
+        Ok(User::try_from(uid)?)
     }
+
     pub async fn is_running(&self) -> ProcessResult<bool> {
         let other = get(self.pid).await?;
 
