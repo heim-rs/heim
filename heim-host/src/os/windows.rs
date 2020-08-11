@@ -1,6 +1,8 @@
 //! Windows-specific extensions.
 
 use std::net::IpAddr;
+
+#[cfg(target_os = "windows")]
 use winapi::um::winnt::PSID;
 
 use heim_common::Result;
@@ -8,6 +10,7 @@ use heim_common::Result;
 /// Extension for [User] struct.
 ///
 /// [User]: ../../struct.User.html
+#[cfg(target_os = "windows")]
 pub trait UserExt: Sized {
     #[doc(hidden)]
     fn try_from_sid(sid: PSID) -> Result<Self>;
