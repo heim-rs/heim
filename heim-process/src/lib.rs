@@ -49,4 +49,3 @@ pub use heim_common::Gid;
 
 #[cfg(target_os = "linux")]
 pub use heim_common::Umask;
-

@@ -2,7 +2,7 @@
 
 use std::{convert::TryFrom, net::IpAddr};
 
-use heim_common::{Error, Result, Pid, Uid};
+use heim_common::{Error, Pid, Result, Uid};
 
 cfg_if::cfg_if! {
     // aarch64-unknown-linux-gnu has different type

@@ -1,6 +1,6 @@
 //! macOS-specific extensions.
 
-use heim_common::{Error, Result, Pid, Uid};
+use heim_common::{Error, Pid, Result, Uid};
 use std::convert::TryFrom;
 
 /// macOS-specific extensions for [User].

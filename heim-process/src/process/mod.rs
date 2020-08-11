@@ -2,10 +2,10 @@ use std::fmt;
 use std::path::PathBuf;
 use std::time::Instant;
 
+use crate::{sys, Pid, ProcessResult};
 use heim_common::prelude::*;
 use heim_common::units::Time;
 use heim_host::User;
-use crate::{sys, Pid, ProcessResult};
 
 mod command;
 mod cpu_times;
