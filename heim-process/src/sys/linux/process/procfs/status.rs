@@ -96,3 +96,40 @@ pub async fn status(pid: Pid) -> ProcessResult<Status> {
         .await
         .map_err(Into::into)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn status_is_properly_parsed() {
+        let status_file = "Name:\tcat\n\
+        Umask:\t0022\n\
+        State:\tR (running)\n\
+        Tgid:\t43888\n\
+        Ngid:\t0\n\
+        Pid:\t43888\n\
+        PPid:\t43863\n\
+        TracerPid:\t0\n\
+        Uid:\t1000\t1001\t1002\t1003\n\
+        Gid:\t1004\t1005\t1006\t1007\n\
+        ";
+
+        let status = Status::from_str(status_file).unwrap();
+        assert_eq!(status.name, "cat");
+        assert_eq!(status.umask, 0022);
+        assert_eq!(status.state, State::Running);
+        assert_eq!(status.tgid, 43888);
+        assert_eq!(status.ngid, 0);
+        assert_eq!(status.pid, 43888);
+        assert_eq!(status.ppid, 43863);
+        assert_eq!(status.tracer_pid, 0);
+        assert_eq!(status.uid.real, 1000);
+        assert_eq!(status.uid.effective, 1001);
+        assert_eq!(status.uid.saved, 1002);
+        assert_eq!(status.uid.filesystem, 1003);
+        assert_eq!(status.gid.real, 1004);
+        assert_eq!(status.gid.effective, 1005);
+        assert_eq!(status.gid.saved, 1006);
+        assert_eq!(status.gid.filesystem, 1007);
+    }
+}

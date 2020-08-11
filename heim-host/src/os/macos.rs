@@ -42,6 +42,7 @@ impl UserExt for crate::User {
     }
 }
 
+#[cfg(target_os = "macos")]
 impl TryFrom<Uid> for crate::User {
     type Error = Error;
     fn try_from(uid: Uid) -> Result<Self> {
