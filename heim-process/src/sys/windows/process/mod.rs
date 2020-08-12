@@ -1,11 +1,11 @@
+use heim_common::prelude::*;
+use heim_common::units::Time;
+use heim_host::User;
 use std::cmp;
 use std::ffi::OsString;
 use std::hash;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
-use heim_host::User;
-use heim_common::prelude::*;
-use heim_common::units::Time;
 use winapi::um::processthreadsapi;
 
 use super::{bindings, pid_exists, pids};

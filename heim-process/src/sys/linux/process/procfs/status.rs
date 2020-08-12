@@ -1,15 +1,15 @@
-use std::str::FromStr;
+use crate::{Gid, Pid, ProcessResult, Status as State, Uid, Umask};
 use heim_common::prelude::*;
-use heim_runtime as rt;
-use crate::{Pid, Gid, Uid, Umask, ProcessResult, Status as State};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
+use heim_runtime as rt;
+use std::str::FromStr;
 
 #[derive(Default)]
 pub struct Uids {
     pub real: Uid,
     pub effective: Uid,
     pub saved: Uid,
-    pub filesystem: Uid
+    pub filesystem: Uid,
 }
 
 #[derive(Default)]
@@ -17,7 +17,7 @@ pub struct Gids {
     pub real: Gid,
     pub effective: Gid,
     pub saved: Gid,
-    pub filesystem: Gid
+    pub filesystem: Gid,
 }
 
 pub struct Status {
@@ -56,8 +56,8 @@ impl FromStr for Status {
     fn from_str(s: &str) -> Result<Self> {
         let mut status = Status::default();
 
-        let mut split_str = s.split('\n');
-        while let Some(s) = split_str.next() {
+        let split_str = s.split('\n');
+        for s in split_str {
             let mut col = s.splitn(2, '\t');
             match col.try_next()?.trim_end_matches(':') {
                 "Name" => status.name = col.try_parse_next()?,
@@ -82,10 +82,10 @@ impl FromStr for Status {
                     status.gid.saved = gids.try_parse_next()?;
                     status.gid.filesystem = gids.try_parse_next()?;
                 }
-                 _ => {
-                     break;
-                 }
-             }
+                _ => {
+                    break;
+                }
+            }
         }
         Ok(status)
     }
@@ -116,7 +116,7 @@ mod tests {
 
         let status = Status::from_str(status_file).unwrap();
         assert_eq!(status.name, "cat");
-        assert_eq!(status.umask, 0022);
+        assert_eq!(status.umask, 0o22);
         assert_eq!(status.state, State::Running);
         assert_eq!(status.tgid, 43888);
         assert_eq!(status.ngid, 0);

@@ -1,6 +1,8 @@
 //! Process handle variant for querying process information
 //! without requiring any additional privileges (expected to work for any user)
 
+use super::super::token::Token;
+use heim_host::User;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::io;
@@ -8,8 +10,6 @@ use std::marker::PhantomData;
 use std::mem;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
-use super::super::token::Token;
-use heim_host::User;
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::{DWORD, FILETIME, MAX_PATH};
 use winapi::um::{processthreadsapi, psapi, winbase, winnt};

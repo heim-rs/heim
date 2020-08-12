@@ -16,8 +16,8 @@ use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 mod procfs;
 
-use std::convert::TryFrom;
 pub use self::procfs::{Command, CommandIter, CpuTime, Environment, IoCounters, Memory};
+use std::convert::TryFrom;
 
 #[derive(Debug)]
 pub struct Process {

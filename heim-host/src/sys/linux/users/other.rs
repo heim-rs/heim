@@ -113,7 +113,7 @@ impl From<*mut libc::passwd> for User {
 impl TryFrom<Uid> for User {
     type Error = Error;
     fn try_from(uid: Uid) -> Result<Self> {
-        let passwd = unsafe { libc::getpwuid(uid)};
+        let passwd = unsafe { libc::getpwuid(uid) };
         if passwd.is_null() {
             return Err(Error::last_os_error().with_ffi("getpwuid"));
         }

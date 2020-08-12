@@ -1,11 +1,11 @@
 use std::net::IpAddr;
 
+use super::wrappers::{Session, Sessions};
+use heim_common::prelude::*;
 use std::ptr;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::winbase::LookupAccountSidW;
 use winapi::um::winnt::{SidTypeUser, PSID, SID_NAME_USE, WCHAR};
-use super::wrappers::{Session, Sessions};
-use heim_common::prelude::*;
 
 #[derive(Debug)]
 pub struct User {
