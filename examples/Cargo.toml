@@ -18,7 +18,7 @@ smol = "~0.1"
 tokio = { version = "~0.2", features = ["full"] }
 async-std = { version = "~1.6", features = ["attributes"] }
 
-ptree = { version = "0.2.1", default-features = false, features = ["ansi"] }
+ptree = { version = "0.3.0", default-features = false, features = ["ansi"] }
 prettytable-rs = "0.8.0"
 humantime = "2.0.0"
 
