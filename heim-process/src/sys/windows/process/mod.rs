@@ -105,7 +105,9 @@ impl Process {
     }
 
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
-        unimplemented!("https://github.com/heim-rs/heim/issues/105")
+        let handle = bindings::ProcessHandle::query_limited_info(self.pid)?;
+
+        handle.cwd()
     }
 
     pub async fn status(&self) -> ProcessResult<Status> {

@@ -6,12 +6,16 @@ use std::ffi::OsString;
 use std::io;
 use std::marker::PhantomData;
 use std::mem;
+use std::os::raw::c_void;
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
+use std::ptr;
 
+use ntapi::{ntpebteb, ntpsapi, ntrtl, ntwow64};
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::{DWORD, FILETIME, MAX_PATH};
-use winapi::um::{processthreadsapi, psapi, winbase, winnt};
+use winapi::shared::{ntstatus, winerror};
+use winapi::um::{memoryapi, processthreadsapi, psapi, winbase, winnt, wow64apiset};
 
 use heim_common::sys::IntoTime;
 use heim_common::units::{time, Time};
@@ -166,5 +170,199 @@ impl ProcessHandle<QueryLimitedInformation> {
         } else {
             Ok((creation, exit, kernel, user))
         }
+    }
+
+    /// Returns true if the process is a 32-bit x86 process running under 64-bit
+    /// x86 Windows.
+    fn is_wow64(&self) -> ProcessResult<bool> {
+        let mut ret = 0;
+        let result = unsafe {
+            // This will fail on XP, since it requires PROCESS_QUERY_INFORMATION
+            // there.
+            wow64apiset::IsWow64Process(*self.handle, &mut ret)
+        };
+
+        if result == 0 {
+            Err(Error::last_os_error().with_ffi("IsWow64Process").into())
+        } else {
+            Ok(ret != 0)
+        }
+    }
+
+    unsafe fn read_memory(&self, src: u64, data: *mut c_void, len: usize) -> ProcessResult<()> {
+        // TODO: Use NtWow64ReadVirtualMemory64 when inspecting a 64-bit process
+        // from a 32-bit process.
+
+        // Dummy value. Never returned, only set to satisfy compiler.
+        let mut err = Error::last_os_error();
+
+        // ReadProcessMemory may fail with ERROR_PARTIAL_COPY, see:
+        // https://github.com/giampaolo/psutil/issues/875
+        for _i in 0..5 {
+            let ret =
+                memoryapi::ReadProcessMemory(*self.handle, src as _, data, len, ptr::null_mut());
+
+            if ret == 0 {
+                err = Error::last_os_error();
+                if err.raw_os_error() != Some(winerror::ERROR_PARTIAL_COPY as _) {
+                    return Err(err.with_ffi("ReadProcessMemory").into());
+                }
+            } else {
+                return Ok(());
+            }
+        }
+
+        Err(err.with_ffi("ReadProcessMemory").into())
+    }
+
+    fn get_process_basic_information(&self) -> ProcessResult<ntpsapi::PROCESS_BASIC_INFORMATION> {
+        let mut pbi = mem::MaybeUninit::<ntpsapi::PROCESS_BASIC_INFORMATION>::uninit();
+        let status = unsafe {
+            ntpsapi::NtQueryInformationProcess(
+                *self.handle,
+                ntpsapi::ProcessBasicInformation,
+                pbi.as_mut_ptr() as *mut _,
+                mem::size_of::<ntpsapi::PROCESS_BASIC_INFORMATION>() as _,
+                ptr::null_mut(),
+            )
+        };
+
+        if status == ntstatus::STATUS_SUCCESS {
+            unsafe { Ok(pbi.assume_init()) }
+        } else {
+            Err(Error::last_os_error()
+                .with_ffi("NtQueryInformationProcess")
+                .into())
+        }
+    }
+
+    fn get_peb32(&self) -> ProcessResult<Option<ntwow64::PEB32>> {
+        let mut peb32_remote_addr: *mut ntwow64::PEB32 = ptr::null_mut();
+
+        #[allow(trivial_casts)] // wtf rust.
+        let ret = unsafe {
+            ntpsapi::NtQueryInformationProcess(
+                *self.handle,
+                ntpsapi::ProcessWow64Information,
+                &mut peb32_remote_addr as *mut _ as _,
+                mem::size_of::<ntwow64::PEB32>() as _,
+                ptr::null_mut(),
+            )
+        };
+
+        if ret != ntstatus::STATUS_SUCCESS {
+            return Err(Error::last_os_error()
+                .with_ffi("NtQueryInformationProcess")
+                .into());
+        }
+
+        if peb32_remote_addr.is_null() {
+            return Ok(None);
+        }
+
+        let mut peb32 = mem::MaybeUninit::<ntwow64::PEB32>::uninit();
+
+        // read PEB
+        unsafe {
+            self.read_memory(
+                peb32_remote_addr as _,
+                peb32.as_mut_ptr() as _,
+                mem::size_of::<ntwow64::PEB32>(),
+            )?;
+
+            Ok(Some(peb32.assume_init()))
+        }
+    }
+
+    fn get_process_parameters32(
+        &self,
+    ) -> ProcessResult<Option<ntwow64::RTL_USER_PROCESS_PARAMETERS32>> {
+        let peb32 = self.get_peb32()?;
+        let peb32 = if let Some(peb32) = peb32 {
+            peb32
+        } else {
+            return Ok(None);
+        };
+
+        let mut params = mem::MaybeUninit::<ntwow64::RTL_USER_PROCESS_PARAMETERS32>::uninit();
+
+        unsafe {
+            self.read_memory(
+                peb32.ProcessParameters as _,
+                params.as_mut_ptr() as _,
+                mem::size_of::<ntwow64::RTL_USER_PROCESS_PARAMETERS32>(),
+            )?;
+
+            Ok(Some(params.assume_init()))
+        }
+    }
+
+    // TODO: Define PEB64 to allow 32-bit processes to inspect 64-bit processes
+    fn get_peb(&self) -> ProcessResult<Option<ntpebteb::PEB>> {
+        if self.is_wow64()? {
+            // If remote process is 32-bit (running under WOW64), we won't be
+            // able to get its PEB (but we can get its PEB32!).
+            return Ok(None);
+        }
+
+        // TODO: if *current process*.is_wow64() && !self.is_wow64(), error
+
+        let pbi = self.get_process_basic_information()?;
+
+        let mut peb64 = mem::MaybeUninit::<ntpebteb::PEB>::uninit();
+
+        // read PEB
+        unsafe {
+            self.read_memory(
+                pbi.PebBaseAddress as _,
+                peb64.as_mut_ptr() as _,
+                mem::size_of::<ntpebteb::PEB>(),
+            )?;
+
+            Ok(Some(peb64.assume_init()))
+        }
+    }
+
+    fn get_process_parameters(&self) -> ProcessResult<Option<ntrtl::RTL_USER_PROCESS_PARAMETERS>> {
+        let peb = self.get_peb()?;
+        let peb = if let Some(peb) = peb {
+            peb
+        } else {
+            return Ok(None);
+        };
+
+        let mut params = mem::MaybeUninit::<ntrtl::RTL_USER_PROCESS_PARAMETERS>::uninit();
+
+        unsafe {
+            self.read_memory(
+                peb.ProcessParameters as _,
+                params.as_mut_ptr() as _,
+                mem::size_of::<ntrtl::RTL_USER_PROCESS_PARAMETERS>(),
+            )?;
+
+            Ok(Some(params.assume_init()))
+        }
+    }
+
+    pub fn cwd(&self) -> ProcessResult<PathBuf> {
+        let (src, len) = if let Some(params) = self.get_process_parameters32()? {
+            let src = params.CurrentDirectory.DosPath.Buffer;
+            let len = params.CurrentDirectory.DosPath.Length;
+            (src as u64, len)
+        } else if let Some(params) = self.get_process_parameters()? {
+            let src = params.CurrentDirectory.DosPath.Buffer;
+            let len = params.CurrentDirectory.DosPath.Length;
+            (src as u64, len)
+        } else {
+            return Err(ProcessError::UnreadablePeb(self.pid));
+        };
+
+        let mut buf = vec![0u16; len as usize / 2 + 2];
+
+        unsafe {
+            self.read_memory(src, buf.as_mut_ptr() as _, len as _)?;
+        };
+
+        Ok(PathBuf::from(OsString::from_wide(&buf)))
     }
 }

@@ -22,6 +22,8 @@ pub enum ProcessError {
     AccessDenied(Pid),
     /// Data loading failure.
     Load(Error),
+    /// UnreadablePeb
+    UnreadablePeb(Pid),
 }
 
 impl fmt::Display for ProcessError {
@@ -35,6 +37,9 @@ impl fmt::Display for ProcessError {
             }
             ProcessError::AccessDenied(pid) => {
                 f.write_fmt(format_args!("Access denied for process {}", pid))
+            }
+            ProcessError::UnreadablePeb(pid) => {
+                f.write_fmt(format_args!("Unable to read process PEB {}", pid))
             }
             ProcessError::Load(e) => fmt::Display::fmt(e, f),
         }
