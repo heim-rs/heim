@@ -14,7 +14,7 @@ smol-potat = "~0.3"
 futures-timer = "~3.0"
 
 futures = "~0.3"
-smol = "~0.1"
+smol = "~1.1"
 tokio = { version = "~0.2", features = ["full"] }
 async-std = { version = "~1.6", features = ["attributes"] }
 
