@@ -31,7 +31,7 @@ futures = { version = "~0.3", default-features = false }
 [target.'cfg(target_os = "linux")'.dependencies]
 heim-net = { version = "0.1.0-beta.2", path = "../heim-net" }
 heim-host = { version = "0.1.0-beta.1", path = "../heim-host" }
-smol = "~0.1"
+smol = "~1.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 heim-host = { version = "0.1.0-beta.1", path = "../heim-host" }
@@ -58,7 +58,7 @@ darwin-libproc = "0.2.0"
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-beta.1", path = "../heim-derive" }
-smol = "~0.1"
+smol = "~1.2"
 futures = { version = "~0.3", default-features = false }
 futures-timer = "^3.0"
 which = { version = "^3.1", default-features = false }
