@@ -8,7 +8,7 @@ autoexamples = false
 autobins = false
 
 [dev-dependencies]
-cfg-if = "~0.1"
+cfg-if = "~1.0"
 heim = { path = "../heim", features = ["full"] }
 smol-potat = "~0.3"
 futures-timer = "~3.0"

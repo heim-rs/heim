@@ -13,7 +13,7 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 heim-common = { version = "0.1.0-beta.1", path = "../heim-common" }
 heim-runtime = { version = "0.1.0-beta.1", path = "../heim-runtime" }
-cfg-if = "~0.1"
+cfg-if = "~1.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 libc = "~0.2"
