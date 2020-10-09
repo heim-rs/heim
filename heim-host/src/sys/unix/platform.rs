@@ -48,7 +48,7 @@ pub async fn platform() -> Result<Platform> {
         } else {
             let uts = uts.assume_init();
             let raw_arch = CStr::from_ptr(uts.machine.as_ptr()).to_string_lossy();
-            let arch = Arch::from_str(&raw_arch).unwrap_or_else(|_| {
+            let arch = arch_from_uname(&raw_arch).unwrap_or_else(|| {
                 log::error!("Unable to parse CPU architecture from \"{}\"", raw_arch);
                 Arch::Unknown
             });
@@ -69,5 +69,19 @@ pub async fn platform() -> Result<Platform> {
                 arch,
             })
         }
+    }
+}
+
+/// Arch::from_str only handles the exact names used
+/// by the rust compiler (that's the policy of the platforms crate)
+/// However, uname -m has more varied output, which we need to detect
+fn arch_from_uname(raw: &str) -> Option<Arch> {
+    if let Ok(arch) = Arch::from_str(raw) {
+        return Some(arch);
+    };
+
+    match raw {
+        "armv7" | "armv7l" => Some(Arch::ARM),
+        _ => None,
     }
 }
