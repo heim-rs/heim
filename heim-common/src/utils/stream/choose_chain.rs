@@ -77,9 +77,9 @@ mod tests {
         let s2 = stream::iter(Vec::<i32>::new());
 
         let chain = s1.choose_chain(s2);
-        let results = executor::block_on_stream(chain).collect::<Vec<_>>();
+        let mut results = executor::block_on_stream(chain);
 
-        assert!(results.is_empty());
+        assert!(results.next().is_none());
     }
 
     #[test]

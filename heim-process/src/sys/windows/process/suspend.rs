@@ -10,7 +10,7 @@ pub fn is_suspended(pid: Pid) -> ProcessResult<bool> {
     let process = processes
         .iter()
         .find(|process| process.process.UniqueProcessId == pid_handle)
-        .ok_or_else(|| ProcessError::NoSuchProcess(pid))?;
+        .ok_or(ProcessError::NoSuchProcess(pid))?;
 
     let is_running = process.threads.iter().any(|thread| {
         thread.ThreadState != ntkeapi::Waiting || thread.WaitReason != ntkeapi::Suspended
