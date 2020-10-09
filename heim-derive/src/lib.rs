@@ -15,11 +15,12 @@
     nonstandard_style,
     dead_code,
     deprecated,
-    intra_doc_link_resolution_failure
+    broken_intra_doc_links
 )]
 #![warn(
     trivial_casts,
     trivial_numeric_casts,
+    unknown_lints, // allow forward compat for rust 1.40.0
     unused_extern_crates,
     unused_import_braces,
     unused_results
