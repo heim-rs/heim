@@ -20,7 +20,7 @@ uom = { version = "0.28.0", default-features = false, features = ["autoconvert",
 backtrace = { version = "~0.3", optional = true }
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.17.0"
+nix = "0.18.0"
 lazy_static = "1.3.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
