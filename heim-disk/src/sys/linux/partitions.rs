@@ -83,6 +83,8 @@ async fn known_filesystems() -> Result<HashSet<FileSystem>> {
         for line in reader.lines() {
             let line = line?;
             let mut parts = line.splitn(2, '\t');
+
+            #[allow(clippy::match_like_matches_macro)] // >= 1.42.0
             let nodev = match parts.next() {
                 Some("nodev") => true,
                 _ => false,

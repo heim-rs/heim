@@ -16,7 +16,7 @@ fn traverse(pid: Pid) -> ProcessResult<Time> {
     let process = processes
         .iter()
         .find(|process| process.process.UniqueProcessId == pid_handle)
-        .ok_or_else(|| ProcessError::NoSuchProcess(pid))?;
+        .ok_or(ProcessError::NoSuchProcess(pid))?;
 
     Ok(process.process.CreateTime.into_time())
 }
