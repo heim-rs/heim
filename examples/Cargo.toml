@@ -15,7 +15,7 @@ futures-timer = "~3.0"
 
 futures = "~0.3"
 smol = "~0.1"
-tokio = { version = "~0.2", features = ["full"] }
+tokio = { version = "~0.3", features = ["full"] }
 async-std = { version = "~1.6", features = ["attributes"] }
 
 ptree = { version = "0.2.1", default-features = false, features = ["ansi"] }
