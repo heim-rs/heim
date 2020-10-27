@@ -230,7 +230,7 @@ impl ProcessHandle<QueryLimitedInformation> {
         if status == ntstatus::STATUS_SUCCESS {
             unsafe { Ok(pbi.assume_init()) }
         } else {
-            Err(Error::last_os_error()
+            Err(Error::from_raw_os_error(status | winerror::FACILITY_NT_BIT)
                 .with_ffi("NtQueryInformationProcess")
                 .into())
         }
@@ -251,7 +251,7 @@ impl ProcessHandle<QueryLimitedInformation> {
         };
 
         if ret != ntstatus::STATUS_SUCCESS {
-            return Err(Error::last_os_error()
+            return Err(Error::from_raw_os_error(ret | winerror::FACILITY_NT_BIT)
                 .with_ffi("NtQueryInformationProcess")
                 .into());
         }
