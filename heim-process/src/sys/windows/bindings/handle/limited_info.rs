@@ -14,7 +14,7 @@ use std::ptr;
 use ntapi::{ntpebteb, ntpsapi, ntrtl, ntwow64};
 use winapi::ctypes::wchar_t;
 use winapi::shared::minwindef::{DWORD, FILETIME, MAX_PATH};
-use winapi::shared::{ntstatus, winerror};
+use winapi::shared::{basetsd, ntstatus, winerror};
 use winapi::um::{memoryapi, processthreadsapi, psapi, winbase, winnt, wow64apiset};
 
 use heim_common::sys::IntoTime;
@@ -237,7 +237,7 @@ impl ProcessHandle<QueryLimitedInformation> {
     }
 
     fn get_peb32(&self) -> ProcessResult<Option<ntwow64::PEB32>> {
-        let mut peb32_remote_addr: *mut ntwow64::PEB32 = ptr::null_mut();
+        let mut peb32_remote_addr: basetsd::ULONG_PTR = 0;
 
         #[allow(trivial_casts)] // wtf rust.
         let ret = unsafe {
@@ -245,7 +245,7 @@ impl ProcessHandle<QueryLimitedInformation> {
                 *self.handle,
                 ntpsapi::ProcessWow64Information,
                 &mut peb32_remote_addr as *mut _ as _,
-                mem::size_of::<ntwow64::PEB32>() as _,
+                mem::size_of::<basetsd::ULONG_PTR>() as _,
                 ptr::null_mut(),
             )
         };
@@ -256,7 +256,7 @@ impl ProcessHandle<QueryLimitedInformation> {
                 .into());
         }
 
-        if peb32_remote_addr.is_null() {
+        if peb32_remote_addr == 0 {
             return Ok(None);
         }
 
