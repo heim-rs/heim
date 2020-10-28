@@ -357,7 +357,7 @@ impl ProcessHandle<QueryLimitedInformation> {
             return Err(ProcessError::UnreadablePeb(self.pid));
         };
 
-        let mut buf = vec![0u16; len as usize / 2 + 2];
+        let mut buf = vec![0u16; len as usize / 2];
 
         unsafe {
             self.read_memory(src, buf.as_mut_ptr() as _, len as _)?;
