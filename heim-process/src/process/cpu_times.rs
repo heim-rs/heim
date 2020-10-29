@@ -6,6 +6,7 @@ use heim_common::units::Time;
 use crate::sys;
 
 /// Accumulated CPU time for specific process.
+#[derive(Clone)]
 pub struct CpuTime(sys::CpuTime);
 
 wrap!(CpuTime, sys::CpuTime);

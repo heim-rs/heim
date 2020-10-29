@@ -12,6 +12,7 @@ use crate::sys;
 /// For Linux additional information can be retrieved with [CpuTimeExt] extension trait.
 ///
 /// [CpuTimeExt]: ./os/linux/trait.CpuTimeExt.html
+#[derive(Clone)]
 pub struct CpuTime(sys::CpuTime);
 
 wrap!(CpuTime, sys::CpuTime);

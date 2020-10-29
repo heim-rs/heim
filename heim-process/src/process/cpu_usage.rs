@@ -8,7 +8,7 @@ use super::CpuTime;
 /// Process CPU usage measurement.
 ///
 /// See [Process::cpu_usage](./struct.Process.html#method.cpu_usage) method for details.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CpuUsage {
     pub(crate) cpu_count: u64,
     pub(crate) cpu_time: CpuTime,

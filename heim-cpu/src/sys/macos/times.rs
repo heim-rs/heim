@@ -4,7 +4,7 @@ use heim_common::units::{time, Time};
 
 use super::bindings;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CpuTime {
     user: Time,
     nice: Time,

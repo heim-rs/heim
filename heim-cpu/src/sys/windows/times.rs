@@ -6,7 +6,7 @@ use heim_common::prelude::*;
 use heim_common::sys::IntoTime as _;
 use heim_common::units::Time;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CpuTime {
     user: Time,
     system: Time,
