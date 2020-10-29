@@ -5,7 +5,7 @@ use heim_common::sys::unix::CLOCK_TICKS;
 use heim_common::units::{time, Time};
 use heim_runtime as rt;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CpuTime {
     user: Time,
     nice: Time,

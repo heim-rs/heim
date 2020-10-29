@@ -1,6 +1,6 @@
 use heim_common::units::Time;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CpuTime {
     pub(crate) user: Time,
     pub(crate) kernel: Time,
