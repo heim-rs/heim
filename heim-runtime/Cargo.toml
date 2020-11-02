@@ -1,6 +1,6 @@
 [package]
 name = "heim-runtime"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["svartalf <self@svartalf.info>"]
 edition = "2018"
 description = "Runtime shims for heim crate"
@@ -10,7 +10,7 @@ repository = "https://github.com/heim-rs/heim"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-heim-common = { version = "0.0.10", path = "../heim-common" }
+heim-common = { version = "0.0.11", path = "../heim-common" }
 cfg-if = "0.1.9"
 
 # `runtime-polyfill` feature dependencies
