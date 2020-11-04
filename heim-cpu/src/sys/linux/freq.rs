@@ -73,7 +73,7 @@ fn _frequencies() -> impl Iterator<Item = Result<CpuFrequency>> {
 }
 
 pub fn frequencies() -> impl Stream<Item = Result<CpuFrequency>> {
-    smol::iter(_frequencies())
+    smol::stream::iter(_frequencies())
 }
 
 pub async fn frequency() -> Result<CpuFrequency> {

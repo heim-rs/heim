@@ -14,21 +14,22 @@ use std::io;
 
 use heim::process;
 
-#[smol_potat::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let pid = env::args()
-        .nth(1)
-        .ok_or_else(|| {
-            eprintln!("Process PID is not passed as a CLI argument");
-            io::Error::from(io::ErrorKind::InvalidInput)
-        })?
-        .parse::<process::Pid>()?;
+fn main() -> Result<(), Box<dyn Error>> {
+    smol::block_on(async {
+        let pid = env::args()
+            .nth(1)
+            .ok_or_else(|| {
+                eprintln!("Process PID is not passed as a CLI argument");
+                io::Error::from(io::ErrorKind::InvalidInput)
+            })?
+            .parse::<process::Pid>()?;
 
-    let process = process::get(pid).await?;
+        let process = process::get(pid).await?;
 
-    println!("Watching for process {} completion", pid);
-    process.wait().await?;
-    println!("Process {} had exited", pid);
+        println!("Watching for process {} completion", pid);
+        process.wait().await?;
+        println!("Process {} had exited", pid);
 
-    Ok(())
+        Ok(())
+    })
 }

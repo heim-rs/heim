@@ -18,23 +18,26 @@ extern crate prettytable;
 
 use heim::process;
 
-#[smol_potat::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let process = match env::args().nth(1) {
-        Some(value) => {
-            let pid = value.parse()?;
-            process::get(pid).await?
-        }
-        None => {
-            eprintln!("Process PID is not passed as an argument, self PID will be used instead");
-            process::current().await?
-        }
-    };
-    let table = flip_the_table(process).await?;
+fn main() -> Result<(), Box<dyn Error>> {
+    smol::block_on(async {
+        let process = match env::args().nth(1) {
+            Some(value) => {
+                let pid = value.parse()?;
+                process::get(pid).await?
+            }
+            None => {
+                eprintln!(
+                    "Process PID is not passed as an argument, self PID will be used instead"
+                );
+                process::current().await?
+            }
+        };
+        let table = flip_the_table(process).await?;
 
-    table.print_tty(false);
+        table.print_tty(false);
 
-    Ok(())
+        Ok(())
+    })
 }
 
 async fn flip_the_table(p: process::Process) -> process::ProcessResult<prettytable::Table> {

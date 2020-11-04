@@ -17,41 +17,42 @@ async fn usage(process: Process) -> ProcessResult<(process::Process, Ratio)> {
     Ok((process, usage_2 - usage_1))
 }
 
-#[smol_potat::main]
-async fn main() -> ProcessResult<()> {
-    #[cfg(unix)]
-    {
-        let (one, five, fifteen) = loadavg().await?;
-        println!(
-            "Load average: {} {} {}",
-            one.get::<ratio::ratio>(),
-            five.get::<ratio::ratio>(),
-            fifteen.get::<ratio::ratio>()
-        );
-    }
+fn main() -> ProcessResult<()> {
+    smol::block_on(async {
+        #[cfg(unix)]
+        {
+            let (one, five, fifteen) = loadavg().await?;
+            println!(
+                "Load average: {} {} {}",
+                one.get::<ratio::ratio>(),
+                five.get::<ratio::ratio>(),
+                fifteen.get::<ratio::ratio>()
+            );
+        }
 
-    let processes = process::processes()
-        .await?
-        .map_ok(|process| {
-            // Note that there is no `.await` here,
-            // as we want to pass the returned future
-            // into the `.try_buffer_unordered`.
-            usage(process)
-        })
-        .try_buffer_unordered(usize::MAX);
-    futures::pin_mut!(processes);
+        let processes = process::processes()
+            .await?
+            .map_ok(|process| {
+                // Note that there is no `.await` here,
+                // as we want to pass the returned future
+                // into the `.try_buffer_unordered`.
+                usage(process)
+            })
+            .try_buffer_unordered(usize::MAX);
+        futures::pin_mut!(processes);
 
-    println!("| {:6} | {:40} | {:4} % |", "pid", "name", "CPU");
-    while let Some(res) = processes.next().await {
-        let (process, usage) = res?;
+        println!("| {:6} | {:40} | {:4} % |", "pid", "name", "CPU");
+        while let Some(res) = processes.next().await {
+            let (process, usage) = res?;
 
-        println!(
-            "| {:6} | {:40} | {:.2} |",
-            process.pid(),
-            process.name().await?,
-            usage.get::<ratio::percent>()
-        );
-    }
+            println!(
+                "| {:6} | {:40} | {:.2} |",
+                process.pid(),
+                process.name().await?,
+                usage.get::<ratio::percent>()
+            );
+        }
 
-    Ok(())
+        Ok(())
+    })
 }

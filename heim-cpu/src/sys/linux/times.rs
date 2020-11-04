@@ -90,7 +90,8 @@ impl FromStr for CpuTime {
 
 pub async fn time() -> Result<CpuTime> {
     // cumulative time is always the first line
-    let mut lines = rt::fs::read_lines_into::<_, CpuTime, _>("/proc/stat").await?;
+    let lines = rt::fs::read_lines_into::<_, CpuTime, _>("/proc/stat").await?;
+    rt::pin!(lines);
     match lines.next().await {
         Some(line) => line,
         None => Err(Error::missing_key("cumulative time line", "/proc/stat")),

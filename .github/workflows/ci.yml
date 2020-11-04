@@ -12,9 +12,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          # rustfmt is broken in 1.44+
-          # and can't format heim sub-crates properly
-          toolchain: 1.43.1
+          toolchain: 1.45.0
           override: true
           components: rustfmt
       - run: cargo fmt --all -- --check
@@ -72,7 +70,7 @@ jobs:
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf',  cross: true }
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-musleabihf', cross: true }
         toolchain:
-          - 1.40.0  # MSRV
+          - 1.45.0  # MSRV
           - stable
 
     steps:
