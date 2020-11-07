@@ -41,7 +41,7 @@ Examples can be found [here](https://github.com/heim-rs/heim/tree/master/example
 
 ## Technical notes
 
-`heim` requires Rust 1.40 or higher; this version is explicitly tested in CI
+`heim` requires Rust 1.45 or higher; this version is explicitly tested in CI
 and may be bumped in any major or minor release as needed.\
 Any changes to the supported minimum version will be called out in the
 [release notes](https://github.com/heim-rs/heim/blob/master/CHANGELOG.md).

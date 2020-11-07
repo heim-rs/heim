@@ -20,10 +20,11 @@ for information about previous releases.
  * `process::Process::environment` method for Linux and macOS (#208, #209)
  * `cpu::os::unix::loadavg` function for load average values fetching
  * `net::Nic::is_running` method for checking network interface running state (#223)
+ * `disk::Partition::usage` method to fetch disk usage information (#288)
 
 ### Changed
 
- * MSRV bumped to Rust 1.40.0+
+ * MSRV bumped to Rust 1.45.0+
  * Examples moved to the separate workspace crate
  * Benchmarks moved to the separate workspace crate
  * `process::Process::cwd` for Windows panics instead of returning blank error, as this method is not implemented yet

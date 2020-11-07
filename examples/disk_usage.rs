@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         while let Some(part) = partitions.next().await {
             let part = part?;
-            let usage = heim::disk::usage(part.mount_point().to_path_buf()).await?;
+            let usage = part.usage().await?;
 
             println!(
                 "{:<17} {:<10} {:<10} {:<10} {:<10} {}",

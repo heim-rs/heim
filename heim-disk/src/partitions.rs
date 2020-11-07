@@ -4,7 +4,7 @@ use std::path::Path;
 
 use heim_common::prelude::*;
 
-use crate::{sys, FileSystem};
+use crate::{sys, usage, FileSystem, Usage};
 
 /// Mounted disk partition.
 ///
@@ -31,6 +31,17 @@ impl Partition {
     /// Returns partition file system.
     pub fn file_system(&self) -> &FileSystem {
         self.as_ref().file_system()
+    }
+
+    /// Returns disk [Usage] statistics about this particular partition.
+    ///
+    /// Internally it is the same as calling [usage] with [`mount_point`] call as an argument,
+    /// but more convenient to use.
+    ///
+    /// [Usage]: ./struct.Usage.html
+    /// [usage]: ./fn.usage.html
+    pub async fn usage(&self) -> Result<Usage> {
+        usage(self.mount_point()).await
     }
 }
 
