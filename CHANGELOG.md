@@ -35,6 +35,7 @@ for information about previous releases.
 ### Removed
 
  * Preliminary support for `tokio` and `async-std` crates introduced in `v0.1.0-alpha.1` was removed
+ * Leaking `impl FromStr` and `impl TryFrom<char>` was removed for `process::Status` enum (#260)
 
 ### Fixed
 

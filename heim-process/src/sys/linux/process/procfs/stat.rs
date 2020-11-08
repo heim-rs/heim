@@ -1,4 +1,3 @@
-use std::convert::TryFrom;
 use std::io;
 use std::str::FromStr;
 
@@ -10,10 +9,10 @@ use heim_runtime as rt;
 
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
-impl TryFrom<char> for Status {
-    type Error = Error;
-
-    fn try_from(value: char) -> Result<Status> {
+impl Status {
+    // Previously there were `TryFrom<char>` and `FromStr` implementations,
+    // but they were leaking into the public API. See #260
+    fn try_from_char(value: char) -> Result<Status> {
         match value {
             'R' => Ok(Status::Running),
             'S' => Ok(Status::Sleeping),
@@ -31,18 +30,6 @@ impl TryFrom<char> for Status {
 
                 Err(Error::from(inner).with_message(format!("Unknown process state {}", other)))
             }
-        }
-    }
-}
-
-impl FromStr for Status {
-    type Err = Error;
-
-    fn from_str(value: &str) -> Result<Status> {
-        match value.chars().next() {
-            Some(chr) => Status::try_from(chr),
-            // Can only mean a bug in implementation
-            None => unreachable!(),
         }
     }
 }
@@ -73,7 +60,10 @@ impl FromStr for Stat {
         let name = leftover[1..comm_end].to_string();
         // `+ 2` is for the ") " at the start
         let mut parts = leftover[comm_end + 2..].split_whitespace();
-        let state: Status = parts.try_parse_next()?;
+        let state = parts.try_next().and_then(|str| {
+            let chr = str.chars().next().ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData))?;
+            Status::try_from_char(chr)
+        })?;
         let ppid: Pid = parts.try_parse_next()?;
         let _pgrp: i32 = parts.try_parse_next()?;
         let _session_id: i32 = parts.try_parse_next()?;
