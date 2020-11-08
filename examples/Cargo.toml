@@ -46,6 +46,10 @@ name = "process"
 path = "process.rs"
 
 [[example]]
+name = "processes"
+path = "processes.rs"
+
+[[example]]
 name = "wait"
 path = "wait.rs"
 
