@@ -16,7 +16,7 @@ fn sysconf() -> Result<u64> {
 
 async fn cpuinfo() -> Result<u64> {
     rt::spawn_blocking(|| {
-        let f = fs::File::open("/proc/cpuinfo")?;
+        let f = fs::File::open(rt::linux::procfs_root().join("cpuinfo"))?;
         let reader = io::BufReader::new(f);
         let mut count = 0;
         for line in reader.lines() {
@@ -32,7 +32,7 @@ async fn cpuinfo() -> Result<u64> {
 
 async fn stat() -> Result<u64> {
     rt::spawn_blocking(|| {
-        let f = fs::File::open("/proc/stat")?;
+        let f = fs::File::open(rt::linux::procfs_root().join("stat"))?;
         let reader = io::BufReader::new(f);
         let mut count = 0;
 

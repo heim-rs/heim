@@ -109,3 +109,16 @@ pub use heim_sensors as sensors;
 
 pub use heim_common::units;
 pub use heim_common::{Error, Result};
+
+pub mod os {
+    //! Runtime specific re-exports.
+    #[cfg(target_os = "linux")]
+    pub mod linux {
+        //! Linux-specific extensions.
+        //!
+        //! Available only for `cfg(target_os = "linux")`
+        #[doc(inline)]
+        #[cfg_attr(docsrs, doc(cfg(target_os = "linux")))]
+        pub use heim_runtime::linux::{procfs_root, set_procfs_root, set_sysfs_root, sysfs_root};
+    }
+}

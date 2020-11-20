@@ -8,8 +8,9 @@ use heim_runtime as rt;
 
 async fn topology() -> Result<u64> {
     rt::spawn_blocking(|| {
-        let entries = glob::glob("/sys/devices/system/cpu/cpu[0-9]/topology/core_id")
-            .expect("Invalid glob pattern");
+        let path = rt::linux::sysfs_root().join("devices/system/cpu/cpu[0-9]/topology/core_id");
+        let entries =
+            glob::glob(path.display().to_string().as_str()).expect("Invalid glob pattern");
         let mut acc = HashSet::<u64>::new();
 
         for entry in entries {
@@ -48,7 +49,7 @@ fn parse_line(line: &str) -> Result<u64> {
 async fn cpu_info() -> Result<Option<u64>> {
     rt::spawn_blocking(|| {
         let mut acc = Collector::default();
-        let f = fs::File::open("/proc/cpuinfo")?;
+        let f = fs::File::open(rt::linux::procfs_root().join("cpuinfo"))?;
         let reader = io::BufReader::new(f);
 
         let lines = reader.lines();
@@ -60,7 +61,10 @@ async fn cpu_info() -> Result<Option<u64>> {
                         acc.physical_id = Some(core_id)
                     } else {
                         // TODO: In general it seems better to return an error
-                        panic!("Missed the core id value in the /proc/cpuinfo, implementation bug");
+                        panic!(
+                            "Missed the core id value in the {:?}/cpuinfo, implementation bug",
+                            rt::linux::procfs_root()
+                        );
                     }
                 }
                 l if l.starts_with("core id") => {
@@ -71,7 +75,10 @@ async fn cpu_info() -> Result<Option<u64>> {
                         let _ = acc.group.insert((physical_id, core_id));
                     } else {
                         // TODO: In general it seems better to return an error
-                        panic!("Missed the physical id value in the /proc/cpuinfo!");
+                        panic!(
+                            "Missed the physical id value in the {:?}/cpuinfo!",
+                            rt::linux::procfs_root()
+                        );
                     }
                 }
                 _ => continue,

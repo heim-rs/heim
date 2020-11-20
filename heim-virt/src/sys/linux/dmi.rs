@@ -9,14 +9,13 @@ use crate::Virtualization;
     target_arch = "aarch64"
 ))]
 pub async fn detect_vm_dmi() -> Result<Virtualization, ()> {
-    const PROBE_FILES: [&str; 4] = [
-        "/sys/class/dmi/id/product_name", /* Test this before sys_vendor to detect KVM over QEMU */
-        "/sys/class/dmi/id/sys_vendor",
-        "/sys/class/dmi/id/board_vendor",
-        "/sys/class/dmi/id/bios_vendor",
-    ];
+    let mut probe_files = vec![];
+    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/product_name"));
+    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/sys_vendor"));
+    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/board_vendor"));
+    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/bios_vendor"));
 
-    for filename in &PROBE_FILES {
+    for filename in probe_files {
         let line = match rt::fs::read_first_line(filename).await {
             Ok(line) => line,
             Err(..) => continue,

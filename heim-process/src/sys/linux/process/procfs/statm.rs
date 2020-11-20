@@ -5,6 +5,7 @@ use heim_common::units::{information, Information};
 use heim_common::utils::iter::ParseIterator;
 use heim_runtime as rt;
 
+use crate::sys::linux::process::procfs::process_file_path;
 use crate::{Pid, ProcessResult};
 
 // TODO: Join with `heim-memory/src/sys/macos/mod.rs:PAGE_SIZE`
@@ -80,7 +81,7 @@ impl FromStr for Memory {
 }
 
 pub async fn stat_memory(pid: Pid) -> ProcessResult<Memory> {
-    rt::fs::read_into::<_, _, Error>(format!("/proc/{}/statm", pid))
+    rt::fs::read_into::<_, _, Error>(process_file_path(pid, "statm"))
         .await
         .map_err(Into::into)
 }

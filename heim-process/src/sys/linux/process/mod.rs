@@ -11,6 +11,7 @@ use heim_runtime as rt;
 use super::{pid_exists, pids};
 use crate::os::unix::Signal;
 use crate::sys::common::UniqueId;
+use crate::sys::linux::process::procfs::process_file_path;
 use crate::sys::unix::{pid_kill, pid_priority, pid_setpriority, pid_wait};
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
@@ -68,7 +69,7 @@ impl Process {
     }
 
     pub async fn exe(&self) -> ProcessResult<PathBuf> {
-        match rt::fs::read_link(format!("/proc/{}/exe", self.pid)).await {
+        match rt::fs::read_link(process_file_path(self.pid, "exe")).await {
             Ok(path) => Ok(path),
             Err(..) => {
                 // log::trace!() ?
@@ -88,7 +89,7 @@ impl Process {
     }
 
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
-        match rt::fs::read_link(format!("/proc/{}/cwd", self.pid)).await {
+        match rt::fs::read_link(process_file_path(self.pid, "cwd")).await {
             Ok(path) => Ok(path),
             Err(e) if e.kind() == io::ErrorKind::PermissionDenied => {
                 Err(ProcessError::AccessDenied(self.pid))

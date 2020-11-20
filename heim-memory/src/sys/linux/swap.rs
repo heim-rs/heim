@@ -7,9 +7,6 @@ use heim_runtime as rt;
 use heim_common::prelude::*;
 use heim_common::units::{information, Information};
 
-static PROC_VMSTAT: &str = "/proc/vmstat";
-static PROC_MEMINFO: &str = "/proc/meminfo";
-
 #[derive(Debug, Default, Clone)]
 pub struct VmStat {
     swap_in: Option<Information>,  // pswpin
@@ -137,14 +134,14 @@ impl Swap {
         // but at this point we are not tracking which exact field are we missing.
         // TODO: Rewrite parser and use `Error::missing_key` instead
         let inner = io::Error::from(io::ErrorKind::InvalidData);
-        Err(Error::from(inner).with_file(PROC_MEMINFO))
+        Err(Error::from(inner).with_file(rt::linux::procfs_root().join("meminfo")))
     }
 }
 
 pub async fn swap() -> Result<Swap> {
     rt::spawn_blocking(|| {
-        let meminfo = fs::read_to_string(PROC_MEMINFO)?;
-        let vmstat = fs::read_to_string(PROC_VMSTAT)?;
+        let meminfo = fs::read_to_string(rt::linux::procfs_root().join("meminfo"))?;
+        let vmstat = fs::read_to_string(rt::linux::procfs_root().join("vmstat"))?;
         let vmstat = VmStat::from_str(&vmstat)?;
 
         Swap::parse_str(&meminfo, vmstat)

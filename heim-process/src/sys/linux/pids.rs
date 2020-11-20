@@ -5,7 +5,7 @@ use crate::sys::unix;
 use crate::{Pid, ProcessResult};
 
 pub async fn pids() -> Result<impl Stream<Item = Result<Pid>>> {
-    let entries = rt::fs::read_dir("/proc").await?;
+    let entries = rt::fs::read_dir(rt::linux::procfs_root()).await?;
 
     let stream = entries
         .map_err(Into::into)

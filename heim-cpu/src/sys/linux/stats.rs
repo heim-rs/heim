@@ -44,7 +44,12 @@ impl FromStr for CpuStats {
                     matched_lines += 1;
                     *field = value;
                 }
-                None => return Err(Error::missing_key(name, "/proc/stat")),
+                None => {
+                    return Err(Error::missing_key(
+                        name,
+                        format!("{:?}/stat", rt::linux::procfs_root()),
+                    ))
+                }
             }
 
             if matched_lines == 3 {
@@ -57,5 +62,5 @@ impl FromStr for CpuStats {
 }
 
 pub async fn stats() -> Result<CpuStats> {
-    rt::fs::read_into("/proc/stat").await
+    rt::fs::read_into(rt::linux::procfs_root().join("stat")).await
 }
