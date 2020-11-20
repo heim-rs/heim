@@ -77,7 +77,12 @@ impl FromStr for IoCounters {
         let mut parts = s.split_whitespace();
         let interface = match parts.next() {
             Some(str) => str.trim_end_matches(':').to_string(),
-            None => return Err(Error::missing_key("Interface", "/proc/net/dev")),
+            None => {
+                return Err(Error::missing_key(
+                    "Interface",
+                    format!("{}/net/dev", rt::linux::procfs_root().display()),
+                ))
+            }
         };
 
         Ok(IoCounters {
@@ -122,11 +127,13 @@ async fn inner<T: AsRef<Path> + Send + 'static>(
 }
 
 pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
-    inner("/proc/net/dev").await
+    inner(rt::linux::procfs_root().join("net/dev")).await
 }
 
 pub async fn io_counters_for_pid(pid: Pid) -> Result<impl Stream<Item = Result<IoCounters>>> {
-    let path = format!("/proc/{}/net/dev", pid);
+    let path = rt::linux::procfs_root()
+        .join(pid.to_string())
+        .join("net/dev");
 
     inner(path).await
 }

@@ -101,10 +101,10 @@ impl FromStr for Memory {
         // but at this point we are not tracking which exact field are we missing.
         // TODO: Rewrite parser and use `Error::missing_key` instead
         let inner = io::Error::from(io::ErrorKind::InvalidData);
-        Err(Error::from(inner).with_file("/proc/meminfo"))
+        Err(Error::from(inner).with_file(rt::linux::procfs_root().join("meminfo")))
     }
 }
 
 pub async fn memory() -> Result<Memory> {
-    rt::fs::read_into("/proc/meminfo").await
+    rt::fs::read_into(rt::linux::procfs_root().join("meminfo")).await
 }

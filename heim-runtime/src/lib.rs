@@ -26,6 +26,8 @@ use std::future::Future;
 pub use futures::pin_mut as pin;
 
 pub mod fs;
+#[cfg(target_os = "linux")]
+pub mod linux;
 pub mod time;
 
 #[inline]

@@ -7,6 +7,7 @@ use heim_common::units::{time, Time};
 use heim_common::utils::iter::{ParseIterator, TryIterator};
 use heim_runtime as rt;
 
+use crate::sys::linux::process::procfs::process_file_path;
 use crate::{Pid, ProcessError, ProcessResult, Status};
 
 impl Status {
@@ -61,7 +62,10 @@ impl FromStr for Stat {
         // `+ 2` is for the ") " at the start
         let mut parts = leftover[comm_end + 2..].split_whitespace();
         let state = parts.try_next().and_then(|str| {
-            let chr = str.chars().next().ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData))?;
+            let chr = str
+                .chars()
+                .next()
+                .ok_or_else(|| io::Error::from(io::ErrorKind::InvalidData))?;
             Status::try_from_char(chr)
         })?;
         let ppid: Pid = parts.try_parse_next()?;
@@ -114,7 +118,7 @@ impl FromStr for Stat {
 }
 
 pub async fn stat(pid: Pid) -> ProcessResult<Stat> {
-    let path = format!("/proc/{}/stat", pid);
+    let path = process_file_path(pid, "stat");
     // TODO: Get rid of the `.clone`
     let contents = match rt::fs::read_to_string(path.clone()).await {
         Ok(contents) => contents,

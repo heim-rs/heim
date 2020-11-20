@@ -4,10 +4,8 @@ use heim_common::{
 };
 use heim_runtime as rt;
 
-const PROC_STAT: &str = "/proc/stat";
-
 pub async fn boot_time() -> Result<Time> {
-    let contents = rt::fs::read_to_string(PROC_STAT).await?;
+    let contents = rt::fs::read_to_string(rt::linux::procfs_root().join("stat")).await?;
 
     for line in contents.lines() {
         if line.starts_with("btime ") {
@@ -19,10 +17,16 @@ pub async fn boot_time() -> Result<Time> {
                     .parse::<f64>()
                     .map(Time::new::<time::second>)
                     .map_err(Into::into),
-                None => Err(Error::missing_key("btime", PROC_STAT)),
+                None => Err(Error::missing_key(
+                    "btime",
+                    format!("{}/stat", rt::linux::procfs_root().display()),
+                )),
             };
         }
     }
 
-    Err(Error::missing_key("btime", PROC_STAT))
+    Err(Error::missing_key(
+        "btime",
+        format!("{}/stat", rt::linux::procfs_root().display()),
+    ))
 }

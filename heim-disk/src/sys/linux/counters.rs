@@ -60,7 +60,11 @@ impl IoCounters {
     // Based on the sysstat code:
     // https://github.com/sysstat/sysstat/blob/1c711c1fd03ac638cfc1b25cdf700625c173fd2c/common.c#L200
     async fn is_storage_device(&self) -> Result<bool> {
-        let path = CString::new(format!("/sys/block/{}", self.name.replace("/", "!")))?;
+        let path = CString::new(format!(
+            "{}/block/{}",
+            rt::linux::sysfs_root().display(),
+            self.name.replace("/", "!")
+        ))?;
 
         let result =
             rt::spawn_blocking(move || unsafe { libc::access(path.as_ptr(), libc::F_OK) }).await;
@@ -111,7 +115,8 @@ impl FromStr for IoCounters {
 }
 
 pub async fn io_counters() -> Result<impl Stream<Item = Result<IoCounters>>> {
-    let stream = rt::fs::read_lines_into::<_, _, Error>("/proc/diskstats").await?;
+    let stream =
+        rt::fs::read_lines_into::<_, _, Error>(rt::linux::procfs_root().join("diskstats")).await?;
 
     Ok(stream)
 }

@@ -10,8 +10,6 @@ use heim_runtime as rt;
 
 use crate::FileSystem;
 
-static PROC_MOUNTS: &str = "/proc/mounts";
-
 #[derive(Debug)]
 pub struct Partition {
     device: Option<String>,
@@ -46,22 +44,43 @@ impl FromStr for Partition {
     fn from_str(line: &str) -> Result<Partition> {
         // Example: `/dev/sda3 /home ext4 rw,relatime,data=ordered 0 0`
         let mut parts = line.splitn(5, ' ');
+        let mount_root = rt::linux::procfs_root().join("mounts");
         let device = match parts.next() {
             Some(device) if device == "none" => None,
             Some(device) => Some(device.to_string()),
-            None => return Err(Error::missing_key("device", PROC_MOUNTS)),
+            None => {
+                return Err(Error::missing_key(
+                    "device",
+                    format!("{}", mount_root.display()),
+                ))
+            }
         };
         let mount_point = match parts.next() {
             Some(point) => PathBuf::from(point),
-            None => return Err(Error::missing_key("mount point", PROC_MOUNTS)),
+            None => {
+                return Err(Error::missing_key(
+                    "mount point",
+                    format!("{}", mount_root.display()),
+                ))
+            }
         };
         let fs_type = match parts.next() {
             Some(fs) => FileSystem::from_str(fs)?,
-            _ => return Err(Error::missing_key("file-system type", PROC_MOUNTS)),
+            _ => {
+                return Err(Error::missing_key(
+                    "file-system type",
+                    format!("{}", mount_root.display()),
+                ))
+            }
         };
         let options = match parts.next() {
             Some(opts) => opts.to_string(),
-            None => return Err(Error::missing_key("options", PROC_MOUNTS)),
+            None => {
+                return Err(Error::missing_key(
+                    "options",
+                    format!("{}", mount_root.display()),
+                ))
+            }
         };
 
         Ok(Partition {
@@ -76,7 +95,7 @@ impl FromStr for Partition {
 // Returns stream with known physical (only!) partitions
 async fn known_filesystems() -> Result<HashSet<FileSystem>> {
     rt::spawn_blocking(|| {
-        let file = fs::File::open("/proc/filesystems")?;
+        let file = fs::File::open(rt::linux::procfs_root().join("filesystems"))?;
         let reader = io::BufReader::new(file);
         let mut acc = HashSet::with_capacity(4);
 
@@ -105,7 +124,7 @@ async fn known_filesystems() -> Result<HashSet<FileSystem>> {
 }
 
 pub async fn partitions() -> Result<impl Stream<Item = Result<Partition>>> {
-    let lines = rt::fs::read_lines(PROC_MOUNTS).await?;
+    let lines = rt::fs::read_lines(rt::linux::procfs_root().join("mounts")).await?;
     let stream = lines
         .map_err(Error::from)
         .try_filter_map(|line| async move {

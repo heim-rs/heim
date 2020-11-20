@@ -4,10 +4,8 @@ use heim_common::{
 };
 use heim_runtime as rt;
 
-const PROC_UPTIME: &str = "/proc/uptime";
-
 pub async fn uptime() -> Result<Time> {
-    let contents = rt::fs::read_to_string(PROC_UPTIME).await?;
+    let contents = rt::fs::read_to_string(rt::linux::procfs_root().join("uptime")).await?;
 
     match contents.splitn(2, ' ').next() {
         Some(raw_value) => {
@@ -15,6 +13,9 @@ pub async fn uptime() -> Result<Time> {
 
             Ok(Time::new::<time::second>(seconds))
         }
-        None => Err(Error::missing_key("uptime", "/proc/uptime")),
+        None => Err(Error::missing_key(
+            "uptime",
+            format!("{}/uptime", rt::linux::procfs_root().display()),
+        )),
     }
 }

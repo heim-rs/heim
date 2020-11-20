@@ -87,7 +87,7 @@ async fn hwmon_sensor(input: PathBuf) -> Result<TemperatureSensor> {
 fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
-    rt::fs::read_dir("/sys/class/hwmon/")
+    rt::fs::read_dir(rt::linux::sysfs_root().join("class/hwmon"))
         .try_flatten_stream()
         .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .and_then(|entry| {
@@ -113,7 +113,7 @@ fn hwmon() -> impl Stream<Item = Result<TemperatureSensor>> {
 fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
     // TODO: It would be nice to have async glob matchers :(
     // Basically we are searching for `/sys/class/hwmon/temp*_*` files here
-    rt::fs::read_dir("/sys/class/hwmon/")
+    rt::fs::read_dir(rt::linux::sysfs_root().join("class/hwmon"))
         .try_flatten_stream()
         .try_filter(|entry| future::ready(entry.file_name().as_bytes().starts_with(b"hwmon")))
         .try_filter(|entry| {
@@ -140,7 +140,7 @@ fn hwmon_device() -> impl Stream<Item = Result<TemperatureSensor>> {
 
 // https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
 fn thermal_zone() -> impl Stream<Item = Result<TemperatureSensor>> {
-    rt::fs::read_dir("/sys/class/thermal/")
+    rt::fs::read_dir(rt::linux::sysfs_root().join("class/thermal"))
         .try_flatten_stream()
         .try_filter(|entry| {
             future::ready(entry.file_name().as_bytes().starts_with(b"thermal_zone"))

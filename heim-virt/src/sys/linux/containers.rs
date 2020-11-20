@@ -68,8 +68,8 @@ where
 
 async fn detect_openvz() -> Result<Virtualization, ()> {
     // TODO: Can be done in a blocking task completely
-    let f1 = rt::fs::path_exists("/proc/vz");
-    let f2 = rt::fs::path_exists("/proc/bc");
+    let f1 = rt::fs::path_exists(rt::linux::procfs_root().join("vz"));
+    let f2 = rt::fs::path_exists(rt::linux::procfs_root().join("bc"));
 
     match futures::join!(f1, f2) {
         // `/proc/vz` exists in container and outside of the container,
@@ -109,7 +109,7 @@ where
 pub async fn detect_container() -> Result<Virtualization, ()> {
     future::err(())
         .or_else(|_| detect_openvz())
-        .or_else(|_| detect_wsl("/proc/sys/kernel/osrelease"))
+        .or_else(|_| detect_wsl(rt::linux::procfs_root().join("sys/kernel/osrelease")))
         .or_else(|_| detect_systemd_container("/run/systemd/container"))
         .or_else(|_| detect_init_env("/proc/1/environ"))
         // TODO: Check for a `/proc/1/environ` if there is `container` env var exists

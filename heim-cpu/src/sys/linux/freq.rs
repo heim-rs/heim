@@ -58,8 +58,9 @@ fn _frequencies() -> impl Iterator<Item = Result<CpuFrequency>> {
     // later with the thoughts and patches
 
     // TODO: https://github.com/giampaolo/psutil/issues/1269
-    let entries =
-        glob::glob("/sys/devices/system/cpu/cpu[0-9]/cpufreq/").expect("Incorrect glob pattern");
+    let path = rt::linux::sysfs_root().join("devices/system/cpu/cpu[0-9]/cpufreq/");
+
+    let entries = glob::glob(path.display().to_string().as_str()).expect("Incorrect glob pattern");
 
     entries.map(|try_path| {
         let path = try_path.map_err(|e| e.into_error())?;
