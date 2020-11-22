@@ -33,6 +33,7 @@ core-foundation = "~0.9"
 [dev-dependencies]
 futures-executor = "^0.3"
 version-sync = "0.9"
+static_assertions = "~1.1"
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]

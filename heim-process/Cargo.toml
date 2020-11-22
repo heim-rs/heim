@@ -63,6 +63,7 @@ futures = { version = "~0.3", default-features = false }
 futures-timer = "^3.0"
 which = { version = "~4.0", default-features = false }
 version-sync = "0.9"
+static_assertions = "1.1"
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]
