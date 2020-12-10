@@ -130,3 +130,8 @@ async fn smoke_cpu_physical_count() {
         assert!(cpus < 1024); // Some sane value till we will have proper unittests
     }
 }
+
+#[heim_derive::test]
+async fn smoke_cpu_usage() {
+    let _measurement = cpu::usage().await.unwrap();
+}
