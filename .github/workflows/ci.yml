@@ -27,12 +27,6 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache cargo build target
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: clippy-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
-
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -75,8 +69,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      # Cache
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
