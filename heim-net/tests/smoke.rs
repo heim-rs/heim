@@ -37,31 +37,34 @@ async fn smoke_nic() -> Result<()> {
     while let Some(iface) = nic.next().await {
         let iface = iface?;
 
-        let _ = iface.name();
-        let _ = iface.address();
-        let _ = iface.netmask();
-        let _ = iface.destination();
-        let _ = iface.is_up();
-        let _ = iface.is_running();
-        let _ = iface.is_loopback();
-        let _ = iface.is_multicast();
+        println!("Interface");
+        println!("  name: {:?}", iface.name());
+        println!("  index: {:?}", iface.index());
+        println!("  address: {:?}", iface.address());
+        println!("  netmask: {:?}", iface.netmask());
+
+        println!("  destination: {:?}", iface.destination());
+        println!("  is_up: {:?}", iface.is_up());
+        println!("  is_running: {:?}", iface.is_running());
+        println!("  is_loopback: {:?}", iface.is_loopback());
+        println!("  is_multicast: {:?}", iface.is_multicast());
 
         #[cfg(target_os = "linux")]
         {
             use heim_net::os::linux::NicExt;
 
-            let _ = iface.broadcast();
-            let _ = iface.is_broadcast();
-            let _ = iface.is_point_to_point();
+            println!("  broadcast: {:?}", iface.broadcast());
+            println!("  is_broadcast: {:?}", iface.is_broadcast());
+            println!("  is_point_to_point: {:?}", iface.is_point_to_point());
         }
 
         #[cfg(target_os = "macos")]
         {
             use heim_net::os::macos::NicExt;
 
-            let _ = iface.broadcast();
-            let _ = iface.is_broadcast();
-            let _ = iface.is_point_to_point();
+            println!("  broadcast: {:?}", iface.broadcast());
+            println!("  is_broadcast: {:?}", iface.is_broadcast());
+            println!("  is_point_to_point: {:?}", iface.is_point_to_point());
         }
     }
 

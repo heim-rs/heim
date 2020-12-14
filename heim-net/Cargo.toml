@@ -21,6 +21,9 @@ libc = "~0.2"
 [target.'cfg(unix)'.dependencies]
 nix = "~0.19"
 
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["iphlpapi"]}
+
 [dev-dependencies]
 heim-derive = { version = "0.1.0-rc.1", path = "../heim-derive" }
 smol = "~1.2"
