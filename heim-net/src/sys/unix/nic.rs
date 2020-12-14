@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use macaddr::MacAddr;
 use nix::ifaddrs;
 use nix::net::if_::InterfaceFlags;
+use nix::net::if_::if_nametoindex;
 use nix::sys::socket;
 
 use heim_common::prelude::*;
@@ -15,6 +16,10 @@ pub struct Nic(ifaddrs::InterfaceAddress);
 impl Nic {
     pub fn name(&self) -> &str {
         self.0.interface_name.as_str()
+    }
+
+    pub fn index(&self) -> Option<u32> {
+        if_nametoindex(self.name()).ok()
     }
 
     pub fn address(&self) -> Address {

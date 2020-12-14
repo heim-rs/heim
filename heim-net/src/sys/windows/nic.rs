@@ -9,6 +9,10 @@ impl Nic {
     pub fn name(&self) -> &str {
         unimplemented!()
     }
+    
+    pub fn index(&self) -> Option<u32> {
+        unimplemented!()
+    }
 
     pub fn address(&self) -> Address {
         unimplemented!()

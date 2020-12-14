@@ -35,6 +35,11 @@ impl Nic {
         self.as_ref().name()
     }
 
+    /// Returns NIC index (internally used by the OS to identify the NIC)
+    pub fn index(&self) -> Option<u32> {
+        self.as_ref().index()
+    }
+
     /// Returns primary NIC address.
     pub fn address(&self) -> Address {
         self.as_ref().address()
