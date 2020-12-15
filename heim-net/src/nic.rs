@@ -31,8 +31,6 @@ wrap!(Nic, sys::Nic);
 
 impl Nic {
     /// Returns NIC name.
-    ///
-    /// On Windows, this is the interface unique GUID, not its user-modifiable "friendly name"
     pub fn name(&self) -> &str {
         self.as_ref().name()
     }

@@ -6,6 +6,7 @@ use std::net::SocketAddrV4;
 use std::net::SocketAddrV6;
 
 use std::ffi::CStr;
+use widestring::UCStr;
 
 use winapi::shared::minwindef::ULONG;
 use winapi::shared::ntdef::NULL;
@@ -26,7 +27,8 @@ use crate::Address;
 #[derive(Debug)]
 pub struct Nic {
     index: u32,
-    name: String,
+    guid: String,
+    friendly_name: String,
     address: Option<Address>,
     netmask: Option<Address>,
 }
@@ -107,11 +109,15 @@ fn ipv6_netmask_address_from(length: u8) -> Address {
 
 impl Nic {
     pub fn name(&self) -> &str {
-        &self.name
+        &self.friendly_name
     }
 
     pub fn index(&self) -> Option<u32> {
         Some(self.index)
+    }
+
+    pub fn guid(&self) -> &str {
+        &self.guid
     }
 
     pub fn address(&self) -> Address {
@@ -195,15 +201,18 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
 
     loop {
         let iface_index;
-        let iface_name_cstr;
+        let iface_guid_cstr;
+        let iface_fname_ucstr;
         let mut cur_address;
 
         unsafe {
             iface_index = cur_iface.u.s().IfIndex;
-            iface_name_cstr = CStr::from_ptr(cur_iface.AdapterName);
+            iface_guid_cstr = CStr::from_ptr(cur_iface.AdapterName);
+            iface_fname_ucstr = UCStr::from_ptr_str(cur_iface.FriendlyName);
             cur_address = *(cur_iface.FirstUnicastAddress);
         }
-        let iface_name = iface_name_cstr.to_str().map(|s| s.to_string()).unwrap_or_else(|_| "".into());
+        let iface_guid = iface_guid_cstr.to_str().map(|s| s.to_string()).unwrap_or_else(|_| "".into());
+        let iface_friendly_name = iface_fname_ucstr.to_string_lossy();
 
 
         // Walk through every IP address of this interface
@@ -248,7 +257,8 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
 
         results.push(Ok(Nic{
             index: iface_index,
-            name: iface_name,
+            friendly_name: iface_friendly_name,
+            guid: iface_guid,
             address: best_iface_address,
             netmask: iface_netmask,
         }));

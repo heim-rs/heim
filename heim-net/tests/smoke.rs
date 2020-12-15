@@ -49,6 +49,13 @@ async fn smoke_nic() -> Result<()> {
         println!("  is_loopback: {:?}", iface.is_loopback());
         println!("  is_multicast: {:?}", iface.is_multicast());
 
+        #[cfg(target_os = "windows")]
+        {
+            use heim_net::os::windows::NicExt;
+
+            println!("  guid: {:?}", iface.guid());
+        }
+
         #[cfg(target_os = "linux")]
         {
             use heim_net::os::linux::NicExt;
