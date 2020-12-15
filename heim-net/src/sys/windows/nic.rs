@@ -24,7 +24,7 @@ use crate::Address;
 
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Nic {
     index: u32,
     guid: String,
@@ -215,27 +215,36 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
         let iface_friendly_name = iface_fname_ucstr.to_string_lossy();
 
 
+        let base_nic = Nic{
+            index: iface_index,
+            friendly_name: iface_friendly_name,
+            guid: iface_guid,
+            address: None,
+            netmask: None,
+        };
+
         // Walk through every IP address of this interface
-        let mut best_iface_address = None;
-        let mut best_netmask_length = None;
         loop {
             let this_socket_address = cur_address.Address;
             let this_netmask_length = cur_address.OnLinkPrefixLength;
             let this_sa_family = unsafe { (*this_socket_address.lpSockaddr).sa_family };
 
-            let this_address = match this_sa_family as i32 {
+            let (this_address, this_netmask) = match this_sa_family as i32 {
                 AF_INET => {
-                    sockaddr_to_ipv4(this_socket_address)
+                    (sockaddr_to_ipv4(this_socket_address),
+                     Some(ipv4_netmask_address_from(this_netmask_length)))
                 },
                 AF_INET6 => {
-                    sockaddr_to_ipv6(this_socket_address)
+                    (sockaddr_to_ipv6(this_socket_address),
+                     Some(ipv6_netmask_address_from(this_netmask_length)))
                 },
-                _ => None,
+                _ => (None, None),
             };
 
-            // heim::Nic only stores a "primary" address/mask.
-            // We only keep an address/mask if we consider it more relevant than the others
-            update_if_more_relevant(&mut best_iface_address, &mut best_netmask_length, this_address, this_netmask_length);
+            let mut this_nic = base_nic.clone();
+            this_nic.address = this_address;
+            this_nic.netmask = this_netmask;
+            results.push(Ok(this_nic));
 
             let next_address = cur_address.Next;
             if next_address.is_null() {
@@ -243,25 +252,6 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             }
             cur_address = unsafe { *next_address };
         }
-
-
-        // Build a netmask suited to the best address
-        let iface_netmask = best_netmask_length.and_then(|len|
-            match best_iface_address {
-                Some(Address::Inet(_)) =>  Some(ipv4_netmask_address_from(len)),
-                Some(Address::Inet6(_)) => Some(ipv6_netmask_address_from(len)),
-                _ => None,
-            }
-        );
-
-
-        results.push(Ok(Nic{
-            index: iface_index,
-            friendly_name: iface_friendly_name,
-            guid: iface_guid,
-            address: best_iface_address,
-            netmask: iface_netmask,
-        }));
 
         let next_item = cur_iface.Next;
         if next_item.is_null() {
@@ -272,37 +262,6 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     }
 
     Ok(stream::iter(results))
-}
-
-
-fn update_if_more_relevant(best_iface_address: &mut Option<Address>, best_netmask_length: &mut Option<u8>, this_address: Option<Address>, this_netmask_length: u8) {
-    if let Some(a) = this_address {
-        if best_iface_address.is_none() {
-            // Any address is more relevant than no address
-            *best_iface_address = Some(a);
-            *best_netmask_length = Some(this_netmask_length);
-
-        }else{
-            match a {
-                Address::Inet6(addr6) => {
-                    if (addr6.ip().segments()[0] & 0xffc0) != 0xfe80 {
-                        // it is not link-local
-                        *best_iface_address = Some(a);
-                        *best_netmask_length = Some(this_netmask_length);
-
-                    }
-                },
-                Address::Inet(addr4) => {
-                    if ! addr4.ip().is_link_local() {
-                        *best_iface_address = Some(a);
-                        *best_netmask_length = Some(this_netmask_length);
-
-                    }
-                },
-                _ => (),
-            }
-        }
-    }
 }
 
 

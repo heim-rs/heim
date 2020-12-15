@@ -41,6 +41,8 @@ impl Nic {
     }
 
     /// Returns primary NIC address.
+    ///
+    /// See [`nic`] for more info regarding NICs that have multiple addresses
     pub fn address(&self) -> Address {
         self.as_ref().address()
     }
@@ -94,10 +96,7 @@ impl fmt::Debug for Nic {
 ///
 /// [Network Interface Cards]: struct.Nic.html
 ///
-/// # Platform-specific behaviours
-/// On Windows, every NIC is listed only once, with their "most relevant" (this definition being somewhat arbitrary, see its implementation in the system-specific module) address. \
-/// On *nix, this returns whatever is returned by `getifaddrs`.
-/// Its behaviour regarding multi-addresses NIC might be documented somewhere (it may return several copies of the same interface, with a different address each time)
+/// Depending on your platform, NICs that have multiple addresses may be enumerated several times, with a different [`address`](Nic::address) every time.
 pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     let inner = sys::nic().await?;
 
