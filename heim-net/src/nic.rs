@@ -31,6 +31,8 @@ wrap!(Nic, sys::Nic);
 
 impl Nic {
     /// Returns NIC name.
+    ///
+    /// On Windows, this is the interface unique GUID, not its user-modifiable "friendly name"
     pub fn name(&self) -> &str {
         self.as_ref().name()
     }
@@ -93,6 +95,11 @@ impl fmt::Debug for Nic {
 /// Returns a stream over the [Network Interface Cards].
 ///
 /// [Network Interface Cards]: struct.Nic.html
+///
+/// # Platform-specific behaviours
+/// On Windows, every NIC is listed only once, with their "most relevant" (this definition being somewhat arbitrary, see its implementation in the system-specific module) address. \
+/// On *nix, this returns whatever is returned by `getifaddrs`.
+/// Its behaviour regarding multi-addresses NIC might be documented somewhere (it may return several copies of the same interface, with a different address each time)
 pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     let inner = sys::nic().await?;
 
