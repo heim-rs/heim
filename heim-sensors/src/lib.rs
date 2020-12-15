@@ -1,6 +1,6 @@
 //! Sensors information.
 
-#![doc(html_root_url = "https://docs.rs/heim-sensors/0.1.0-beta.1")]
+#![doc(html_root_url = "https://docs.rs/heim-sensors/0.1.0-rc.1")]
 #![deny(
     unused,
     unused_imports,
