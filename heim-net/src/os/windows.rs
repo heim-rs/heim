@@ -2,7 +2,6 @@
 //!
 //! Available only for `cfg(target_os = "windows")`
 
-
 /// Windows-specific extension for [Nic].
 ///
 /// [Nic]: ../../struct.Nic.html
@@ -17,7 +16,6 @@ impl NicExt for crate::Nic {
         self.as_ref().guid()
     }
 }
-
 
 /// Windows-specific extension for [IoCounters].
 ///

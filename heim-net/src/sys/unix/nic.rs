@@ -2,8 +2,8 @@ use std::net::SocketAddr;
 
 use macaddr::MacAddr;
 use nix::ifaddrs;
-use nix::net::if_::InterfaceFlags;
 use nix::net::if_::if_nametoindex;
+use nix::net::if_::InterfaceFlags;
 use nix::sys::socket;
 
 use heim_common::prelude::*;
