@@ -13,8 +13,8 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 libc = "~0.2"
 cfg-if = "~1.0"
-futures-core = "^0.3"
-futures-util = { version = "^0.3", default-features = false }
+futures-core = "0.3.8"
+futures-util = { version = "0.3.8", default-features = false }
 pin-utils = "0.1.0-alpha.4"
 uom = { version = "0.30.0", default-features = false, features = ["autoconvert", "f32", "f64", "u64", "si", "std"] }
 backtrace = { version = "~0.3", optional = true }
@@ -31,7 +31,7 @@ mach = "0.3.2"
 core-foundation = "~0.9"
 
 [dev-dependencies]
-futures-executor = "^0.3"
+futures-executor = "0.3.8"
 version-sync = "0.9"
 static_assertions = "~1.1"
 

@@ -12,7 +12,7 @@ cfg-if = "~1.0"
 heim = { path = "../heim", features = ["full"] }
 futures-timer = "~3.0"
 
-futures = "~0.3"
+futures = "0.3.8"
 smol = "~1.2"
 tokio = { version = "~0.3", features = ["full"] }
 async-std = { version = "~1.7", features = ["attributes"] }

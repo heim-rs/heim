@@ -13,7 +13,7 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 heim-common = { version = "0.1.0-rc.1", path = "../heim-common" }
 heim-runtime = { version = "0.1.0-rc.1", path = "../heim-runtime" }
-futures = { version = "~0.3", default-features = false, features = ["std"] }
+futures = { version = "0.3.8", default-features = false, features = ["std"] }
 lazy_static = "1.3.0"
 cfg-if = "~1.0"
 
@@ -45,7 +45,7 @@ mach = "0.3.2"
 [dev-dependencies]
 heim-derive = { version = "0.1.0-rc.1", path = "../heim-derive" }
 smol = "~1.2"
-futures = "~0.3"
+futures = "0.3.8"
 version-sync = "0.9"
 futures-timer = "^3.0"
 
