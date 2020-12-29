@@ -25,11 +25,7 @@ impl ops::Sub<CpuUsage> for CpuUsage {
             + (self.cpu_time.system() - rhs.cpu_time.system());
         let delta_time = self.at - rhs.at;
 
-        // TODO: Can be replaced with a `delta_time.as_secs_f64()`
-        // as soon as https://github.com/rust-lang/rust/issues/54361 will be stable
-        const NANOS_PER_SEC: u32 = 1_000_000_000;
-        let mut delta_time_secs =
-            (delta_time.as_secs() as f64) + (delta_time.as_nanos() as f64) / (NANOS_PER_SEC as f64);
+        let mut delta_time_secs = delta_time.as_secs_f64();
 
         // Time should calculated across all the cores available
         delta_time_secs *= self.cpu_count as f64;
