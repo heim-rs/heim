@@ -10,8 +10,15 @@ async fn smoke_platform() {
     println!("  system = {}", platform.system());
     println!("  release = {}", platform.release());
     println!("  version = {}", platform.version());
-    println!("  hostname = {}", platform.hostname());
     println!("  architecture = {}", platform.architecture());
+    println!("  hostname = {}", platform.hostname());
+
+    #[cfg(target_os = "windows")]
+    {
+        use heim_host::os::windows::PlatformExt;
+
+        println!("  domain = {}", platform.domain());
+    }
 }
 
 #[heim_derive::test]

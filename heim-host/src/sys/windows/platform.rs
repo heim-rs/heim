@@ -7,7 +7,7 @@ use ntapi::ntrtl;
 use winapi::shared::{minwindef, ntstatus};
 use winapi::shared::ntdef::NULL;
 use winapi::um::{sysinfoapi, winnt};
-use winapi::um::sysinfoapi::ComputerNameDnsHostname;
+use winapi::um::sysinfoapi::{COMPUTER_NAME_FORMAT, ComputerNameDnsHostname, ComputerNameDnsDomain};
 
 use heim_common::prelude::{Error, Result};
 
@@ -35,6 +35,7 @@ pub struct Platform {
     sysinfo: SystemInfo,
     version: winnt::OSVERSIONINFOEXW,
     hostname: String,
+    domain: String,
     build: String,
 }
 
@@ -80,6 +81,10 @@ impl Platform {
 
     pub fn hostname(&self) -> &str {
         self.hostname.as_str()
+    }
+
+    pub fn domain(&self) -> &str {
+        self.domain.as_str()
     }
 
     pub fn architecture(&self) -> Arch {
@@ -140,15 +145,15 @@ fn rtl_get_version() -> winnt::OSVERSIONINFOEXW {
     }
 }
 
-fn get_computer_name() -> Result<String> {
+fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<String> {
     let mut size: minwindef::DWORD = 0;
-    let result = unsafe { sysinfoapi::GetComputerNameExW(ComputerNameDnsHostname, NULL as _, &mut size) };
+    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, NULL as _, &mut size) };
     if result != 0 {
         return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
 
     let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity(size as _);
-    let result = unsafe { sysinfoapi::GetComputerNameExW(ComputerNameDnsHostname, buffer.as_mut_ptr(), &mut size) };
+    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, buffer.as_mut_ptr(), &mut size) };
     if result == 0 {
         return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
@@ -162,6 +167,14 @@ fn get_computer_name() -> Result<String> {
     Ok(str)
 }
 
+fn get_computer_name() -> Result<String> {
+    get_value_from_get_computer_name_ex_w(ComputerNameDnsHostname)
+}
+
+fn get_computer_domain() -> Result<String> {
+    get_value_from_get_computer_name_ex_w(ComputerNameDnsDomain)
+}
+
 pub async fn platform() -> Result<Platform> {
     let version = rtl_get_version();
 
@@ -169,6 +182,7 @@ pub async fn platform() -> Result<Platform> {
         sysinfo: get_native_system_info(),
         version,
         hostname: get_computer_name()?,
+        domain: get_computer_domain()?,
         build: format!("{}", version.dwBuildNumber),
     })
 }
