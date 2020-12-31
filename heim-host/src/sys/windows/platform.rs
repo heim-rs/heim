@@ -5,15 +5,13 @@ use std::os::windows::ffi::OsStringExt;
 
 use ntapi::ntrtl;
 use winapi::shared::{minwindef, ntstatus};
-use winapi::um::{sysinfoapi, winbase, winnt};
+use winapi::shared::ntdef::NULL;
+use winapi::um::{sysinfoapi, winnt};
+use winapi::um::sysinfoapi::ComputerNameDnsHostname;
 
 use heim_common::prelude::{Error, Result};
 
 use crate::Arch;
-
-// TODO: Is not declared in `winapi` crate
-// See https://github.com/retep998/winapi-rs/issues/780
-const MAX_COMPUTERNAME_LENGTH: minwindef::DWORD = 31;
 
 // Partial copy of the `sysinfoapi::SYSTEM_INFO`,
 // because it contains pointers and we need to sent it between threads.
@@ -143,21 +141,25 @@ fn rtl_get_version() -> winnt::OSVERSIONINFOEXW {
 }
 
 fn get_computer_name() -> Result<String> {
-    let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
-    let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
-
-    let result = unsafe { winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size) };
-    if result == 0 {
-        Err(Error::last_os_error().with_ffi("GetComputerNameW"))
-    } else {
-        unsafe {
-            buffer.set_len(size as usize + 1);
-        }
-        let str = OsString::from_wide(&buffer[..(size as usize)])
-            .to_string_lossy()
-            .to_string();
-        Ok(str)
+    let mut size: minwindef::DWORD = 0;
+    let result = unsafe { sysinfoapi::GetComputerNameExW(ComputerNameDnsHostname, NULL as _, &mut size) };
+    if result != 0 {
+        return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
+
+    let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity(size as _);
+    let result = unsafe { sysinfoapi::GetComputerNameExW(ComputerNameDnsHostname, buffer.as_mut_ptr(), &mut size) };
+    if result == 0 {
+        return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
+    }
+
+    unsafe {
+        buffer.set_len(size as usize);
+    }
+    let str = OsString::from_wide(&buffer[..(size as usize)])
+        .to_string_lossy()
+        .to_string();
+    Ok(str)
 }
 
 pub async fn platform() -> Result<Platform> {

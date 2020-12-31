@@ -6,10 +6,12 @@ use heim_host as host;
 async fn smoke_platform() {
     let platform = host::platform().await;
     let platform = platform.unwrap();
-    let _ = platform.system();
-    let _ = platform.release();
-    let _ = platform.version();
-    let _ = platform.architecture();
+    println!("Platform");
+    println!("  system = {}", platform.system());
+    println!("  release = {}", platform.release());
+    println!("  version = {}", platform.version());
+    println!("  hostname = {}", platform.hostname());
+    println!("  architecture = {}", platform.architecture());
 }
 
 #[heim_derive::test]
