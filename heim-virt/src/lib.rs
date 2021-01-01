@@ -105,6 +105,7 @@ pub enum Virtualization {
 }
 
 impl Virtualization {
+    #[allow(clippy::match_like_matches_macro)]
     /// Returns `true` if it is a Virtual Machine virtualization.
     pub fn is_vm(&self) -> bool {
         match self {
@@ -123,6 +124,7 @@ impl Virtualization {
         }
     }
 
+    #[allow(clippy::match_like_matches_macro)]
     /// Returns `true` if it is a container virtualization.
     pub fn is_container(&self) -> bool {
         match self {
