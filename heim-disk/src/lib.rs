@@ -21,7 +21,7 @@
     unused_import_braces,
     unused_results
 )]
-#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::missing_safety_doc, clippy::match_like_matches_macro)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod os;
