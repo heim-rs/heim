@@ -146,21 +146,25 @@ fn rtl_get_version() -> winnt::OSVERSIONINFOEXW {
 }
 
 fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<String> {
-    let mut size: minwindef::DWORD = 0;
-    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, NULL as _, &mut size) };
+    let mut required_size: minwindef::DWORD = 0;
+    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, NULL as _, &mut required_size) };
     if result != 0 {
         return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
+    // required_size does not contain the trailing null byte
+    let mut size = required_size + 1;
 
-    let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity(size as _);
+    let mut buffer: Vec<winnt::WCHAR> = vec![0; size as _]; // this ensures that buffer.len = size already (avoiding the need to resort to the unsafe `set_len` later)
     let result = unsafe { sysinfoapi::GetComputerNameExW(kind, buffer.as_mut_ptr(), &mut size) };
     if result == 0 {
         return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
 
-    unsafe {
-        buffer.set_len(size as usize);
+    if size > required_size {
+        // Should not happen, size "receives the number of TCHARs copied to the destination buffer, not including the terminating null character"
+        return Err("Invalid value returned by GetComputerNameExW".into());
     }
+    // buffer[..size] is valid because buffer.len > size already
     let str = OsString::from_wide(&buffer[..(size as usize)])
         .to_string_lossy()
         .to_string();
