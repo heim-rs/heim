@@ -162,7 +162,8 @@ fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<S
 
     if size > required_size {
         // Should not happen, size "receives the number of TCHARs copied to the destination buffer, not including the terminating null character"
-        return Err("Invalid value returned by GetComputerNameExW".into());
+        let e = std::io::Error::new(std::io::ErrorKind::Other, "Invalid value returned by GetComputerNameExW");
+        return Err(e.into());
     }
     // buffer[..size] is valid because buffer.len > size already
     let str = OsString::from_wide(&buffer[..(size as usize)])
