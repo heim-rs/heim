@@ -1,7 +1,5 @@
-use std::ffi::OsString;
 use std::fmt;
 use std::mem;
-use std::os::windows::ffi::OsStringExt;
 
 use ntapi::ntrtl;
 use winapi::shared::{minwindef, ntstatus};
@@ -166,9 +164,7 @@ fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<S
         return Err(e.into());
     }
     // buffer[..size] is valid because buffer.len > size already
-    let str = OsString::from_wide(&buffer[..(size as usize)])
-        .to_string_lossy()
-        .to_string();
+    let str = String::from_utf16_lossy(&buffer[..(size as usize)]);
     Ok(str)
 }
 
