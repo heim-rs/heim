@@ -1,3 +1,4 @@
+use std::cmp;
 /// https://docs.microsoft.com/en-US/windows/desktop/api/sysinfoapi/ns-sysinfoapi-_memorystatusex
 use std::fmt;
 use std::mem;
@@ -40,7 +41,7 @@ pub struct Swap(sysinfoapi::MEMORYSTATUSEX);
 
 impl Swap {
     pub fn total(&self) -> Information {
-        Information::new::<information::byte>(self.0.ullTotalPageFile)
+        Information::new::<information::byte>(self.0.ullTotalPageFile - self.0.ullTotalPhys)
     }
 
     pub fn used(&self) -> Information {
@@ -48,7 +49,10 @@ impl Swap {
     }
 
     pub fn free(&self) -> Information {
-        Information::new::<information::byte>(self.0.ullAvailPageFile)
+        cmp::min(
+            Information::new::<information::byte>(self.0.ullAvailPageFile - self.0.ullAvailPhys),
+            self.total(),
+        )
     }
 }
 
