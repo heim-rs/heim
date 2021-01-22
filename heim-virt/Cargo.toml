@@ -17,7 +17,7 @@ cfg-if = "~1.0"
 futures = { version = "~0.3", default-features = false, features = ["std", "async-await"] }
 
 [target.'cfg(all(target_os = "linux", any(target_arch="x86", target_arch="x86_64")))'.dependencies]
-raw-cpuid = "~8.1"
+raw-cpuid = "~9.0"
 
 [dev-dependencies]
 heim-derive = { version = "0.1.0-rc.1", path = "../heim-derive" }
