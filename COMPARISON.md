@@ -31,6 +31,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 |------------|----------|--------|---------|----------|------------|
 | Linux      | ✓        | ✓      | ✓       | ✓        | ✓          |
 | macOS      | ✓        | ✗      | ✓       | ✓        | ✓          |
+| iOS        | ✗        | ✗      | ✓       | ✗        | ✗          |
 | Windows    | ✓        | ✗      | ✓       | ✓        | ✓          |
 | FreeBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
 | OpenBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
