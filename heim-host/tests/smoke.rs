@@ -6,10 +6,19 @@ use heim_host as host;
 async fn smoke_platform() {
     let platform = host::platform().await;
     let platform = platform.unwrap();
-    let _ = platform.system();
-    let _ = platform.release();
-    let _ = platform.version();
-    let _ = platform.architecture();
+    println!("Platform");
+    println!("  system = {}", platform.system());
+    println!("  release = {}", platform.release());
+    println!("  version = {}", platform.version());
+    println!("  architecture = {}", platform.architecture());
+    println!("  hostname = {}", platform.hostname());
+
+    #[cfg(target_os = "windows")]
+    {
+        use heim_host::os::windows::PlatformExt;
+
+        println!("  domain = {}", platform.domain());
+    }
 }
 
 #[heim_derive::test]

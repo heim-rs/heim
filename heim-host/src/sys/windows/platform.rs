@@ -1,19 +1,15 @@
-use std::ffi::OsString;
 use std::fmt;
 use std::mem;
-use std::os::windows::ffi::OsStringExt;
 
 use ntapi::ntrtl;
 use winapi::shared::{minwindef, ntstatus};
-use winapi::um::{sysinfoapi, winbase, winnt};
+use winapi::shared::ntdef::NULL;
+use winapi::um::{sysinfoapi, winnt};
+use winapi::um::sysinfoapi::{COMPUTER_NAME_FORMAT, ComputerNameDnsHostname, ComputerNameDnsDomain};
 
 use heim_common::prelude::{Error, Result};
 
 use crate::Arch;
-
-// TODO: Is not declared in `winapi` crate
-// See https://github.com/retep998/winapi-rs/issues/780
-const MAX_COMPUTERNAME_LENGTH: minwindef::DWORD = 31;
 
 // Partial copy of the `sysinfoapi::SYSTEM_INFO`,
 // because it contains pointers and we need to sent it between threads.
@@ -37,6 +33,7 @@ pub struct Platform {
     sysinfo: SystemInfo,
     version: winnt::OSVERSIONINFOEXW,
     hostname: String,
+    domain: String,
     build: String,
 }
 
@@ -45,6 +42,7 @@ impl Platform {
         match self.version.wProductType {
             winnt::VER_NT_WORKSTATION => "Windows",
             winnt::VER_NT_SERVER => "Windows Server",
+            winnt::VER_NT_DOMAIN_CONTROLLER => "Windows Domain Controller",
             other => unreachable!("Unknown Windows product type: {}", other),
         }
     }
@@ -81,6 +79,10 @@ impl Platform {
 
     pub fn hostname(&self) -> &str {
         self.hostname.as_str()
+    }
+
+    pub fn domain(&self) -> &str {
+        self.domain.as_str()
     }
 
     pub fn architecture(&self) -> Arch {
@@ -141,22 +143,37 @@ fn rtl_get_version() -> winnt::OSVERSIONINFOEXW {
     }
 }
 
-fn get_computer_name() -> Result<String> {
-    let mut buffer: Vec<winnt::WCHAR> = Vec::with_capacity((MAX_COMPUTERNAME_LENGTH + 1) as usize);
-    let mut size: minwindef::DWORD = MAX_COMPUTERNAME_LENGTH + 1;
-
-    let result = unsafe { winbase::GetComputerNameW(buffer.as_mut_ptr(), &mut size) };
-    if result == 0 {
-        Err(Error::last_os_error().with_ffi("GetComputerNameW"))
-    } else {
-        unsafe {
-            buffer.set_len(size as usize + 1);
-        }
-        let str = OsString::from_wide(&buffer[..(size as usize)])
-            .to_string_lossy()
-            .to_string();
-        Ok(str)
+fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<String> {
+    let mut required_size: minwindef::DWORD = 0;
+    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, NULL as _, &mut required_size) };
+    if result != 0 {
+        return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
     }
+    // required_size does not contain the trailing null byte
+    let mut size = required_size + 1;
+
+    let mut buffer: Vec<winnt::WCHAR> = vec![0; size as _]; // this ensures that buffer.len = size already (avoiding the need to resort to the unsafe `set_len` later)
+    let result = unsafe { sysinfoapi::GetComputerNameExW(kind, buffer.as_mut_ptr(), &mut size) };
+    if result == 0 {
+        return Err(Error::last_os_error().with_ffi("GetComputerNameEx"));
+    }
+
+    if size > required_size {
+        // Should not happen, size "receives the number of TCHARs copied to the destination buffer, not including the terminating null character"
+        let e = std::io::Error::new(std::io::ErrorKind::Other, "Invalid value returned by GetComputerNameExW");
+        return Err(e.into());
+    }
+    // buffer[..size] is valid because buffer.len > size already
+    let str = String::from_utf16_lossy(&buffer[..(size as usize)]);
+    Ok(str)
+}
+
+fn get_computer_name() -> Result<String> {
+    get_value_from_get_computer_name_ex_w(ComputerNameDnsHostname)
+}
+
+fn get_computer_domain() -> Result<String> {
+    get_value_from_get_computer_name_ex_w(ComputerNameDnsDomain)
 }
 
 pub async fn platform() -> Result<Platform> {
@@ -166,6 +183,7 @@ pub async fn platform() -> Result<Platform> {
         sysinfo: get_native_system_info(),
         version,
         hostname: get_computer_name()?,
+        domain: get_computer_domain()?,
         build: format!("{}", version.dwBuildNumber),
     })
 }

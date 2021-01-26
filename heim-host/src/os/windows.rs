@@ -34,3 +34,18 @@ impl UserExt for crate::User {
         self.as_ref().address()
     }
 }
+
+/// Extension for [Platform] struct.
+///
+/// [Platform]: ../../struct.Platform.html
+pub trait PlatformExt {
+    /// Returns the name of the Windows domain
+    fn domain(&self) -> &str;
+}
+
+#[cfg(target_os = "windows")]
+impl PlatformExt for crate::Platform {
+    fn domain(&self) -> &str {
+        self.as_ref().domain()
+    }
+}
