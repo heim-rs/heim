@@ -88,7 +88,7 @@ impl fmt::Debug for Nic {
 /// Returns a stream over the [Network Interface Cards].
 ///
 /// [Network Interface Cards]: struct.Nic.html
-pub async fn nic() -> Result<impl Stream<Item = Result<Nic>>> {
+pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     let inner = sys::nic().await?;
 
     Ok(inner.map_ok(Into::into))

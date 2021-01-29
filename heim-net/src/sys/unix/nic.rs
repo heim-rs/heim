@@ -62,14 +62,16 @@ impl Nic {
     }
 }
 
-pub async fn nic() -> Result<impl Stream<Item = Result<Nic>>> {
-    let iter = ifaddrs::getifaddrs()?.filter_map(|addr| {
-        if addr.address.is_some() {
-            Some(Ok(Nic(addr)))
-        } else {
-            None
-        }
-    });
+pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
+    let iter = ifaddrs::getifaddrs()?
+        .filter_map(|addr| {
+            if addr.address.is_some() {
+                Some(Ok(Nic(addr)))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
 
     Ok(stream::iter(iter))
 }

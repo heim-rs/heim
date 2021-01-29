@@ -51,7 +51,7 @@ impl Nic {
     }
 }
 
-pub async fn nic() -> Result<impl Stream<Item = Result<Nic>>> {
+pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     // TODO: Stub
     Ok(stream::empty())
 }
