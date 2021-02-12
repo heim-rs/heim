@@ -12,6 +12,7 @@ use winapi::shared::minwindef::ULONG;
 use winapi::shared::ntdef::NULL;
 use winapi::shared::ws2def::SOCKET_ADDRESS;
 use winapi::shared::ws2ipdef::SOCKADDR_IN6;
+use winapi::shared::ws2def::SOCKADDR_IN;
 use winapi::shared::ws2def::{AF_INET, AF_INET6};
 use winapi::shared::ws2def::AF_UNSPEC;
 use winapi::shared::winerror::{ERROR_BUFFER_OVERFLOW, NO_ERROR};
@@ -38,7 +39,7 @@ fn sockaddr_to_ipv4(sa: SOCKET_ADDRESS) -> Option<Address> {
     // Check this sockaddr can fit one short and a char[14]
     // (see https://docs.microsoft.com/en-us/windows/win32/winsock/sockaddr-2)
     // This should always happen though, this is guaranteed by winapi's interface
-    if sa.iSockaddrLength < 2+14 {
+    if (sa.iSockaddrLength as usize) < std::mem::size_of::<SOCKADDR_IN>() {
         return None;
     }
 
