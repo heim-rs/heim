@@ -16,6 +16,7 @@ use winapi::shared::ws2def::SOCKADDR_IN;
 use winapi::shared::ws2def::{AF_INET, AF_INET6};
 use winapi::shared::ws2def::AF_UNSPEC;
 use winapi::shared::winerror::{ERROR_BUFFER_OVERFLOW, NO_ERROR};
+use winapi::shared::ifdef::IfOperStatusUp;
 use winapi::um::iphlpapi::GetAdaptersAddresses;
 use winapi::um::iptypes::GAA_FLAG_INCLUDE_PREFIX;
 use winapi::um::iptypes::PIP_ADAPTER_ADDRESSES;
@@ -30,6 +31,7 @@ pub struct Nic {
     index: u32,
     guid: String,
     friendly_name: String,
+    is_up: bool,
     address: Option<Address>,
     netmask: Option<Address>,
 }
@@ -137,8 +139,7 @@ impl Nic {
     }
 
     pub fn is_up(&self) -> bool {
-        // TODO: not sure how to tell on Windows
-        true
+        self.is_up
     }
 
     pub fn is_running(&self) -> bool {
@@ -204,6 +205,7 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
         let iface_index;
         let iface_guid_cstr;
         let iface_fname_ucstr;
+        let is_up;
         let mut cur_address;
 
         unsafe {
@@ -211,6 +213,7 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             iface_guid_cstr = CStr::from_ptr(cur_iface.AdapterName);
             iface_fname_ucstr = UCStr::from_ptr_str(cur_iface.FriendlyName);
             cur_address = *(cur_iface.FirstUnicastAddress);
+            is_up = cur_iface.OperStatus == IfOperStatusUp;
         }
         let iface_guid = iface_guid_cstr.to_str().map(|s| s.to_string()).unwrap_or_else(|_| "".into());
         let iface_friendly_name = iface_fname_ucstr.to_string_lossy();
@@ -220,6 +223,7 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             index: iface_index,
             friendly_name: iface_friendly_name,
             guid: iface_guid,
+            is_up,
             address: None,
             netmask: None,
         };
