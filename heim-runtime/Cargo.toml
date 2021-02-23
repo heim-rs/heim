@@ -13,7 +13,7 @@ license = "Apache-2.0 OR MIT"
 futures = { version = "~0.3", default-features = false, features = ["std"] }
 #futures-lite = "~1.11"
 futures-timer = "~3.0"
-once_cell = "~1.5"
+once_cell = "~1.6"
 smol = "~1.2"
 
 [dev-dependencies]
