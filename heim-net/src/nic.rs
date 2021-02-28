@@ -35,7 +35,14 @@ impl Nic {
         self.as_ref().name()
     }
 
+    /// Returns NIC index (internally used by the OS to identify the NIC)
+    pub fn index(&self) -> Option<u32> {
+        self.as_ref().index()
+    }
+
     /// Returns primary NIC address.
+    ///
+    /// See [`nic`] for more info regarding NICs that have multiple addresses
     pub fn address(&self) -> Address {
         self.as_ref().address()
     }
@@ -88,6 +95,8 @@ impl fmt::Debug for Nic {
 /// Returns a stream over the [Network Interface Cards].
 ///
 /// [Network Interface Cards]: struct.Nic.html
+///
+/// Depending on your platform, NICs that have multiple addresses may be enumerated several times, with a different [`address`](Nic::address) every time.
 pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     let inner = sys::nic().await?;
 
