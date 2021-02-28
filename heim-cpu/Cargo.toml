@@ -45,7 +45,6 @@ mach = "0.3.2"
 [dev-dependencies]
 heim-derive = { version = "0.1.0-rc.1", path = "../heim-derive" }
 smol = "~1.2"
-futures = "~0.3"
 version-sync = "0.9"
 futures-timer = "^3.0"
 

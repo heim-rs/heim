@@ -69,10 +69,10 @@ where
 
 async fn detect_openvz() -> Result<Virtualization, ()> {
     // TODO: Can be done in a blocking task completely
-    let f1 = rt::fs::path_exists(rt::linux::procfs_root().join("vz"));
-    let f2 = rt::fs::path_exists(rt::linux::procfs_root().join("bc"));
+    let f1 = rt::fs::path_exists(rt::linux::procfs_root().join("vz")).await;
+    let f2 = rt::fs::path_exists(rt::linux::procfs_root().join("bc")).await;
 
-    match futures::join!(f1, f2) {
+    match (f1, f2) {
         // `/proc/vz` exists in container and outside of the container,
         // `/proc/bc` only outside of the container.
         (true, false) => Ok(Virtualization::OpenVz),

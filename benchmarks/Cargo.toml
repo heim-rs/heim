@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 heim = { path = "../heim", features = ["full"] }
-futures = { version = "0.3", default-features = false, features = ["std"] }
+futures = { version = "0.3", default-features = false, features = ["std", "async-await"] }
 criterion = "~0.3"
 smol = "~1.2"
 
