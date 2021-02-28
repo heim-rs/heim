@@ -6,7 +6,7 @@ use heim_runtime as rt;
 
 use crate::Virtualization;
 
-#[allow(clippy::clippy::unnecessary-wraps)]
+#[allow(clippy::clippy::unnecessary_wraps)]
 fn try_guess_container(value: &str) -> Result<Virtualization, ()> {
     // TODO: Case-insensitive comparision?
     match value {
