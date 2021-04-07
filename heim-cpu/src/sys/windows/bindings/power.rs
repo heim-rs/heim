@@ -1,3 +1,5 @@
+#![allow(clippy::upper_case_acronyms)] // It is fine for bindings
+
 use winapi::shared::minwindef;
 
 #[repr(C)]

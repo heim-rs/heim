@@ -8,23 +8,21 @@ use std::net::SocketAddrV6;
 use std::ffi::CStr;
 use widestring::UCStr;
 
+use winapi::shared::ifdef::IfOperStatusUp;
 use winapi::shared::minwindef::ULONG;
 use winapi::shared::ntdef::NULL;
-use winapi::shared::ws2def::SOCKET_ADDRESS;
-use winapi::shared::ws2ipdef::SOCKADDR_IN6;
-use winapi::shared::ws2def::SOCKADDR_IN;
-use winapi::shared::ws2def::{AF_INET, AF_INET6};
-use winapi::shared::ws2def::AF_UNSPEC;
 use winapi::shared::winerror::{ERROR_BUFFER_OVERFLOW, NO_ERROR};
-use winapi::shared::ifdef::IfOperStatusUp;
+use winapi::shared::ws2def::AF_UNSPEC;
+use winapi::shared::ws2def::SOCKADDR_IN;
+use winapi::shared::ws2def::SOCKET_ADDRESS;
+use winapi::shared::ws2def::{AF_INET, AF_INET6};
+use winapi::shared::ws2ipdef::SOCKADDR_IN6;
 use winapi::um::iphlpapi::GetAdaptersAddresses;
 use winapi::um::iptypes::GAA_FLAG_INCLUDE_PREFIX;
-use winapi::um::iptypes::PIP_ADAPTER_ADDRESSES;
 use winapi::um::iptypes::IP_ADAPTER_ADDRESSES;
+use winapi::um::iptypes::PIP_ADAPTER_ADDRESSES;
 
 use crate::Address;
-
-
 
 #[derive(Clone, Debug)]
 pub struct Nic {
@@ -35,7 +33,6 @@ pub struct Nic {
     address: Option<Address>,
     netmask: Option<Address>,
 }
-
 
 fn sockaddr_to_ipv4(sa: SOCKET_ADDRESS) -> Option<Address> {
     // Check this sockaddr can fit one short and a char[14]
@@ -50,11 +47,9 @@ fn sockaddr_to_ipv4(sa: SOCKET_ADDRESS) -> Option<Address> {
     }
     let arr = unsafe { (*sa.lpSockaddr).sa_data };
     let ip4 = Ipv4Addr::new(arr[2] as _, arr[3] as _, arr[4] as _, arr[5] as _);
-    let port = (arr[0] as u16) + (arr[1] as u16)*0x100;
+    let port = (arr[0] as u16) + (arr[1] as u16) * 0x100;
 
-    Some(Address::Inet(
-        SocketAddrV4::new(ip4, port)
-    ))
+    Some(Address::Inet(SocketAddrV4::new(ip4, port)))
 }
 
 fn sockaddr_to_ipv6(sa: SOCKET_ADDRESS) -> Option<Address> {
@@ -68,17 +63,17 @@ fn sockaddr_to_ipv6(sa: SOCKET_ADDRESS) -> Option<Address> {
     if p_sa6.is_null() {
         return None;
     }
-    let sa6 = unsafe{ *p_sa6 };
+    let sa6 = unsafe { *p_sa6 };
 
-    let ip6_data = unsafe{ sa6.sin6_addr.u.Byte() };
+    let ip6_data = unsafe { sa6.sin6_addr.u.Byte() };
     let ip6 = Ipv6Addr::from(*ip6_data);
     let port = sa6.sin6_port;
     let flow_info = sa6.sin6_flowinfo;
-    let scope_id = unsafe{ *sa6.u.sin6_scope_id() };
+    let scope_id = unsafe { *sa6.u.sin6_scope_id() };
 
-    Some(Address::Inet6(
-        SocketAddrV6::new(ip6, port, flow_info, scope_id )
-    ))
+    Some(Address::Inet6(SocketAddrV6::new(
+        ip6, port, flow_info, scope_id,
+    )))
 }
 
 /// Generate an IPv4 netmask from a prefix length (Rust equivalent of ConvertLengthToIpv4Mask())
@@ -106,10 +101,6 @@ fn ipv6_netmask_address_from(length: u8) -> Address {
     Address::Inet6(SocketAddrV6::new(ipv6_netmask_from(length), 0, 0, 0))
 }
 
-
-
-
-
 impl Nic {
     pub fn name(&self) -> &str {
         &self.friendly_name
@@ -124,9 +115,8 @@ impl Nic {
     }
 
     pub fn address(&self) -> Address {
-        self.address.unwrap_or_else(||
-            Address::Inet(SocketAddrV4::new(Ipv4Addr::new(0,0,0,0), 0))
-        )
+        self.address
+            .unwrap_or_else(|| Address::Inet(SocketAddrV4::new(Ipv4Addr::new(0, 0, 0, 0), 0)))
     }
 
     pub fn netmask(&self) -> Option<Address> {
@@ -151,7 +141,7 @@ impl Nic {
         match self.address {
             Some(Address::Inet(sa)) => sa.ip().is_loopback(),
             Some(Address::Inet6(sa6)) => sa6.ip().is_loopback(),
-            _ => false
+            _ => false,
         }
     }
 
@@ -159,7 +149,7 @@ impl Nic {
         match self.address {
             Some(Address::Inet(sa)) => sa.ip().is_multicast(),
             Some(Address::Inet6(sa6)) => sa6.ip().is_multicast(),
-            _ => false
+            _ => false,
         }
     }
 }
@@ -172,30 +162,40 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     let flags: ULONG = GAA_FLAG_INCLUDE_PREFIX;
     let mut empty_list = IP_ADAPTER_ADDRESSES::default();
     let mut data_size: ULONG = 0;
-    let res = unsafe { GetAdaptersAddresses(family as _, flags, NULL, &mut empty_list, &mut data_size) };
+    let res =
+        unsafe { GetAdaptersAddresses(family as _, flags, NULL, &mut empty_list, &mut data_size) };
     if res != ERROR_BUFFER_OVERFLOW {
         // Unable to get the size of routing infos
-        let e = Error::from(std::io::Error::from_raw_os_error(res as _)).with_ffi("GetAdaptersAddresses");
+        let e = Error::from(std::io::Error::from_raw_os_error(res as _))
+            .with_ffi("GetAdaptersAddresses");
         return Err(e);
     }
-
 
     // Step 2 - get the interfaces infos
     let mut buffer = vec![0; data_size as usize];
-    let res = unsafe { GetAdaptersAddresses(family as _, flags, NULL, buffer.as_mut_ptr() as _, &mut data_size) };
+    let res = unsafe {
+        GetAdaptersAddresses(
+            family as _,
+            flags,
+            NULL,
+            buffer.as_mut_ptr() as _,
+            &mut data_size,
+        )
+    };
     if res != NO_ERROR {
         // Unable to get the routing infos
-        let e = Error::from(std::io::Error::from_raw_os_error(res as _)).with_ffi("GetAdaptersAddresses");
+        let e = Error::from(std::io::Error::from_raw_os_error(res as _))
+            .with_ffi("GetAdaptersAddresses");
         return Err(e);
     }
-
 
     // Step 3 - walk through the list and populate our interfaces
     let mut cur_iface = unsafe {
         let p = buffer.as_ptr() as PIP_ADAPTER_ADDRESSES;
         if p.is_null() {
             // Unable to list interfaces
-            let e = Error::from(std::io::Error::from_raw_os_error(res as _)).with_ffi("GetAdaptersAddresses");
+            let e = Error::from(std::io::Error::from_raw_os_error(res as _))
+                .with_ffi("GetAdaptersAddresses");
             return Err(e);
         }
         *p
@@ -215,11 +215,13 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             cur_address = *(cur_iface.FirstUnicastAddress);
             is_up = cur_iface.OperStatus == IfOperStatusUp;
         }
-        let iface_guid = iface_guid_cstr.to_str().map(|s| s.to_string()).unwrap_or_else(|_| "".into());
+        let iface_guid = iface_guid_cstr
+            .to_str()
+            .map(|s| s.to_string())
+            .unwrap_or_else(|_| "".into());
         let iface_friendly_name = iface_fname_ucstr.to_string_lossy();
 
-
-        let base_nic = Nic{
+        let base_nic = Nic {
             index: iface_index,
             friendly_name: iface_friendly_name,
             guid: iface_guid,
@@ -235,14 +237,14 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             let this_sa_family = unsafe { (*this_socket_address.lpSockaddr).sa_family };
 
             let (this_address, this_netmask) = match this_sa_family as i32 {
-                AF_INET => {
-                    (sockaddr_to_ipv4(this_socket_address),
-                     Some(ipv4_netmask_address_from(this_netmask_length)))
-                },
-                AF_INET6 => {
-                    (sockaddr_to_ipv6(this_socket_address),
-                     Some(ipv6_netmask_address_from(this_netmask_length)))
-                },
+                AF_INET => (
+                    sockaddr_to_ipv4(this_socket_address),
+                    Some(ipv4_netmask_address_from(this_netmask_length)),
+                ),
+                AF_INET6 => (
+                    sockaddr_to_ipv6(this_socket_address),
+                    Some(ipv6_netmask_address_from(this_netmask_length)),
+                ),
                 _ => (None, None),
             };
 
@@ -263,27 +265,33 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
             break;
         }
         cur_iface = unsafe { *next_item };
-
     }
 
     Ok(stream::iter(results))
 }
-
-
 
 #[cfg(test)]
 mod test {
     use super::*;
     #[test]
     fn test_netmasks() {
-        assert_eq!(ipv4_netmask_from(0),   Ipv4Addr::new(0,0,0,0));
-        assert_eq!(ipv4_netmask_from(32),  Ipv4Addr::new(255,255,255,255));
-        assert_eq!(ipv4_netmask_from(200), Ipv4Addr::new(255,255,255,255));
-        assert_eq!(ipv4_netmask_from(9),   Ipv4Addr::new(255,128,0,0));
+        assert_eq!(ipv4_netmask_from(0), Ipv4Addr::new(0, 0, 0, 0));
+        assert_eq!(ipv4_netmask_from(32), Ipv4Addr::new(255, 255, 255, 255));
+        assert_eq!(ipv4_netmask_from(200), Ipv4Addr::new(255, 255, 255, 255));
+        assert_eq!(ipv4_netmask_from(9), Ipv4Addr::new(255, 128, 0, 0));
 
-        assert_eq!(ipv6_netmask_from(0),   Ipv6Addr::new(0,0,0,0,0,0,0,0));
-        assert_eq!(ipv6_netmask_from(32),  Ipv6Addr::new(0xffff, 0xffff, 0, 0, 0, 0, 0, 0));
-        assert_eq!(ipv6_netmask_from(200), Ipv6Addr::new(0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff));
-        assert_eq!(ipv6_netmask_from(9),   Ipv6Addr::new(0xff80, 0, 0, 0, 0, 0, 0, 0));
+        assert_eq!(ipv6_netmask_from(0), Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0));
+        assert_eq!(
+            ipv6_netmask_from(32),
+            Ipv6Addr::new(0xffff, 0xffff, 0, 0, 0, 0, 0, 0)
+        );
+        assert_eq!(
+            ipv6_netmask_from(200),
+            Ipv6Addr::new(0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff)
+        );
+        assert_eq!(
+            ipv6_netmask_from(9),
+            Ipv6Addr::new(0xff80, 0, 0, 0, 0, 0, 0, 0)
+        );
     }
 }

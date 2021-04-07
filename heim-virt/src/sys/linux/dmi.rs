@@ -9,11 +9,12 @@ use crate::Virtualization;
     target_arch = "aarch64"
 ))]
 pub async fn detect_vm_dmi() -> Result<Virtualization, ()> {
-    let mut probe_files = vec![];
-    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/product_name"));
-    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/sys_vendor"));
-    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/board_vendor"));
-    probe_files.push(rt::linux::sysfs_root().join("class/dmi/id/bios_vendor"));
+    let probe_files = vec![
+        rt::linux::sysfs_root().join("class/dmi/id/product_name"),
+        rt::linux::sysfs_root().join("class/dmi/id/sys_vendor"),
+        rt::linux::sysfs_root().join("class/dmi/id/board_vendor"),
+        rt::linux::sysfs_root().join("class/dmi/id/bios_vendor"),
+    ];
 
     for filename in probe_files {
         let line = match rt::fs::read_first_line(filename).await {

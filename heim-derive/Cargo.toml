@@ -14,9 +14,9 @@ license = "Apache-2.0 OR MIT"
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "~1.0"
-quote = "~1.0"
-syn = { version = "~1.0", default-features = false, features = ["derive", "full", "parsing", "printing", "proc-macro"] }
+proc-macro2 = "^1.0"
+quote = "^1.0"
+syn = { version = "^1.0", default-features = false, features = ["derive", "full", "parsing", "printing", "proc-macro"] }
 
 [dev-dependencies]
 version-sync = "0.9"

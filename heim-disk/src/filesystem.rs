@@ -74,7 +74,8 @@ pub enum FileSystem {
 
 impl FileSystem {
     /// Checks if filesystem is used for a physical devices
-    #[allow(clippy::unknown_clippy_lints, clippy::match_like_matches_macro)]
+    // TODO: Revisit clippy lint later, `match!` should be in MSRV now?
+    #[allow(clippy::match_like_matches_macro)]
     pub fn is_physical(&self) -> bool {
         match self {
             FileSystem::Other(..) => false,

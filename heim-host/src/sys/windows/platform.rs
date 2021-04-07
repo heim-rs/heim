@@ -2,10 +2,12 @@ use std::fmt;
 use std::mem;
 
 use ntapi::ntrtl;
-use winapi::shared::{minwindef, ntstatus};
 use winapi::shared::ntdef::NULL;
+use winapi::shared::{minwindef, ntstatus};
+use winapi::um::sysinfoapi::{
+    ComputerNameDnsDomain, ComputerNameDnsHostname, COMPUTER_NAME_FORMAT,
+};
 use winapi::um::{sysinfoapi, winnt};
-use winapi::um::sysinfoapi::{COMPUTER_NAME_FORMAT, ComputerNameDnsHostname, ComputerNameDnsDomain};
 
 use heim_common::prelude::{Error, Result};
 
@@ -160,7 +162,10 @@ fn get_value_from_get_computer_name_ex_w(kind: COMPUTER_NAME_FORMAT) -> Result<S
 
     if size > required_size {
         // Should not happen, size "receives the number of TCHARs copied to the destination buffer, not including the terminating null character"
-        let e = std::io::Error::new(std::io::ErrorKind::Other, "Invalid value returned by GetComputerNameExW");
+        let e = std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Invalid value returned by GetComputerNameExW",
+        );
         return Err(e.into());
     }
     // buffer[..size] is valid because buffer.len > size already

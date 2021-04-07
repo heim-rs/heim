@@ -66,8 +66,8 @@ fn _frequencies() -> impl Iterator<Item = Result<CpuFrequency>> {
         let path = try_path.map_err(|e| e.into_error())?;
 
         let current = current_freq(&path)?;
-        let max = max_freq(&path)?;
-        let min = min_freq(&path)?;
+        let max = max_freq(&path);
+        let min = min_freq(&path);
 
         Ok(CpuFrequency { current, max, min })
     })
@@ -127,16 +127,16 @@ fn current_freq(path: &Path) -> Result<Frequency> {
     //    future::ready(result)
 }
 
-fn max_freq(path: &Path) -> Result<Option<Frequency>> {
+fn max_freq(path: &Path) -> Option<Frequency> {
     let value = read_freq(path.join("scaling_max_freq"));
 
     // Don't care about errors propagation at this point
-    Ok(value.ok())
+    value.ok()
 }
 
-fn min_freq(path: &Path) -> Result<Option<Frequency>> {
+fn min_freq(path: &Path) -> Option<Frequency> {
     let value = read_freq(path.join("scaling_min_freq"));
 
     // Don't care about errors propagation at this point
-    Ok(value.ok())
+    value.ok()
 }

@@ -64,7 +64,7 @@ jobs:
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf',  cross: true }
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-musleabihf', cross: true }
         toolchain:
-          - 1.45.0  # MSRV
+          - 1.46.0  # MSRV
           - stable
 
     steps:

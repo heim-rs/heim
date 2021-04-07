@@ -10,6 +10,7 @@ pub type io_registry_entry_t = io_object_t;
 pub type io_service_t = io_object_t;
 pub type io_iterator_t = io_object_t;
 
+#[allow(clippy::upper_case_acronyms)] // It is fine for bindings
 pub type IOOptionBits = u32;
 
 extern "C" {
