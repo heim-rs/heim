@@ -88,8 +88,9 @@ impl Process {
     ///
     /// ## Compatibility
     ///
-    /// For Windows this method is not implemented yet and will always panic,
-    /// see [#105](https://github.com/heim-rs/heim/issues/105).
+    /// For Windows this method is implemented, but considered as an **unstable** right now.
+    ///
+    /// Please use it with caution and report any bugs you might face.
     pub async fn cwd(&self) -> ProcessResult<PathBuf> {
         self.as_ref().cwd().await
     }
