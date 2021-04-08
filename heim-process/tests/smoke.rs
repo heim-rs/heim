@@ -57,7 +57,6 @@ async fn smoke_processes() -> Result<()> {
         try_method!(process.name());
         try_method!(process.command());
         try_method!(process.exe());
-        #[cfg(not(target_os = "windows"))] // Not implemented yet
         try_method!(process.cwd());
         try_method!(process.status());
         #[cfg(any(target_os = "linux", target_os = "macos"))] // Not implemented yet for all platforms

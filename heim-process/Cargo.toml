@@ -49,7 +49,9 @@ features = [
     "psapi",
     "processthreadsapi",
     "winerror",
-    "tlhelp32"
+    "tlhelp32",
+    "wow64apiset",
+    "memoryapi",
 ]
 
 [target.'cfg(target_os = "macos")'.dependencies]
