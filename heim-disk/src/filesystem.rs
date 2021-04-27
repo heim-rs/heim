@@ -24,6 +24,9 @@ pub enum FileSystem {
     /// exFAT (https://en.wikipedia.org/wiki/ExFAT)
     ExFat,
 
+    /// FAT (https://en.wikipedia.org/wiki/File_Allocation_Table)
+    Fat,
+
     /// F2FS (https://en.wikipedia.org/wiki/F2FS)
     F2fs,
 
@@ -110,6 +113,7 @@ impl FileSystem {
             FileSystem::Nilfs => "nilfs",
             FileSystem::Xfs => "xfs",
             FileSystem::Apfs => "apfs",
+            FileSystem::Fat => "fat",
             FileSystem::Other(string) => string.as_str(),
         }
     }
@@ -138,6 +142,7 @@ impl FromStr for FileSystem {
             _ if s.eq_ignore_ascii_case("nilfs") => Ok(FileSystem::Nilfs),
             _ if s.eq_ignore_ascii_case("xfs") => Ok(FileSystem::Xfs),
             _ if s.eq_ignore_ascii_case("apfs") => Ok(FileSystem::Apfs),
+            _ if s.eq_ignore_ascii_case("msdos") => Ok(FileSystem::Fat),
 
             _ if s.eq_ignore_ascii_case("fuseblk") => Ok(FileSystem::FuseBlk),
             _ => Ok(FileSystem::Other(s.to_string())),
