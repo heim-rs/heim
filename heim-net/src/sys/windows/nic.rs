@@ -192,12 +192,8 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     // Step 3 - walk through the list and populate our interfaces
     let mut p_next_iface = buffer.as_ptr() as PIP_ADAPTER_ADDRESSES;
 
-    let mut cur_iface;
-    loop {
-        if p_next_iface.is_null() {
-            break;
-        }
-        cur_iface = unsafe { *p_next_iface };
+    while !p_next_iface.is_null() {
+        let cur_iface = unsafe { *p_next_iface };
 
         let iface_index = unsafe { cur_iface.u.s().IfIndex };
         let iface_guid_cstr;
@@ -233,12 +229,9 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
 
         // Walk through every IP address of this interface
         let mut p_next_address = cur_iface.FirstUnicastAddress;
-        let mut cur_address;
-        loop {
-            if p_next_address.is_null() {
-                break;
-            }
-            cur_address = unsafe { *p_next_address };
+
+        while !p_next_address.is_null() {
+            let cur_address = unsafe { *p_next_address };
 
             let this_socket_address = cur_address.Address;
             let this_netmask_length = cur_address.OnLinkPrefixLength;
