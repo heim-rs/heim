@@ -191,12 +191,6 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
 
     // Step 3 - walk through the list and populate our interfaces
     let mut p_next_iface = buffer.as_ptr() as PIP_ADAPTER_ADDRESSES;
-    if p_next_iface.is_null() {
-        // Unable to list interfaces
-        let e = Error::from(std::io::Error::from_raw_os_error(res as _))
-            .with_ffi("GetAdaptersAddresses");
-        return Err(e);
-    }
 
     let mut cur_iface;
     loop {
