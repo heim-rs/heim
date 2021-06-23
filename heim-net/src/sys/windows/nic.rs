@@ -190,31 +190,38 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
     }
 
     // Step 3 - walk through the list and populate our interfaces
-    let mut cur_iface = unsafe {
-        let p = buffer.as_ptr() as PIP_ADAPTER_ADDRESSES;
-        if p.is_null() {
-            // Unable to list interfaces
-            let e = Error::from(std::io::Error::from_raw_os_error(res as _))
-                .with_ffi("GetAdaptersAddresses");
-            return Err(e);
-        }
-        *p
-    };
+    let mut p_next_iface = buffer.as_ptr() as PIP_ADAPTER_ADDRESSES;
+    if p_next_iface.is_null() {
+        // Unable to list interfaces
+        let e = Error::from(std::io::Error::from_raw_os_error(res as _))
+            .with_ffi("GetAdaptersAddresses");
+        return Err(e);
+    }
 
+    let mut cur_iface;
     loop {
-        let iface_index;
+        if p_next_iface.is_null() {
+            break;
+        }
+        cur_iface = unsafe { *p_next_iface };
+
+        let iface_index = unsafe { cur_iface.u.s().IfIndex };
         let iface_guid_cstr;
         let iface_fname_ucstr;
-        let is_up;
-        let mut cur_address;
-
         unsafe {
-            iface_index = cur_iface.u.s().IfIndex;
-            iface_guid_cstr = CStr::from_ptr(cur_iface.AdapterName);
-            iface_fname_ucstr = UCStr::from_ptr_str(cur_iface.FriendlyName);
-            cur_address = *(cur_iface.FirstUnicastAddress);
-            is_up = cur_iface.OperStatus == IfOperStatusUp;
+            iface_guid_cstr = if !cur_iface.AdapterName.is_null() {
+                CStr::from_ptr(cur_iface.AdapterName)
+            } else {
+                CStr::from_bytes_with_nul(&[0]).unwrap()
+            };
+
+            iface_fname_ucstr = if !cur_iface.FriendlyName.is_null() {
+                UCStr::from_ptr_str(cur_iface.FriendlyName)
+            } else {
+                UCStr::from_slice_with_nul(&[0]).unwrap()
+            };
         }
+        let is_up = cur_iface.OperStatus == IfOperStatusUp;
         let iface_guid = iface_guid_cstr
             .to_str()
             .map(|s| s.to_string())
@@ -231,40 +238,42 @@ pub async fn nic() -> Result<impl Stream<Item = Result<Nic>> + Send + Sync> {
         };
 
         // Walk through every IP address of this interface
+        let mut p_next_address = cur_iface.FirstUnicastAddress;
+        let mut cur_address;
         loop {
-            let this_socket_address = cur_address.Address;
-            let this_netmask_length = cur_address.OnLinkPrefixLength;
-            let this_sa_family = unsafe { (*this_socket_address.lpSockaddr).sa_family };
-
-            let (this_address, this_netmask) = match this_sa_family as i32 {
-                AF_INET => (
-                    sockaddr_to_ipv4(this_socket_address),
-                    Some(ipv4_netmask_address_from(this_netmask_length)),
-                ),
-                AF_INET6 => (
-                    sockaddr_to_ipv6(this_socket_address),
-                    Some(ipv6_netmask_address_from(this_netmask_length)),
-                ),
-                _ => (None, None),
-            };
-
-            let mut this_nic = base_nic.clone();
-            this_nic.address = this_address;
-            this_nic.netmask = this_netmask;
-            results.push(Ok(this_nic));
-
-            let next_address = cur_address.Next;
-            if next_address.is_null() {
+            if p_next_address.is_null() {
                 break;
             }
-            cur_address = unsafe { *next_address };
+            cur_address = unsafe { *p_next_address };
+
+            let this_socket_address = cur_address.Address;
+            let this_netmask_length = cur_address.OnLinkPrefixLength;
+
+            if !this_socket_address.lpSockaddr.is_null() {
+                let this_sa_family = unsafe { (*this_socket_address.lpSockaddr).sa_family };
+
+                let (this_address, this_netmask) = match this_sa_family as i32 {
+                    AF_INET => (
+                        sockaddr_to_ipv4(this_socket_address),
+                        Some(ipv4_netmask_address_from(this_netmask_length)),
+                    ),
+                    AF_INET6 => (
+                        sockaddr_to_ipv6(this_socket_address),
+                        Some(ipv6_netmask_address_from(this_netmask_length)),
+                    ),
+                    _ => (None, None),
+                };
+
+                let mut this_nic = base_nic.clone();
+                this_nic.address = this_address;
+                this_nic.netmask = this_netmask;
+                results.push(Ok(this_nic));
+            }
+
+            p_next_address = cur_address.Next;
         }
 
-        let next_item = cur_iface.Next;
-        if next_item.is_null() {
-            break;
-        }
-        cur_iface = unsafe { *next_item };
+        p_next_iface = cur_iface.Next;
     }
 
     Ok(stream::iter(results))
