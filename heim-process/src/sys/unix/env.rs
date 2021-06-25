@@ -93,10 +93,7 @@ impl<'e> Iterator for EnvironmentIter<'e> {
     type Item = (&'e OsStr, &'e OsStr);
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.0.next() {
-            Some((k, v)) => Some((k.as_os_str(), v.as_os_str())),
-            None => None,
-        }
+        self.0.next().map(|(k, v)| (k.as_os_str(), v.as_os_str()))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

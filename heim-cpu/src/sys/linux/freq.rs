@@ -46,7 +46,7 @@ impl ops::Add<CpuFrequency> for CpuFrequency {
             (None, None) => None,
         };
 
-        CpuFrequency { current, max, min }
+        CpuFrequency { current, min, max }
     }
 }
 
@@ -69,7 +69,7 @@ fn _frequencies() -> impl Iterator<Item = Result<CpuFrequency>> {
         let max = max_freq(&path);
         let min = min_freq(&path);
 
-        Ok(CpuFrequency { current, max, min })
+        Ok(CpuFrequency { current, min, max })
     })
 }
 

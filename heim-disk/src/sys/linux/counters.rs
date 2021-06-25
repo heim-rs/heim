@@ -104,12 +104,12 @@ impl FromStr for IoCounters {
         Ok(IoCounters {
             name,
             read_count,
-            read_merged_count,
-            read_bytes,
             write_count,
-            write_merged_count,
+            read_bytes,
             write_bytes,
             busy_time,
+            read_merged_count,
+            write_merged_count,
         })
     }
 }
