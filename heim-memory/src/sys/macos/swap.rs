@@ -48,8 +48,8 @@ pub async fn swap() -> Result<Swap> {
 
     Ok(Swap {
         total,
-        free,
         used,
+        free,
         sin,
         sout,
     })

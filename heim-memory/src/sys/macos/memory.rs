@@ -68,8 +68,8 @@ pub async fn memory() -> Result<Memory> {
     Ok(Memory {
         total,
         available,
-        free,
         used,
+        free,
         active,
         inactive,
         wire,
