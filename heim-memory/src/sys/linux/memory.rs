@@ -79,7 +79,7 @@ impl FromStr for Memory {
                         let bytes = match value.trim_start().splitn(2, ' ').next() {
                             Some(kbytes) => {
                                 let value = kbytes.parse::<u64>()?;
-                                Information::new::<information::kilobyte>(value)
+                                Information::new::<information::kibibyte>(value)
                             }
                             None => continue,
                         };
