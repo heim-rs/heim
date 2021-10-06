@@ -11,7 +11,7 @@
     nonstandard_style,
     dead_code,
     deprecated,
-    broken_intra_doc_links,
+    rustdoc::broken_intra_doc_links,
 )]
 #![warn(
     trivial_casts,
