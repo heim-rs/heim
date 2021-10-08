@@ -23,6 +23,7 @@ fn timebase_info() -> Result<mach_time::mach_timebase_info> {
 }
 
 lazy_static::lazy_static! {
+    /// Fraction to multiply a value in mach tick units with to convert it to nanoseconds.
     // Calling `mach_timebase_info` is not cheap, so we should cache it.
     // https://github.com/joyent/libuv/pull/1325
     pub static ref TIME_BASE: f64 = {

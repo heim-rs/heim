@@ -42,6 +42,8 @@ pub use self::boot_time::*;
 pub use self::platform::*;
 pub use self::uptime::*;
 pub use self::users::*;
+#[cfg(target_os = "macos")]
+pub use self::sys::TIME_BASE;
 
 pub use heim_common::units::Time;
 pub use heim_common::Pid;
