@@ -81,8 +81,8 @@ fn arch_from_uname(raw: &str) -> Option<Arch> {
     };
 
     match raw {
-        "armv7" | "armv7l" | "arm64" => Some(Arch::ARM),
-        "ppc64" | "ppc64le" => Some(Arch::POWERPC64),
+        "armv7" | "armv7l" | "arm64" => Some(Arch::Arm),
+        "ppc64" | "ppc64le" => Some(Arch::PowerPc64),
         _ => None,
     }
 }
