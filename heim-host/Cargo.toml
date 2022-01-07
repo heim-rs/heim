@@ -16,7 +16,7 @@ log = "^0.4"
 heim-common = { version = "0.1.0-rc.1", path = "../heim-common" }
 heim-runtime = { version = "0.1.0-rc.1", path = "../heim-runtime" }
 cfg-if = "^1.0"
-platforms = "^1.1"
+platforms = "^2.0"
 libc = "^0.2"
 
 [dev-dependencies]
