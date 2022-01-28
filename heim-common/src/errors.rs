@@ -362,13 +362,6 @@ impl From<convert::Infallible> for Error {
 #[cfg(unix)]
 impl From<nix::Error> for Error {
     fn from(e: nix::Error) -> Self {
-        let inner = match e {
-            nix::Error::Sys(errno) => io::Error::from_raw_os_error(errno as i32),
-            nix::Error::InvalidPath => io::Error::new(io::ErrorKind::InvalidInput, e),
-            nix::Error::InvalidUtf8 => io::Error::new(io::ErrorKind::InvalidData, e),
-            nix::Error::UnsupportedOperation => io::Error::new(io::ErrorKind::Other, e),
-        };
-
-        Error::from(inner)
+        Error::from(io::Error::from(e))
     }
 }
