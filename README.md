@@ -35,7 +35,7 @@ Examples can be found [here](https://github.com/heim-rs/heim/tree/master/example
     with [tokio](https://tokio.rs) and [async-std](https://async.rs) support.\
     Bundled polyfill option could be used for other use cases, see [documentation](https://docs.rs/heim)
     for more details.
- 2. [Cross-platform](https://heim-rs.github.io/book/introduction/platforms.html) with [platform-specific extensions](https://heim-rs.github.io/book/api/platform-specific.html).
+ 2. [Cross-platform](https://heim-rs.github.io/book/coverage/index.html) with [platform-specific extensions](https://heim-rs.github.io/book/api/platform-specific.html).
  3. Modular design.
  4. Idiomatic and easy to use.
 
