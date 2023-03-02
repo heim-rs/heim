@@ -8,7 +8,7 @@ use heim_runtime as rt;
 
 async fn topology() -> Result<u64> {
     rt::spawn_blocking(|| {
-        let path = rt::linux::sysfs_root().join("devices/system/cpu/cpu[0-9]/topology/core_id");
+        let path = rt::linux::sysfs_root().join("devices/system/cpu/cpu*/topology/core_id");
         let entries =
             glob::glob(path.display().to_string().as_str()).expect("Invalid glob pattern");
         let mut acc = HashSet::<u64>::new();
