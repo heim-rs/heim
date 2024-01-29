@@ -6,7 +6,8 @@ use heim_common::prelude::StreamExt;
     target_arch = "arm",
     target_arch = "aarch64",
     target_arch = "powerpc",
-    target_arch = "powerpc64"
+    target_arch = "powerpc64",
+    target_arch = "loongarch64"
 ))]
 use heim_common::prelude::TryFutureExt;
 use heim_runtime as rt;
@@ -54,7 +55,8 @@ where
     target_arch = "arm",
     target_arch = "aarch64",
     target_arch = "powerpc",
-    target_arch = "powerpc64"
+    target_arch = "powerpc64",
+    target_arch = "loongarch64"
 ))]
 pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
     hypervisor(HYPERVISOR_COMPAT_PATH)
@@ -66,7 +68,8 @@ pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
     target_arch = "arm",
     target_arch = "aarch64",
     target_arch = "powerpc",
-    target_arch = "powerpc64"
+    target_arch = "powerpc64",
+    target_arch = "loongarch64"
 )))]
 pub async fn detect_vm_device_tree() -> Result<Virtualization, ()> {
     Err(())
