@@ -63,6 +63,9 @@ jobs:
           ## ARMv6
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-gnueabihf',  cross: true }
           - { os: 'ubuntu-latest', target: 'arm-unknown-linux-musleabihf', cross: true }
+          ## LOONGARCH64
+          - { os: 'ubuntu-latest',  target: 'loongarch64-unknown-linux-gnu', cross: true }
+
         toolchain:
           - 1.46.0  # MSRV
           - stable

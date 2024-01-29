@@ -6,7 +6,8 @@ use crate::Virtualization;
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
-    target_arch = "aarch64"
+    target_arch = "aarch64",
+    target_arch = "loongarch64"
 ))]
 pub async fn detect_vm_dmi() -> Result<Virtualization, ()> {
     let probe_files = vec![
@@ -43,7 +44,8 @@ pub async fn detect_vm_dmi() -> Result<Virtualization, ()> {
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
-    target_arch = "aarch64"
+    target_arch = "aarch64",
+    target_arch = "loongarch64"
 )))]
 pub async fn detect_vm_dmi() -> Result<Virtualization, ()> {
     Err(())

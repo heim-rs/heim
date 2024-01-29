@@ -5,8 +5,8 @@ use std::net::IpAddr;
 use crate::Pid;
 
 cfg_if::cfg_if! {
-    // aarch64-unknown-linux-gnu has different type
-    if #[cfg(all(target_arch = "aarch64", not(target_family = "musl")))] {
+    // aarch64-unknown-linux-gnu and loongarch64-unknown-linux-gnu has different type
+    if #[cfg(all(any(target_arch = "aarch64", target_arch = "loongarch64"), not(target_family = "musl")))] {
         /// User session ID.
         pub type SessionId = i64;
     } else {
