@@ -15,6 +15,7 @@ pub struct Memory {
     active: Information,    // Active
     inactive: Information,  // Inactive
     shared: Information,    // Shmem
+    dirty: Information,     // Dirty
 }
 
 impl Memory {
@@ -42,6 +43,10 @@ impl Memory {
     pub fn shared(&self) -> Information {
         self.shared
     }
+
+    pub fn dirty(&self) -> Information {
+        self.dirty
+    }
 }
 
 impl FromStr for Memory {
@@ -56,7 +61,7 @@ impl FromStr for Memory {
             // we do not need that key at all
             let first_bytes = &line.as_bytes()[..2];
             match first_bytes {
-                b"Me" | b"Ac" | b"In" | b"Bu" | b"Ca" | b"Sh" => {}
+                b"Me" | b"Ac" | b"In" | b"Bu" | b"Ca" | b"Sh" | b"Di" => {}
                 _ => continue,
             };
 
@@ -70,6 +75,7 @@ impl FromStr for Memory {
                 Some("Active") => &mut memory.active,
                 Some("Inactive") => &mut memory.inactive,
                 Some("Shmem") => &mut memory.shared,
+                Some("Dirty") => &mut memory.dirty,
                 _ => continue,
             };
 

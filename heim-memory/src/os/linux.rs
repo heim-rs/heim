@@ -31,6 +31,9 @@ pub trait MemoryExt {
     ///
     /// This is memory that has not been recently used and can be reclaimed for other purposes.
     fn inactive(&self) -> Information;
+
+    /// Memory which is waiting to get written back to the disk.
+    fn dirty(&self) -> Information;
 }
 
 #[cfg(target_os = "linux")]
@@ -67,5 +70,9 @@ impl MemoryExt for Memory {
 
     fn inactive(&self) -> Information {
         self.as_ref().inactive()
+    }
+
+    fn dirty(&self) -> Information {
+        self.as_ref().dirty()
     }
 }

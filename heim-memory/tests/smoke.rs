@@ -22,6 +22,7 @@ async fn smoke_memory() {
         let _ = mem.shared();
         let _ = mem.active();
         let _ = mem.inactive();
+        let _ = mem.dirty();
     }
 
     #[cfg(target_os = "macos")]
