@@ -33,7 +33,7 @@ or send a message [in the chat](https://gitter.im/heim-rs/heim).
 | macOS      | ✓        | ✗      | ✓       | ✓        | ✓          |
 | iOS        | ✗        | ✗      | ✓       | ✗        | ✗          |
 | Windows    | ✓        | ✗      | ✓       | ✓        | ✓          |
-| FreeBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
+| FreeBSD    | ✗        | ✗      | ✓       | ✓        | ✓          |
 | OpenBSD    | ✗        | ✗      | ✗       | ✗        | ✓          |
 | Android    | ✗        | ✗      | ✓       | ✗        | ✗          |
 
